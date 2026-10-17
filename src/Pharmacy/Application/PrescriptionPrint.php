@@ -43,7 +43,7 @@ final readonly class PrescriptionPrint
         $patient = isset($patients[$prescription->patientId]) ? $patients[$prescription->patientId] : null;
         $doctorMap = $this->doctors->byIds([$prescription->doctorId]);
         $doctor = isset($doctorMap[$prescription->doctorId]) ? $doctorMap[$prescription->doctorId] : null;
-        $head = $this->letterhead->forPrescription();
+        $head = $this->letterhead->forDocument();
         $this->access->patientRecordOpened($prescription->patientId, 'prescriptions.print');
         $this->audit->record(new AuditEntry($actorId, 'prescription.printed', 'prescription', $prescriptionId));
 
@@ -53,7 +53,7 @@ final readonly class PrescriptionPrint
         }
 
         return [
-            'letterhead' => ['name' => $head->clinicName, 'address' => $head->address, 'license' => $head->licenseNo, 'header' => $head->headerText, 'logo' => $head->logoDataUri],
+            'letterhead' => $head->toArray(),
             'void' => $prescription->isVoid(),
             'issuedAt' => $prescription->issuedAt->setTimezone(new DateTimeZone($this->calendar->timezone()))->format('d/m/Y H:i'),
             'patient' => ['name' => $patient->name ?? '-', 'mrn' => $patient->medicalRecordNo ?? '-', 'age' => $age],

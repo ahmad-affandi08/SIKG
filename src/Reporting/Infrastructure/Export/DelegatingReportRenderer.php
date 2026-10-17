@@ -30,7 +30,7 @@ final readonly class DelegatingReportRenderer implements ReportRenderer
     {
         $printed = $this->clock->now()->setTimezone(new DateTimeZone($this->calendar->timezone()))->format('Y-m-d H:i');
 
-        $head = $this->letterhead->forReceipt();
+        $head = $this->letterhead->forDocument();
 
         return new ReportContext(
             $head->clinicName,

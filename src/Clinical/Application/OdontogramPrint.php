@@ -94,10 +94,10 @@ final readonly class OdontogramPrint
         )));
 
         $this->audit->record(new AuditEntry($actorId, 'odontogram.printed', 'patient', $patientId, null, ['teeth_recorded' => count($current['teeth'])]));
-        $head = $this->letterhead->forPrescription();
+        $head = $this->letterhead->forDocument();
 
         return [
-            'letterhead' => ['name' => $head->clinicName, 'address' => $head->address, 'license' => $head->licenseNo, 'logo' => $head->logoDataUri],
+            'letterhead' => $head->toArray(),
             'patient' => ['name' => $patient->name, 'medical_record_no' => $patient->medicalRecordNo, 'birth_date' => $patient->birthDate === null ? null : (new DateTimeImmutable($patient->birthDate))->format('d/m/Y')],
             'rows' => $rows,
             'details' => $details,

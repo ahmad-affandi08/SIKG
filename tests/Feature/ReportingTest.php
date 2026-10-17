@@ -929,3 +929,14 @@ it('LAP berkas XLSX tampil profesional: judul, tajuk dibekukan dengan filter, fo
     // Kolom Pajak bernilai 0 harus tertulis 0, bukan sel kosong.
     expect($tabel?->getCell('E8')->getValue())->toBe(0);
 });
+
+it('ADR-0008 kop PDF laporan sama dengan kop semua cetakan klinik', function () {
+    $d = lapData();
+    tenant()->set($d['k']->id);
+    $kop = isiKop($d['k']);
+    rekamPdf();
+
+    test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/revenue/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->assertStatus(202);
+
+    expect(PdfPerekam::$permintaan)->not->toBeEmpty()->and(PdfPerekam::$permintaan[0]->data['letterhead'])->toBe($kop);
+});

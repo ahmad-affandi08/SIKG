@@ -20,6 +20,8 @@ use Src\IdentityAccess\Infrastructure\Seeders\RolePermissionSeeder;
 use Src\Pharmacy\Application\StockService;
 use Src\Pharmacy\Infrastructure\Eloquent\MedicineModel;
 use Src\Scheduling\Infrastructure\Eloquent\AppointmentModel;
+use Src\Shared\Application\PdfRenderer;
+use Src\Shared\Application\PdfRequest;
 use Src\Shared\Application\TenantContext;
 use Tests\TestCase;
 
@@ -261,4 +263,46 @@ function isiStok(ClinicModel $clinic, MedicineModel $m, int $jumlah): void
 {
     tenant()->set($clinic->id);
     app(StockService::class)->receive(makeUser(Role::Admin, $clinic)->id, $m->id, $jumlah, null, null, 'Stok awal uji');
+}
+
+/**
+ * ADR-0008: perekam permintaan PDF. Tes memeriksa data yang dikirim ke templat (kop) tanpa harus membaca isi PDF.
+ */
+final class PdfPerekam implements PdfRenderer
+{
+    /** @var list<PdfRequest> */
+    public static array $permintaan = [];
+
+    public function render(PdfRequest $request): string
+    {
+        self::$permintaan[] = $request;
+
+        return '%PDF-perekam';
+    }
+}
+
+function rekamPdf(): void
+{
+    PdfPerekam::$permintaan = [];
+    app()->instance(PdfRenderer::class, new PdfPerekam);
+}
+
+/**
+ * Mengisi kop klinik lengkap (alamat, izin, teks tambahan, catatan kaki) dan mengembalikan kop yang harus tampil di SEMUA cetakan.
+ *
+ * @return array{name: string, address: string, license: string, header: string, logo: null, footnote: string}
+ */
+function isiKop(ClinicModel $klinik): array
+{
+    $kop = [
+        'name' => $klinik->name,
+        'address' => 'Jl. Slamet Riyadi No. 123, Surakarta',
+        'license' => 'Izin Klinik No. 445/2024',
+        'header' => 'Telp. (0271) 123456 · Senin sampai Sabtu 09.00-20.00',
+        'logo' => null,
+        'footnote' => 'Obat dan pembayaran yang sudah diterima tidak dapat dikembalikan.',
+    ];
+    DB::table('clinics')->where('id', $klinik->id)->update(['address' => $kop['address'], 'license_no' => $kop['license'], 'receipt_header' => $kop['header'], 'prescription_header' => $kop['footnote']]);
+
+    return $kop;
 }

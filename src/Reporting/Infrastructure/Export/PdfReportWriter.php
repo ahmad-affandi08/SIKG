@@ -25,7 +25,7 @@ final readonly class PdfReportWriter
 
     public function render(ReportResult $result): string
     {
-        $head = $this->letterhead->forReceipt();
+        $head = $this->letterhead->forDocument();
         $wide = false;
         $tables = [];
         foreach ($result->tables as $table) {
@@ -41,7 +41,7 @@ final readonly class PdfReportWriter
         $printedAt = $this->clock->now()->setTimezone(new DateTimeZone($this->calendar->timezone()))->format('Y-m-d H:i');
 
         return $this->renderer->render(new PdfRequest('pdf.report', [
-            'letterhead' => ['name' => $head->clinicName, 'address' => $head->address, 'license' => $head->licenseNo, 'logo' => $head->logoDataUri],
+            'letterhead' => $head->toArray(),
             'code' => $result->key->code(),
             'title' => $result->key->title(),
             'from' => CellFormatter::date($result->range->from),

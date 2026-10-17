@@ -46,7 +46,7 @@ final readonly class InvoicePrint
             throw new InvalidBillingData('invoice.not_issued', 'Tagihan belum diterbitkan; belum ada nomor invoice untuk dicetak.');
         }
 
-        $head = $this->letterhead->forReceipt();
+        $head = $this->letterhead->forDocument();
         $zone = new DateTimeZone($this->calendar->timezone());
         $local = fn (?string $iso): ?string => $iso === null ? null : (new DateTimeImmutable($iso))->setTimezone($zone)->format('d/m/Y H:i');
 
@@ -54,7 +54,7 @@ final readonly class InvoicePrint
 
         return [
             'doc' => $doc,
-            'letterhead' => ['name' => $head->clinicName, 'address' => $head->address, 'license' => $head->licenseNo, 'header' => $head->headerText, 'logo' => $head->logoDataUri],
+            'letterhead' => $head->toArray(),
             'invoice' => [...$invoice, 'issued_at_local' => $local($invoice['issued_at'])],
             'items' => $detail['items'],
             'payments' => array_map(fn (array $p) => [...$p, 'paid_at_local' => $local($p['paid_at'])], $payments),

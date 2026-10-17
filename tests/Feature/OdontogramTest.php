@@ -220,3 +220,14 @@ it('ODO-06 cetak odontogram menuntut izin odontogram.view dan hanya untuk pasien
     tenant()->set($lain->id);
     test()->actingAs($dokterLain)->get("/patients/{$s['pasien']}/odontogram/print")->assertNotFound();
 });
+
+it('ADR-0008 kop odontogram sama dengan kop semua cetakan klinik', function () {
+    $s = siapKunjungan();
+    tenant()->set($s['klinik']->id);
+    $kop = isiKop($s['klinik']);
+    rekamPdf();
+
+    test()->actingAs($s['dokter_user'])->get("/patients/{$s['pasien']}/odontogram/print")->assertOk();
+
+    expect(PdfPerekam::$permintaan[0]->data['letterhead'])->toBe($kop);
+});

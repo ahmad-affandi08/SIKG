@@ -115,7 +115,7 @@ export default function ClinicProfile({ profile }: Props) {
           />
           <TextField
             field="receipt_header"
-            label="Header kwitansi"
+            label="Teks tambahan kop (tampil di semua cetakan)"
             value={form.data.receipt_header}
             onChange={(event) => {
               form.setData('receipt_header', event.target.value);
@@ -124,7 +124,7 @@ export default function ClinicProfile({ profile }: Props) {
           />
           <TextField
             field="prescription_header"
-            label="Header resep"
+            label="Catatan kaki resep dan kwitansi"
             value={form.data.prescription_header}
             onChange={(event) => {
               form.setData('prescription_header', event.target.value);

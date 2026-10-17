@@ -6,9 +6,6 @@ namespace Src\Clinic\Contracts;
 
 interface LetterheadProvider
 {
-    /** Kop untuk resep (memakai header resep). */
-    public function forPrescription(): Letterhead;
-
-    /** Kop untuk invoice dan kwitansi (memakai header kwitansi). */
-    public function forReceipt(): Letterhead;
+    /** Kop yang sama untuk semua cetakan: invoice, kwitansi, resep, dokumen klinis, odontogram, dan laporan. */
+    public function forDocument(): Letterhead;
 }

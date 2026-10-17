@@ -431,3 +431,17 @@ it('OBT-01 formulir resep ditolak untuk yang tidak berhak dan setelah kunjungan 
     test()->actingAs($s['dokter_user'])->post("/encounters/{$s['kunjungan']}/close");
     test()->actingAs($s['dokter_user'])->get("/encounters/{$s['kunjungan']}/prescriptions/create")->assertRedirect("/encounters/{$s['kunjungan']}?tab=prescriptions");
 });
+
+it('ADR-0008 kop resep sama dengan kop semua cetakan klinik', function () {
+    $s = siapKunjungan();
+    $m = makeMedicine($s['klinik']);
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$s['kunjungan']}/prescriptions", ['items' => [barisResep($m)]]);
+    tenant()->set($s['klinik']->id);
+    $resep = PrescriptionModel::query()->firstOrFail();
+    $kop = isiKop($s['klinik']);
+    rekamPdf();
+
+    test()->actingAs($s['perawat'])->get("/prescriptions/{$resep->id}/print")->assertOk();
+
+    expect(PdfPerekam::$permintaan[0]->data['letterhead'])->toBe($kop);
+});

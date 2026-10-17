@@ -13,23 +13,11 @@ final class EloquentLetterheadProvider implements LetterheadProvider
 {
     private const MIME = ['png' => 'image/png', 'jpg' => 'image/jpeg'];
 
-    public function forPrescription(): Letterhead
+    public function forDocument(): Letterhead
     {
         $clinic = ClinicModel::query()->firstOrFail();
 
-        return $this->build($clinic, $clinic->prescription_header);
-    }
-
-    public function forReceipt(): Letterhead
-    {
-        $clinic = ClinicModel::query()->firstOrFail();
-
-        return $this->build($clinic, $clinic->receipt_header);
-    }
-
-    private function build(ClinicModel $clinic, ?string $header): Letterhead
-    {
-        return new Letterhead($clinic->name, $clinic->address, $clinic->license_no, $header, $this->logo($clinic->logo_path));
+        return new Letterhead($clinic->name, $clinic->address, $clinic->license_no, $clinic->receipt_header, $this->logo($clinic->logo_path), $clinic->prescription_header);
     }
 
     private function logo(?string $path): ?string

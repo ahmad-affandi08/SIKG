@@ -619,3 +619,17 @@ it('KSR-05 jadwal cicilan tidak dapat diubah atau dihapus lewat model dan tercat
         ->and(fn () => $plan->delete())->toThrow(LogicException::class)
         ->and(AuditLogModel::query()->where('action', 'installment.plan_created')->exists())->toBeTrue();
 });
+
+it('ADR-0008 kop invoice dan kwitansi sama dengan kop semua cetakan klinik', function () {
+    $s = tagihanTerbit();
+    bayarTagihan($s, 200000);
+    $bayar = PaymentModel::query()->firstOrFail();
+    $kop = isiKop($s['klinik']);
+    rekamPdf();
+
+    foreach (['doc=invoice&format=a4', "doc=receipt&format=a4&payment={$bayar->id}"] as $query) {
+        test()->actingAs($s['kasir'])->get("/invoices/{$s['invoice']}/print?{$query}")->assertOk();
+    }
+
+    expect(PdfPerekam::$permintaan)->toHaveCount(2)->and(PdfPerekam::$permintaan[0]->data['letterhead'])->toBe($kop)->and(PdfPerekam::$permintaan[1]->data['letterhead'])->toBe($kop);
+});

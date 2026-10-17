@@ -248,3 +248,15 @@ it('PAS-07 penggabungan pasien memindahkan dokumen klinis ke pasien tujuan', fun
 
     expect(DB::table('clinical_documents')->value('patient_id'))->toBe($tujuan);
 });
+
+it('ADR-0008 kop dokumen klinis sama dengan kop semua cetakan klinik', function () {
+    $s = siapDokumen();
+    $kop = isiKop($s['klinik']);
+    terbitkan($s, 'consent')->assertSessionHasNoErrors();
+    $id = DB::table('clinical_documents')->value('id');
+    rekamPdf();
+
+    test()->actingAs($s['dokter_user'])->get("/documents/{$id}/print")->assertOk();
+
+    expect(PdfPerekam::$permintaan)->toHaveCount(1)->and(PdfPerekam::$permintaan[0]->data['letterhead'])->toBe($kop);
+});

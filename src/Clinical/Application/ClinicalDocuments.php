@@ -120,7 +120,7 @@ final readonly class ClinicalDocuments
                 'birth_date' => $patient->birthDate,
                 'age' => $patient->birthDate === null ? null : (new DateTimeImmutable($patient->birthDate))->diff($now)->y,
             ],
-            'clinic_name' => $this->letterhead->forPrescription()->clinicName,
+            'clinic_name' => $this->letterhead->forDocument()->clinicName,
             'today' => $now->format('Y-m-d'),
             'templates' => $templates,
             'doctors' => array_map(fn ($d) => ['id' => $d->id, 'name' => $d->name, 'sip' => $d->sipNo], $this->doctors->active()),
@@ -183,11 +183,11 @@ final readonly class ClinicalDocuments
         $patient = $this->patients->summaries([$document->patientId])[$document->patientId] ?? throw new EncounterNotFound;
         $this->access->patientRecordOpened($document->patientId, 'documents.print');
         $this->audit->record(new AuditEntry($actorId, 'document.printed', 'clinical_document', $documentId, null, ['type' => $document->type->value, 'number' => $document->number]));
-        $head = $this->letterhead->forPrescription();
+        $head = $this->letterhead->forDocument();
         $issued = $document->issuedAt->setTimezone(new DateTimeZone($this->calendar->timezone()));
 
         return [
-            'letterhead' => ['name' => $head->clinicName, 'address' => $head->address, 'license' => $head->licenseNo, 'logo' => $head->logoDataUri],
+            'letterhead' => $head->toArray(),
             'heading' => $document->type->heading(),
             'number' => $document->number,
             'title' => $document->title,

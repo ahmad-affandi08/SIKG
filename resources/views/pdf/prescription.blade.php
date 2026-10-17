@@ -51,4 +51,6 @@
             </td>
         </tr>
     </table>
+
+    @if (! empty($letterhead['footnote']))<p class="small muted" style="margin-top: 10pt;">{!! nl2br(e($letterhead['footnote'])) !!}</p>@endif
 @endsection
