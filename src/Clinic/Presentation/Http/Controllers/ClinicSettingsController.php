@@ -48,11 +48,16 @@ final class ClinicSettingsController
         return back()->with('success', 'Pengaturan klinik disimpan.');
     }
 
+    public function holidayForm(): Response
+    {
+        return Inertia::render('Settings/HolidayForm');
+    }
+
     public function storeHoliday(HolidayRequest $request): RedirectResponse
     {
         $this->settings->addHoliday($this->actorId($request), $request->string('date')->toString(), $request->string('name')->toString());
 
-        return back()->with('success', 'Hari libur ditambahkan.');
+        return redirect('/settings/clinic')->with('success', 'Hari libur ditambahkan.');
     }
 
     public function destroyHoliday(Request $request, string $holiday): RedirectResponse

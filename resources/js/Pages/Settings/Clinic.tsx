@@ -1,4 +1,4 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import { Select } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
-import { clinicSettingsSchema, holidaySchema, WEEKDAYS } from '@/features/clinic/schemas';
+import { clinicSettingsSchema, WEEKDAYS } from '@/features/clinic/schemas';
 import type { ClinicSettingsValues } from '@/features/clinic/schemas';
 import { formatDate } from '@/lib/format';
 
@@ -45,8 +45,6 @@ export default function Clinic({
     operating_hours: settings.operating_hours,
   });
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
-  const holidayForm = useForm({ date: '', name: '' });
-  const [holidayErrors, setHolidayErrors] = useState<Record<string, string>>({});
 
   const timezoneOptions = TIMEZONES.some((option) => option.value === timezone)
     ? TIMEZONES
@@ -70,26 +68,6 @@ export default function Clinic({
 
   function setDay(day: string, value: { open: string; close: string } | null) {
     form.setData('operating_hours', { ...form.data.operating_hours, [day]: value });
-  }
-
-  function addHoliday(event: SyntheticEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const result = holidaySchema.safeParse(holidayForm.data);
-    if (!result.success) {
-      const next: Record<string, string> = {};
-      for (const issue of result.error.issues) {
-        next[String(issue.path[0])] ??= issue.message;
-      }
-      setHolidayErrors(next);
-      return;
-    }
-    setHolidayErrors({});
-    holidayForm.post('/settings/holidays', {
-      preserveScroll: true,
-      onSuccess: () => {
-        holidayForm.reset();
-      },
-    });
   }
 
   const error = (key: string): string | undefined =>
@@ -227,28 +205,11 @@ export default function Clinic({
 
         <section aria-labelledby="libur" className="flex flex-col gap-4">
           <h2 id="libur">Hari libur</h2>
-          <form onSubmit={addHoliday} noValidate className="flex flex-wrap items-end gap-3">
-            <TextField
-              label="Tanggal"
-              type="date"
-              value={holidayForm.data.date}
-              onChange={(event) => {
-                holidayForm.setData('date', event.target.value);
-              }}
-              error={holidayErrors.date ?? holidayForm.errors.date}
-            />
-            <TextField
-              label="Nama hari libur"
-              value={holidayForm.data.name}
-              onChange={(event) => {
-                holidayForm.setData('name', event.target.value);
-              }}
-              error={holidayErrors.name ?? holidayForm.errors.name}
-            />
-            <Button type="submit" loading={holidayForm.processing}>
-              Tambah
-            </Button>
-          </form>
+          <div>
+            <Link href="/settings/holidays/create" className="btn btn-secondary">
+              Tambah hari libur
+            </Link>
+          </div>
           {holidays.length === 0 ? (
             <p className="text-muted text-sm">Belum ada hari libur.</p>
           ) : (

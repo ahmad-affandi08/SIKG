@@ -131,3 +131,11 @@ it('SYS-04 pengaturan satu klinik tidak mengubah klinik lain', function () {
 
     expect(ClinicModel::withoutGlobalScopes()->find($b->id)->timezone)->toBe('Asia/Jakarta');
 });
+
+it('SYS-04 formulir hari libur adalah halaman sendiri dan simpan kembali ke pengaturan klinik', function () {
+    $admin = makeUser(Role::Admin, makeClinic());
+
+    $this->actingAs($admin)->get('/settings/holidays/create')->assertOk()->assertInertia(fn ($p) => $p->component('Settings/HolidayForm'));
+    $this->actingAs($admin)->post('/settings/holidays', ['date' => '2026-12-25', 'name' => 'Hari raya uji'])->assertRedirect('/settings/clinic');
+    $this->actingAs(makeUser(Role::Dokter, makeClinic('Lain')))->get('/settings/holidays/create')->assertForbidden();
+});

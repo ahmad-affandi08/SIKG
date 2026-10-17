@@ -1,17 +1,10 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
-import type { SyntheticEvent } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
-import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
-import { TextField } from '@/components/ui/TextField';
-import { historyFormSchema } from '@/features/patient/schemas';
-import type { HistoryFormValues } from '@/features/patient/schemas';
 import { formatDate, formatDateTime } from '@/lib/format';
 
 interface History {
@@ -71,34 +64,10 @@ export default function Show({
   historyTypes,
   severities,
 }: Props) {
-  const form = useForm<HistoryFormValues>({ type: '', name: '', severity: '', notes: '' });
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const labelOf = (options: SelectOption[], value: string | null) =>
     options.find((o) => o.value === value)?.label ?? value;
   const warnings = histories.filter((h) => h.is_warning);
   const consentOutdated = consents[0]?.version !== currentConsentVersion;
-
-  function submit(event: SyntheticEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const result = historyFormSchema.safeParse(form.data);
-    if (!result.success) {
-      const next: Record<string, string> = {};
-      for (const issue of result.error.issues) {
-        next[String(issue.path[0])] ??= issue.message;
-      }
-      setErrors(next);
-      return;
-    }
-    setErrors({});
-    form.post(`/patients/${patient.id}/history`, {
-      preserveScroll: true,
-      onSuccess: () => {
-        form.reset();
-      },
-    });
-  }
-
-  const err = (key: keyof HistoryFormValues) => errors[key] ?? form.errors[key];
 
   return (
     <AppLayout>
@@ -203,50 +172,11 @@ export default function Show({
           )}
 
           {can.history ? (
-            <form onSubmit={submit} noValidate className="card flex flex-col gap-3 p-3">
-              <h3 className="text-base font-semibold">Tambah riwayat</h3>
-              <Select
-                label="Jenis"
-                placeholder="Pilih jenis"
-                options={historyTypes}
-                value={form.data.type}
-                onChange={(event) => {
-                  form.setData('type', event.target.value);
-                }}
-                error={err('type')}
-              />
-              <TextField
-                label="Nama (contoh Penisilin, Diabetes melitus)"
-                value={form.data.name}
-                onChange={(event) => {
-                  form.setData('name', event.target.value);
-                }}
-                error={err('name')}
-              />
-              <Select
-                label="Tingkat keparahan"
-                placeholder="Tidak ditentukan"
-                options={severities}
-                value={form.data.severity}
-                onChange={(event) => {
-                  form.setData('severity', event.target.value);
-                }}
-                error={err('severity')}
-              />
-              <TextField
-                label="Catatan"
-                value={form.data.notes}
-                onChange={(event) => {
-                  form.setData('notes', event.target.value);
-                }}
-                error={err('notes')}
-              />
-              <div>
-                <Button type="submit" loading={form.processing}>
-                  Tambah riwayat
-                </Button>
-              </div>
-            </form>
+            <div>
+              <Link href={`/patients/${patient.id}/history/create`} className="btn btn-secondary">
+                Tambah riwayat medis
+              </Link>
+            </div>
           ) : null}
         </section>
 

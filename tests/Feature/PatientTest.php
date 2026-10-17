@@ -334,3 +334,14 @@ it('PAS-01 halaman daftar dan formulir pasien dirender', function () {
     $this->actingAs($user)->get('/patients')->assertOk()->assertInertia(fn ($p) => $p->component('Patients/Index'));
     $this->actingAs($user)->get('/patients/create')->assertOk()->assertInertia(fn ($p) => $p->component('Patients/Form')->where('patient', null)->has('consent.text'));
 });
+
+it('PAS-04 formulir riwayat medis adalah halaman sendiri dan simpan kembali ke rekam pasien', function () {
+    $klinik = makeClinic();
+    $admin = makeUser(Role::Admin, $klinik);
+    $id = makePatient($klinik, 'Pasien Riwayat');
+
+    $this->actingAs($admin)->get("/patients/{$id}/history/create")->assertOk()->assertInertia(fn ($p) => $p
+        ->component('Patients/HistoryForm')->where('patient.name', 'Pasien Riwayat')->has('historyTypes')->has('severities'));
+    $this->actingAs($admin)->post("/patients/{$id}/history", ['type' => 'allergy', 'name' => 'Lateks', 'severity' => 'mild'])->assertRedirect("/patients/{$id}");
+    $this->actingAs(makeUser(Role::Kasir, $klinik))->get("/patients/{$id}/history/create")->assertForbidden();
+});

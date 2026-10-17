@@ -106,11 +106,25 @@ final class PatientController
         return to_route('patients.index')->with('success', 'Pasien diarsipkan. Riwayat tetap tersimpan.');
     }
 
+    public function historyForm(string $patient, ViewPatient $view): Response
+    {
+        $data = $view($patient, 'patients.history.create');
+
+        return Inertia::render('Patients/HistoryForm', [
+            'patient' => [
+                'id' => $patient,
+                'name' => $data['patient']->profile->name,
+                'medical_record_no' => $data['patient']->medicalRecordNo,
+            ],
+            ...$this->historyOptions(),
+        ]);
+    }
+
     public function addHistory(MedicalHistoryRequest $request, string $patient, ManageMedicalHistory $history): RedirectResponse
     {
         $history->add($this->actorId($request), $patient, $request->toEntry());
 
-        return back()->with('success', 'Riwayat medis ditambahkan.');
+        return to_route('patients.show', ['patient' => $patient])->with('success', 'Riwayat medis ditambahkan.');
     }
 
     public function removeHistory(Request $request, string $patient, string $entry, ManageMedicalHistory $history): RedirectResponse

@@ -16,6 +16,7 @@ Route::middleware('can:setting.manage')->prefix('settings')->group(function (): 
     Route::get('/system', SystemController::class)->name('settings.system');
     Route::get('/clinic', [ClinicSettingsController::class, 'show'])->name('settings.clinic');
     Route::put('/clinic', [ClinicSettingsController::class, 'update']);
+    Route::get('/holidays/create', [ClinicSettingsController::class, 'holidayForm'])->name('settings.holidays.create');
     Route::post('/holidays', [ClinicSettingsController::class, 'storeHoliday']);
     Route::delete('/holidays/{holiday}', [ClinicSettingsController::class, 'destroyHoliday']);
 

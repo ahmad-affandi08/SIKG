@@ -39,6 +39,7 @@ Route::middleware('can:patient.delete')->group(function (): void {
 });
 
 Route::middleware('can:patient.history.manage')->group(function (): void {
+    Route::get('/patients/{patient}/history/create', [PatientController::class, 'historyForm'])->name('patients.history.create')->where('patient', '[0-9A-Z]{26}');
     Route::post('/patients/{patient}/history', [PatientController::class, 'addHistory'])->where('patient', '[0-9A-Z]{26}');
     Route::delete('/patients/{patient}/history/{entry}', [PatientController::class, 'removeHistory'])->where('patient', '[0-9A-Z]{26}');
 });
