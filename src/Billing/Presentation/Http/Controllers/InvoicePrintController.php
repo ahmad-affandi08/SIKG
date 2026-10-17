@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Src\Billing\Presentation\Http\Controllers;
 
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Src\Billing\Application\InvoicePrint;
+use Src\Shared\Application\PdfRenderer;
+use Src\Shared\Application\PdfRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class InvoicePrintController
 {
-    public function __invoke(Request $request, InvoicePrint $print, string $invoice): Response
+    public function __invoke(Request $request, InvoicePrint $print, PdfRenderer $renderer, string $invoice): Response
     {
         $query = $request->validate([
             'doc' => ['nullable', 'in:invoice,receipt'],
@@ -32,19 +33,15 @@ final class InvoicePrintController
         $data = $print->data($id, $invoice, $doc, $query['payment'] ?? null);
         $data['thermal'] = $thermal;
 
-        $pdf = Pdf::loadView('pdf.invoice', $data);
-        if ($thermal) {
-            // 80 mm = 226,77 pt; tinggi menyesuaikan jumlah baris agar tidak terpotong.
-            $rows = count($data['items']) + count($data['payments']);
-            $pdf->setPaper([0, 0, 226.77, 330 + 26 * $rows], 'portrait');
-        } else {
-            $pdf->setPaper('a4', 'portrait');
-        }
+        // 80 mm = 226,77 pt; tinggi struk menyesuaikan jumlah baris agar tidak terpotong.
+        $rows = count($data['items']) + count($data['payments']);
+        $title = $doc === 'receipt' ? 'Kwitansi '.($data['receipt']['receipt_no'] ?? '') : 'Invoice '.($data['invoice']['number'] ?? 'Draft');
+        $output = $renderer->render(new PdfRequest('pdf.invoice', $data, $title, customSizePt: $thermal ? [226.77, 330.0 + 26 * $rows] : null, pageNumbers: ! $thermal));
 
         $name = ($doc === 'receipt' ? 'kwitansi-' : 'invoice-').preg_replace('/[^A-Za-z0-9._-]/', '_', (string) ($doc === 'receipt' ? ($data['receipt']['receipt_no'] ?? 'kwitansi') : $data['invoice']['number'])).'.pdf';
         $download = (bool) ($query['download'] ?? false);
 
-        return response($pdf->output(), 200, [
+        return response($output, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => ($download ? 'attachment' : 'inline').'; filename="'.$name.'"',
             'Cache-Control' => 'private, no-store',

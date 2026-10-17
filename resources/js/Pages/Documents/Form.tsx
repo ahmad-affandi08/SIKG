@@ -64,6 +64,8 @@ export default function Form({
   const [restDays, setRestDays] = useState('');
   const [destination, setDestination] = useState('');
   const [reason, setReason] = useState('');
+  const [complaint, setComplaint] = useState('');
+  const [therapy, setTherapy] = useState('');
   const [override, setOverride] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -90,6 +92,8 @@ export default function Form({
         istirahat: restSentence(restDays),
         tujuan: destination,
         alasan: reason,
+        keluhan: complaint,
+        terapi: therapy,
       }),
     [
       template,
@@ -103,6 +107,8 @@ export default function Form({
       restDays,
       destination,
       reason,
+      complaint,
+      therapy,
     ],
   );
   const body = override ?? rendered;
@@ -232,6 +238,22 @@ export default function Form({
                 value={destination}
                 onChange={(e) => {
                   setDestination(e.target.value);
+                }}
+              />
+              <TextField
+                label="Keluhan dan riwayat"
+                required
+                value={complaint}
+                onChange={(e) => {
+                  setComplaint(e.target.value);
+                }}
+              />
+              <TextField
+                label="Terapi atau tindakan yang telah diberikan"
+                required
+                value={therapy}
+                onChange={(e) => {
+                  setTherapy(e.target.value);
                 }}
               />
               <TextField

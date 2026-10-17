@@ -27,6 +27,8 @@ final class DocumentPlaceholders
         'istirahat' => 'kalimat anjuran istirahat',
         'tujuan' => 'tujuan rujukan',
         'alasan' => 'alasan rujukan',
+        'keluhan' => 'keluhan dan riwayat pasien (rujukan)',
+        'terapi' => 'terapi atau tindakan yang telah diberikan (rujukan)',
     ];
 
     /**

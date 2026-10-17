@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Src\Pharmacy\Presentation\Http\Controllers;
 
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,6 +12,8 @@ use Src\Patient\Contracts\PatientLookup;
 use Src\Pharmacy\Application\PrescriptionPrint;
 use Src\Pharmacy\Application\PrescriptionService;
 use Src\Pharmacy\Domain\PrescriptionItemInput;
+use Src\Shared\Application\PdfRenderer;
+use Src\Shared\Application\PdfRequest;
 use Src\Shared\Application\RequiredFields;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -97,11 +98,11 @@ final class PrescriptionController
         return back()->with('success', 'Resep dibatalkan.');
     }
 
-    public function print(Request $request, string $prescription, PrescriptionPrint $print): Response
+    public function print(Request $request, string $prescription, PrescriptionPrint $print, PdfRenderer $renderer): Response
     {
-        $pdf = Pdf::loadView('pdf.prescription', $print->data($this->actorId($request), $prescription))->setPaper('a5', 'portrait');
+        $data = $print->data($this->actorId($request), $prescription);
 
-        return response($pdf->output(), 200, [
+        return response($renderer->render(new PdfRequest('pdf.prescription', $data, 'Resep '.$data['patient']['name'], customSizePt: [419.53, 595.28], pageNumbers: false)), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="resep.pdf"',
             'Cache-Control' => 'private, no-store',

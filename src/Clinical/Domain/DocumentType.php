@@ -32,7 +32,7 @@ enum DocumentType: string
         };
     }
 
-    /** Awalan nomor dokumen: IC/2025/0001, SKD/2025/0001, RJK/2025/0001. */
+    /** Awalan nomor dokumen: 001/IC/VI/2025, 001/SKD/VI/2025, 001/RJK/VI/2025 (nomor urut, kode, bulan Romawi, tahun). */
     public function numberPrefix(): string
     {
         return match ($this) {
@@ -46,5 +46,30 @@ enum DocumentType: string
     public function needsPatientSignature(): bool
     {
         return $this === self::Consent;
+    }
+
+    /** Surat rujukan memakai blok Nomor, Lampiran, Perihal (kaidah surat resmi); dokumen lain memakai judul bernomor. */
+    public function isOfficialLetter(): bool
+    {
+        return $this === self::Referral;
+    }
+
+    /** Perihal pada surat resmi. */
+    public function subject(): string
+    {
+        return match ($this) {
+            self::Referral => 'Rujukan pasien',
+            default => $this->label(),
+        };
+    }
+
+    /** Sebutan penanda tangan dokter pada blok tanda tangan. */
+    public function signerRole(): string
+    {
+        return match ($this) {
+            self::Consent => 'Dokter yang menjelaskan',
+            self::Certificate => 'Dokter pemeriksa',
+            self::Referral => 'Dokter pengirim',
+        };
     }
 }

@@ -1,79 +1,73 @@
-<!doctype html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <title>{{ $title }} {{ $number }}</title>
-    <style>
-        @page { margin: 32px 40px; }
-        body { font-family: DejaVu Sans, sans-serif; font-size: 11px; line-height: 1.55; color: #111827; }
-        .kop { border-bottom: 2px solid #111827; padding-bottom: 6px; margin-bottom: 14px; }
-        .kop img { height: 48px; float: left; margin-right: 10px; }
-        .kop h1 { font-size: 16px; margin: 0; }
-        .kop p { margin: 2px 0; }
-        h2 { text-align: center; font-size: 13px; margin: 6px 0 2px; text-decoration: underline; }
-        .no { text-align: center; margin: 0 0 14px; color: #374151; }
-        p.par { margin: 0 0 9px; text-align: left; white-space: pre-line; }
-        .sign { margin-top: 22px; width: 100%; }
-        .sign td { width: 33%; vertical-align: top; text-align: center; padding: 0 8px; }
-        .space { height: 62px; }
-        .small { font-size: 9px; color: #6b7280; }
-    </style>
-</head>
-<body>
-    <div class="kop">
-        @if ($letterhead['logo'])<img src="{{ $letterhead['logo'] }}" alt="Logo">@endif
-        <h1>{{ $letterhead['name'] }}</h1>
-        @if ($letterhead['address'])<p>{{ $letterhead['address'] }}</p>@endif
-        @if ($letterhead['license'])<p>Izin: {{ $letterhead['license'] }}</p>@endif
-        <div style="clear: both;"></div>
-    </div>
+@extends('pdf.layout')
+@section('title', $heading.' '.$number)
+@section('footer-left', $heading.' · No. '.$number.' · '.$patient['name'].' (RM '.$patient['medical_record_no'].')')
+@if (! $official_letter)
+    @section('heading', $heading)
+    @section('subheading', 'Nomor: '.$number)
+@endif
 
-    <h2>{{ $heading }}</h2>
-    <p class="no">Nomor: {{ $number }}</p>
+@section('content')
+    @if ($official_letter)
+        <table class="letter-meta">
+            <tr>
+                <td class="k">Nomor</td><td class="s">:</td><td>{{ $number }}</td>
+                <td class="date" rowspan="3">{{ $issued_on }}</td>
+            </tr>
+            <tr><td class="k">Lampiran</td><td class="s">:</td><td>-</td></tr>
+            <tr><td class="k">Perihal</td><td class="s">:</td><td><strong>{{ $subject }}</strong></td></tr>
+        </table>
+    @endif
 
-    @foreach ($paragraphs as $paragraph)
-        <p class="par">{{ trim($paragraph) }}</p>
+    @foreach ($blocks as $block)
+        @if ($block['kind'] === 'kv')
+            <table class="kv" style="margin: 0 0 7pt 14pt; width: 94%;">
+                @foreach ($block['rows'] as [$label, $value])
+                    <tr><td class="k" style="width: 36%;">{{ $label }}</td><td class="s">:</td><td>{{ $value }}</td></tr>
+                @endforeach
+            </table>
+        @elseif ($block['kind'] === 'list')
+            <ol class="list">@foreach ($block['items'] as $item)<li>{{ $item }}</li>@endforeach</ol>
+        @else
+            <p class="par"@if (str_contains($block['text'], "\n")) style="text-align: left;"@endif>{{ $block['text'] }}</p>
+        @endif
     @endforeach
 
+    @if (! $official_letter)
+        <p style="text-align: right; margin-top: 12pt;">Diterbitkan tanggal {{ $issued_on }}</p>
+    @endif
+
     @if ($patient_signature)
-        <p style="text-align: right; margin: 18px 0 0;">{{ $place }}, {{ $issued_on }}</p>
-        <table class="sign" style="margin-top: 6px;">
+        <table class="sign">
             <tr>
-                <td>
-                    Pasien atau wali
+                <td style="width: 34%;">
+                    <div class="role">Pasien / wali</div>
                     <div class="space"></div>
-                    (....................................)
-                    <div class="small">Nama jelas dan hubungan dengan pasien</div>
+                    <div class="blank">Nama jelas dan hubungan dengan pasien</div>
                 </td>
-                <td>
-                    Saksi
+                <td style="width: 32%;">
+                    <div class="role">Saksi</div>
                     <div class="space"></div>
-                    (....................................)
-                    <div class="small">Nama jelas</div>
+                    <div class="blank">Nama jelas</div>
                 </td>
-                <td>
-                    Dokter yang menjelaskan
+                <td style="width: 34%;">
+                    <div class="role">{{ $signer_role }}</div>
                     <div class="space"></div>
-                    <strong>{{ $doctor['name'] }}</strong>
-                    @if ($doctor['sip'])<div class="small">SIP {{ $doctor['sip'] }}</div>@endif
+                    <div class="name">{{ $doctor['name'] }}</div>
+                    @if ($doctor['sip'])<div class="meta">SIP {{ $doctor['sip'] }}</div>@endif
                 </td>
             </tr>
         </table>
     @else
         <table class="sign">
             <tr>
-                <td></td>
-                <td>
-                    {{ $place }}, {{ $issued_on }}<br>
-                    Dokter
+                <td style="width: 58%;"></td>
+                <td style="width: 42%;">
+                    <div class="role">Hormat kami,<br>{{ $signer_role }}</div>
                     <div class="space"></div>
-                    <strong>{{ $doctor['name'] }}</strong><br>
-                    @if ($doctor['sip'])<span class="small">SIP {{ $doctor['sip'] }}</span>@endif
+                    <div class="name">{{ $doctor['name'] }}</div>
+                    @if ($doctor['sip'])<div class="meta">SIP {{ $doctor['sip'] }}</div>@endif
                 </td>
             </tr>
         </table>
     @endif
-
-    <p class="small" style="margin-top: 18px;">Dokumen ini dicetak dari rekam medis {{ $patient['name'] }} (No. RM {{ $patient['medical_record_no'] }}). Bersifat rahasia.</p>
-</body>
-</html>
+@endsection

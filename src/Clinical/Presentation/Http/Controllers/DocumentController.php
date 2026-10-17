@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Src\Clinical\Presentation\Http\Controllers;
 
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -12,6 +11,8 @@ use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Src\Clinical\Application\ClinicalDocuments;
 use Src\Clinical\Domain\DocumentType;
+use Src\Shared\Application\PdfRenderer;
+use Src\Shared\Application\PdfRequest;
 use Src\Shared\Application\RequiredFields;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -63,12 +64,12 @@ final class DocumentController
         return to_route('documents.index', ['patient' => $patient])->with('success', $type->label().' diterbitkan. Cetak untuk tanda tangan.');
     }
 
-    public function print(Request $request, string $document, ClinicalDocuments $documents): Response
+    public function print(Request $request, string $document, ClinicalDocuments $documents, PdfRenderer $pdf): Response
     {
         $data = $documents->printData($this->actorId($request), $document);
-        $pdf = Pdf::loadView('pdf.document', $data)->setPaper('a4', 'portrait');
+        $output = $pdf->render(new PdfRequest('pdf.document', $data, $data['heading'].' '.$data['number']));
 
-        return response($pdf->output(), 200, [
+        return response($output, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => ($request->boolean('download') ? 'attachment' : 'inline').'; filename="'.preg_replace('/[^A-Za-z0-9._-]/', '_', (string) $data['file_name']).'.pdf"',
             'Cache-Control' => 'private, no-store',

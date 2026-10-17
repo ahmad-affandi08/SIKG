@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Src\Reporting\Infrastructure\Export;
 
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
-use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use Src\Reporting\Domain\ColumnKind;
 use Src\Reporting\Domain\ReportTable;
 
@@ -20,14 +20,13 @@ use Src\Reporting\Domain\ReportTable;
  * Satu lembar Excel untuk satu tabel laporan. Uang tetap bilangan bulat rupiah dengan format sel; persen disimpan
  * sebagai pecahan agar format persen Excel benar; tanggal sebagai tanggal Excel.
  */
-final class ReportSheet implements FromArray, ShouldAutoSize, WithColumnFormatting, WithCustomValueBinder, WithStyles, WithTitle
+final class ReportSheet implements FromArray, WithColumnFormatting, WithCustomValueBinder, WithEvents, WithStrictNullComparison, WithTitle
 {
     use WritesTextAsStrings;
 
-    /** Baris judul tabel + baris kosong sebelum tajuk kolom. */
-    private const HEADER_ROW = 3;
+    private const HEADER_ROW = SheetStyler::HEADER_ROW;
 
-    public function __construct(private readonly string $sheetTitle, private readonly ReportTable $table) {}
+    public function __construct(private readonly string $sheetTitle, private readonly ReportTable $table, private readonly ReportContext $context) {}
 
     public function title(): string
     {
@@ -36,7 +35,15 @@ final class ReportSheet implements FromArray, ShouldAutoSize, WithColumnFormatti
 
     public function array(): array
     {
-        $rows = [[$this->table->title], [], array_map(fn ($c) => $c->label, $this->table->columns)];
+        $rows = [
+            [mb_strtoupper($this->context->clinicName)],
+            [$this->context->kopLine()],
+            [$this->context->heading],
+            [$this->table->title],
+            ['Periode '.$this->context->period.' · Dicetak '.$this->context->printedAt],
+            [null],
+            array_map(fn ($c) => $c->label, $this->table->columns),
+        ];
         foreach ($this->table->rows as $row) {
             $rows[] = $this->cells($row);
         }
@@ -59,9 +66,9 @@ final class ReportSheet implements FromArray, ShouldAutoSize, WithColumnFormatti
         foreach ($this->table->columns as $index => $column) {
             $letter = self::letter($index);
             $format = match ($column->kind) {
-                ColumnKind::Money => '"Rp" #,##0;[Red]-"Rp" #,##0',
+                ColumnKind::Money => '"Rp" #,##0;-"Rp" #,##0',
                 ColumnKind::Integer => '#,##0',
-                ColumnKind::Percent => NumberFormat::FORMAT_PERCENTAGE_00,
+                ColumnKind::Percent => '0.0%',
                 ColumnKind::Minutes => '#,##0 "mnt"',
                 ColumnKind::Date => 'dd/mm/yyyy',
                 ColumnKind::DateTime => 'dd/mm/yyyy hh:mm',
@@ -75,17 +82,59 @@ final class ReportSheet implements FromArray, ShouldAutoSize, WithColumnFormatti
         return $formats;
     }
 
-    public function styles(Worksheet $sheet): array
+    /**
+     * @return array<class-string, callable(AfterSheet): void>
+     */
+    public function registerEvents(): array
     {
-        $styles = [
-            1 => ['font' => ['bold' => true, 'size' => 13]],
-            self::HEADER_ROW => ['font' => ['bold' => true], 'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'D9E2F3']]],
+        return [
+            AfterSheet::class => function (AfterSheet $event): void {
+                $sheet = $event->sheet->getDelegate();
+                $cols = count($this->table->columns);
+                $numeric = array_map(fn ($c) => CellFormatter::isNumeric($c->kind), $this->table->columns);
+                $first = self::HEADER_ROW + 1;
+                $dataLast = self::HEADER_ROW + count($this->table->rows);
+                $hasTotals = $this->table->totals !== null;
+                $last = $dataLast + ($hasTotals ? 1 : 0);
+
+                SheetStyler::base($sheet);
+                SheetStyler::titleBlock($sheet, true, $cols);
+                SheetStyler::header($sheet, self::HEADER_ROW, $numeric);
+                SheetStyler::body($sheet, $first, $last, $numeric, true);
+                if ($hasTotals) {
+                    SheetStyler::totals($sheet, $last, $cols);
+                }
+                SheetStyler::widths($sheet, $this->widths());
+                SheetStyler::freezeBelow($sheet, self::HEADER_ROW);
+                if ($this->table->rows !== []) {
+                    $sheet->setAutoFilter('A'.self::HEADER_ROW.':'.self::letter($cols - 1).$dataLast);
+                }
+                // Catatan di bawah tabel (dipotong atau kosong) tidak memakai garis tabel.
+                $tail = $last + 1;
+                if ($this->table->truncated || ($this->table->rows === [] && $this->table->emptyText !== null)) {
+                    $sheet->getStyle("A{$tail}")->getFont()->setItalic(true);
+                    $sheet->getStyle("A{$tail}")->getBorders()->getBottom()->setBorderStyle(Border::BORDER_NONE);
+                }
+                SheetStyler::print($sheet, $this->context, $this->sheetTitle, $cols, self::HEADER_ROW, max($last, $tail));
+            },
         ];
-        if ($this->table->totals !== null) {
-            $styles[self::HEADER_ROW + count($this->table->rows) + 1] = ['font' => ['bold' => true]];
+    }
+
+    /**
+     * @return list<float>
+     */
+    private function widths(): array
+    {
+        $columns = [];
+        foreach ($this->table->columns as $column) {
+            $texts = [$column->label];
+            foreach ([...$this->table->rows, ...($this->table->totals === null ? [] : [$this->table->totals])] as $row) {
+                $texts[] = CellFormatter::text($column->kind, $row[$column->key] ?? null);
+            }
+            $columns[] = $texts;
         }
 
-        return $styles;
+        return SheetStyler::fitWidths($columns);
     }
 
     /**

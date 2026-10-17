@@ -50,7 +50,7 @@ it('RM-10 dokter menerbitkan surat keterangan bernomor SKD dan menyimpan salinan
     terbitkan($s, 'certificate', ['title' => 'Surat sakit', 'encounter_id' => $s['kunjungan']])->assertSessionHasNoErrors()->assertRedirect("/patients/{$s['pasien']}/documents");
 
     $d = DB::table('clinical_documents')->where('patient_id', $s['pasien'])->first();
-    expect($d->type)->toBe('certificate')->and($d->number)->toBe('SKD/2025/0001')->and($d->title)->toBe('Surat sakit')
+    expect($d->type)->toBe('certificate')->and($d->number)->toBe('001/SKD/VI/2025')->and($d->title)->toBe('Surat sakit')
         ->and($d->body)->toBe(ISI_SURAT)->and($d->doctor_name)->toBe('drg. Sari')->and($d->doctor_sip)->toBe('SIP-123/2024')
         ->and($d->encounter_id)->toBe($s['kunjungan'])->and($d->issued_by)->toBe($s['dokter_user']->id)
         ->and(DB::table('audit_logs')->where('subject_id', $d->id)->where('action', 'document.issued')->exists())->toBeTrue();
@@ -63,7 +63,7 @@ it('RM-09 dan RM-10 nomor berurutan per jenis dan tahun, dengan awalan IC, SKD, 
     terbitkan($s, 'consent')->assertSessionHasNoErrors();
     terbitkan($s, 'certificate')->assertSessionHasNoErrors();
     terbitkan($s, 'referral')->assertSessionHasNoErrors();
-    expect(DB::table('clinical_documents')->orderBy('number')->pluck('number')->all())->toBe(['IC/2025/0001', 'IC/2025/0002', 'RJK/2025/0001', 'SKD/2025/0001']);
+    expect(DB::table('clinical_documents')->orderBy('number')->pluck('number')->all())->toBe(['001/IC/VI/2025', '001/RJK/VI/2025', '001/SKD/VI/2025', '002/IC/VI/2025']);
 });
 
 it('RM-09 nomor kembali ke 0001 pada tahun (zona waktu klinik) yang baru', function () {
@@ -75,7 +75,7 @@ it('RM-09 nomor kembali ke 0001 pada tahun (zona waktu klinik) yang baru', funct
     Carbon::setTestNow(Carbon::parse('2026-01-01 00:05:00', 'Asia/Jakarta'));
     terbitkan($s, 'consent')->assertSessionHasNoErrors();
 
-    expect(DB::table('clinical_documents')->orderBy('issued_at')->pluck('number')->all())->toBe(['IC/2025/0001', 'IC/2026/0001']);
+    expect(DB::table('clinical_documents')->orderBy('issued_at')->pluck('number')->all())->toBe(['001/IC/XII/2025', '001/IC/I/2026']);
 });
 
 it('RM-09 isi dengan penanda {{...}} yang belum terisi ditolak dan tidak menghabiskan nomor', function () {
@@ -86,7 +86,7 @@ it('RM-09 isi dengan penanda {{...}} yang belum terisi ditolak dan tidak menghab
     expect(DB::table('clinical_documents')->count())->toBe(0);
 
     terbitkan($s, 'consent')->assertSessionHasNoErrors();
-    expect(DB::table('clinical_documents')->value('number'))->toBe('IC/2025/0001');
+    expect(DB::table('clinical_documents')->value('number'))->toBe('001/IC/VI/2025');
 });
 
 it('RM-09 validasi: jenis, dokter, dan isi wajib; dokter nonaktif, kunjungan pasien lain, dan templat jenis lain ditolak', function () {
@@ -173,7 +173,7 @@ it('RM-09 daftar dokumen mencatat pembukaan rekam medis dan menampilkan waktu te
 
     test()->actingAs($s['dokter_user'])->get("/patients/{$s['pasien']}/documents")->assertOk()->assertInertia(function ($p) {
         $p->component('Documents/Index')->where('patient.name', 'Budi Santoso')->has('documents', 1)
-            ->where('documents.0.number', 'SKD/2025/0001')->where('documents.0.type_label', 'Surat keterangan')->where('documents.0.issued_at', '2025-06-16 07:00');
+            ->where('documents.0.number', '001/SKD/VI/2025')->where('documents.0.type_label', 'Surat keterangan')->where('documents.0.issued_at', '2025-06-16 07:00');
 
         return $p;
     });
@@ -189,11 +189,11 @@ it('RM-09 cetak PDF informed consent memuat kolom tanda tangan, tercatat di acce
 
     $respons->assertOk()->assertHeader('Content-Type', 'application/pdf');
     expect(str_starts_with($respons->getContent(), '%PDF'))->toBeTrue()
-        ->and((string) $respons->headers->get('Content-Disposition'))->toContain('inline')->toContain('ic-2025-0001.pdf')
+        ->and((string) $respons->headers->get('Content-Disposition'))->toContain('inline')->toContain('001-ic-vi-2025.pdf')
         ->and(DB::table('access_logs')->where('patient_id', $s['pasien'])->where('route', 'documents.print')->exists())->toBeTrue()
         ->and(DB::table('audit_logs')->where('subject_id', $id)->where('action', 'document.printed')->exists())->toBeTrue();
 
-    test()->actingAs($s['dokter_user'])->get("/documents/{$id}/print?download=1")->assertHeader('Content-Disposition', 'attachment; filename="ic-2025-0001.pdf"');
+    test()->actingAs($s['dokter_user'])->get("/documents/{$id}/print?download=1")->assertHeader('Content-Disposition', 'attachment; filename="001-ic-vi-2025.pdf"');
 });
 
 it('RM-10 cetak ulang memakai salinan tersimpan: ganti nama dokter atau templat tidak mengubah isi', function () {

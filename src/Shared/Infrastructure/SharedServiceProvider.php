@@ -18,6 +18,7 @@ use Src\Shared\Application\EnvironmentInspector;
 use Src\Shared\Application\EventDispatcher;
 use Src\Shared\Application\HealthMonitor;
 use Src\Shared\Application\Master\MasterEntityRegistry;
+use Src\Shared\Application\PdfRenderer;
 use Src\Shared\Application\PiiProtector;
 use Src\Shared\Application\ResourceLock;
 use Src\Shared\Application\SequenceGenerator;
@@ -37,6 +38,7 @@ use Src\Shared\Infrastructure\Console\BackupVerifyCommand;
 use Src\Shared\Infrastructure\Console\HealthCheckCommand;
 use Src\Shared\Infrastructure\Console\PreflightCommand;
 use Src\Shared\Infrastructure\Health\DatabaseHealthMonitor;
+use Src\Shared\Infrastructure\Pdf\DompdfRenderer;
 use Src\Shared\Infrastructure\Preflight\PhpEnvironmentInspector;
 
 final class SharedServiceProvider extends ServiceProvider
@@ -44,6 +46,7 @@ final class SharedServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(Clock::class, SystemClock::class);
+        $this->app->singleton(PdfRenderer::class, DompdfRenderer::class);
         $this->app->singleton(IdGenerator::class, UlidIdGenerator::class);
         $this->app->singleton(Transaction::class, DatabaseTransaction::class);
         $this->app->singleton(EventDispatcher::class, AfterCommitEventDispatcher::class);

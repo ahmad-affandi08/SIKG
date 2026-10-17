@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use Spatie\Permission\PermissionRegistrar;
 use Src\IdentityAccess\Domain\Role;
 use Src\Reporting\Application\ReportExportService;
@@ -669,10 +670,10 @@ it('LAP berkas ekspor terenkripsi di disk dan isi XLSX memuat angka laporan', fu
     expect($buku->getSheetNames())->toContain('1 Ringkasan', '2 Penerimaan per metode bayar');
     $ringkasan = $buku->getSheetByName('1 Ringkasan');
     $nilai = [];
-    foreach ($ringkasan?->toArray() ?? [] as $baris) {
+    foreach ($ringkasan?->toArray(null, true, false) ?? [] as $baris) {
         $nilai[(string) $baris[0]] = $baris[1] ?? null;
     }
-    expect($nilai['Penerimaan bersih'])->toBe('Rp 225.000')->and($nilai['Periode'])->toBe('16/06/2025 - 16/06/2025');
+    expect($nilai['Penerimaan bersih'])->toBe(225000)->and($nilai['Periode'])->toBe('16/06/2025 - 16/06/2025');
     $metode = $buku->getSheetByName('2 Penerimaan per metode bayar')?->toArray(null, true, false) ?? [];
     $judul = array_search('Metode bayar', array_column($metode, 0), true);
     expect($judul)->not->toBeFalse();
@@ -717,12 +718,12 @@ it('LAP ekspor kasir tetap dibatasi ke kas miliknya meski diproses antrean', fun
     file_put_contents($tmp, $isi);
     $buku = IOFactory::load($tmp);
     unlink($tmp);
-    $ringkasan = $buku->getSheetByName('1 Ringkasan')?->toArray() ?? [];
+    $ringkasan = $buku->getSheetByName('1 Ringkasan')?->toArray(null, true, false) ?? [];
     $nilai = [];
     foreach ($ringkasan as $baris) {
         $nilai[(string) $baris[0]] = $baris[1] ?? null;
     }
-    expect($nilai['Penutupan kas'])->toBe('1');
+    expect($nilai['Penutupan kas'])->toBe(1);
 });
 
 it('LAP job ekspor idempoten: dijalankan dua kali tidak menggandakan berkas', function () {
@@ -891,4 +892,40 @@ it('LAP-06 dan LAP-09 yang menampilkan nama pasien mencatat pembukaannya di audi
     expect($catatan->pluck('subject_id')->all())->toBe(['LAP-06', 'LAP-09'])
         ->and($catatan[1]->actor_id)->toBe($d['u']['admin']->id)
         ->and((string) $catatan[1]->after)->not->toContain('Pasien');
+});
+
+it('LAP berkas XLSX tampil profesional: judul, tajuk dibekukan dengan filter, format Rupiah, nol tetap tertulis, dan siap cetak', function () {
+    $d = lapData();
+    tenant()->set($d['k']->id);
+    $id = test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/revenue/export', ['format' => 'xlsx', 'from' => SENIN, 'to' => SENIN])->json('data.id');
+    tenant()->set($d['k']->id);
+    $isi = test()->actingAs($d['u']['pemilik'])->get("/report-jobs/{$id}/download")->getContent();
+    $tmp = tempnam(sys_get_temp_dir(), 'lap');
+    file_put_contents($tmp, $isi);
+    $buku = IOFactory::load($tmp);
+    unlink($tmp);
+
+    expect($buku->getProperties()->getCreator())->toBe('Klinik Uji')->and($buku->getProperties()->getTitle())->toBe('LAP-02 Pendapatan')
+        ->and($buku->getProperties()->getSubject())->toContain('Periode 16/06/2025');
+
+    $ringkasan = $buku->getSheetByName('1 Ringkasan');
+    expect($ringkasan?->getCell('A1')->getValue())->toBe('KLINIK UJI')->and($ringkasan?->getCell('A3')->getValue())->toBe('LAP-02 Pendapatan')
+        ->and($ringkasan?->getCell('A7')->getValue())->toBe('Keterangan')->and($ringkasan?->getCell('A7')->getStyle()->getFont()->getBold())->toBeTrue()
+        ->and($ringkasan?->getCell('B10')->getStyle()->getNumberFormat()->getFormatCode())->toContain('"Rp"')
+        ->and($ringkasan?->getCell('B14')->getValue())->toBe(0)
+        ->and($ringkasan?->getShowGridlines())->toBeFalse();
+
+    $tabel = $buku->getSheetByName('2 Pendapatan per hari');
+    expect($tabel)->not->toBeNull()
+        ->and($tabel?->getFreezePane())->toBe('A8')
+        ->and($tabel?->getAutoFilter()->getRange())->toStartWith('A7:')
+        ->and($tabel?->getCell('A4')->getValue())->toBe('Pendapatan per hari')
+        ->and($tabel?->getCell('A7')->getStyle()->getFont()->getBold())->toBeTrue()
+        ->and($tabel?->getPageSetup()->getFitToWidth())->toBe(1)->and($tabel?->getPageSetup()->getFitToHeight())->toBe(0)
+        ->and($tabel?->getPageSetup()->getRowsToRepeatAtTop())->toBe([7, 7])
+        ->and($tabel?->getPageSetup()->getPaperSize())->toBe(PageSetup::PAPERSIZE_A4)
+        ->and($tabel?->getPageSetup()->getOrientation())->toBe(PageSetup::ORIENTATION_LANDSCAPE)
+        ->and($tabel?->getHeaderFooter()->getOddFooter())->toContain('Halaman &P dari &N');
+    // Kolom Pajak bernilai 0 harus tertulis 0, bukan sel kosong.
+    expect($tabel?->getCell('E8')->getValue())->toBe(0);
 });

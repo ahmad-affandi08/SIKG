@@ -191,7 +191,10 @@ final readonly class ClinicalDocuments
             'heading' => $document->type->heading(),
             'number' => $document->number,
             'title' => $document->title,
-            'paragraphs' => array_values(array_filter(preg_split('/\n{2,}/', $document->body) ?: [], fn (string $p) => trim($p) !== '')),
+            'blocks' => self::blocks($document->body),
+            'official_letter' => $document->type->isOfficialLetter(),
+            'subject' => $document->type->subject(),
+            'signer_role' => $document->type->signerRole(),
             'issued_on' => $issued->format('d/m/Y'),
             'place' => $head->clinicName,
             'doctor' => ['name' => $document->doctorName, 'sip' => $document->doctorSip],
@@ -200,6 +203,45 @@ final readonly class ClinicalDocuments
             'type' => $document->type->value,
             'file_name' => strtolower(str_replace('/', '-', $document->number)),
         ];
+    }
+
+    /**
+     * Isi dokumen menjadi blok cetak: daftar "Label: isi" (tabel dua kolom), daftar bernomor, atau paragraf biasa.
+     *
+     * @return list<array{kind: 'kv'|'list'|'text', rows?: list<array{0: string, 1: string}>, items?: list<string>, text?: string}>
+     */
+    public static function blocks(string $body): array
+    {
+        $blocks = [];
+        foreach (preg_split('/\n{2,}/', $body) ?: [] as $paragraph) {
+            $lines = array_values(array_filter(array_map('trim', explode("\n", $paragraph)), fn (string $line) => $line !== ''));
+            if ($lines === []) {
+                continue;
+            }
+            $pairs = [];
+            foreach ($lines as $line) {
+                if (preg_match('/^([^:\n]{2,60}):\s*(.*)$/u', $line, $m) === 1) {
+                    $pairs[] = [$m[1], $m[2]];
+                }
+            }
+            $items = [];
+            foreach ($lines as $line) {
+                if (preg_match('/^\d+[.)]\s+(.+)$/u', $line, $m) === 1) {
+                    $items[] = $m[1];
+                }
+            }
+
+            $total = count($lines);
+            if ($total >= 2 && count($pairs) === $total) {
+                $blocks[] = ['kind' => 'kv', 'rows' => $pairs];
+            } elseif ($total >= 2 && count($items) === $total) {
+                $blocks[] = ['kind' => 'list', 'items' => $items];
+            } else {
+                $blocks[] = ['kind' => 'text', 'text' => implode("\n", $lines)];
+            }
+        }
+
+        return $blocks;
     }
 
     /**
@@ -214,7 +256,7 @@ final readonly class ClinicalDocuments
 
     private function nextNumber(DocumentType $type, DateTimeImmutable $now): string
     {
-        $pattern = new NumberPattern($type->numberPrefix().'/{yyyy}/{seq:4}');
+        $pattern = new NumberPattern('{seq:3}/'.$type->numberPrefix().'/{rom}/{yyyy}');
         $timezone = $this->calendar->timezone();
         $scope = trim('clinic:'.$this->tenant->clinicId().':'.$type->value.':'.$pattern->scopeKey($now, $timezone), ':');
 

@@ -188,6 +188,21 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan asumsi di atas; (b) pengguna menetapkan lain per butir (mis. panjang minimal kata sandi atau memaksa ganti berkala)
 - Rekomendasi: (a)
 
+### Q-26: Keputusan asumsi desain cetak PDF dan Excel
+- Kebutuhan terkait: RM-09, RM-10, ODO-06, OBT-03, KSR-06, LAP-01 sampai LAP-10; ADR-0008; M18
+- Butir:
+  1. **Isi bawaan informed consent adalah kerangka umum**, disusun dari Permenkes 290/2008, formulir KKI, dan contoh formulir perawatan gigi (butir informasi: diagnosis, tindakan, tujuan, tata cara, risiko dan komplikasi, alternatif, prognosis, perkiraan biaya). Teks risiko dan tujuan bersifat generik dan dapat disunting dokter atau diganti templat Admin per tindakan. Kecocokannya dengan formulir resmi PDGI atau dinas kesehatan setempat belum diverifikasi; klinik perlu meninjaunya sebelum dipakai.
+  2. **Kolom saksi** tetap ada di informed consent sebagai kebiasaan umum, walaupun Permenkes 290/2008 tidak mewajibkan saksi.
+  3. **Tanggal DD/MM/YYYY** dipertahankan sesuai M18, bukan tanggal dengan nama bulan seperti surat resmi. **Kota** tidak dicetak karena profil klinik belum menyimpan kota; dokumen memakai tanggal terbit. Menambah kota ke profil klinik (MST-01) dapat dilakukan bila pengguna menyetujui.
+  4. **Nomor dokumen klinis berubah format** menjadi nomor urut, kode, bulan Romawi, dan tahun (`001/SKD/VI/2025`). Dokumen yang sudah terbit dengan format lama tidak diubah (hanya-tambah). Urutan tetap per jenis dan per tahun.
+  5. **Meterai**: kwitansi bernilai Rp5.000.000 atau lebih diberi kotak "Meterai Rp10.000" sebagai pengingat sesuai UU 10/2020; aplikasi tidak menempelkan meterai elektronik dan batas nilainya perlu diperiksa bila peraturan berubah.
+  6. **Terbilang** ditulis otomatis pada kwitansi dan invoice (`Terbilang`), dites sampai miliar.
+  7. **Hitam putih**: tanpa warna teks atau latar warna pada PDF dan Excel (permintaan pengguna). Warna hanya tersisa pada isian kotak odontogram yang berasal dari master kondisi gigi, dan kodenya dicetak di tiap kotak agar tetap terbaca bila difotokopi.
+  8. **Excel**: pemisah ribuan mengikuti pengaturan bahasa Excel pembaca (titik pada Excel berbahasa Indonesia). Ringkasan kini memuat angka bertipe, bukan teks "Rp 225.000", sehingga dapat dijumlahkan; tes terkait diperbarui. Nilai nol sebelumnya ikut hilang menjadi sel kosong dan kini tertulis 0.
+  9. Tanda tangan "disusun oleh, diperiksa oleh, mengetahui" pada laporan adalah praktik umum dan bukan hasil kutipan sumber tunggal.
+- Opsi: (a) pertahankan; (b) pengguna menetapkan lain per butir (terutama butir 1 dan butir 3)
+- Rekomendasi: (a), dengan butir 1 ditinjau dokter atau pengurus PDGI setempat
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

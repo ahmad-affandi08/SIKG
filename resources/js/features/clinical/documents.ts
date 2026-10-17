@@ -19,6 +19,8 @@ export interface DocumentVariables {
   istirahat: string;
   tujuan: string;
   alasan: string;
+  keluhan: string;
+  terapi: string;
 }
 
 const PLACEHOLDER = /\{\{\s*([a-z_]+)\s*\}\}/g;
@@ -77,6 +79,6 @@ export function requiredExtras(kind: DocumentKind): string[] {
     case 'certificate':
       return ['keperluan'];
     case 'referral':
-      return ['tujuan', 'alasan'];
+      return ['tujuan', 'keluhan', 'terapi', 'alasan'];
   }
 }

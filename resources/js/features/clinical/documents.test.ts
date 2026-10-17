@@ -49,6 +49,6 @@ describe('RM-09 dan RM-10 templat dokumen klinis', () => {
   it('isian wajib menurut jenis dokumen', () => {
     expect(requiredExtras('consent')).toEqual(['tindakan']);
     expect(requiredExtras('certificate')).toEqual(['keperluan']);
-    expect(requiredExtras('referral')).toEqual(['tujuan', 'alasan']);
+    expect(requiredExtras('referral')).toEqual(['tujuan', 'keluhan', 'terapi', 'alasan']);
   });
 });

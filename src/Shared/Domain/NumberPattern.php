@@ -10,14 +10,17 @@ use InvalidArgumentException;
 
 /**
  * Format nomor tampil yang dapat diatur klinik (nomor RM, nomor invoice). Token: {seq} atau {seq:N} (isi nol
- * sampai N digit), {yyyy}, {yy}, {mm}, {dd}. Nomor urut bertambah dari tabel `sequences` (ADR-0004);
+ * sampai N digit), {yyyy}, {yy}, {mm}, {dd}, dan {rom} (bulan dengan angka Romawi, lazim pada nomor surat Indonesia,
+ * mis. 001/SKD/VI/2025; tidak memulai ulang urutan karena nomor surat berlaku per tahun). Nomor urut bertambah dari tabel `sequences` (ADR-0004);
  * kunci lingkupnya mengikuti token tanggal sehingga urutan mulai dari 1 lagi saat tahun atau bulan berganti.
  */
 final readonly class NumberPattern
 {
-    private const TOKEN = '/\{(seq(?::(\d{1,2}))?|yyyy|yy|mm|dd)\}/';
+    private const TOKEN = '/\{(seq(?::(\d{1,2}))?|yyyy|yy|mm|dd|rom)\}/';
 
     private const LITERAL = '/^[A-Za-z0-9\/_.\-]*$/';
+
+    private const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
 
     public string $pattern;
 
@@ -50,6 +53,7 @@ final readonly class NumberPattern
                 $m[1] === 'yyyy' => $local->format('Y'),
                 $m[1] === 'yy' => $local->format('y'),
                 $m[1] === 'mm' => $local->format('m'),
+                $m[1] === 'rom' => self::ROMAN[(int) $local->format('n') - 1],
                 default => $local->format('d'),
             };
         }, $this->pattern);

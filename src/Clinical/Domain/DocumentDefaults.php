@@ -14,42 +14,55 @@ final class DocumentDefaults
     {
         return match ($type) {
             DocumentType::Consent => <<<'TEXT'
-Saya yang bertanda tangan di bawah ini, sebagai pasien atau wali pasien atas nama {{pasien}} (Nomor RM {{no_rm}}, tanggal lahir {{tanggal_lahir}}), menyatakan bahwa:
+Saya yang bertanda tangan di bawah ini, sebagai pasien atau wali pasien atas nama {{pasien}} (Nomor RM {{no_rm}}, tanggal lahir {{tanggal_lahir}}), menyatakan telah menerima penjelasan dari {{dokter}} mengenai tindakan kedokteran gigi berikut:
 
-1. Saya telah mendapat penjelasan dari {{dokter}} mengenai diagnosa, tujuan, cara, manfaat, risiko, kemungkinan komplikasi, dan alternatif dari tindakan {{tindakan}}.
-2. Saya telah diberi kesempatan untuk bertanya dan semua pertanyaan saya telah dijawab dengan jelas.
-3. Saya mengerti bahwa hasil perawatan tidak dapat dijamin sepenuhnya.
+Diagnosis: {{diagnosa}}
+Tindakan: {{tindakan}}
+Tujuan tindakan: Menghilangkan keluhan serta memulihkan fungsi dan kesehatan gigi dan mulut.
+Tata cara: Sesuai penjelasan dokter sebelum tindakan dimulai.
+Risiko dan komplikasi: Nyeri, bengkak, perdarahan, infeksi, atau reaksi terhadap obat dan anestesi; risiko khusus tindakan telah dijelaskan dokter.
+Alternatif dan risikonya: Perawatan lain atau tidak melakukan tindakan, beserta risikonya, telah dijelaskan dokter.
+Prognosis: Sesuai penjelasan dokter.
+Perkiraan biaya: Sesuai tarif klinik yang berlaku.
 
-Dengan ini saya MENYETUJUI dilakukannya tindakan tersebut di {{klinik}}. Persetujuan ini dapat saya cabut sebelum tindakan dimulai.
+Saya telah diberi kesempatan untuk bertanya dan seluruh penjelasan telah saya pahami. Dengan penuh kesadaran saya MENYETUJUI dilakukannya tindakan tersebut di {{klinik}}. Saya memahami bahwa hasil perawatan tidak dapat dijamin sepenuhnya dan bahwa persetujuan ini dapat saya tarik kembali secara tertulis sebelum tindakan dimulai.
+
+Demikian surat pernyataan ini saya buat dengan sebenarnya dan penuh rasa tanggung jawab.
 TEXT,
             DocumentType::Certificate => <<<'TEXT'
-Yang bertanda tangan di bawah ini, {{dokter}}, menerangkan bahwa:
+Yang bertanda tangan di bawah ini, {{dokter}}, dokter gigi pada {{klinik}}, menerangkan bahwa:
 
 Nama: {{pasien}}
 Nomor RM: {{no_rm}}
 Tanggal lahir: {{tanggal_lahir}} (umur {{umur}} tahun)
 
-telah menjalani pemeriksaan dan perawatan gigi di {{klinik}} pada {{tanggal_kunjungan}} dengan diagnosa: {{diagnosa}}.
+telah menjalani pemeriksaan dan perawatan gigi pada tanggal {{tanggal_kunjungan}} dengan diagnosa: {{diagnosa}}.
 
-Berdasarkan pemeriksaan tersebut, pasien {{istirahat}}.
+Berdasarkan hasil pemeriksaan tersebut, pasien {{istirahat}}.
 
-Surat keterangan ini dibuat untuk keperluan {{keperluan}} dan dapat dipergunakan sebagaimana mestinya.
+Surat keterangan ini dibuat untuk keperluan {{keperluan}}.
+
+Demikian surat keterangan ini dibuat dan diberikan untuk diketahui dan digunakan sebagaimana mestinya.
 TEXT,
             DocumentType::Referral => <<<'TEXT'
 Kepada Yth.
 {{tujuan}}
+di tempat
 
 Dengan hormat,
-Mohon pemeriksaan dan penanganan lebih lanjut untuk pasien:
+
+Mohon pemeriksaan dan penanganan lebih lanjut terhadap pasien berikut:
 
 Nama: {{pasien}}
 Nomor RM: {{no_rm}}
 Tanggal lahir: {{tanggal_lahir}} (umur {{umur}} tahun)
 
-Diagnosa: {{diagnosa}}
+Keluhan dan riwayat: {{keluhan}}
+Diagnosa sementara: {{diagnosa}}
+Terapi atau tindakan yang telah diberikan: {{terapi}}
 Alasan rujukan: {{alasan}}
 
-Pasien telah diperiksa di {{klinik}} pada {{tanggal_kunjungan}}. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.
+Pasien kami periksa di {{klinik}} pada tanggal {{tanggal_kunjungan}}. Mohon balasan mengenai hasil pemeriksaan dan penanganan selanjutnya. Atas perhatian dan kerja sama Bapak atau Ibu, kami ucapkan terima kasih.
 TEXT,
         };
     }

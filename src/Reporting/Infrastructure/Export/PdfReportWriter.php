@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Src\Reporting\Infrastructure\Export;
 
-use Barryvdh\DomPDF\Facade\Pdf;
 use DateTimeZone;
 use Src\Clinic\Contracts\ClinicCalendar;
 use Src\Clinic\Contracts\LetterheadProvider;
@@ -12,6 +11,8 @@ use Src\Reporting\Domain\ColumnKind;
 use Src\Reporting\Domain\ReportResult;
 use Src\Reporting\Domain\ReportTable;
 use Src\Shared\Application\Clock;
+use Src\Shared\Application\PdfRenderer;
+use Src\Shared\Application\PdfRequest;
 
 /**
  * Laporan ke PDF dengan dompdf (PHP murni, M21). Tabel lebar memakai kertas lanskap.
@@ -20,7 +21,7 @@ final readonly class PdfReportWriter
 {
     private const LANDSCAPE_FROM_COLUMNS = 6;
 
-    public function __construct(private LetterheadProvider $letterhead, private Clock $clock, private ClinicCalendar $calendar) {}
+    public function __construct(private LetterheadProvider $letterhead, private Clock $clock, private ClinicCalendar $calendar, private PdfRenderer $renderer) {}
 
     public function render(ReportResult $result): string
     {
@@ -39,7 +40,7 @@ final readonly class PdfReportWriter
 
         $printedAt = $this->clock->now()->setTimezone(new DateTimeZone($this->calendar->timezone()))->format('Y-m-d H:i');
 
-        $pdf = Pdf::loadView('pdf.report', [
+        return $this->renderer->render(new PdfRequest('pdf.report', [
             'letterhead' => ['name' => $head->clinicName, 'address' => $head->address, 'license' => $head->licenseNo, 'logo' => $head->logoDataUri],
             'code' => $result->key->code(),
             'title' => $result->key->title(),
@@ -49,10 +50,7 @@ final readonly class PdfReportWriter
             'metrics' => $metrics,
             'tables' => $tables,
             'notes' => $result->notes,
-        ]);
-        $pdf->setPaper('a4', $wide ? 'landscape' : 'portrait');
-
-        return $pdf->output();
+        ], $result->key->code().' '.$result->key->title(), landscape: $wide));
     }
 
     /**

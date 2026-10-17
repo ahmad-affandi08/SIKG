@@ -1,108 +1,144 @@
+@use('Src\Shared\Domain\Terbilang')
 @php
     $rp = fn (int $n): string => ($n < 0 ? '-' : '').'Rp '.number_format(abs($n), 0, ',', '.');
     $i = $invoice;
     $isReceipt = $doc === 'receipt';
+    $noFooter = $thermal;
+    $docNo = $isReceipt ? $receipt['receipt_no'] : ($i['number'] ?? 'Draft');
 @endphp
-<!doctype html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <title>{{ $isReceipt ? 'Kwitansi' : 'Invoice' }}</title>
-    <style>
-        @page { margin: {{ $thermal ? '8px' : '28px 32px' }}; }
-        body { font-family: DejaVu Sans, sans-serif; font-size: {{ $thermal ? '8px' : '11px' }}; color: #111827; }
-        .kop { border-bottom: 2px solid #111827; padding-bottom: 6px; margin-bottom: 10px; {{ $thermal ? 'text-align: center;' : '' }} }
-        .kop img { height: {{ $thermal ? '30px' : '48px' }}; {{ $thermal ? '' : 'float: left; margin-right: 10px;' }} }
-        .kop h1 { font-size: {{ $thermal ? '11px' : '16px' }}; margin: 0; }
-        .kop p { margin: 2px 0; }
-        h2 { font-size: {{ $thermal ? '10px' : '14px' }}; margin: 8px 0; }
-        table { width: 100%; border-collapse: collapse; }
-        table.meta td { padding: 1px 6px 1px 0; vertical-align: top; }
-        table.rows th, table.rows td { border-bottom: 1px solid #d1d5db; padding: {{ $thermal ? '2px' : '4px' }}; text-align: left; vertical-align: top; }
-        .r { text-align: right !important; }
-        .total td { font-weight: bold; border-bottom: 0 !important; }
-        .void { color: #b91c1c; font-weight: bold; font-size: 14px; }
-        .ttd { margin-top: 36px; float: right; text-align: center; width: 180px; }
-    </style>
-</head>
-<body>
-    <div class="kop">
-        @if ($letterhead['logo'])<img src="{{ $letterhead['logo'] }}" alt="Logo">@endif
-        <h1>{{ $letterhead['name'] }}</h1>
-        @if ($letterhead['address'])<p>{{ $letterhead['address'] }}</p>@endif
-        @if ($letterhead['license'])<p>Izin: {{ $letterhead['license'] }}</p>@endif
-        @if ($letterhead['header'])<p>{!! nl2br(e($letterhead['header'])) !!}</p>@endif
-        <div style="clear: both;"></div>
-    </div>
+@extends('pdf.layout')
+@section('title', ($isReceipt ? 'Kwitansi ' : 'Invoice ').$docNo)
+@section('footer-left', ($isReceipt ? 'Kwitansi ' : 'Invoice ').$docNo.' · '.($i['patient_name'] ?? '-'))
+@section('heading', $isReceipt ? 'Kwitansi' : 'Invoice')
+@section('subheading', 'Nomor: '.$docNo)
+@section('style')
+    @if ($thermal)
+        @page { margin: 5mm 4mm; }
+        body { font-size: 8pt; line-height: 1.35; }
+        table.kop td.logo { display: none; width: 0; }
+        table.kop .name { font-size: 10.5pt; }
+        table.kop .line { font-size: 7pt; }
+        .title { font-size: 10.5pt; }
+        table.data th, table.data td { padding: 2pt 2pt; font-size: 7.5pt; }
+        table.sum { width: 100%; margin-left: 0; }
+        table.kv td.k { width: 36%; }
+        .sign .space { height: 26pt; }
+    @endif
+    .amount { font-size: {{ $thermal ? '13pt' : '17pt' }}; font-weight: bold; text-align: center; }
+@endsection
 
-    @if ($i['status'] === 'void')<p class="void">TAGIHAN DIBATALKAN</p>@endif
+@section('content')
+    @if ($i['status'] === 'void')<div style="text-align: center; margin-bottom: 8pt;"><span class="stamp">{{ $isReceipt ? 'KWITANSI' : 'TAGIHAN' }} DIBATALKAN</span></div>@endif
 
     @if ($isReceipt)
-        <h2>KWITANSI {{ $receipt['receipt_no'] }}</h2>
-        <table class="meta">
-            <tr><td>Tanggal</td><td>: {{ $receipt['paid_at_local'] }}</td></tr>
-            <tr><td>Telah terima dari</td><td>: {{ $i['patient_name'] ?? '-' }} ({{ $i['medical_record_no'] ?? '-' }})</td></tr>
-            <tr><td>Untuk tagihan</td><td>: {{ $i['number'] ?? 'Draft' }}</td></tr>
-            <tr><td>{{ $receipt['type'] === 'dp' ? 'Uang muka' : 'Pembayaran' }}</td><td>: <strong>{{ $rp($receipt['amount']) }}</strong> ({{ $receipt['method_name'] ?? '-' }}{{ $receipt['reference_no'] ? ', ref. '.$receipt['reference_no'] : '' }})</td></tr>
-            <tr><td>Total tagihan</td><td>: {{ $rp($i['total_amount']) }}</td></tr>
-            <tr><td>Sudah dibayar</td><td>: {{ $rp($i['paid_amount']) }}</td></tr>
-            <tr><td>Sisa tagihan</td><td>: {{ $rp($i['balance_amount']) }}</td></tr>
-            <tr><td>Penerima</td><td>: {{ $receipt['received_by_name'] ?? '-' }}</td></tr>
-        </table>
-    @else
-        <h2>INVOICE {{ $i['number'] }}</h2>
-        <table class="meta">
-            <tr><td>Tanggal terbit</td><td>: {{ $i['issued_at_local'] }}</td></tr>
-            <tr><td>Pasien</td><td>: {{ $i['patient_name'] ?? '-' }} ({{ $i['medical_record_no'] ?? '-' }})</td></tr>
-            <tr><td>Status</td><td>: {{ $i['status_label'] }}</td></tr>
+        <table class="kv">
+            <tr><td class="k">Telah terima dari</td><td class="s">:</td><td><strong>{{ $i['patient_name'] ?? '-' }}</strong> (RM {{ $i['medical_record_no'] ?? '-' }})</td></tr>
+            <tr><td class="k">Uang sejumlah</td><td class="s">:</td><td><em>{{ ucfirst(Terbilang::rupiah($receipt['amount'])) }}</em></td></tr>
+            <tr><td class="k">Untuk pembayaran</td><td class="s">:</td><td>{{ $receipt['type'] === 'dp' ? 'Uang muka' : 'Pembayaran' }} tagihan {{ $i['number'] ?? 'Draft' }}, {{ $receipt['method_name'] ?? '-' }}{{ $receipt['reference_no'] ? ' (ref. '.$receipt['reference_no'].')' : '' }}</td></tr>
+            <tr><td class="k">Tanggal pembayaran</td><td class="s">:</td><td>{{ $receipt['paid_at_local'] }}</td></tr>
         </table>
 
-        <table class="rows" style="margin-top: 8px;">
+        <div class="box" style="margin-top: 10pt;"><div class="amount">{{ $rp($receipt['amount']) }},-</div></div>
+
+        <table class="sum">
+            <tr><td>Total tagihan</td><td class="v">{{ $rp($i['total_amount']) }}</td></tr>
+            <tr><td>Sudah dibayar</td><td class="v">{{ $rp($i['paid_amount']) }}</td></tr>
+            <tr class="grand"><td>Sisa tagihan</td><td class="v">{{ $rp($i['balance_amount']) }}</td></tr>
+        </table>
+
+        <table class="sign">
+            <tr>
+                <td style="width: 50%; vertical-align: bottom;">
+                    @if ($receipt['amount'] >= 5000000 && ! $thermal)
+                        <div class="box" style="width: 110pt; margin: 0 auto; padding: 14pt 6pt;"><div class="small">Meterai Rp10.000</div><div class="small muted">(dokumen bernilai Rp5.000.000 atau lebih)</div></div>
+                    @endif
+                </td>
+                <td style="width: 50%;">
+                    <div class="role">Penerima,</div>
+                    <div class="space"></div>
+                    <div class="name">{{ $receipt['received_by_name'] ?? '-' }}</div>
+                    <div class="meta">Kasir {{ $letterhead['name'] }}</div>
+                </td>
+            </tr>
+        </table>
+    @else
+        <table class="kv">
+            <tr><td class="k">Ditagihkan kepada</td><td class="s">:</td><td><strong>{{ $i['patient_name'] ?? '-' }}</strong> (RM {{ $i['medical_record_no'] ?? '-' }})</td></tr>
+            <tr><td class="k">Tanggal terbit</td><td class="s">:</td><td>{{ $i['issued_at_local'] ?? '-' }}</td></tr>
+            <tr><td class="k">Status</td><td class="s">:</td><td>{{ $i['status_label'] }}</td></tr>
+        </table>
+
+        <h2 class="section">Rincian biaya</h2>
+        <table class="data">
             <thead>
-                <tr><th>Uraian</th><th class="r">Jml</th><th class="r">Harga</th><th class="r">Diskon</th><th class="r">Total</th></tr>
+                <tr>
+                    <th class="no">No</th>
+                    <th>Uraian</th>
+                    <th class="num" style="width: 8%;">Jml</th>
+                    <th class="num">Harga</th>
+                    @unless ($thermal)<th class="num">Diskon</th>@endunless
+                    <th class="num">Jumlah</th>
+                </tr>
             </thead>
             <tbody>
-                @foreach ($items as $item)
+                @foreach ($items as $n => $item)
                     <tr>
-                        <td>{{ $item['description'] }}@if ($item['discount_reason'])<br><small>Diskon: {{ $item['discount_reason'] }}</small>@endif</td>
-                        <td class="r">{{ $item['quantity'] }}</td>
-                        <td class="r">{{ $rp($item['unit_price_amount']) }}</td>
-                        <td class="r">{{ $item['discount_amount'] > 0 ? $rp($item['discount_amount']) : '-' }}</td>
-                        <td class="r">{{ $rp($item['total_amount']) }}</td>
+                        <td class="no">{{ $n + 1 }}</td>
+                        <td>{{ $item['description'] }}@if ($item['discount_reason'])<div class="note">Diskon: {{ $item['discount_reason'] }}</div>@endif @if ($thermal && $item['discount_amount'] > 0)<div class="note">Diskon {{ $rp($item['discount_amount']) }}</div>@endif</td>
+                        <td class="num">{{ $item['quantity'] }}</td>
+                        <td class="num">{{ $rp($item['unit_price_amount']) }}</td>
+                        @unless ($thermal)<td class="num">{{ $item['discount_amount'] > 0 ? $rp($item['discount_amount']) : '-' }}</td>@endunless
+                        <td class="num">{{ $rp($item['total_amount']) }}</td>
                     </tr>
                 @endforeach
             </tbody>
-            <tfoot>
-                <tr><td colspan="4" class="r">Subtotal</td><td class="r">{{ $rp($i['subtotal_amount']) }}</td></tr>
-                @if ($i['discount_amount'] > 0)
-                    <tr><td colspan="4" class="r">Diskon tagihan{{ $i['discount_reason'] ? ' ('.$i['discount_reason'].')' : '' }}</td><td class="r">-{{ $rp($i['discount_amount']) }}</td></tr>
-                @endif
-                @if ($i['tax_amount'] > 0)
-                    <tr><td colspan="4" class="r">Pajak ({{ rtrim(rtrim(number_format($i['tax_basis_points'] / 100, 2, ',', '.'), '0'), ',') }}%)</td><td class="r">{{ $rp($i['tax_amount']) }}</td></tr>
-                @endif
-                <tr class="total"><td colspan="4" class="r">TOTAL</td><td class="r">{{ $rp($i['total_amount']) }}</td></tr>
-                <tr><td colspan="4" class="r">Dibayar</td><td class="r">{{ $rp($i['paid_amount']) }}</td></tr>
-                <tr class="total"><td colspan="4" class="r">Sisa</td><td class="r">{{ $rp($i['balance_amount']) }}</td></tr>
-            </tfoot>
         </table>
 
+        <table class="sum">
+            <tr><td>Subtotal</td><td class="v">{{ $rp($i['subtotal_amount']) }}</td></tr>
+            @if ($i['discount_amount'] > 0)
+                <tr><td>Diskon tagihan{{ $i['discount_reason'] ? ' ('.$i['discount_reason'].')' : '' }}</td><td class="v">-{{ $rp($i['discount_amount']) }}</td></tr>
+            @endif
+            @if ($i['tax_amount'] > 0)
+                <tr><td>Pajak ({{ rtrim(rtrim(number_format($i['tax_basis_points'] / 100, 2, ',', '.'), '0'), ',') }}%)</td><td class="v">{{ $rp($i['tax_amount']) }}</td></tr>
+            @endif
+            <tr class="grand"><td>Total</td><td class="v">{{ $rp($i['total_amount']) }}</td></tr>
+            <tr><td>Sudah dibayar</td><td class="v">{{ $rp($i['paid_amount']) }}</td></tr>
+            <tr><td class="b">Sisa tagihan</td><td class="v b">{{ $rp($i['balance_amount']) }}</td></tr>
+        </table>
+
+        <p class="terbilang">Terbilang: <b>{{ ucfirst(Terbilang::rupiah($i['total_amount'])) }}</b></p>
+
         @if (count($payments) > 0)
-            <h2>Pembayaran</h2>
-            <table class="rows">
+            <h2 class="section">Riwayat pembayaran</h2>
+            <table class="data">
+                <thead>
+                    <tr><th>Tanggal</th><th>Jenis dan metode</th><th>Kwitansi</th><th class="num">Jumlah</th></tr>
+                </thead>
                 <tbody>
                     @foreach ($payments as $p)
                         <tr>
                             <td>{{ $p['paid_at_local'] }}</td>
-                            <td>{{ $p['type_label'] }} - {{ $p['method_name'] ?? '-' }}</td>
-                            <td>{{ $p['receipt_no'] ?? '' }}</td>
-                            <td class="r">{{ $p['type'] === 'refund' ? '-' : '' }}{{ $rp($p['amount']) }}</td>
+                            <td>{{ $p['type_label'] }} · {{ $p['method_name'] ?? '-' }}</td>
+                            <td>{{ $p['receipt_no'] ?? '-' }}</td>
+                            <td class="num">{{ $p['type'] === 'refund' ? '-' : '' }}{{ $rp($p['amount']) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         @endif
+
+        <table class="sign">
+            <tr>
+                <td style="width: 58%;"></td>
+                <td style="width: 42%;">
+                    <div class="role">Hormat kami,<br>{{ $letterhead['name'] }}</div>
+                    <div class="space"></div>
+                    <div class="blank">Kasir</div>
+                </td>
+            </tr>
+        </table>
     @endif
 
-    <p style="margin-top: 14px;">Terima kasih.</p>
-</body>
-</html>
+    <p class="small muted" style="margin-top: 12pt;">Terima kasih atas kepercayaan Anda. Simpan dokumen ini sebagai bukti.</p>
+@endsection

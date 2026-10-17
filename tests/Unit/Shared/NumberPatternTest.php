@@ -45,3 +45,14 @@ it('SYS-04 format tidak sah ditolak', function (string $pattern) {
 it('SYS-04 nomor urut harus mulai dari 1', function () {
     (new NumberPattern('{seq}'))->render(0, new DateTimeImmutable);
 })->throws(InvalidArgumentException::class);
+
+it('PRN token {rom} menulis bulan dengan angka Romawi tanpa memulai ulang urutan tiap bulan', function () {
+    $pola = new NumberPattern('{seq:3}/SKD/{rom}/{yyyy}');
+    $juni = new DateTimeImmutable('2025-06-16 07:00:00', new DateTimeZone('Asia/Jakarta'));
+    $desember = new DateTimeImmutable('2025-12-01 07:00:00', new DateTimeZone('Asia/Jakarta'));
+
+    expect($pola->render(1, $juni, 'Asia/Jakarta'))->toBe('001/SKD/VI/2025')
+        ->and($pola->render(12, $desember, 'Asia/Jakarta'))->toBe('012/SKD/XII/2025')
+        ->and($pola->scopeKey($juni, 'Asia/Jakarta'))->toBe('2025')
+        ->and($pola->scopeKey($desember, 'Asia/Jakarta'))->toBe('2025');
+});
