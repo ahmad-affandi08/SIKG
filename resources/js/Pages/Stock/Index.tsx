@@ -198,7 +198,7 @@ export default function Index({ medicines, selected, movements, can }: Props) {
                     <Link
                       href={`/stock?medicine=${medicine.id}`}
                       preserveScroll
-                      className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
+                      className="btn btn-secondary"
                       aria-label={`Riwayat mutasi ${medicine.name}`}
                     >
                       Riwayat

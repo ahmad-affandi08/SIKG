@@ -21,12 +21,12 @@ export function PatientPicker({ selected, onSelect, error }: PatientPickerProps)
   if (selected) {
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-slate-900">Pasien</span>
+        <span className="text-sm font-medium text-slate-700">Pasien</span>
         <div className="flex items-center gap-3">
           <span className="text-sm">{selected.name}</span>
           <button
             type="button"
-            className="min-h-touch rounded-control px-3 text-sm ring-1 ring-slate-300"
+            className="btn btn-secondary"
             onClick={() => {
               onSelect(null);
               setText('');
@@ -41,7 +41,7 @@ export function PatientPicker({ selected, onSelect, error }: PatientPickerProps)
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-medium text-slate-900">
+      <label htmlFor={id} className="text-sm font-medium text-slate-700">
         Cari pasien (nama, nomor RM, NIK, atau HP)
       </label>
       <input
@@ -53,7 +53,7 @@ export function PatientPicker({ selected, onSelect, error }: PatientPickerProps)
           setText(event.target.value);
         }}
         aria-invalid={error ? true : undefined}
-        className="min-h-touch rounded-control px-3 ring-1 ring-slate-300"
+        className="field"
       />
       {error ? (
         <p role="alert" className="text-danger-600 text-sm">
@@ -64,7 +64,7 @@ export function PatientPicker({ selected, onSelect, error }: PatientPickerProps)
         <p className="text-sm text-slate-600">Pasien tidak ditemukan.</p>
       ) : null}
       {results.length > 0 ? (
-        <ul className="rounded-control ring-1 ring-slate-200">
+        <ul className="card">
           {results.map((patient) => (
             <li key={patient.id}>
               <button

@@ -121,11 +121,7 @@ export function PrescriptionPanel({
         <p className="text-sm text-slate-600">Belum ada resep.</p>
       ) : null}
       {prescriptions.map((prescription) => (
-        <section
-          key={prescription.id}
-          aria-label="Resep"
-          className="rounded-control flex flex-col gap-2 p-3 ring-1 ring-slate-200"
-        >
+        <section key={prescription.id} aria-label="Resep" className="card flex flex-col gap-2 p-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-medium">{formatDateTime(prescription.issued_at, timezone)}</span>
             {prescription.status === 'void' ? (
@@ -225,14 +221,11 @@ export function PrescriptionPanel({
           onSubmit={submit}
           noValidate
           aria-label="Buat resep"
-          className="rounded-control flex flex-col gap-4 p-3 ring-1 ring-slate-200"
+          className="card flex flex-col gap-4 p-3"
         >
           <h3 className="text-base font-semibold">Resep baru</h3>
           {rows.map((row, index) => (
-            <fieldset
-              key={index}
-              className="rounded-control flex flex-col gap-3 p-3 ring-1 ring-slate-200"
-            >
+            <fieldset key={index} className="card flex flex-col gap-3 p-3">
               <legend className="px-1 text-sm font-medium">Obat {index + 1}</legend>
               <MedicinePicker
                 selected={row.medicine_id ? { id: row.medicine_id, name: row.medicineName } : null}

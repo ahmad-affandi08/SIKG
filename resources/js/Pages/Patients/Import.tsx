@@ -79,10 +79,7 @@ export default function Import({ batch }: Props) {
               <li>Periksa pratinjau, lalu konfirmasi impor.</li>
             </ol>
             <div>
-              <a
-                href="/patients/import/template"
-                className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
-              >
+              <a href="/patients/import/template" className="btn btn-secondary">
                 Unduh templat Excel
               </a>
             </div>
@@ -222,10 +219,7 @@ export default function Import({ batch }: Props) {
             ) : null}
 
             <div>
-              <Link
-                href="/patients/import"
-                className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
-              >
+              <Link href="/patients/import" className="btn btn-secondary">
                 Impor berkas lain
               </Link>
             </div>

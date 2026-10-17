@@ -115,9 +115,7 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
                 key={tab.key}
                 href={`/settings/master/${tab.key}`}
                 aria-current={tab.key === entity.key ? 'page' : undefined}
-                className={`min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300 ${
-                  tab.key === entity.key ? 'bg-brand-600 text-white' : ''
-                }`}
+                className="btn btn-secondary"
               >
                 {tab.title}
               </Link>
@@ -136,7 +134,7 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
             onSubmit={submit}
             noValidate
             aria-label={editing === null ? 'Tambah data' : 'Ubah data'}
-            className="rounded-control flex max-w-xl flex-col gap-4 p-4 ring-1 ring-slate-200"
+            className="card flex max-w-xl flex-col gap-4 p-4"
           >
             {entity.fields.map((field) =>
               field.type === 'select' ? (

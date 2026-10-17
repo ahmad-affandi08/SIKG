@@ -222,7 +222,7 @@ export default function Form({ patient, consent, sexes }: Props) {
             </Button>
             <Link
               href={editing ? `/patients/${patient.id}` : '/patients'}
-              className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
+              className="btn btn-secondary"
             >
               Batal
             </Link>

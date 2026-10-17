@@ -25,25 +25,19 @@ export default function Index({ sexes }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-semibold">Pasien</h1>
           {can('patient.import') ? (
-            <Link
-              href="/patients/import"
-              className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
-            >
+            <Link href="/patients/import" className="btn btn-secondary">
               Impor dari Excel
             </Link>
           ) : null}
           {can('patient.create') ? (
-            <Link
-              href="/patients/create"
-              className="min-h-touch rounded-control bg-brand-600 hover:bg-brand-700 inline-flex items-center px-4 text-sm font-medium text-white"
-            >
+            <Link href="/patients/create" className="btn btn-primary">
               Daftarkan pasien baru
             </Link>
           ) : null}
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="patient-search" className="text-sm font-medium text-slate-900">
+          <label htmlFor="patient-search" className="text-sm font-medium text-slate-700">
             Cari pasien (nama, nomor RM, NIK, atau nomor HP)
           </label>
           <input
@@ -54,7 +48,7 @@ export default function Index({ sexes }: Props) {
             onChange={(event) => {
               setText(event.target.value);
             }}
-            className="min-h-touch rounded-control px-3 ring-1 ring-slate-300"
+            className="field"
           />
         </div>
 

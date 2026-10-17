@@ -276,7 +276,7 @@ export function SoapPanel({
       <fieldset disabled={!canWrite} className="flex flex-col gap-4">
         {SOAP_FIELDS.map((field) => (
           <div key={field.key} className="flex flex-col gap-1">
-            <label htmlFor={`soap-${field.key}`} className="text-sm font-medium text-slate-900">
+            <label htmlFor={`soap-${field.key}`} className="text-sm font-medium text-slate-700">
               {field.label}
             </label>
             <textarea
@@ -287,7 +287,7 @@ export function SoapPanel({
                 setValues((v) => ({ ...v, [field.key]: event.target.value }));
               }}
               aria-invalid={errors[field.key] ? true : undefined}
-              className="rounded-control px-3 py-2 ring-1 ring-slate-300"
+              className="field py-2"
             />
             {initial[field.key] ? (
               <p className="text-xs text-slate-600">
@@ -377,10 +377,7 @@ export function DiagnosisPanel({
       {entries.length === 0 ? <p className="text-sm text-slate-600">Belum ada diagnosa.</p> : null}
       <ul className="flex flex-col gap-2">
         {entries.map((entry) => (
-          <li
-            key={entry.id}
-            className="rounded-control flex flex-wrap items-center gap-2 p-2 ring-1 ring-slate-200"
-          >
+          <li key={entry.id} className="card flex flex-wrap items-center gap-2 p-2">
             <Badge>{entry.code}</Badge>
             <span className="text-sm font-medium">{entry.name}</span>
             {entry.tooth_fdi ? <span className="text-sm">gigi {entry.tooth_fdi}</span> : null}
@@ -406,7 +403,7 @@ export function DiagnosisPanel({
           onSubmit={submit}
           noValidate
           aria-label="Tambah diagnosa"
-          className="rounded-control flex flex-col gap-3 p-3 ring-1 ring-slate-200"
+          className="card flex flex-col gap-3 p-3"
         >
           {picked ? (
             <div className="flex items-center gap-3">
@@ -415,7 +412,7 @@ export function DiagnosisPanel({
               </span>
               <button
                 type="button"
-                className="min-h-touch rounded-control px-3 text-sm ring-1 ring-slate-300"
+                className="btn btn-secondary"
                 onClick={() => {
                   setPicked(null);
                 }}
@@ -621,7 +618,7 @@ export function ProcedurePanel({
           onSubmit={submit}
           noValidate
           aria-label="Tambah tindakan"
-          className="rounded-control flex flex-col gap-3 p-3 ring-1 ring-slate-200"
+          className="card flex flex-col gap-3 p-3"
         >
           <ProcedurePicker
             selected={procedure}
@@ -758,7 +755,7 @@ export function AddendumPanel({
       {addenda.length === 0 ? <p className="text-sm text-slate-600">Belum ada addendum.</p> : null}
       <ul className="flex flex-col gap-2">
         {addenda.map((note) => (
-          <li key={note.id} className="rounded-control p-2 ring-1 ring-slate-200">
+          <li key={note.id} className="card p-2">
             <p className="text-sm">{note.body}</p>
             <p className="text-xs text-slate-600">
               {note.author}, {formatDateTime(note.authored_at, timezone)}. Alasan: {note.reason}
@@ -771,7 +768,7 @@ export function AddendumPanel({
           onSubmit={submit}
           noValidate
           aria-label="Tambah addendum"
-          className="rounded-control flex flex-col gap-3 p-3 ring-1 ring-slate-200"
+          className="card flex flex-col gap-3 p-3"
         >
           <div className="flex flex-col gap-1">
             <label htmlFor="addendum-body" className="text-sm font-medium">
@@ -784,7 +781,7 @@ export function AddendumPanel({
               onChange={(event) => {
                 setValues((v) => ({ ...v, body: event.target.value }));
               }}
-              className="rounded-control px-3 py-2 ring-1 ring-slate-300"
+              className="field py-2"
             />
             {errors.body ? (
               <p role="alert" className="text-danger-600 text-sm">
@@ -888,10 +885,7 @@ export function FilesPanel({
       {files.length === 0 ? <p className="text-sm text-slate-600">Belum ada berkas.</p> : null}
       <ul className="flex flex-col gap-2">
         {files.map((f) => (
-          <li
-            key={f.id}
-            className="rounded-control flex flex-wrap items-center gap-2 p-2 ring-1 ring-slate-200"
-          >
+          <li key={f.id} className="card flex flex-wrap items-center gap-2 p-2">
             <Badge>{f.kind_label}</Badge>
             <a
               href={`/clinical-files/${f.id}`}
@@ -926,7 +920,7 @@ export function FilesPanel({
           onSubmit={submit}
           noValidate
           aria-label="Unggah berkas"
-          className="rounded-control flex flex-col gap-3 p-3 ring-1 ring-slate-200"
+          className="card flex flex-col gap-3 p-3"
         >
           <div className="flex flex-col gap-1">
             <label htmlFor="clinical-file" className="text-sm font-medium">

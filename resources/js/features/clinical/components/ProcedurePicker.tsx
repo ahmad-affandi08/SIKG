@@ -22,14 +22,14 @@ export function ProcedurePicker({ selected, onSelect, error }: ProcedurePickerPr
   if (selected) {
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-slate-900">Tindakan</span>
+        <span className="text-sm font-medium text-slate-700">Tindakan</span>
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm">
             {selected.code} - {selected.name} ({formatRupiah(selected.price_amount)})
           </span>
           <button
             type="button"
-            className="min-h-touch rounded-control px-3 text-sm ring-1 ring-slate-300"
+            className="btn btn-secondary"
             onClick={() => {
               onSelect(null);
               setText('');
@@ -44,7 +44,7 @@ export function ProcedurePicker({ selected, onSelect, error }: ProcedurePickerPr
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-medium text-slate-900">
+      <label htmlFor={id} className="text-sm font-medium text-slate-700">
         Cari tindakan (kode atau nama)
       </label>
       <input
@@ -55,7 +55,7 @@ export function ProcedurePicker({ selected, onSelect, error }: ProcedurePickerPr
           setText(event.target.value);
         }}
         aria-invalid={error ? true : undefined}
-        className="min-h-touch rounded-control px-3 ring-1 ring-slate-300"
+        className="field"
       />
       {error ? (
         <p role="alert" className="text-danger-600 text-sm">
@@ -66,7 +66,7 @@ export function ProcedurePicker({ selected, onSelect, error }: ProcedurePickerPr
         <p className="text-sm text-slate-600">Tindakan tidak ditemukan.</p>
       ) : null}
       {results.length > 0 ? (
-        <ul className="rounded-control ring-1 ring-slate-200">
+        <ul className="card">
           {results.map((procedure) => (
             <li key={procedure.id}>
               <button

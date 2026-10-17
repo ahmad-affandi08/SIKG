@@ -131,10 +131,7 @@ export default function Form({ user, roles, branches, canManage = true }: Props)
                 {editing ? 'Simpan perubahan' : 'Buat pengguna'}
               </Button>
             ) : null}
-            <Link
-              href="/settings/users"
-              className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
-            >
+            <Link href="/settings/users" className="btn btn-secondary">
               Kembali
             </Link>
           </div>

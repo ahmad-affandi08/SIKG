@@ -140,7 +140,7 @@ export default function Index({ doctors, chairs, canManage }: Props) {
             onSubmit={submit}
             noValidate
             aria-label="Pasien tanpa janji"
-            className="rounded-control flex max-w-xl flex-col gap-3 p-4 ring-1 ring-slate-200"
+            className="card flex max-w-xl flex-col gap-3 p-4"
           >
             <h2 className="text-lg font-semibold">Pasien tanpa janji (walk-in)</h2>
             <PatientPicker selected={patient} onSelect={setPatient} error={errors.patient_id} />

@@ -24,7 +24,7 @@ export function DiagnosisPicker({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={inputId} className="text-sm font-medium text-slate-900">
+      <label htmlFor={inputId} className="text-sm font-medium text-slate-700">
         {label}
       </label>
       <input
@@ -38,7 +38,7 @@ export function DiagnosisPicker({
         onChange={(event) => {
           setText(event.target.value);
         }}
-        className="min-h-touch rounded-control px-3 ring-1 ring-slate-300"
+        className="field"
       />
       {query.isError ? (
         <p role="alert" className="text-danger-600 text-sm">
@@ -48,12 +48,7 @@ export function DiagnosisPicker({
       {term !== '' && query.isSuccess && results.length === 0 ? (
         <p className="text-sm text-slate-600">Diagnosa tidak ditemukan.</p>
       ) : null}
-      <ul
-        id={listId}
-        role="listbox"
-        hidden={!showList}
-        className="rounded-control ring-1 ring-slate-200"
-      >
+      <ul id={listId} role="listbox" hidden={!showList} className="card">
         {results.map((diagnosis) => (
           <li key={diagnosis.id} role="option" aria-selected={false}>
             <button

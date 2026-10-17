@@ -58,10 +58,7 @@ export default function Timeline({ patient, encounters }: Props) {
 
         <ol className="flex flex-col gap-4">
           {encounters.map((encounter) => (
-            <li
-              key={encounter.id}
-              className="rounded-control flex flex-col gap-2 p-4 ring-1 ring-slate-200"
-            >
+            <li key={encounter.id} className="card flex flex-col gap-2 p-4">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-lg font-semibold">
                   {formatDateTime(encounter.started_at, timezone)}

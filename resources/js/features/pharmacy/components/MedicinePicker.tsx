@@ -28,12 +28,12 @@ export function MedicinePicker({
   if (selected) {
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-slate-900">Obat</span>
+        <span className="text-sm font-medium text-slate-700">Obat</span>
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm">{selected.name}</span>
           <button
             type="button"
-            className="min-h-touch rounded-control px-3 text-sm ring-1 ring-slate-300"
+            className="btn btn-secondary"
             onClick={() => {
               onSelect(null);
               setText('');
@@ -48,7 +48,7 @@ export function MedicinePicker({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-medium text-slate-900">
+      <label htmlFor={id} className="text-sm font-medium text-slate-700">
         {label}
       </label>
       <input
@@ -59,7 +59,7 @@ export function MedicinePicker({
           setText(event.target.value);
         }}
         aria-invalid={error ? true : undefined}
-        className="min-h-touch rounded-control px-3 ring-1 ring-slate-300"
+        className="field"
       />
       {error ? (
         <p role="alert" className="text-danger-600 text-sm">
@@ -70,7 +70,7 @@ export function MedicinePicker({
         <p className="text-sm text-slate-600">Obat tidak ditemukan.</p>
       ) : null}
       {results.length > 0 ? (
-        <ul className="rounded-control ring-1 ring-slate-200">
+        <ul className="card">
           {results.map((medicine) => (
             <li key={medicine.id}>
               <button

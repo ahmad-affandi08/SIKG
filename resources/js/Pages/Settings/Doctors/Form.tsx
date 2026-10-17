@@ -185,10 +185,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
 
             <h2 className="text-base font-semibold">Pengecualian per tindakan</h2>
             {form.data.fee_overrides.map((row, index) => (
-              <div
-                key={index}
-                className="rounded-control flex flex-col gap-3 p-3 ring-1 ring-slate-200"
-              >
+              <div key={index} className="card flex flex-col gap-3 p-3">
                 <TextField
                   label={`Kode tindakan ${String(index + 1)}`}
                   value={row.code}
@@ -249,10 +246,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
           <fieldset className="flex flex-col gap-4">
             <legend className="text-lg font-semibold">Jadwal praktik mingguan</legend>
             {form.data.schedule.map((slot, index) => (
-              <div
-                key={index}
-                className="rounded-control flex flex-wrap items-end gap-3 p-3 ring-1 ring-slate-200"
-              >
+              <div key={index} className="card flex flex-wrap items-end gap-3 p-3">
                 <Select
                   label={`Hari ${String(index + 1)}`}
                   options={WEEKDAYS.map((w) => ({ value: w.day, label: w.label }))}
@@ -311,10 +305,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
             <Button type="submit" loading={form.processing}>
               {editing ? 'Simpan perubahan' : 'Tambah dokter'}
             </Button>
-            <Link
-              href="/settings/doctors"
-              className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
-            >
+            <Link href="/settings/doctors" className="btn btn-secondary">
               Kembali
             </Link>
           </div>

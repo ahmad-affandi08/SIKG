@@ -111,18 +111,12 @@ export default function Show({
           </div>
           <div className="flex flex-wrap gap-2">
             {can.timeline ? (
-              <Link
-                href={`/patients/${patient.id}/timeline`}
-                className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
-              >
+              <Link href={`/patients/${patient.id}/timeline`} className="btn btn-secondary">
                 Riwayat kunjungan
               </Link>
             ) : null}
             {can.update ? (
-              <Link
-                href={`/patients/${patient.id}/edit`}
-                className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
-              >
+              <Link href={`/patients/${patient.id}/edit`} className="btn btn-secondary">
                 Ubah data
               </Link>
             ) : null}
@@ -182,10 +176,7 @@ export default function Show({
           ) : (
             <ul className="flex flex-col gap-2">
               {histories.map((h) => (
-                <li
-                  key={h.id}
-                  className="rounded-control flex flex-wrap items-center gap-2 p-2 ring-1 ring-slate-200"
-                >
+                <li key={h.id} className="card flex flex-wrap items-center gap-2 p-2">
                   <Badge tone={h.is_warning ? 'danger' : 'neutral'}>
                     {labelOf(historyTypes, h.type)}
                   </Badge>
@@ -212,11 +203,7 @@ export default function Show({
           )}
 
           {can.history ? (
-            <form
-              onSubmit={submit}
-              noValidate
-              className="rounded-control flex flex-col gap-3 p-3 ring-1 ring-slate-200"
-            >
+            <form onSubmit={submit} noValidate className="card flex flex-col gap-3 p-3">
               <h3 className="text-base font-semibold">Tambah riwayat</h3>
               <Select
                 label="Jenis"

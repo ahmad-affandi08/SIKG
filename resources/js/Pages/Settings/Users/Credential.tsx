@@ -34,10 +34,7 @@ export default function Credential({ name, username, temporaryPassword }: Props)
             </code>
           </dd>
         </dl>
-        <Link
-          href="/settings/users"
-          className="min-h-touch rounded-control bg-brand-600 inline-flex w-fit items-center px-4 text-sm font-medium text-white"
-        >
+        <Link href="/settings/users" className="btn btn-primary w-fit">
           Selesai
         </Link>
       </main>

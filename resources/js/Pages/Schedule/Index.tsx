@@ -224,10 +224,7 @@ export default function Index({ filters, today, calendar, doctors, chairs, canMa
               ) : (
                 <ul className="flex flex-col gap-2">
                   {items.map((item) => (
-                    <li
-                      key={item.id}
-                      className="rounded-control flex flex-col gap-2 p-3 ring-1 ring-slate-200"
-                    >
+                    <li key={item.id} className="card flex flex-col gap-2 p-3">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold">
                           {item.start} - {item.end}
@@ -406,7 +403,7 @@ function SlotPicker({
             onClick={() => {
               onPick(slot);
             }}
-            className={`min-h-touch rounded-control px-3 text-sm ring-1 ring-slate-300 ${slot === time ? 'bg-brand-600 text-white' : ''}`}
+            className="btn btn-secondary"
           >
             {slot}
           </button>
@@ -473,7 +470,7 @@ function AppointmentForm({
       onSubmit={submit}
       noValidate
       aria-label="Buat janji"
-      className="rounded-control flex max-w-xl flex-col gap-3 p-4 ring-1 ring-slate-200"
+      className="card flex max-w-xl flex-col gap-3 p-4"
     >
       <h2 className="text-lg font-semibold">Buat janji</h2>
       <PatientPicker selected={patient} onSelect={setPatient} error={errors.patient_id} />
@@ -612,7 +609,7 @@ function RescheduleForm({
       onSubmit={submit}
       noValidate
       aria-label="Jadwal ulang"
-      className="rounded-control flex max-w-xl flex-col gap-3 p-4 ring-1 ring-slate-200"
+      className="card flex max-w-xl flex-col gap-3 p-4"
     >
       <h2 className="text-lg font-semibold">Jadwal ulang {item.patient_name ?? ''}</h2>
       <Select

@@ -26,10 +26,7 @@ export default function Index({ doctors }: Props) {
         <Head title="Dokter" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-semibold">Dokter</h1>
-          <Link
-            href="/settings/doctors/create"
-            className="min-h-touch rounded-control bg-brand-600 hover:bg-brand-700 inline-flex items-center px-4 text-sm font-medium text-white"
-          >
+          <Link href="/settings/doctors/create" className="btn btn-primary">
             Tambah dokter
           </Link>
         </div>
@@ -70,7 +67,7 @@ export default function Index({ doctors }: Props) {
                   <div className="flex flex-wrap gap-2">
                     <Link
                       href={`/settings/doctors/${doctor.id}/edit`}
-                      className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
+                      className="btn btn-secondary"
                     >
                       Ubah
                     </Link>

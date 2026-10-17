@@ -13,14 +13,14 @@ export function TextField({ label, error, className = '', ...rest }: TextFieldPr
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-medium text-slate-900">
+      <label htmlFor={id} className="text-sm font-medium text-slate-700">
         {label}
       </label>
       <input
         id={id}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
-        className={`min-h-touch rounded-control aria-[invalid=true]:ring-danger-600 px-3 ring-1 ring-slate-300 ${className}`}
+        className={`field ${className}`}
         {...rest}
       />
       {error ? (

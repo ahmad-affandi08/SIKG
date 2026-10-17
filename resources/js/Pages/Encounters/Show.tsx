@@ -167,7 +167,7 @@ export default function Show(props: Props) {
           </p>
         ) : null}
 
-        <div role="tablist" aria-label="Bagian pemeriksaan" className="flex flex-wrap gap-2">
+        <div role="tablist" aria-label="Bagian pemeriksaan" className="tabs">
           {TABS.map((item) => (
             <button
               key={item.key}
@@ -179,7 +179,7 @@ export default function Show(props: Props) {
               onClick={() => {
                 setTab(item.key);
               }}
-              className={`min-h-touch rounded-control px-4 text-sm ring-1 ring-slate-300 ${tab === item.key ? 'bg-brand-600 text-white' : ''}`}
+              className="tab"
             >
               {item.label}
             </button>
