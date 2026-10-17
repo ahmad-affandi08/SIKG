@@ -27,7 +27,7 @@ import type {
 import { PrescriptionPanel } from '@/features/pharmacy/components/PrescriptionPanel';
 import type { PrescriptionData } from '@/features/pharmacy/components/PrescriptionPanel';
 import { OdontogramBoard } from '@/features/clinical/odontogram/OdontogramBoard';
-import { formatDateTime } from '@/lib/format';
+import { formatDateTime, formatRupiah } from '@/lib/format';
 import { useQueue } from '@/features/scheduling/queries';
 import { useCan } from '@/lib/permissions';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
@@ -52,6 +52,14 @@ interface Props {
   files: FileEntry[];
   prescriptions: PrescriptionData[];
   initialTab: TabKey;
+  invoice: {
+    id: string;
+    number: string | null;
+    status: string;
+    status_label: string;
+    total_amount: number;
+    paid_amount: number;
+  } | null;
   warnings: Warning[];
   medical_history: Warning[];
   chairs: SelectOption[];
@@ -91,6 +99,7 @@ export default function Show(props: Props) {
     files,
     prescriptions,
     warnings,
+    invoice,
     medical_history: medicalHistory,
     chairs,
     jaws,
@@ -289,6 +298,17 @@ export default function Show(props: Props) {
                       </li>
                     ))}
                   </ul>
+                </section>
+              ) : null}
+              {invoice ? (
+                <section aria-label="Tagihan">
+                  <h3>Tagihan</h3>
+                  <p>
+                    <Link href={`/invoices/${invoice.id}`} className="text-brand-700 underline">
+                      {invoice.number ?? 'Draft'}
+                    </Link>
+                    : {invoice.status_label}, {formatRupiah(invoice.total_amount)}
+                  </p>
                 </section>
               ) : null}
               <p className="flex flex-wrap gap-1.5">

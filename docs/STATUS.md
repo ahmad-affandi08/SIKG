@@ -19,7 +19,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] MST-05 | M | Katalog obat dan bahan
 - [x] MST-06 | M | Metode pembayaran
 - [x] MST-07 | M | Master diagnosa berbasis ICD-10 (bab K00-K14 penyakit rongga mulut) dengan ...
-- [ ] MST-08 | M | Perubahan tarif tidak mengubah tagihan lama
+- [x] MST-08 | M | Perubahan tarif tidak mengubah tagihan lama
 - [x] PAS-01 | M | Pasien baru
 - [x] PAS-02 | M | Pencarian pasien berdasarkan nama, nomor RM, NIK, atau HP
 - [x] PAS-03 | M | Deteksi duplikat
@@ -49,13 +49,13 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] OBT-03 | M | Cetak resep dengan kop klinik dan nama dokter
 - [x] OBT-04 | M | Obat yang dijual di klinik masuk tagihan dan mengurangi stok otomatis
 - [x] OBT-05 | M | Stok masuk, stok keluar (penjualan dan pemakaian), dan penyesuaian stok ...
-- [ ] KSR-01 | M | Tagihan dibuat otomatis dari tindakan dan obat pada kunjungan
-- [ ] KSR-02 | M | Diskon per item atau per tagihan (persen atau nominal) dengan alasan wajib
-- [ ] KSR-03 | M | Pembayaran tunai, transfer, QRIS, debit, kredit, termasuk pembayaran campuran ...
-- [ ] KSR-04 | M | Uang muka (DP) dan pembayaran sebagian
-- [ ] KSR-06 | M | Invoice dan kwitansi bernomor urut otomatis, cetak A4 dan printer termal 80 mm, ...
-- [ ] KSR-07 | M | Pembatalan tagihan (void) hanya oleh Admin atau Pemilik dengan alasan
-- [ ] KSR-08 | M | Tutup kas harian
+- [x] KSR-01 | M | Tagihan dibuat otomatis dari tindakan dan obat pada kunjungan
+- [x] KSR-02 | M | Diskon per item atau per tagihan (persen atau nominal) dengan alasan wajib
+- [x] KSR-03 | M | Pembayaran tunai, transfer, QRIS, debit, kredit, termasuk pembayaran campuran ...
+- [x] KSR-04 | M | Uang muka (DP) dan pembayaran sebagian
+- [x] KSR-06 | M | Invoice dan kwitansi bernomor urut otomatis, cetak A4 dan printer termal 80 mm, ...
+- [x] KSR-07 | M | Pembatalan tagihan (void) hanya oleh Admin atau Pemilik dengan alasan
+- [x] KSR-08 | M | Tutup kas harian
 - [ ] SYS-01 | M | Audit log
 - [ ] SYS-02 | M | Cadangan basis data dan berkas unggahan otomatis harian, dengan uji pemulihan ...
 - [ ] SYS-03 | M | Soft delete untuk data klinis dan keuangan

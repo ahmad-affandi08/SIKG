@@ -34,6 +34,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Layanan',
   },
   { label: 'Stok obat', href: '/stock', permission: 'stock.view', group: 'Farmasi' },
+  { label: 'Tagihan', href: '/invoices', permission: 'invoice.view', group: 'Kasir' },
+  { label: 'Tutup kas', href: '/cash-closings', permission: 'cash.close', group: 'Kasir' },
   {
     label: 'Pengguna',
     href: '/settings/users',

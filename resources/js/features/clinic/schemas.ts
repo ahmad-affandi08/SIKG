@@ -25,6 +25,11 @@ export const clinicSettingsSchema = z.object({
   session_timeout_minutes: z.number().int('Harus bilangan bulat.').min(5, 'Minimal 5 menit.'),
   medical_record_pattern: numberPattern,
   invoice_pattern: numberPattern,
+  discount_limits: z.object({
+    pemilik: z.number().int('Harus bilangan bulat.').min(0, 'Minimal 0.').max(100, 'Maksimal 100.'),
+    admin: z.number().int('Harus bilangan bulat.').min(0, 'Minimal 0.').max(100, 'Maksimal 100.'),
+    kasir: z.number().int('Harus bilangan bulat.').min(0, 'Minimal 0.').max(100, 'Maksimal 100.'),
+  }),
   operating_hours: z.record(z.string(), dayHours),
 });
 

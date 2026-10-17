@@ -5,13 +5,15 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
 import { formatDate } from '@/lib/format';
 
-const QUICK_ACCESS_GROUPS = new Set(['Layanan', 'Farmasi']);
+const QUICK_ACCESS_GROUPS = new Set(['Layanan', 'Farmasi', 'Kasir']);
 
 const DESCRIPTIONS: Record<string, string> = {
   '/patients': 'Cari, daftarkan, dan buka rekam medis pasien.',
   '/schedule': 'Buat janji dan atur kalender dokter dan kursi.',
   '/queue': 'Pantau antrean hari ini dan masukkan pasien tanpa janji.',
   '/stock': 'Lihat stok, catat mutasi, dan lakukan penyesuaian.',
+  '/invoices': 'Tagihan, pembayaran, diskon, dan cetak kwitansi.',
+  '/cash-closings': 'Hitung uang fisik dan cocokkan dengan catatan kas.',
 };
 
 function greeting(hour: number): string {

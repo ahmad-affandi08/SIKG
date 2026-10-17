@@ -450,20 +450,24 @@ it('KSR-06 draft tanpa nomor tidak dicetak sebagai invoice; kwitansi tanpa pemba
 
 // --- KSR-08: tutup kas ---
 
-it('KSR-08 tutup kas menghitung penerimaan tunai bersih kasir dan mengabaikan non-tunai', function () {
+it('KSR-08 tutup kas menghitung tunai bersih kasir sendiri, mengabaikan non-tunai dan refund yang dicatat orang lain', function () {
     $s = tagihanTerbit();
     bayarTagihan($s, 200000, $s['tunai']);
     bayarTagihan($s, 100000, $s['qris']);
-    test()->actingAs($s['admin'])->post("/invoices/{$s['invoice']}/refunds", ['payment_method_id' => $s['tunai']->id, 'amount' => 50000, 'reason' => 'Koreksi'], ['Idempotency-Key' => 'refund-kas-001']);
+    $refundKasir = makeUser(Role::Kasir, $s['klinik']);
+    $refundKasir->givePermissionTo('payment.refund');
+    test()->actingAs($refundKasir)->post("/invoices/{$s['invoice']}/refunds", ['payment_method_id' => $s['tunai']->id, 'amount' => 50000, 'reason' => 'Koreksi'], ['Idempotency-Key' => 'refund-kas-001'])->assertSessionHasNoErrors();
+    test()->actingAs($s['admin'])->post("/invoices/{$s['invoice']}/refunds", ['payment_method_id' => $s['tunai']->id, 'amount' => 10000, 'reason' => 'Koreksi admin'], ['Idempotency-Key' => 'refund-kas-002'])->assertSessionHasNoErrors();
 
-    test()->actingAs($s['kasir'])->get('/cash-closings/create')->assertOk()->assertInertia(fn ($p) => $p->component('CashClosings/Form')->where('preview.system_amount', 150000)->where('preview.payments', 2));
+    test()->actingAs($s['kasir'])->get('/cash-closings/create')->assertOk()->assertInertia(fn ($p) => $p->component('CashClosings/Form')->where('preview.system_amount', 200000)->where('preview.payments', 1));
+    test()->actingAs($refundKasir)->get('/cash-closings/create')->assertInertia(fn ($p) => $p->where('preview.system_amount', -50000)->where('preview.payments', 1));
 
-    test()->actingAs($s['kasir'])->post('/cash-closings', ['counted_amount' => 150000])->assertSessionHasNoErrors();
+    test()->actingAs($s['kasir'])->post('/cash-closings', ['counted_amount' => 200000])->assertSessionHasNoErrors();
     tenant()->set($s['klinik']->id);
     $tutup = CashClosingModel::query()->firstOrFail();
-    expect($tutup->system_amount)->toBe(150000)->and($tutup->counted_amount)->toBe(150000)->and($tutup->difference_amount)->toBe(0)
+    expect($tutup->system_amount)->toBe(200000)->and($tutup->counted_amount)->toBe(200000)->and($tutup->difference_amount)->toBe(0)
         ->and($tutup->cashier_id)->toBe($s['kasir']->id)->and($tutup->closing_date->toDateString())->toBe('2025-06-16')
-        ->and(PaymentModel::query()->whereNotNull('cash_closing_id')->count())->toBe(3 - 1) // tunai + refund tunai; QRIS tidak ikut
+        ->and(PaymentModel::query()->whereNotNull('cash_closing_id')->count())->toBe(1) // hanya tunai milik kasir ini; QRIS dan refund orang lain tidak ikut
         ->and(AuditLogModel::query()->where('action', 'cash.closed')->exists())->toBeTrue();
 });
 

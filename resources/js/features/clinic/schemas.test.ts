@@ -12,12 +12,23 @@ const VALID = {
   session_timeout_minutes: 30,
   medical_record_pattern: 'RM-{seq:6}',
   invoice_pattern: 'INV-{yyyy}-{seq:5}',
+  discount_limits: { pemilik: 100, admin: 100, kasir: 10 },
   operating_hours: { '1': { open: '08:00', close: '17:00' }, '7': null },
 };
 
 describe('SYS-04 skema pengaturan klinik', () => {
   it('menerima pengaturan sah', () => {
     expect(clinicSettingsSchema.safeParse(VALID).success).toBe(true);
+  });
+
+  it('KSR-02 batas diskon per peran harus bilangan bulat 0 sampai 100', () => {
+    const limits = (kasir: number) => ({
+      ...VALID,
+      discount_limits: { pemilik: 100, admin: 100, kasir },
+    });
+    expect(clinicSettingsSchema.safeParse(limits(0)).success).toBe(true);
+    expect(clinicSettingsSchema.safeParse(limits(101)).success).toBe(false);
+    expect(clinicSettingsSchema.safeParse(limits(10.5)).success).toBe(false);
   });
 
   it('menolak batas sesi di bawah 5 menit dengan pesan Indonesia', () => {

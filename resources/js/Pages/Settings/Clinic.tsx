@@ -19,6 +19,7 @@ interface Props {
     session_timeout_minutes: number;
     medical_record_pattern: string;
     invoice_pattern: string;
+    discount_limits: { pemilik: number; admin: number; kasir: number };
     operating_hours: Record<string, { open: string; close: string } | null>;
   };
   sessionMaxMinutes: number;
@@ -44,6 +45,7 @@ export default function Clinic({
     session_timeout_minutes: settings.session_timeout_minutes,
     medical_record_pattern: settings.medical_record_pattern,
     invoice_pattern: settings.invoice_pattern,
+    discount_limits: settings.discount_limits,
     operating_hours: settings.operating_hours,
   });
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
@@ -147,6 +149,39 @@ export default function Clinic({
             <p className="text-muted text-sm sm:col-span-2">
               Token: {'{seq:6}'} nomor urut 6 digit (wajib, satu kali), {'{yyyy}'} {'{yy}'} {'{mm}'}{' '}
               {'{dd}'} tanggal. Urutan mulai dari 1 lagi saat tahun atau bulan di format berganti.
+            </p>
+          </section>
+
+          <section aria-labelledby="diskon" className="grid gap-4 sm:grid-cols-3">
+            <h2 id="diskon" className="sm:col-span-3">
+              Batas diskon per peran
+            </h2>
+            {(
+              [
+                ['kasir', 'Kasir'],
+                ['admin', 'Admin'],
+                ['pemilik', 'Pemilik'],
+              ] as const
+            ).map(([role, label]) => (
+              <TextField
+                key={role}
+                field={`discount_limits.${role}`}
+                label={`${label} (persen, 0 sampai 100)`}
+                type="number"
+                min={0}
+                max={100}
+                value={form.data.discount_limits[role]}
+                onChange={(event) => {
+                  form.setData('discount_limits', {
+                    ...form.data.discount_limits,
+                    [role]: Number(event.target.value),
+                  });
+                }}
+                error={error(`discount_limits.${role}`)}
+              />
+            ))}
+            <p className="text-muted text-sm sm:col-span-3">
+              Diskon tagihan atau item di atas batas ini ditolak untuk peran tersebut (KSR-02).
             </p>
           </section>
 
