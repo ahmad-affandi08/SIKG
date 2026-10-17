@@ -116,7 +116,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
         <h1>{editing ? 'Ubah dokter' : 'Tambah dokter'}</h1>
 
         <form onSubmit={submit} noValidate className="form-grid">
-          <section className="flex flex-col gap-4" aria-label="Data dokter">
+          <section className="form-grid form-wide" aria-label="Data dokter">
             <TextField
               field="name"
               label="Nama dokter"

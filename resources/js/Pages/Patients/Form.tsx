@@ -161,7 +161,7 @@ export default function Form({ patient, consent, sexes }: Props) {
         ) : null}
         {checkError ? <Alert tone="error">{checkError}</Alert> : null}
 
-        <form onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-4">
+        <form onSubmit={(event) => void submit(event)} noValidate className="form-grid">
           <TextField label="Nama lengkap" {...text('name')} />
           <TextField label="NIK" inputMode="numeric" autoComplete="off" {...text('nik')} />
           <TextField
