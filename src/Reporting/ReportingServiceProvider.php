@@ -27,6 +27,7 @@ use Src\Reporting\Infrastructure\Reports\CashClosingReport;
 use Src\Reporting\Infrastructure\Reports\DailySummaryReport;
 use Src\Reporting\Infrastructure\Reports\DoctorFeesReport;
 use Src\Reporting\Infrastructure\Reports\ProceduresReport;
+use Src\Reporting\Infrastructure\Reports\ProfitLossReport;
 use Src\Reporting\Infrastructure\Reports\ReceivablesReport;
 use Src\Reporting\Infrastructure\Reports\RecordCompletenessReport;
 use Src\Reporting\Infrastructure\Reports\RevenueReport;
@@ -39,7 +40,7 @@ final class ReportingServiceProvider extends ServiceProvider
 {
     private const REPORTS = [
         DailySummaryReport::class, RevenueReport::class, DoctorFeesReport::class, VisitsReport::class, ProceduresReport::class,
-        ReceivablesReport::class, StockReport::class, CashClosingReport::class, RecordCompletenessReport::class, UserActivityReport::class,
+        ReceivablesReport::class, StockReport::class, CashClosingReport::class, RecordCompletenessReport::class, UserActivityReport::class, ProfitLossReport::class,
     ];
 
     public function register(): void

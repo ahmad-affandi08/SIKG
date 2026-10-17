@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Src\Billing;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Src\Billing\Application\BillingNumbering;
@@ -14,6 +16,8 @@ use Src\Billing\Application\InvoiceListing;
 use Src\Billing\Contracts\EncounterChargeGateway;
 use Src\Billing\Contracts\InvoiceClaimGateway;
 use Src\Billing\Contracts\InvoiceLookup;
+use Src\Billing\Domain\ExpenseCategoryDirectory;
+use Src\Billing\Domain\ExpenseRepository;
 use Src\Billing\Domain\InstallmentRepository;
 use Src\Billing\Domain\InvoiceRepository;
 use Src\Billing\Infrastructure\BillingEncounterChargeGateway;
@@ -21,14 +25,18 @@ use Src\Billing\Infrastructure\BillingInvoiceClaimGateway;
 use Src\Billing\Infrastructure\ClinicBillingNumbering;
 use Src\Billing\Infrastructure\Eloquent\InvoiceModel;
 use Src\Billing\Infrastructure\EloquentCashRegister;
+use Src\Billing\Infrastructure\EloquentExpenseCategoryDirectory;
+use Src\Billing\Infrastructure\EloquentExpenseRepository;
 use Src\Billing\Infrastructure\EloquentInstallmentRepository;
 use Src\Billing\Infrastructure\EloquentInvoiceListing;
 use Src\Billing\Infrastructure\EloquentInvoiceRepository;
+use Src\Billing\Infrastructure\Master\ExpenseCategoryEntity;
 use Src\Clinical\Domain\Events\EncounterClosed;
 use Src\Clinical\Domain\Events\ProcedurePerformed;
 use Src\Clinical\Domain\Events\ProcedureRetracted;
 use Src\Pharmacy\Domain\Events\MedicineDispensed;
 use Src\Pharmacy\Domain\Events\MedicineReturned;
+use Src\Shared\Application\Master\MasterEntityRegistry;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Infrastructure\ModelPatientMover;
 
@@ -46,6 +54,8 @@ final class BillingServiceProvider extends ServiceProvider
         $this->app->singleton(InvoiceLookup::class, EloquentInvoiceListing::class);
         $this->app->singleton(InvoiceClaimGateway::class, BillingInvoiceClaimGateway::class);
         $this->app->singleton(EncounterChargeGateway::class, BillingEncounterChargeGateway::class);
+        $this->app->singleton(ExpenseRepository::class, EloquentExpenseRepository::class);
+        $this->app->singleton(ExpenseCategoryDirectory::class, EloquentExpenseCategoryDirectory::class);
     }
 
     public function boot(): void
@@ -58,6 +68,13 @@ final class BillingServiceProvider extends ServiceProvider
         Event::listen(MedicineDispensed::class, [InvoiceDrafting::class, 'medicineDispensed']);
         Event::listen(MedicineReturned::class, [InvoiceDrafting::class, 'medicineReturned']);
         Event::listen(EncounterClosed::class, [InvoiceDrafting::class, 'encounterClosed']);
+
+        // P2-08: biaya operasional dilihat oleh pemegang laporan keuangan penuh dan dicatat oleh pemegang izin uang keluar
+        // (refund), yaitu Pemilik dan Admin; tidak menambah izin baru pada matriks hak akses.
+        Gate::define('expense.view', fn (Authenticatable $user): bool => Gate::forUser($user)->allows('report.financial'));
+        Gate::define('expense.manage', fn (Authenticatable $user): bool => Gate::forUser($user)->allows('payment.refund'));
+
+        $this->app->make(MasterEntityRegistry::class)->register($this->app->make(ExpenseCategoryEntity::class));
 
         Route::middleware(['web', 'auth'])
             ->group(__DIR__.'/Presentation/routes.php');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Src\Billing\Presentation\Http\Controllers\CashClosingController;
+use Src\Billing\Presentation\Http\Controllers\ExpenseController;
 use Src\Billing\Presentation\Http\Controllers\InstallmentController;
 use Src\Billing\Presentation\Http\Controllers\InvoiceController;
 use Src\Billing\Presentation\Http\Controllers\InvoicePrintController;
@@ -61,4 +62,15 @@ Route::middleware('can:cash.close')->group(function (): void {
     Route::get('/cash-closings', [CashClosingController::class, 'index'])->name('cash-closings.index');
     Route::get('/cash-closings/create', [CashClosingController::class, 'create'])->name('cash-closings.create');
     Route::post('/cash-closings', [CashClosingController::class, 'store']);
+});
+
+// P2-08: biaya operasional. Izin expense.view dan expense.manage didefinisikan di BillingServiceProvider.
+Route::middleware('can:expense.view')->group(function (): void {
+    Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+});
+
+Route::middleware('can:expense.manage')->group(function () use ($id): void {
+    Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
+    Route::post('/expenses', [ExpenseController::class, 'store']);
+    Route::post('/expenses/{expense}/void', [ExpenseController::class, 'void'])->where('expense', $id);
 });

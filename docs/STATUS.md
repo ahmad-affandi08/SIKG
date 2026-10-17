@@ -105,7 +105,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] P2-05 | Stok lanjutan
 - [x] P2-06 | Pesanan lab gigi
 - [x] P2-07 | Informed consent digital
-- [ ] P2-08 | Pengeluaran dan laba rugi sederhana
+- [x] P2-08 | Pengeluaran dan laba rugi sederhana
 - [ ] P2-09 | Jasa dokter lanjutan
 
 ## Fase 3 (dimulai setelah Gerbang 3)

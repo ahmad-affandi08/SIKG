@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Src\Reporting\Domain;
 
 /**
- * Sepuluh laporan PRD bagian 15 (LAP-01 sampai LAP-10). Nilai enum adalah kunci pada URL `/reports/{key}`.
+ * Sepuluh laporan PRD bagian 15 (LAP-01 sampai LAP-10) dan laba rugi sederhana Fase 2 (P2-08, LAP-11). Nilai enum adalah kunci pada URL `/reports/{key}`.
  */
 enum ReportKey: string
 {
@@ -19,6 +19,7 @@ enum ReportKey: string
     case CashClosing = 'cash-closing';
     case RecordCompleteness = 'record-completeness';
     case UserActivity = 'user-activity';
+    case ProfitLoss = 'profit-loss';
 
     public function code(): string
     {
@@ -33,6 +34,7 @@ enum ReportKey: string
             self::CashClosing => 'LAP-08',
             self::RecordCompleteness => 'LAP-09',
             self::UserActivity => 'LAP-10',
+            self::ProfitLoss => 'LAP-11',
         };
     }
 
@@ -49,6 +51,7 @@ enum ReportKey: string
             self::CashClosing => 'Tutup kas',
             self::RecordCompleteness => 'Kelengkapan rekam medis',
             self::UserActivity => 'Aktivitas pengguna',
+            self::ProfitLoss => 'Laba rugi sederhana',
         };
     }
 
@@ -65,6 +68,7 @@ enum ReportKey: string
             self::CashClosing => 'Per kasir per hari: jumlah menurut sistem, uang fisik, dan selisih.',
             self::RecordCompleteness => 'Kunjungan tanpa diagnosa, tindakan, catatan, atau belum ditutup dokter.',
             self::UserActivity => 'Ringkasan audit log per pengguna dan periode.',
+            self::ProfitLoss => 'Pendapatan dikurangi biaya lab, pembelian obat dan bahan, dan biaya operasional, per bulan.',
         };
     }
 
@@ -72,7 +76,7 @@ enum ReportKey: string
     public function group(): string
     {
         return match ($this) {
-            self::DailySummary, self::Revenue, self::DoctorFees, self::Receivables, self::CashClosing => 'Keuangan',
+            self::DailySummary, self::Revenue, self::DoctorFees, self::Receivables, self::CashClosing, self::ProfitLoss => 'Keuangan',
             self::Visits, self::Procedures, self::RecordCompleteness => 'Klinis',
             self::Stock => 'Stok',
             self::UserActivity => 'Audit',
@@ -87,7 +91,7 @@ enum ReportKey: string
     public function fullPermissions(): array
     {
         return match ($this) {
-            self::DailySummary, self::Revenue, self::DoctorFees, self::Receivables, self::CashClosing => ['report.financial'],
+            self::DailySummary, self::Revenue, self::DoctorFees, self::Receivables, self::CashClosing, self::ProfitLoss => ['report.financial'],
             self::Visits, self::Procedures, self::RecordCompleteness => ['report.clinical'],
             self::Stock => ['report.clinical', 'stock.manage'],
             self::UserActivity => ['audit.view'],

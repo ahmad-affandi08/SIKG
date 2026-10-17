@@ -27,6 +27,8 @@ final class LocalTime
 
     public const APPOINTMENT_START_MONTH = "DATE_FORMAT(CONVERT_TZ(a.starts_at, '+00:00', ?), '%Y-%m')";
 
+    public const STOCK_BATCH_RECEIVED_MONTH = "DATE_FORMAT(CONVERT_TZ(sb.received_at, '+00:00', ?), '%Y-%m')";
+
     /** Umur tagihan dalam hari: binding hari ini lokal lalu selisih zona. */
     public const INVOICE_AGE_DAYS = "DATEDIFF(?, DATE(CONVERT_TZ(i.issued_at, '+00:00', ?)))";
 }

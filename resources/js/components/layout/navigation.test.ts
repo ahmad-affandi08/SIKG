@@ -55,6 +55,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/stock/counts',
       '/invoices',
       '/cash-closings',
+      '/expenses',
       '/insurance/claims',
       '/reports',
       '/settings/users',

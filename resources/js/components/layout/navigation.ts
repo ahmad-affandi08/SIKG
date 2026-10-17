@@ -84,6 +84,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Kasir',
   },
   {
+    label: 'Biaya operasional',
+    href: '/expenses',
+    permission: 'report.financial',
+    group: 'Kasir',
+  },
+  {
     label: 'Klaim penjamin',
     href: '/insurance/claims',
     permission: 'invoice.view',
