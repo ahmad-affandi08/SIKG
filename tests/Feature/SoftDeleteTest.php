@@ -75,7 +75,7 @@ it('SYS-03 setiap tabel bertenant memiliki model yang aman dan setiap tabel data
     $hanyaTambah = [
         'access_logs', 'audit_logs', 'cash_closings', 'payments', 'stock_movements', 'installment_plans', 'installments',
         'clinical_notes', 'patient_consents', 'odontogram_tooth_states', 'prescription_items', 'stock_balances',
-        'backup_runs', 'diagnoses', 'report_jobs', 'clinical_documents',
+        'backup_runs', 'diagnoses', 'report_jobs', 'clinical_documents', 'notifications', 'notification_reads',
     ];
     $sistem = ['cache', 'cache_locks', 'failed_jobs', 'job_batches', 'jobs', 'migrations', 'model_has_permissions', 'model_has_roles', 'permissions', 'role_has_permissions', 'roles', 'sequences', 'sessions', 'system_heartbeats'];
 
@@ -159,6 +159,7 @@ it('SYS-03 tidak ada kode aplikasi yang menghapus permanen: setiap delete() terd
         'src/Patient/Infrastructure/Import/PrivateImportFileStore.php' => 2,  // berkas impor sementara di disk
         'src/IdentityAccess/Infrastructure/EloquentAccountSecurity.php' => 1,    // sesi login lama pengguna (tabel sessions, bukan data klinis atau keuangan)
         'src/IdentityAccess/Infrastructure/EloquentUserAdministration.php' => 1, // sesi login lama pengguna yang kata sandinya direset
+        'src/Shared/Infrastructure/Console/NotificationsPruneCommand.php' => 2, // pemberitahuan dalam aplikasi lebih tua dari 90 hari (bukan data klinis atau keuangan)
         'src/Patient/Application/Import/ProcessImportChunk.php' => 1,         // berkas impor sementara via port
         'src/Patient/Application/Import/StartPatientImport.php' => 1,         // berkas impor sementara via port
         'src/Billing/Infrastructure/EloquentInvoiceRepository.php' => 1,      // item tagihan (soft delete)

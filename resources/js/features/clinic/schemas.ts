@@ -36,6 +36,20 @@ export const clinicSettingsSchema = z.object({
     kasir: z.number().int('Harus bilangan bulat.').min(0, 'Minimal 0.').max(100, 'Maksimal 100.'),
   }),
   operating_hours: z.record(z.string(), dayHours),
+  notify_email: z
+    .string()
+    .trim()
+    .max(255, 'Terlalu panjang.')
+    .refine((value) => value === '' || z.email().safeParse(value).success, {
+      message: 'Format email tidak valid.',
+    }),
+  telegram_chat_id: z
+    .string()
+    .trim()
+    .refine((value) => value === '' || /^-?\d{5,20}$/.test(value), {
+      message: 'ID obrolan Telegram harus berupa angka (grup biasanya diawali tanda minus).',
+    }),
+  reminders_enabled: z.boolean(),
 });
 
 export type ClinicSettingsValues = z.infer<typeof clinicSettingsSchema>;

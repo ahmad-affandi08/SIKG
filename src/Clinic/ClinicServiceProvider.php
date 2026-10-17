@@ -25,6 +25,7 @@ use Src\Clinic\Contracts\ToothConditionCatalog;
 use Src\Clinic\Infrastructure\ClinicDiscountLimits;
 use Src\Clinic\Infrastructure\ClinicInvoiceNumbering;
 use Src\Clinic\Infrastructure\ClinicMedicalRecordNumbering;
+use Src\Clinic\Infrastructure\ClinicStaffDestinations;
 use Src\Clinic\Infrastructure\ClinicTaxRate;
 use Src\Clinic\Infrastructure\EloquentBranchDirectory;
 use Src\Clinic\Infrastructure\EloquentChairDirectory;
@@ -44,6 +45,7 @@ use Src\Clinic\Infrastructure\Master\PaymentMethodEntity;
 use Src\Clinic\Infrastructure\Master\ProcedureEntity;
 use Src\Clinic\Infrastructure\Master\ToothConditionEntity;
 use Src\Shared\Application\Master\MasterEntityRegistry;
+use Src\Shared\Application\Notifications\StaffDestinations;
 
 final class ClinicServiceProvider extends ServiceProvider
 {
@@ -53,6 +55,7 @@ final class ClinicServiceProvider extends ServiceProvider
         $this->app->singleton(ClinicSettingsService::class, EloquentClinicSettingsService::class);
         $this->app->singleton(DoctorDirectory::class, EloquentDoctorDirectory::class);
         $this->app->singleton(LetterheadProvider::class, EloquentLetterheadProvider::class);
+        $this->app->singleton(StaffDestinations::class, ClinicStaffDestinations::class);
         $this->app->singleton(ChairDirectory::class, EloquentChairDirectory::class);
         $this->app->singleton(ClinicCalendar::class, EloquentClinicCalendar::class);
         $this->app->singleton(MedicalRecordNumbering::class, ClinicMedicalRecordNumbering::class);

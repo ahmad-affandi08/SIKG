@@ -15,6 +15,9 @@ const VALID = {
   discount_limits: { pemilik: 100, admin: 100, kasir: 10 },
   tax_percent: 0,
   operating_hours: { '1': { open: '08:00', close: '17:00' }, '7': null },
+  notify_email: '',
+  telegram_chat_id: '',
+  reminders_enabled: true,
 };
 
 describe('SYS-04 skema pengaturan klinik', () => {
@@ -82,6 +85,33 @@ describe('SYS-04 skema hari libur', () => {
       expect(messages).toContain('Tanggal wajib diisi.');
       expect(messages).toContain('Nama hari libur wajib diisi.');
     }
+  });
+});
+
+describe('SYS-05 tujuan notifikasi pada pengaturan klinik', () => {
+  it('email dan ID Telegram boleh kosong', () => {
+    expect(clinicSettingsSchema.safeParse(VALID).success).toBe(true);
+  });
+
+  it('menerima email sah dan ID obrolan grup Telegram bertanda minus', () => {
+    const result = clinicSettingsSchema.safeParse({
+      ...VALID,
+      notify_email: 'staf@klinik.test',
+      telegram_chat_id: '-1001234567890',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it.each([
+    ['email buruk', { notify_email: 'bukan-email' }, 'Format email tidak valid.'],
+    [
+      'ID Telegram bukan angka',
+      { telegram_chat_id: '@grup' },
+      'ID obrolan Telegram harus berupa angka (grup biasanya diawali tanda minus).',
+    ],
+  ])('menolak %s', (_label, override, message) => {
+    const result = clinicSettingsSchema.safeParse({ ...VALID, ...override });
+    expect(!result.success && result.error.issues.map((issue) => issue.message)).toContain(message);
   });
 });
 

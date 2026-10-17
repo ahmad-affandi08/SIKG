@@ -31,6 +31,12 @@ Schedule::command('sikg:backup:prune')
     ->dailyAt('04:30')
     ->withoutOverlapping(30);
 
+// SYS-05: pemberitahuan dalam aplikasi dipangkas setelah 90 hari.
+Schedule::command('sikg:notifications:prune')
+    ->name('sikg-notifications-prune')
+    ->dailyAt('05:15')
+    ->withoutOverlapping(30);
+
 // LAP: berkas ekspor laporan dilepas setelah masa simpan; tahan cron yang terlewat karena hanya menghapus yang kedaluwarsa.
 Schedule::command('sikg:reports:prune')
     ->name('sikg-reports-prune')

@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Src\Scheduling;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Src\Scheduling\Application\AppointmentWorkflow;
+use Src\Scheduling\Application\NotifyAppointmentBooked;
 use Src\Scheduling\Contracts\AppointmentLookup;
 use Src\Scheduling\Contracts\AppointmentProgress;
 use Src\Scheduling\Domain\AppointmentRepository;
+use Src\Scheduling\Domain\Events\AppointmentBooked;
 use Src\Scheduling\Infrastructure\Eloquent\AppointmentModel;
 use Src\Scheduling\Infrastructure\EloquentAppointmentLookup;
 use Src\Scheduling\Infrastructure\EloquentAppointmentRepository;
@@ -30,6 +33,9 @@ final class SchedulingServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/Infrastructure/Migrations');
+
+        // SYS-05: janji baru menjadi pemberitahuan staf (dispatch setelah commit).
+        Event::listen(AppointmentBooked::class, [NotifyAppointmentBooked::class, 'handle']);
 
         Route::middleware(['web', 'auth'])
             ->group(__DIR__.'/Presentation/routes.php');

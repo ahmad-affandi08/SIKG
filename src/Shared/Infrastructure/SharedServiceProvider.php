@@ -18,6 +18,10 @@ use Src\Shared\Application\EnvironmentInspector;
 use Src\Shared\Application\EventDispatcher;
 use Src\Shared\Application\HealthMonitor;
 use Src\Shared\Application\Master\MasterEntityRegistry;
+use Src\Shared\Application\Notifications\EmailSender;
+use Src\Shared\Application\Notifications\NotificationInbox;
+use Src\Shared\Application\Notifications\Notifier;
+use Src\Shared\Application\Notifications\TelegramSender;
 use Src\Shared\Application\PdfRenderer;
 use Src\Shared\Application\PiiProtector;
 use Src\Shared\Application\ResourceLock;
@@ -36,8 +40,13 @@ use Src\Shared\Infrastructure\Console\BackupPruneCommand;
 use Src\Shared\Infrastructure\Console\BackupRestoreCommand;
 use Src\Shared\Infrastructure\Console\BackupVerifyCommand;
 use Src\Shared\Infrastructure\Console\HealthCheckCommand;
+use Src\Shared\Infrastructure\Console\NotificationsPruneCommand;
 use Src\Shared\Infrastructure\Console\PreflightCommand;
 use Src\Shared\Infrastructure\Health\DatabaseHealthMonitor;
+use Src\Shared\Infrastructure\Notifications\DatabaseNotificationInbox;
+use Src\Shared\Infrastructure\Notifications\DatabaseNotifier;
+use Src\Shared\Infrastructure\Notifications\LaravelEmailSender;
+use Src\Shared\Infrastructure\Notifications\TelegramBotSender;
 use Src\Shared\Infrastructure\Pdf\DompdfRenderer;
 use Src\Shared\Infrastructure\Preflight\PhpEnvironmentInspector;
 
@@ -47,6 +56,10 @@ final class SharedServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Clock::class, SystemClock::class);
         $this->app->singleton(PdfRenderer::class, DompdfRenderer::class);
+        $this->app->singleton(Notifier::class, DatabaseNotifier::class);
+        $this->app->singleton(NotificationInbox::class, DatabaseNotificationInbox::class);
+        $this->app->singleton(EmailSender::class, LaravelEmailSender::class);
+        $this->app->singleton(TelegramSender::class, TelegramBotSender::class);
         $this->app->singleton(IdGenerator::class, UlidIdGenerator::class);
         $this->app->singleton(Transaction::class, DatabaseTransaction::class);
         $this->app->singleton(EventDispatcher::class, AfterCommitEventDispatcher::class);
@@ -80,7 +93,7 @@ final class SharedServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/Migrations');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([PreflightCommand::class, HealthCheckCommand::class, BackupCommand::class, BackupVerifyCommand::class, BackupPruneCommand::class, BackupRestoreCommand::class]);
+            $this->commands([PreflightCommand::class, HealthCheckCommand::class, BackupCommand::class, BackupVerifyCommand::class, BackupPruneCommand::class, BackupRestoreCommand::class, NotificationsPruneCommand::class]);
         }
 
         // Denyut antrean: dicatat setiap worker mulai satu putaran, paling sering sekali per 30 detik per proses.

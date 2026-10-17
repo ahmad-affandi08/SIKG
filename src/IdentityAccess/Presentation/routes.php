@@ -7,6 +7,7 @@ use Src\IdentityAccess\Presentation\Http\Controllers\AccountController;
 use Src\IdentityAccess\Presentation\Http\Controllers\AuditController;
 use Src\IdentityAccess\Presentation\Http\Controllers\DashboardController;
 use Src\IdentityAccess\Presentation\Http\Controllers\LoginController;
+use Src\IdentityAccess\Presentation\Http\Controllers\NotificationController;
 use Src\IdentityAccess\Presentation\Http\Controllers\RoleController;
 use Src\IdentityAccess\Presentation\Http\Controllers\UserController;
 
@@ -24,6 +25,16 @@ Route::middleware('auth')->group(function (): void {
 Route::middleware(['auth', 'can:account.password'])->prefix('account')->group(function (): void {
     Route::get('/password', [AccountController::class, 'show'])->name('account.password');
     Route::put('/password', [AccountController::class, 'update'])->middleware('throttle:6,1');
+});
+
+// SYS-05: pemberitahuan dalam aplikasi. Gate notifications.view = pengguna aktif; isi disaring menurut izin pengguna.
+Route::middleware(['auth', 'can:notifications.view'])->group(function (): void {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::middleware('throttle:120,1')->prefix('internal-api/notifications')->group(function (): void {
+        Route::get('/', [NotificationController::class, 'poll']);
+        Route::post('/read-all', [NotificationController::class, 'readAll']);
+        Route::post('/{notification}/read', [NotificationController::class, 'read'])->where('notification', '[0-9A-Z]{26}');
+    });
 });
 
 // AUTH-03: kelola pengguna. Izin di route; Policy per pengguna sasaran diperiksa di controller.

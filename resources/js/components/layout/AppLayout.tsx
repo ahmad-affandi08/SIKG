@@ -4,6 +4,7 @@ import type { KeyboardEvent, ReactNode } from 'react';
 
 import { buildCrumbs } from '@/components/layout/breadcrumbs';
 import { FlashMessages } from '@/components/layout/FlashMessages';
+import { NotificationBell } from '@/components/layout/NotificationBell';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
 import type { NavItem } from '@/components/layout/navigation';
 import { PageTitleProvider } from '@/components/layout/PageTitle';
@@ -192,15 +193,18 @@ function Shell({
             </div>
           );
         })}
-        <Link
-          href="/logout"
-          method="post"
-          as="button"
-          className="menubar-item ml-auto"
-          onClick={closeMenu}
-        >
-          Keluar
-        </Link>
+        <span className="ml-auto flex items-center gap-px">
+          {auth.user ? <NotificationBell onClick={closeMenu} /> : null}
+          <Link
+            href="/logout"
+            method="post"
+            as="button"
+            className="menubar-item"
+            onClick={closeMenu}
+          >
+            Keluar
+          </Link>
+        </span>
       </nav>
 
       <div className="flex items-center gap-2 border-b border-[#8f8f8f] bg-[#ececec] px-2">

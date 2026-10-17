@@ -41,6 +41,11 @@ return [
     'backup_interval_hours' => (int) env('SIKG_BACKUP_INTERVAL_HOURS', 24),
     'backup_key' => env('BACKUP_KEY'),
 
+    // SYS-05, JDW-07: token bot Telegram (dari @BotFather) dan nama pengguna bot untuk tautan penautan pasien. Kosong berarti saluran
+    // Telegram mati; email memakai konfigurasi surel Laravel (MAIL_*). Token adalah rahasia: hanya lewat lingkungan (M13).
+    'telegram_bot_token' => env('TELEGRAM_BOT_TOKEN'),
+    'telegram_bot_username' => env('TELEGRAM_BOT_USERNAME'),
+
     // Kunci HMAC blind index NIK dan nomor HP (M11).
     'pii_hash_key' => env('PII_HASH_KEY'),
 ];

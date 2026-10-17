@@ -20,6 +20,8 @@ use Src\IdentityAccess\Infrastructure\Seeders\RolePermissionSeeder;
 use Src\Pharmacy\Application\StockService;
 use Src\Pharmacy\Infrastructure\Eloquent\MedicineModel;
 use Src\Scheduling\Infrastructure\Eloquent\AppointmentModel;
+use Src\Shared\Application\Notifications\EmailSender;
+use Src\Shared\Application\Notifications\TelegramSender;
 use Src\Shared\Application\PdfRenderer;
 use Src\Shared\Application\PdfRequest;
 use Src\Shared\Application\TenantContext;
@@ -306,4 +308,69 @@ function isiKop(ClinicModel $klinik): array
     DB::table('clinics')->where('id', $klinik->id)->update(['address' => $kop['address'], 'license_no' => $kop['license'], 'receipt_header' => $kop['header'], 'prescription_header' => $kop['footnote'], 'city' => $kop['city']]);
 
     return $kop;
+}
+
+/**
+ * SYS-05, JDW-07: perekam pengiriman email dan Telegram. `configured` mensimulasikan ada tidaknya konfigurasi saluran.
+ */
+final class KirimPerekam
+{
+    /** @var list<array{to: string, subject: string, body: string}> */
+    public static array $email = [];
+
+    /** @var list<array{chat: string, text: string}> */
+    public static array $telegram = [];
+
+    public static bool $emailOn = true;
+
+    public static bool $telegramOn = true;
+
+    public static bool $gagal = false;
+}
+
+final class EmailPerekam implements EmailSender
+{
+    public function configured(): bool
+    {
+        return KirimPerekam::$emailOn;
+    }
+
+    public function send(string $to, string $subject, string $body): bool
+    {
+        if (KirimPerekam::$gagal) {
+            return false;
+        }
+        KirimPerekam::$email[] = ['to' => $to, 'subject' => $subject, 'body' => $body];
+
+        return true;
+    }
+}
+
+final class TelegramPerekam implements TelegramSender
+{
+    public function configured(): bool
+    {
+        return KirimPerekam::$telegramOn;
+    }
+
+    public function send(string $chatId, string $text): bool
+    {
+        if (KirimPerekam::$gagal) {
+            return false;
+        }
+        KirimPerekam::$telegram[] = ['chat' => $chatId, 'text' => $text];
+
+        return true;
+    }
+}
+
+function rekamKirim(bool $email = true, bool $telegram = true): void
+{
+    KirimPerekam::$email = [];
+    KirimPerekam::$telegram = [];
+    KirimPerekam::$emailOn = $email;
+    KirimPerekam::$telegramOn = $telegram;
+    KirimPerekam::$gagal = false;
+    app()->instance(EmailSender::class, new EmailPerekam);
+    app()->instance(TelegramSender::class, new TelegramPerekam);
 }

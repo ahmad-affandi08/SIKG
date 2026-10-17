@@ -9,7 +9,8 @@ use Src\Shared\Domain\NumberPattern;
 
 /**
  * Pengaturan klinik (SYS-04, AUTH-04, KSR-02): format nomor RM dan invoice, jam operasional per hari, batas sesi tidak aktif,
- * batas diskon per peran (persen bulat), dan tarif pajak tagihan (KSR-09, persen bulat, bawaan 0).
+ * batas diskon per peran (persen bulat), tarif pajak tagihan (KSR-09, persen bulat, bawaan 0), serta tujuan notifikasi (SYS-05,
+ * JDW-07): email staf, grup Telegram klinik, dan sakelar pengingat janji untuk pasien.
  * Zona waktu disimpan di kolom `clinics.timezone`. Hari: 1 = Senin sampai 7 = Minggu.
  */
 final readonly class ClinicSettings
@@ -32,7 +33,16 @@ final readonly class ClinicSettings
         public array $operatingHours,
         public array $discountLimits = self::DEFAULT_DISCOUNT_LIMITS,
         public int $taxPercent = 0,
+        public ?string $notifyEmail = null,
+        public ?string $telegramChatId = null,
+        public bool $remindersEnabled = true,
     ) {
+        if ($notifyEmail !== null && filter_var($notifyEmail, FILTER_VALIDATE_EMAIL) === false) {
+            throw new InvalidArgumentException('Email notifikasi staf tidak valid.');
+        }
+        if ($telegramChatId !== null && preg_match('/^-?\d{5,20}$/', $telegramChatId) !== 1) {
+            throw new InvalidArgumentException('ID obrolan Telegram harus berupa angka (grup biasanya diawali tanda minus).');
+        }
         if ($taxPercent < 0 || $taxPercent > 100) {
             throw new InvalidArgumentException('Tarif pajak harus antara 0 dan 100 persen.');
         }
@@ -99,6 +109,9 @@ final readonly class ClinicSettings
             operatingHours: $hours,
             discountLimits: $limits,
             taxPercent: isset($data['tax_percent']) ? (int) $data['tax_percent'] : $defaults->taxPercent,
+            notifyEmail: isset($data['notify_email']) && $data['notify_email'] !== '' ? (string) $data['notify_email'] : null,
+            telegramChatId: isset($data['telegram_chat_id']) && $data['telegram_chat_id'] !== '' ? (string) $data['telegram_chat_id'] : null,
+            remindersEnabled: ! isset($data['reminders_enabled']) || (bool) $data['reminders_enabled'],
         );
     }
 
@@ -114,6 +127,9 @@ final readonly class ClinicSettings
             'operating_hours' => $this->operatingHours,
             'discount_limits' => $this->discountLimits,
             'tax_percent' => $this->taxPercent,
+            'notify_email' => $this->notifyEmail,
+            'telegram_chat_id' => $this->telegramChatId,
+            'reminders_enabled' => $this->remindersEnabled,
         ];
     }
 
