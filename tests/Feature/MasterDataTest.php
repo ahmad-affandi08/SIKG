@@ -146,3 +146,27 @@ it('MST-08 mengubah tarif standar tidak mengubah salinan tarif yang sudah dibuat
 
     expect($salinan)->toBe(200000)->and($prosedur->fresh()->default_price_amount)->toBe(300000);
 });
+
+it('MST-08 pencarian tindakan mengembalikan tarif saat ini dan hanya tindakan aktif', function () {
+    $klinik = makeClinic();
+    $admin = makeUser(Role::Admin, $klinik);
+    $this->actingAs($admin)->post('/settings/master/procedures', ['code' => 'TMB-01', 'name' => 'Tambal komposit', 'scope' => 'surface', 'default_price_amount' => 250000]);
+    $this->actingAs($admin)->post('/settings/master/procedures', ['code' => 'TMB-02', 'name' => 'Tambal sementara', 'scope' => 'tooth', 'default_price_amount' => 80000]);
+    tenant()->set($klinik->id);
+    $nonaktif = ProcedureModel::query()->where('code', 'TMB-02')->firstOrFail();
+    $this->actingAs($admin)->post("/settings/master/procedures/{$nonaktif->id}/deactivate");
+
+    $hasil = $this->actingAs($admin)->getJson('/internal-api/procedures/search?q=tambal')->assertOk()->json('data');
+
+    expect(array_column($hasil, 'code'))->toBe(['TMB-01'])
+        ->and($hasil[0]['price_amount'])->toBe(250000);
+});
+
+it('MST-08 pencarian tindakan tidak melintasi klinik dan butuh izin tarif', function () {
+    $a = makeClinic('A');
+    $b = makeClinic('B');
+    $this->actingAs(makeUser(Role::Admin, $a))->post('/settings/master/procedures', ['code' => 'RAHASIA', 'name' => 'Tindakan A', 'scope' => 'visit', 'default_price_amount' => 1000]);
+
+    $this->actingAs(makeUser(Role::Admin, $b))->getJson('/internal-api/procedures/search?q=tindakan')->assertOk()->assertJsonPath('data', []);
+    $this->actingAs(makeUser(Role::Perawat, $b))->getJson('/internal-api/procedures/search?q=tindakan')->assertOk();
+});

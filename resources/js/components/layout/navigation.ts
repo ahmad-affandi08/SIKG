@@ -14,11 +14,13 @@ export interface NavItem {
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Beranda', href: '/dashboard' },
   { label: 'Pengguna', href: '/settings/users', permission: 'user.view' },
+  { label: 'Profil klinik', href: '/settings/profile', permission: 'setting.manage' },
   {
     label: 'Pengaturan klinik',
     href: '/settings/clinic',
     permission: 'setting.manage',
   },
+  { label: 'Dokter', href: '/settings/doctors', permission: 'setting.manage' },
   {
     label: 'Kursi',
     href: '/settings/master/chairs',

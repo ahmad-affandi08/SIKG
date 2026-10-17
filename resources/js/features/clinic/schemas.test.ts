@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { clinicSettingsSchema, holidaySchema } from '@/features/clinic/schemas';
+import {
+  clinicProfileSchema,
+  clinicSettingsSchema,
+  holidaySchema,
+  logoFileIssue,
+} from '@/features/clinic/schemas';
 
 const VALID = {
   timezone: 'Asia/Jakarta',
@@ -59,5 +64,30 @@ describe('SYS-04 skema hari libur', () => {
       expect(messages).toContain('Tanggal wajib diisi.');
       expect(messages).toContain('Nama hari libur wajib diisi.');
     }
+  });
+});
+
+describe('MST-01 profil klinik', () => {
+  const valid = {
+    name: 'Klinik Senyum',
+    address: '',
+    license_no: '',
+    receipt_header: '',
+    prescription_header: '',
+  };
+
+  it('nama klinik wajib', () => {
+    expect(clinicProfileSchema.safeParse(valid).success).toBe(true);
+    expect(clinicProfileSchema.safeParse({ ...valid, name: '  ' }).success).toBe(false);
+  });
+
+  it('logo hanya PNG atau JPG hingga 1 MB', () => {
+    expect(logoFileIssue({ type: 'image/png', size: 1000 })).toBeNull();
+    expect(logoFileIssue({ type: 'image/svg+xml', size: 1000 })).toBe(
+      'Logo harus berformat PNG atau JPG.',
+    );
+    expect(logoFileIssue({ type: 'image/jpeg', size: 2 * 1024 * 1024 })).toBe(
+      'Ukuran logo maksimal 1 MB.',
+    );
   });
 });

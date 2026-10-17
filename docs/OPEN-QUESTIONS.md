@@ -66,6 +66,19 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) tambah ID (ganti kata sandi sendiri dan wajib ganti setelah reset); (b) biarkan, dengan prosedur bahwa admin mereset lagi bila perlu
 - Rekomendasi: (a) sebagai Must kecil, karena menyangkut kerahasiaan akun tenaga kesehatan (Permenkes 24/2022 Pasal 29)
 
+### Q-10: Sumber nama diagnosa ICD-10 bab K00-K14
+- Kebutuhan terkait: MST-07, RM-04
+- Dokumen yang kurang: tidak ada daftar resmi berbahasa Indonesia di repositori; kode ICD-10 baku, tetapi nama Indonesianya ditulis oleh Claude Code dan belum diverifikasi terhadap daftar resmi (Kemenkes atau PDGI)
+- Opsi: (a) tetap memakai daftar awal ini dan menyempurnakannya lewat migrasi data setelah pengguna menyerahkan daftar resmi; (b) pengguna menyediakan berkas CSV resmi untuk diimpor
+- Rekomendasi: (b); sampai itu, (a). Kode tidak berubah sehingga data rekam medis yang menautkan kode tetap benar
+
+### Q-11: Skema jasa dokter (asumsi struktur data)
+- Kebutuhan terkait: MST-02, KSR-01, P2-09; PRD bagian risiko butir 8
+- Dokumen yang kurang: PRD 09 butir 8 menyatakan struktur data bergantung pada jawaban pemilik klinik, yang belum ada. Instruksi untuk tetap bekerja tanpa persetujuan memaksa asumsi sementara
+- Asumsi yang dipakai: `doctors.fee_scheme` JSON berisi `default` (`mode` `percentage` dengan `value` basis poin, atau `fixed` dengan `value` rupiah per tindakan) dan `overrides` per kode tindakan dengan bentuk aturan yang sama. Hanya disimpan dan ditampilkan; belum ada perhitungan jasa di laporan (itu P2-09)
+- Opsi: (a) pertahankan asumsi ini; (b) pemilik klinik menjawab butir 8 lalu skema diubah lewat migrasi
+- Rekomendasi: (b) sebelum KSR/LAP memakai data ini
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

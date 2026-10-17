@@ -37,7 +37,9 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
     expect(NAV_ITEMS.map((item) => item.href)).toEqual([
       '/dashboard',
       '/settings/users',
+      '/settings/profile',
       '/settings/clinic',
+      '/settings/doctors',
       '/settings/master/chairs',
       '/settings/master/procedures',
       '/settings/master/payment-methods',

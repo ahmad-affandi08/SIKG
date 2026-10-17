@@ -6,6 +6,13 @@ namespace Src\Clinic\Infrastructure\Eloquent;
 
 use Src\Shared\Infrastructure\Eloquent\TenantMasterModel;
 
+/**
+ * @property string $code
+ * @property string $name
+ * @property string|null $category
+ * @property string $scope
+ * @property int $default_price_amount
+ */
 final class ProcedureModel extends TenantMasterModel
 {
     protected $table = 'procedures';

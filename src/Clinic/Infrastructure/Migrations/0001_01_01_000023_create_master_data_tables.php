@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-// Master data klinik: dokter, jadwal praktik, kursi, tindakan, metode pembayaran, diagnosa (docs/rules/database.md).
+// Master data klinik: dokter, jadwal praktik, kursi, tindakan, metode pembayaran (docs/rules/database.md).
 return new class extends Migration
 {
     public function up(): void
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('sip_no', 100)->nullable();
             $table->string('specialty', 100)->nullable();
-            // Skema jasa dokter (MST-02): {"mode":"percentage|fixed","percentage_bp":3000,"amount":0,"overrides":{...}}
+            // Skema jasa dokter (MST-02): {"default":{"mode":"percentage|fixed","value":3000},"overrides":{"<kode tindakan>":{...}}}; persentase dalam basis poin, nominal dalam rupiah
             $table->json('fee_scheme')->nullable();
             $table->boolean('is_active')->default(true);
             $this->standard($table);
@@ -90,22 +90,10 @@ return new class extends Migration
             $table->foreign('branch_id')->references('id')->on('branches')->restrictOnDelete();
             $table->index(['clinic_id', 'is_active']);
         });
-
-        // Referensi ICD-10 bersama (tanpa clinic_id): data rujukan, bukan data transaksi.
-        Schema::create('diagnoses', function (Blueprint $table) {
-            $table->char('id', 26)->primary();
-            $table->string('icd10_code', 10)->unique();
-            $table->string('name');
-            $table->boolean('is_active')->default(true);
-            $table->dateTime('created_at')->nullable();
-            $table->dateTime('updated_at')->nullable();
-            $table->index('name');
-        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('diagnoses');
         Schema::dropIfExists('payment_methods');
         Schema::dropIfExists('procedures');
         Schema::dropIfExists('chairs');

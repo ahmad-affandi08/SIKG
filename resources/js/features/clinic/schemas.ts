@@ -46,3 +46,27 @@ export const WEEKDAYS: readonly { day: string; label: string }[] = [
   { day: '6', label: 'Sabtu' },
   { day: '7', label: 'Minggu' },
 ];
+
+export const clinicProfileSchema = z.object({
+  name: z.string().trim().min(1, 'Nama klinik wajib diisi.').max(255, 'Terlalu panjang.'),
+  address: z.string().trim().max(1000, 'Terlalu panjang.'),
+  license_no: z.string().trim().max(100, 'Terlalu panjang.'),
+  receipt_header: z.string().trim().max(500, 'Terlalu panjang.'),
+  prescription_header: z.string().trim().max(500, 'Terlalu panjang.'),
+});
+
+export type ClinicProfileValues = z.infer<typeof clinicProfileSchema>;
+
+export const LOGO_MAX_BYTES = 1024 * 1024;
+export const LOGO_TYPES: readonly string[] = ['image/png', 'image/jpeg'];
+
+/** Umpan balik cepat untuk berkas logo; server memeriksa isi berkas dan berwenang. */
+export function logoFileIssue(file: { type: string; size: number }): string | null {
+  if (!LOGO_TYPES.includes(file.type)) {
+    return 'Logo harus berformat PNG atau JPG.';
+  }
+  if (file.size > LOGO_MAX_BYTES) {
+    return 'Ukuran logo maksimal 1 MB.';
+  }
+  return null;
+}

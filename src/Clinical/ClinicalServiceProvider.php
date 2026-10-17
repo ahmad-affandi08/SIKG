@@ -6,12 +6,14 @@ namespace Src\Clinical;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Src\Clinical\Application\Diagnosis\DiagnosisCatalog;
+use Src\Clinical\Infrastructure\EloquentDiagnosisCatalog;
 
 final class ClinicalServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Ikat interface Domain ke implementasi Infrastructure di sini.
+        $this->app->singleton(DiagnosisCatalog::class, EloquentDiagnosisCatalog::class);
     }
 
     public function boot(): void

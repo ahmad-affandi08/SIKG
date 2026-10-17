@@ -9,12 +9,14 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Src\IdentityAccess\Application\Users\UserAdministration;
+use Src\IdentityAccess\Contracts\UserLookup;
 use Src\IdentityAccess\Domain\UserDirectory;
 use Src\IdentityAccess\Infrastructure\Auth\EloquentUserDirectory;
 use Src\IdentityAccess\Infrastructure\Auth\SikgUserProvider;
 use Src\IdentityAccess\Infrastructure\Auth\UserPolicy;
 use Src\IdentityAccess\Infrastructure\Eloquent\User;
 use Src\IdentityAccess\Infrastructure\EloquentUserAdministration;
+use Src\IdentityAccess\Infrastructure\EloquentUserLookup;
 
 final class IdentityAccessServiceProvider extends ServiceProvider
 {
@@ -22,6 +24,7 @@ final class IdentityAccessServiceProvider extends ServiceProvider
     {
         $this->app->singleton(UserDirectory::class, EloquentUserDirectory::class);
         $this->app->singleton(UserAdministration::class, EloquentUserAdministration::class);
+        $this->app->singleton(UserLookup::class, EloquentUserLookup::class);
     }
 
     public function boot(): void

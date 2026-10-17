@@ -6,10 +6,16 @@ namespace Src\Clinic;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Src\Clinic\Application\Doctors\DoctorAdministration;
+use Src\Clinic\Application\Profile\ClinicProfileService;
 use Src\Clinic\Application\Settings\ClinicSettingsService;
 use Src\Clinic\Contracts\BranchDirectory;
+use Src\Clinic\Contracts\ProcedureCatalog;
 use Src\Clinic\Infrastructure\EloquentBranchDirectory;
+use Src\Clinic\Infrastructure\EloquentClinicProfileService;
 use Src\Clinic\Infrastructure\EloquentClinicSettingsService;
+use Src\Clinic\Infrastructure\EloquentDoctorAdministration;
+use Src\Clinic\Infrastructure\EloquentProcedureCatalog;
 use Src\Clinic\Infrastructure\Master\ChairEntity;
 use Src\Clinic\Infrastructure\Master\PaymentMethodEntity;
 use Src\Clinic\Infrastructure\Master\ProcedureEntity;
@@ -21,6 +27,9 @@ final class ClinicServiceProvider extends ServiceProvider
     {
         $this->app->singleton(BranchDirectory::class, EloquentBranchDirectory::class);
         $this->app->singleton(ClinicSettingsService::class, EloquentClinicSettingsService::class);
+        $this->app->singleton(ProcedureCatalog::class, EloquentProcedureCatalog::class);
+        $this->app->singleton(ClinicProfileService::class, EloquentClinicProfileService::class);
+        $this->app->singleton(DoctorAdministration::class, EloquentDoctorAdministration::class);
     }
 
     public function boot(): void

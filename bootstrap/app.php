@@ -45,6 +45,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 abort(403, $e->getMessage());
             }
 
-            return back()->withErrors(['domain' => $e->getMessage()])->with('error_code', $e->businessCode());
+            return back()->withErrors(['domain' => $e->getMessage()])->with('error', $e->getMessage())->with('error_code', $e->businessCode());
         });
     })->create();
