@@ -22,7 +22,7 @@ Kit ini dibuat agar seluruh sistem dikerjakan Claude Code tanpa melanggar aturan
 | `scripts/` | `guard.py` (pemeriksa aturan), `verify.sh` (gerbang penuh), `hooks/`, `make-context.sh`, `status.py`, `seal.py`, `selftest.py` |
 | `tooling/` | Konfigurasi Deptrac, Larastan, Pint, ESLint, Prettier, tsconfig; daftar dependensi yang disetujui; templat phpunit, env, vitest, Playwright |
 | `tests-templates/` | Templat tes: arsitektur, uang, matriks otorisasi, IDOR, audit, kunci catatan klinis, idempotensi, konkurensi, Zod, odontogram, E2E |
-| `.github/workflows/ci.yml` | CI: guard, backend, frontend, E2E |
+| `.github/workflows/ci.yml` | CI: guard, backend, frontend, E2E, kompatibilitas shared hosting, dan arsip rilis siap unggah |
 | `compose.yaml` | MySQL 8 dan Redis untuk pengembangan lokal (Redis opsional; aplikasi tidak boleh bergantung padanya) |
 
 ## Cara memakai
@@ -73,7 +73,7 @@ SIKG mendukung dua profil dengan kode yang sama (ADR-0006, `docs/rules/hosting.m
 | Antrean dan scheduler | Supervisor + cron | Cron saja (`schedule:run` dan `queue:work --stop-when-empty`) |
 | Cadangan | Dump harian + binlog | Dump berkala lewat cron, dienkripsi, dikirim keluar server |
 
-Pada shared hosting server tidak menjalankan `npm`/`composer install`: CI membuat arsip rilis siap unggah. Setelah rilis, buka halaman Kesiapan Lingkungan (SYS-06) untuk memastikan versi PHP, ekstensi, izin tulis, cron, dan antrean benar. Keterbatasan yang harus Anda setujui ada di `docs/rules/hosting.md` bagian 4 dan `docs/OPEN-QUESTIONS.md` (Q-1 sampai Q-3).
+Pada shared hosting server tidak menjalankan `npm`/`composer install`: CI (job `release-package`) membuat arsip rilis siap unggah, dan `scripts/verify.sh --shared` menguji kompatibilitasnya secara lokal. Setelah rilis, buka halaman Kesiapan Lingkungan (SYS-06) untuk memastikan versi PHP, ekstensi, izin tulis, cron, dan antrean benar. Keterbatasan yang harus Anda setujui ada di `docs/rules/hosting.md` bagian 4 dan `docs/OPEN-QUESTIONS.md` (Q-1 sampai Q-3).
 
 ## Hal yang perlu Anda ketahui
 

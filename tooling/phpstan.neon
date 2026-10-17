@@ -1,0 +1,19 @@
+# Larastan. Dilarang menambah baseline atau ignoreErrors untuk meloloskan pekerjaan (M16).
+includes:
+    - ../vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 8
+    paths:
+        - ../src
+        - ../app
+        - ../routes
+        - ../database
+    excludePaths:
+        - ../vendor
+        - ../storage
+        - ../bootstrap/cache
+    checkMissingCallableSignature: true
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true
+    ignoreErrors: []

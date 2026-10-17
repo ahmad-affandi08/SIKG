@@ -67,8 +67,10 @@ Diperiksa lewat halaman SYS-06 dan daftar ini; satu syarat wajib yang gagal bera
 ## 3. Tes dan penegakan
 
 - **Tes kompatibilitas hosting (CI):** satu job menjalankan seluruh suite fitur dengan `CACHE_STORE=database`, `SESSION_DRIVER=database`, `QUEUE_CONNECTION=database`, **tanpa layanan Redis**, dan PHP dijalankan dengan `disable_functions=exec,shell_exec,system,passthru,proc_open,popen`. Suite harus lulus tanpa pengecualian.
-- **Arch test:** tidak ada pemanggilan fungsi di butir 7 dan tidak ada `Redis` facade di `src/` dan `app/` (`tests/Architecture/`).
-- **`scripts/guard.py` aturan `HOST`** (usulan; `scripts/` terlindungi, ditambahkan pengguna): menandai pelanggaran butir 1, 7, 9, dan 11 pada diff.
+- **Arch test:** tidak ada pemanggilan fungsi di butir 7 dan tidak ada `Redis` facade di `src/` dan `app/` (templat `tests-templates/Architecture/HostingCompatibilityTest.php`).
+- **`scripts/guard.py` aturan `HOST`** (tidak dapat diredam `ALASAN:`): menandai pelanggaran butir 1, 3, 6, 7, 9, dan 11 serta bawaan `.env.example` (sesi, antrean, cache harus `database`/`file`).
+- **`scripts/verify.sh --shared`** menjalankan suite fitur dengan konfigurasi shared hosting secara lokal; CI menjalankan hal yang sama di job `hosting-shared`.
+- **Job CI `release-package`** membuat arsip rilis (`sikg-rilis.zip`, dan `sikg-rilis-public_html.zip` untuk pola `docs/operations.md` bagian 2.3) dan menggagalkan build bila ada `.env` atau symlink di dalamnya.
 - **SYS-06 dan SYS-07** (PRD bagian 6.10) memberi tahu admin bila lingkungan tidak memenuhi syarat atau cron/antrean mati.
 - Setiap kebutuhan yang menambah job, tugas terjadwal, berkas, PDF, atau Excel menyebut dalam rencana bagaimana ia memenuhi butir 3-10.
 

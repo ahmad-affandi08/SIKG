@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "defaultMode": "default",
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit",
+      "Write",
+      "Bash(php artisan:*)",
+      "Bash(vendor/bin/pest:*)",
+      "Bash(vendor/bin/pint:*)",
+      "Bash(vendor/bin/phpstan:*)",
+      "Bash(vendor/bin/deptrac:*)",
+      "Bash(composer install:*)",
+      "Bash(composer dump-autoload:*)",
+      "Bash(composer audit:*)",
+      "Bash(composer test:*)",
+      "Bash(npm run:*)",
+      "Bash(npm ci:*)",
+      "Bash(npm test:*)",
+      "Bash(npx --no-install:*)",
+      "Bash(scripts/verify.sh:*)",
+      "Bash(scripts/guard.sh:*)",
+      "Bash(scripts/make-context.sh:*)",
+      "Bash(python3 scripts/guard.py:*)",
+      "Bash(python3 scripts/status.py:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout -b:*)",
+      "Bash(git switch -c:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(mkdir:*)"
+    ],
+    "ask": [
+      "Bash(composer require:*)",
+      "Bash(composer remove:*)",
+      "Bash(composer update:*)",
+      "Bash(npm install:*)",
+      "Bash(npm i:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm update:*)",
+      "Bash(git push:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(docker:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa*)",
+      "Read(./storage/**)",
+      "Edit(./.env)",
+      "Edit(./.env.production)",
+      "Edit(./CLAUDE.md)",
+      "Write(./CLAUDE.md)",
+      "Edit(./docs/rules/**)",
+      "Write(./docs/rules/**)",
+      "Edit(./docs/PRD/**)",
+      "Write(./docs/PRD/**)",
+      "Edit(./docs/operations.md)",
+      "Write(./docs/operations.md)",
+      "Edit(./.claude/**)",
+      "Write(./.claude/**)",
+      "Edit(./scripts/**)",
+      "Write(./scripts/**)",
+      "Edit(./tooling/**)",
+      "Write(./tooling/**)",
+      "Edit(./.github/**)",
+      "Write(./.github/**)",
+      "Bash(rm -rf:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(php artisan db:wipe:*)",
+      "Bash(php artisan migrate:reset:*)",
+      "Bash(python3 scripts/seal.py:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Edit(./docs/BOOTSTRAP.md)",
+      "Write(./docs/BOOTSTRAP.md)",
+      "Edit(./compose.yaml)",
+      "Write(./compose.yaml)",
+      "Edit(./tests-templates/**)",
+      "Write(./tests-templates/**)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/hooks/session_start.py\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/hooks/pre_bash.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/hooks/pre_edit.py\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/hooks/post_edit.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/hooks/stop.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

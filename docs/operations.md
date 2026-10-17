@@ -29,7 +29,7 @@ Claude Code tidak melakukan rilis ke produksi atau mengubah konfigurasi produksi
 
 ### 2.2 Profil B: shared hosting
 
-Paket rilis dibuat oleh CI, bukan di server: arsip berisi kode, `vendor/` (`--no-dev --optimize-autoloader`), dan `public/build`; tanpa `.env`, `node_modules`, `tests/`, dan `.git`. Server tidak menjalankan `npm` maupun `composer install`.
+Paket rilis dibuat oleh CI (job `release-package`, artefak `sikg-rilis-shared-hosting`: `sikg-rilis.zip` untuk akar dokumen ke `public/`, dan `sikg-rilis-public_html.zip` untuk pola bagian 2.3), bukan di server: arsip berisi kode, `vendor/` (`--no-dev --optimize-autoloader`), dan `public/build`; tanpa `.env`, `node_modules`, `tests/`, dan `.git`. Server tidak menjalankan `npm` maupun `composer install`.
 
 1. Merge ke cabang utama hanya bila CI hijau (termasuk job kompatibilitas hosting bersama); unduh arsip rilis dari CI.
 2. Cadangkan database dan folder aplikasi saat ini (lihat bagian 3). Simpan salinan folder aplikasi lama sebagai `app-sebelumnya` bila kuota disk cukup.

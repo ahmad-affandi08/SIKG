@@ -1,0 +1,29 @@
+# Layanan pengembangan LOKAL saja (bukan produksi). Kata sandi di sini hanya untuk mesin lokal.
+services:
+  mysql:
+    image: mysql:8.0
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time-zone=+00:00
+    environment:
+      MYSQL_ROOT_PASSWORD: root_local_only
+      MYSQL_DATABASE: sikg
+      MYSQL_USER: sikg
+      MYSQL_PASSWORD: sikg_local_only
+    ports:
+      - "3306:3306"
+    volumes:
+      - sikg-mysql:/var/lib/mysql
+      - ./tooling/templates/mysql-init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot_local_only"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  # Opsional, hanya untuk mencoba Profil A (server). Aplikasi tidak boleh bergantung pada Redis (M21).
+  # Jalankan dengan: docker compose --profile redis up -d
+  redis:
+    image: redis:7-alpine
+    profiles: ["redis"]
+    ports:
+      - "6379:6379"
+volumes:
+  sikg-mysql:

@@ -80,7 +80,7 @@ Rincian ada di `docs/rules/workflow.md`.
 
 | Perintah | Fungsi |
 | --- | --- |
-| `scripts/verify.sh` | Gerbang penuh: format, analisis statis, Deptrac, guard, tes backend dan frontend |
+| `scripts/verify.sh` | Gerbang penuh: format, analisis statis, Deptrac, guard, tes backend dan frontend. Tambah `--shared` untuk suite kompatibilitas shared hosting (tanpa Redis, fungsi shell dimatikan) |
 | `scripts/guard.sh` | Pemeriksa aturan proyek (cepat, tanpa dependensi berat) |
 | `scripts/make-context.sh <Nama>` | Membuat kerangka bounded context baru |
 | `python3 scripts/status.py` | Ringkasan kemajuan kebutuhan dan Must yang tersisa |

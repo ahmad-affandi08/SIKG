@@ -1,0 +1,13 @@
+{
+  "_catatan": "Gabungkan bagian 'scripts' ini ke package.json (docs/BOOTSTRAP.md langkah 4).",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint -c tooling/eslint.config.js resources/js --max-warnings=0",
+    "format": "prettier --config tooling/prettierrc.json --write resources/js",
+    "format:check": "prettier --config tooling/prettierrc.json --check resources/js",
+    "test": "vitest run",
+    "e2e": "playwright test"
+  }
+}

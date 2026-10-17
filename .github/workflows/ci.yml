@@ -1,0 +1,207 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guard:
+    name: Aturan proyek
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Selftest pengaman
+        run: python3 scripts/selftest.py
+      - name: Guard
+        run: python3 scripts/guard.py
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-24.04
+    if: hashFiles('composer.json') != ''
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci
+          MYSQL_DATABASE: sikg_test
+          MYSQL_USER: sikg
+          MYSQL_PASSWORD: sikg_local_only
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot_ci"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_mysql, bcmath, gd, zip, pcntl
+          coverage: pcov
+      - uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('composer.lock') }}
+      - run: composer install --no-interaction --prefer-dist
+      - run: cp .env.example .env && php artisan key:generate
+      - name: Pint
+        run: vendor/bin/pint --test --config tooling/pint.json
+      - name: Larastan
+        run: vendor/bin/phpstan analyse -c tooling/phpstan.neon --memory-limit=1G --no-progress
+      - name: Deptrac
+        run: vendor/bin/deptrac analyse --config-file=tooling/deptrac.yaml --no-progress
+      - name: Pest
+        env:
+          DB_HOST: 127.0.0.1
+        run: vendor/bin/pest --compact --coverage --min=70
+      - name: Composer audit
+        run: composer audit
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-24.04
+    if: hashFiles('package.json') != ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx eslint -c tooling/eslint.config.js resources/js --max-warnings=0
+      - run: npx prettier --config tooling/prettierrc.json --check resources/js
+      - run: npx vitest run
+      - run: npm run build
+      - run: npm audit --audit-level=high
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-24.04
+    needs: [backend, frontend]
+    if: hashFiles('playwright.config.ts') != ''
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci
+          MYSQL_DATABASE: sikg_test
+          MYSQL_USER: sikg
+          MYSQL_PASSWORD: sikg_local_only
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot_ci"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_mysql, bcmath, gd, zip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: composer install --no-interaction --prefer-dist
+      - run: npm ci && npm run build
+      - run: cp .env.example .env && php artisan key:generate
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+
+  # Kompatibilitas shared hosting (M21, docs/rules/hosting.md): tanpa Redis, driver database,
+  # dan fungsi eksekusi perintah dimatikan seperti di banyak penyedia hosting bersama.
+  hosting-shared:
+    name: Kompatibilitas shared hosting
+    runs-on: ubuntu-24.04
+    if: hashFiles('composer.json') != ''
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci
+          MYSQL_DATABASE: sikg_test
+          MYSQL_USER: sikg
+          MYSQL_PASSWORD: sikg_local_only
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot_ci"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_mysql, bcmath, gd, zip, fileinfo, xml, xmlwriter, simplexml
+      - run: composer install --no-interaction --prefer-dist
+      - run: cp .env.example .env && php artisan key:generate
+      - name: Pest tanpa Redis dan tanpa fungsi shell
+        env:
+          DB_HOST: 127.0.0.1
+          CACHE_STORE: database
+          SESSION_DRIVER: database
+          QUEUE_CONNECTION: database
+          SIKG_HOSTING_PROFILE: shared
+        run: php -d disable_functions=exec,shell_exec,system,passthru,proc_open,popen vendor/bin/pest --compact
+
+  # Arsip rilis siap unggah untuk shared hosting (docs/operations.md bagian 2.2 dan 2.3).
+  # Server tidak menjalankan composer atau npm; semua dibangun di sini.
+  release-package:
+    name: Arsip rilis shared hosting
+    runs-on: ubuntu-24.04
+    needs: [backend, frontend, hosting-shared]
+    if: github.ref == 'refs/heads/main' && hashFiles('composer.json') != '' && hashFiles('package.json') != ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_mysql, bcmath, gd, zip, fileinfo, xml, xmlwriter, simplexml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+      - run: npm ci && npm run build
+      - name: Susun arsip
+        run: |
+          set -euo pipefail
+          mkdir -p build-rilis/app
+          # Aplikasi tanpa rahasia, tes, alat pengembangan, dan riwayat git.
+          tar --exclude='./build-rilis' --exclude='./.git' --exclude='./.github' --exclude='./.claude' \
+              --exclude='./node_modules' --exclude='./tests' --exclude='./tests-templates' \
+              --exclude='./tooling' --exclude='./scripts' --exclude='./docs' \
+              --exclude='./.env' --exclude='./.env.*' --exclude='./storage/logs/*' --exclude='./storage/app/*' \
+              --exclude='./storage/framework/cache/*' --exclude='./storage/framework/sessions/*' --exclude='./storage/framework/views/*' \
+              -cf - . | tar -xf - -C build-rilis/app
+          cp .env.example build-rilis/app/.env.example
+          mkdir -p build-rilis/app/storage/logs build-rilis/app/storage/app/private build-rilis/app/storage/framework/{cache,sessions,views} build-rilis/app/bootstrap/cache
+          test -d build-rilis/app/public/build
+          test -f build-rilis/app/vendor/autoload.php
+          # Jaminan: tidak ada rahasia dan tidak ada symlink di arsip.
+          if find build-rilis -name '.env' -o -name '.env.*' ! -name '.env.example' | grep -q .; then echo '.env ikut terbawa'; exit 1; fi
+          if find build-rilis -type l | grep -q .; then echo 'symlink ikut terbawa'; exit 1; fi
+          # Varian A: akar dokumen domain diarahkan ke app/public.
+          (cd build-rilis && zip -qr ../sikg-rilis.zip app)
+          # Varian B: akar dokumen tetap public_html; aplikasi di folder sikg/ satu tingkat di atasnya.
+          mkdir -p build-rilis-b/sikg build-rilis-b/public_html
+          cp -a build-rilis/app/. build-rilis-b/sikg/
+          cp -a build-rilis/app/public/. build-rilis-b/public_html/
+          rm -rf build-rilis-b/sikg/public
+          sed -i "s#__DIR__\.'/\.\./#__DIR__.'/../sikg/#g" build-rilis-b/public_html/index.php
+          grep -q "/../sikg/vendor/autoload.php" build-rilis-b/public_html/index.php
+          (cd build-rilis-b && zip -qr ../sikg-rilis-public_html.zip sikg public_html)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sikg-rilis-shared-hosting
+          path: |
+            sikg-rilis.zip
+            sikg-rilis-public_html.zip
+          retention-days: 30

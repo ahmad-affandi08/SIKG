@@ -1,0 +1,13 @@
+{
+  "_catatan": "Gabungkan bagian 'scripts' dan 'autoload' ini ke composer.json (docs/BOOTSTRAP.md langkah 4).",
+  "autoload": { "psr-4": { "App\\": "app/", "Src\\": "src/", "Database\\Factories\\": "database/factories/", "Database\\Seeders\\": "database/seeders/" } },
+  "scripts": {
+    "guard": "python3 scripts/guard.py",
+    "verify": "scripts/verify.sh",
+    "test": "vendor/bin/pest --compact",
+    "test:shared": "scripts/verify.sh --shared-only",
+    "stan": "vendor/bin/phpstan analyse -c tooling/phpstan.neon --memory-limit=1G --no-progress",
+    "arch": "vendor/bin/deptrac analyse --config-file=tooling/deptrac.yaml --no-progress",
+    "lint": "vendor/bin/pint --config tooling/pint.json"
+  }
+}

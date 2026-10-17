@@ -14,6 +14,9 @@ Berkas di sini adalah **templat**, bukan tes yang berjalan. Salin ke `tests/` (a
 | Feature/NoPhiInLogsTest.php | tests/Feature/ | PHI tidak masuk log (M11) |
 | Concurrency/AppointmentConflictTest.php | tests/Feature/Scheduling/ | Bentrok jadwal konkuren (JDW-02) |
 | Concurrency/SequenceTest.php | tests/Feature/ | Nomor RM dan invoice unik (ADR-0004) |
+| Architecture/HostingCompatibilityTest.php | tests/Architecture/ | Tanpa exec/Process/Redis/Horizon/broadcast/Chromium; driver bawaan aman untuk shared hosting (M21) |
+| Feature/CronJobsTest.php | tests/Feature/ | Scheduler dan antrean digerakkan cron; job idempoten (SYS-07, NFR-16) |
+| Feature/HealthEndpointTest.php | tests/Feature/ | `/up`, `/health` bertoken tanpa PHI, kesiapan lingkungan (SYS-06, SYS-07) |
 | frontend/schemas.test.ts | resources/js/features/<konteks>/ | Skema Zod sah dan tidak sah |
 | frontend/api-contract.test.ts | resources/js/features/<konteks>/ | Respons API cocok dengan skema Zod |
 | frontend/OdontogramTooth.test.tsx | resources/js/features/clinical/components/ | Interaksi, aksesibilitas, rollback |
