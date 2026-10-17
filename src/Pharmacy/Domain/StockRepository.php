@@ -42,4 +42,12 @@ interface StockRepository
      * @return list<array{id: string, name: string, unit: string, quantity: int, min_stock: int, is_active: bool}>
      */
     public function overview(): array;
+
+    /**
+     * Batch yang diterima dengan tanggal kedaluwarsa paling lambat `$until` (YYYY-MM-DD, termasuk yang sudah lewat), hanya untuk
+     * obat yang masih ada stok. Sisa per batch tidak dilacak, jadi `received` adalah jumlah saat batch masuk.
+     *
+     * @return list<array{medicine_id: string, name: string, unit: string, batch_no: string|null, expiry_date: string, received: int, quantity: int}>
+     */
+    public function expiringBatches(string $until): array;
 }

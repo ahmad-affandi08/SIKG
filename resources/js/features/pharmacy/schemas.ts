@@ -95,3 +95,11 @@ export function stockLevel(quantity: number, minStock: number): 'empty' | 'low' 
   }
   return quantity < minStock ? 'low' : 'ok';
 }
+
+/** Keterangan sisa hari kedaluwarsa untuk peringatan stok (OBT-06). */
+export function expiryText(daysLeft: number): string {
+  if (daysLeft < 0) {
+    return `sudah lewat ${String(-daysLeft)} hari`;
+  }
+  return daysLeft === 0 ? 'kedaluwarsa hari ini' : `${String(daysLeft)} hari lagi`;
+}

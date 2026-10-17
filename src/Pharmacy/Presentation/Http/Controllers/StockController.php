@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Src\Pharmacy\Application\StockAlerts;
 use Src\Pharmacy\Application\StockService;
 use Src\Pharmacy\Contracts\MedicineCatalog;
 use Src\Shared\Application\RequiredFields;
@@ -18,10 +19,11 @@ use Src\Shared\Application\RequiredFields;
  */
 final class StockController
 {
-    public function index(Request $request, StockService $stock): Response
+    public function index(Request $request, StockService $stock, StockAlerts $alerts): Response
     {
         return Inertia::render('Stock/Index', [
             ...$stock->overview(),
+            'alerts' => $alerts->overview(),
             'can' => ['manage' => (bool) $request->user()?->can('stock.manage')],
         ]);
     }

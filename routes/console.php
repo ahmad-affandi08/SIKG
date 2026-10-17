@@ -31,6 +31,12 @@ Schedule::command('sikg:backup:prune')
     ->dailyAt('04:30')
     ->withoutOverlapping(30);
 
+// OBT-06: peringatan stok minimum dan kedaluwarsa terbit sekali per hari (setelah jam 07.00 lokal); aman diulang tiap 30 menit.
+Schedule::command('sikg:stock:alerts')
+    ->name('sikg-stock-alerts')
+    ->everyThirtyMinutes()
+    ->withoutOverlapping(20);
+
 // SYS-05: pemberitahuan dalam aplikasi dipangkas setelah 90 hari.
 Schedule::command('sikg:notifications:prune')
     ->name('sikg-notifications-prune')

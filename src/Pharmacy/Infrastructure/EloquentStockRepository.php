@@ -94,4 +94,38 @@ final readonly class EloquentStockRepository implements StockRepository
             'is_active' => $m->is_active,
         ])->all());
     }
+
+    public function expiringBatches(string $until): array
+    {
+        $balances = StockBalanceModel::query()->where('quantity', '>', 0)->pluck('quantity', 'medicine_id');
+        if ($balances->isEmpty()) {
+            return [];
+        }
+        $medicines = MedicineModel::query()->whereIn('id', $balances->keys()->all())->get()->keyBy('id');
+
+        $list = [];
+        foreach (StockMovementModel::query()
+            ->whereIn('medicine_id', $balances->keys()->all())
+            ->where('type', MovementType::In->value)
+            ->whereNotNull('expiry_date')
+            ->whereDate('expiry_date', '<=', $until)
+            ->orderBy('expiry_date')->orderBy('id')
+            ->get() as $movement) {
+            $medicine = $medicines->get($movement->medicine_id);
+            if ($medicine === null) {
+                continue;
+            }
+            $list[] = [
+                'medicine_id' => $movement->medicine_id,
+                'name' => $medicine->name,
+                'unit' => $medicine->unit,
+                'batch_no' => $movement->batch_no,
+                'expiry_date' => (string) $movement->expiry_date?->toDateString(),
+                'received' => (int) $movement->quantity,
+                'quantity' => (int) $balances[$movement->medicine_id],
+            ];
+        }
+
+        return $list;
+    }
 }

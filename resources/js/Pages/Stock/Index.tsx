@@ -4,7 +4,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
-import { stockLevel } from '@/features/pharmacy/schemas';
+import { expiryText, stockLevel } from '@/features/pharmacy/schemas';
+import { formatDate } from '@/lib/format';
 
 interface MedicineRow {
   id: string;
@@ -15,15 +16,35 @@ interface MedicineRow {
   is_active: boolean;
 }
 
+interface LowRow {
+  id: string;
+  name: string;
+  unit: string;
+  quantity: number;
+  min_stock: number;
+}
+
+interface ExpiringRow {
+  medicine_id: string;
+  name: string;
+  unit: string;
+  batch_no: string | null;
+  expiry_date: string;
+  days_left: number;
+  received: number;
+  quantity: number;
+}
+
 interface Props {
   medicines: MedicineRow[];
+  alerts: { low: LowRow[]; expiring: ExpiringRow[]; window_days: number };
   can: { manage: boolean };
 }
 
 const LEVEL_LABEL = { empty: 'Habis', low: 'Di bawah minimum', ok: 'Cukup' } as const;
 const LEVEL_TONE = { empty: 'danger', low: 'warning', ok: 'success' } as const;
 
-export default function Index({ medicines, can }: Props) {
+export default function Index({ medicines, alerts, can }: Props) {
   return (
     <AppLayout>
       <main className="flex flex-col gap-3 p-3">
@@ -43,6 +64,46 @@ export default function Index({ medicines, can }: Props) {
             ) : null
           }
         />
+
+        {alerts.low.length > 0 || alerts.expiring.length > 0 ? (
+          <section aria-labelledby="perhatian" className="pane flex flex-col gap-2 p-3">
+            <h2 id="perhatian">Perlu perhatian</h2>
+            {alerts.low.length > 0 ? (
+              <div>
+                <h3 className="text-sm font-bold">Di bawah stok minimum ({alerts.low.length})</h3>
+                <ul className="ml-4 list-disc text-sm">
+                  {alerts.low.map((item) => (
+                    <li key={item.id}>
+                      {item.name}: {item.quantity} {item.unit} dari minimum {item.min_stock}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {alerts.expiring.length > 0 ? (
+              <div>
+                <h3 className="text-sm font-bold">
+                  Kedaluwarsa dalam {alerts.window_days} hari atau sudah lewat (
+                  {alerts.expiring.length})
+                </h3>
+                <ul className="ml-4 list-disc text-sm">
+                  {alerts.expiring.map((item) => (
+                    <li key={`${item.medicine_id}-${item.batch_no ?? ''}-${item.expiry_date}`}>
+                      {item.name}
+                      {item.batch_no ? `, batch ${item.batch_no}` : ''}:{' '}
+                      {formatDate(item.expiry_date)} ({expiryText(item.days_left)}), stok kini{' '}
+                      {item.quantity} {item.unit}
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-muted text-xs">
+                  Sisa per batch tidak dilacak; semua batch yang masuk dengan tanggal itu
+                  ditampilkan selama obatnya masih ada stok.
+                </p>
+              </div>
+            ) : null}
+          </section>
+        ) : null}
 
         {medicines.length === 0 ? (
           <p className="text-muted text-sm">Belum ada obat di katalog.</p>

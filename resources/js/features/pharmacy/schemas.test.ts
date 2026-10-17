@@ -4,6 +4,7 @@ import {
   adjustmentSchema,
   emptyRow,
   prescriptionRowSchema,
+  expiryText,
   stockLevel,
   stockMovementSchema,
 } from './schemas';
@@ -121,5 +122,13 @@ describe('OBT-05 stok', () => {
     expect(stockLevel(0, 10)).toBe('empty');
     expect(stockLevel(9, 10)).toBe('low');
     expect(stockLevel(10, 10)).toBe('ok');
+  });
+});
+
+describe('OBT-06 keterangan kedaluwarsa', () => {
+  it('menyebut sisa hari, hari ini, dan yang sudah lewat', () => {
+    expect(expiryText(12)).toBe('12 hari lagi');
+    expect(expiryText(0)).toBe('kedaluwarsa hari ini');
+    expect(expiryText(-3)).toBe('sudah lewat 3 hari');
   });
 });
