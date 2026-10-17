@@ -27,6 +27,10 @@ final class UpdateClinicSettingsRequest extends FormRequest
             'session_timeout_minutes' => ['required', 'integer', 'min:5', "max:{$max}"],
             'medical_record_pattern' => ['required', 'string', 'max:40'],
             'invoice_pattern' => ['required', 'string', 'max:40'],
+            'discount_limits' => ['required', 'array'],
+            'discount_limits.pemilik' => ['required', 'integer', 'between:0,100'],
+            'discount_limits.admin' => ['required', 'integer', 'between:0,100'],
+            'discount_limits.kasir' => ['required', 'integer', 'between:0,100'],
             'operating_hours' => ['required', 'array', 'size:7'],
             'operating_hours.*' => ['nullable', 'array'],
             'operating_hours.*.open' => ['required_with:operating_hours.*', 'date_format:H:i'],
@@ -43,6 +47,7 @@ final class UpdateClinicSettingsRequest extends FormRequest
             'timezone.in' => 'Zona waktu tidak dikenal.',
             'session_timeout_minutes.min' => 'Batas sesi minimal 5 menit.',
             'session_timeout_minutes.max' => 'Batas sesi melebihi batas tertinggi server (:max menit).',
+            'discount_limits.*.between' => 'Batas diskon harus antara 0 dan 100 persen.',
             'operating_hours.*.open.date_format' => 'Jam buka harus berformat HH:MM.',
             'operating_hours.*.close.date_format' => 'Jam tutup harus berformat HH:MM.',
         ];

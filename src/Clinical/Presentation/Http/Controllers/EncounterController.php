@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Src\Billing\Contracts\InvoiceLookup;
 use Src\Clinical\Application\EncounterEntries;
 use Src\Clinical\Application\EncounterLifecycle;
 use Src\Clinical\Application\EncounterNotes;
@@ -70,13 +71,14 @@ final class EncounterController
         ]);
     }
 
-    public function show(Request $request, string $encounter, EncounterWorkspace $workspace): Response
+    public function show(Request $request, string $encounter, EncounterWorkspace $workspace, InvoiceLookup $invoices): Response
     {
         $tab = $request->query('tab');
 
         return Inertia::render('Encounters/Show', [
             ...$workspace($encounter, 'encounters.show'),
             'initialTab' => is_string($tab) && in_array($tab, self::TABS, true) ? $tab : 'anamnesis',
+            'invoice' => $request->user()?->can('invoice.view') === true ? $invoices->forEncounter($encounter)?->toArray() : null,
             'can' => [
                 'write' => (bool) $request->user()?->can('encounter.write'),
                 'start' => (bool) $request->user()?->can('encounter.create'),

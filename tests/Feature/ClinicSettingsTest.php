@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Src\Clinic\Contracts\DiscountLimits;
 use Src\Clinic\Infrastructure\Eloquent\ClinicModel;
 use Src\Clinic\Infrastructure\Eloquent\HolidayModel;
 use Src\IdentityAccess\Domain\Role;
@@ -16,6 +17,7 @@ function payloadPengaturan(array $override = []): array
         'session_timeout_minutes' => 45,
         'medical_record_pattern' => 'RM-{seq:7}',
         'invoice_pattern' => 'FKT/{yyyy}/{seq:4}',
+        'discount_limits' => ['pemilik' => 100, 'admin' => 50, 'kasir' => 15],
         'operating_hours' => [1 => $jam, 2 => $jam, 3 => $jam, 4 => $jam, 5 => $jam, 6 => ['open' => '08:00', 'close' => '12:00'], 7 => null],
         ...$override,
     ];
@@ -138,4 +140,18 @@ it('SYS-04 formulir hari libur adalah halaman sendiri dan simpan kembali ke peng
     $this->actingAs($admin)->get('/settings/holidays/create')->assertOk()->assertInertia(fn ($p) => $p->component('Settings/HolidayForm'));
     $this->actingAs($admin)->post('/settings/holidays', ['date' => '2026-12-25', 'name' => 'Hari raya uji'])->assertRedirect('/settings/clinic');
     $this->actingAs(makeUser(Role::Dokter, makeClinic('Lain')))->get('/settings/holidays/create')->assertForbidden();
+});
+
+it('KSR-02 Admin mengatur batas diskon per peran dan menolak nilai di luar 0 sampai 100', function () {
+    $klinik = makeClinic();
+    $admin = makeUser(Role::Admin, $klinik);
+
+    $this->actingAs($admin)->put('/settings/clinic', payloadPengaturan())->assertSessionHasNoErrors();
+    tenant()->set($klinik->id);
+    expect(app(DiscountLimits::class)->basisPointsFor(['kasir']))->toBe(1500)
+        ->and(app(DiscountLimits::class)->basisPointsFor(['kasir', 'admin']))->toBe(5000)
+        ->and(app(DiscountLimits::class)->basisPointsFor(['dokter']))->toBe(0);
+
+    $this->actingAs($admin)->put('/settings/clinic', payloadPengaturan(['discount_limits' => ['pemilik' => 100, 'admin' => 101, 'kasir' => 10]]))
+        ->assertSessionHasErrors('discount_limits.admin');
 });

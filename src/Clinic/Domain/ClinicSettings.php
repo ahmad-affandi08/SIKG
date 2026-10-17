@@ -8,7 +8,8 @@ use InvalidArgumentException;
 use Src\Shared\Domain\NumberPattern;
 
 /**
- * Pengaturan klinik (SYS-04, AUTH-04): format nomor RM dan invoice, jam operasional per hari, batas sesi tidak aktif.
+ * Pengaturan klinik (SYS-04, AUTH-04, KSR-02): format nomor RM dan invoice, jam operasional per hari, batas sesi tidak aktif,
+ * dan batas diskon per peran (persen bulat).
  * Zona waktu disimpan di kolom `clinics.timezone`. Hari: 1 = Senin sampai 7 = Minggu.
  */
 final readonly class ClinicSettings
@@ -17,17 +18,27 @@ final readonly class ClinicSettings
 
     public const MIN_SESSION_MINUTES = 5;
 
+    /** Batas diskon bawaan per peran dalam persen; peran yang tidak tercantum tidak boleh memberi diskon. */
+    public const DEFAULT_DISCOUNT_LIMITS = ['pemilik' => 100, 'admin' => 100, 'kasir' => 10];
+
     /**
      * @param  array<int, array{open: string, close: string}|null>  $operatingHours  null = tutup
+     * @param  array<string, int>  $discountLimits  peran => batas diskon persen (0 sampai 100)
      */
     public function __construct(
         public int $sessionTimeoutMinutes,
         public NumberPattern $medicalRecordPattern,
         public NumberPattern $invoicePattern,
         public array $operatingHours,
+        public array $discountLimits = self::DEFAULT_DISCOUNT_LIMITS,
     ) {
         if ($sessionTimeoutMinutes < self::MIN_SESSION_MINUTES) {
             throw new InvalidArgumentException('Batas sesi minimal '.self::MIN_SESSION_MINUTES.' menit.');
+        }
+        foreach ($discountLimits as $limit) {
+            if ($limit < 0 || $limit > 100) {
+                throw new InvalidArgumentException('Batas diskon harus antara 0 dan 100 persen.');
+            }
         }
         for ($day = 1; $day <= 7; $day++) {
             if (! array_key_exists($day, $operatingHours)) {
@@ -49,6 +60,7 @@ final readonly class ClinicSettings
             medicalRecordPattern: new NumberPattern('RM-{seq:6}'),
             invoicePattern: new NumberPattern('INV-{yyyy}-{seq:5}'),
             operatingHours: [1 => $weekday, 2 => $weekday, 3 => $weekday, 4 => $weekday, 5 => $weekday, 6 => $weekday, 7 => null],
+            discountLimits: self::DEFAULT_DISCOUNT_LIMITS,
         );
     }
 
@@ -69,11 +81,19 @@ final readonly class ClinicSettings
             }
         }
 
+        $limits = $defaults->discountLimits;
+        if (isset($data['discount_limits']) && is_array($data['discount_limits'])) {
+            foreach ($data['discount_limits'] as $role => $value) {
+                $limits[(string) $role] = (int) $value;
+            }
+        }
+
         return new self(
             sessionTimeoutMinutes: isset($data['session_timeout_minutes']) ? (int) $data['session_timeout_minutes'] : $defaults->sessionTimeoutMinutes,
             medicalRecordPattern: isset($data['medical_record_pattern']) ? new NumberPattern((string) $data['medical_record_pattern']) : $defaults->medicalRecordPattern,
             invoicePattern: isset($data['invoice_pattern']) ? new NumberPattern((string) $data['invoice_pattern']) : $defaults->invoicePattern,
             operatingHours: $hours,
+            discountLimits: $limits,
         );
     }
 
@@ -87,6 +107,7 @@ final readonly class ClinicSettings
             'medical_record_pattern' => $this->medicalRecordPattern->pattern,
             'invoice_pattern' => $this->invoicePattern->pattern,
             'operating_hours' => $this->operatingHours,
+            'discount_limits' => $this->discountLimits,
         ];
     }
 
