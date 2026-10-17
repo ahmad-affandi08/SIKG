@@ -49,6 +49,12 @@ Schedule::command('sikg:satusehat:send')
     ->everyFiveMinutes()
     ->withoutOverlapping(10);
 
+// P2-03: pengingat pasien (H-1, hari-H, kontrol berkala); idempoten per janji atau kunjungan, tahan cron yang terlewat.
+Schedule::command('sikg:reminders:run')
+    ->name('sikg-reminders-run')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping(10);
+
 // SYS-05: pemberitahuan dalam aplikasi dipangkas setelah 90 hari.
 Schedule::command('sikg:notifications:prune')
     ->name('sikg-notifications-prune')

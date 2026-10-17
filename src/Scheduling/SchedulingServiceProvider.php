@@ -11,12 +11,14 @@ use Src\Scheduling\Application\AppointmentWorkflow;
 use Src\Scheduling\Application\NotifyAppointmentBooked;
 use Src\Scheduling\Contracts\AppointmentLookup;
 use Src\Scheduling\Contracts\AppointmentProgress;
+use Src\Scheduling\Contracts\UpcomingAppointments;
 use Src\Scheduling\Domain\AppointmentRepository;
 use Src\Scheduling\Domain\Events\AppointmentBooked;
 use Src\Scheduling\Infrastructure\Console\AppointmentDigestCommand;
 use Src\Scheduling\Infrastructure\Eloquent\AppointmentModel;
 use Src\Scheduling\Infrastructure\EloquentAppointmentLookup;
 use Src\Scheduling\Infrastructure\EloquentAppointmentRepository;
+use Src\Scheduling\Infrastructure\EloquentUpcomingAppointments;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Infrastructure\ModelPatientMover;
 
@@ -28,6 +30,7 @@ final class SchedulingServiceProvider extends ServiceProvider
         $this->app->tag(['sikg.patient-mover.appointments'], 'sikg.patient-movers');
         $this->app->singleton(AppointmentRepository::class, EloquentAppointmentRepository::class);
         $this->app->singleton(AppointmentLookup::class, EloquentAppointmentLookup::class);
+        $this->app->singleton(UpcomingAppointments::class, EloquentUpcomingAppointments::class);
         $this->app->bind(AppointmentProgress::class, AppointmentWorkflow::class);
     }
 

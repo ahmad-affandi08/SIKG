@@ -35,6 +35,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     permission: 'appointment.view',
     group: 'Layanan',
   },
+  {
+    label: 'Pengingat',
+    href: '/reminders',
+    permission: 'appointment.manage',
+    group: 'Layanan',
+  },
   { label: 'Stok obat', href: '/stock', permission: 'stock.view', group: 'Farmasi' },
   { label: 'Tagihan', href: '/invoices', permission: 'invoice.view', group: 'Kasir' },
   { label: 'Tutup kas', href: '/cash-closings', permission: 'cash.close', group: 'Kasir' },
@@ -120,6 +126,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
   {
     label: 'SATUSEHAT',
     href: '/settings/satusehat',
+    permission: 'setting.manage',
+    group: 'Pengaturan',
+  },
+  {
+    label: 'Pengaturan pengingat',
+    href: '/settings/reminders',
     permission: 'setting.manage',
     group: 'Pengaturan',
   },

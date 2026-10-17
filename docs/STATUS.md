@@ -100,7 +100,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 
 - [x] P2-01 | Integrasi SATUSEHAT (wajib regulasi, dikerjakan pertama)
 - [x] P2-02 | Penjamin asuransi dan perusahaan
-- [ ] P2-03 | Pengingat WhatsApp otomatis
+- [x] P2-03 | Pengingat WhatsApp otomatis
 - [ ] P2-04 | Ortodonti
 - [ ] P2-05 | Stok lanjutan
 - [ ] P2-06 | Pesanan lab gigi
