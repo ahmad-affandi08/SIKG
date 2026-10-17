@@ -12,11 +12,12 @@ use Src\Shared\Infrastructure\Eloquent\TenantMasterModel;
  * @property string|null $category
  * @property string $scope
  * @property int $default_price_amount
+ * @property string|null $result_condition_code
  */
 final class ProcedureModel extends TenantMasterModel
 {
     protected $table = 'procedures';
 
     /** @var list<string> */
-    protected $fillable = ['code', 'name', 'category', 'scope', 'default_price_amount', 'branch_id'];
+    protected $fillable = ['code', 'name', 'category', 'scope', 'default_price_amount', 'result_condition_code', 'branch_id'];
 }

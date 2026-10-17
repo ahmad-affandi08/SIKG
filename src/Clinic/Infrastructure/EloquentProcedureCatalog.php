@@ -38,6 +38,6 @@ final class EloquentProcedureCatalog implements ProcedureCatalog
 
     private function snapshot(ProcedureModel $p): ProcedureSnapshot
     {
-        return new ProcedureSnapshot($p->id, $p->code, $p->name, $p->scope, (int) $p->default_price_amount);
+        return new ProcedureSnapshot($p->id, $p->code, $p->name, $p->scope, (int) $p->default_price_amount, $p->result_condition_code);
     }
 }

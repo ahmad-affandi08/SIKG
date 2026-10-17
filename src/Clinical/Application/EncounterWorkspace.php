@@ -31,6 +31,8 @@ final readonly class EncounterWorkspace
         private UserLookup $users,
         private AccessLogger $access,
         private PrescriptionLookup $prescriptions,
+        private OdontogramService $odontogram,
+        private TreatmentPlans $plans,
     ) {}
 
     /**
@@ -100,6 +102,19 @@ final readonly class EncounterWorkspace
                 'uploaded_at' => $f->uploadedAt->format('c'),
                 'uploaded_by' => $uploaders[$f->uploadedBy] ?? '-',
             ], $files),
+            // ODO-05: usulan pembaruan odontogram dan RM-06: langkah rencana perawatan yang dapat dikerjakan pada kunjungan ini.
+            'odontogram_suggestions' => $encounter->isClosed() ? [] : $this->odontogram->suggestions($encounterId),
+            'plan_items' => $encounter->isClosed() ? [] : array_map(fn ($i) => [
+                'id' => $i->id,
+                'plan_id' => $i->planId,
+                'code' => $i->procedureCode,
+                'name' => $i->procedureName,
+                'tooth_fdi' => $i->toothFdi,
+                'quantity' => $i->quantity,
+                'estimate_amount' => $i->estimateAmount,
+                'status' => $i->status->value,
+                'status_label' => $i->status->label(),
+            ], $this->plans->openItems($encounter->patientId)),
             'prescriptions' => array_map(fn ($p) => $p->toArray(), $this->prescriptions->forEncounters([$encounterId])[$encounterId] ?? []),
             'warnings' => array_map(fn ($a) => $a->toArray(), $this->alerts->warnings($encounter->patientId)),
             'medical_history' => array_map(fn ($a) => $a->toArray(), $this->alerts->history($encounter->patientId)),

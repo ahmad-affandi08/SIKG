@@ -14,18 +14,42 @@ import { ProcedurePicker } from '@/features/clinical/components/ProcedurePicker'
 import { procedureEntrySchema } from '@/features/clinical/schemas';
 import { SURFACES } from '@/features/clinical/tooth';
 
+interface Prefill {
+  plan_item_id: string;
+  plan_title: string;
+  procedure_id: string;
+  code: string;
+  name: string;
+  scope: ProcedureOption['scope'];
+  price_amount: number;
+  tooth_fdi: number | null;
+  quantity: number;
+  notes: string | null;
+}
+
 interface Props {
   encounter: EncounterRef;
   jaws: SelectOption[];
+  prefill?: Prefill | null;
 }
 
-export default function ProcedureForm({ encounter, jaws }: Props) {
-  const [procedure, setProcedure] = useState<ProcedureOption | null>(null);
-  const [tooth, setTooth] = useState('');
+export default function ProcedureForm({ encounter, jaws, prefill = null }: Props) {
+  const [procedure, setProcedure] = useState<ProcedureOption | null>(
+    prefill
+      ? {
+          id: prefill.procedure_id,
+          code: prefill.code,
+          name: prefill.name,
+          scope: prefill.scope,
+          price_amount: prefill.price_amount,
+        }
+      : null,
+  );
+  const [tooth, setTooth] = useState(prefill?.tooth_fdi ? String(prefill.tooth_fdi) : '');
   const [surfaces, setSurfaces] = useState<string[]>([]);
   const [jaw, setJaw] = useState('');
-  const [quantity, setQuantity] = useState('1');
-  const [notes, setNotes] = useState('');
+  const [quantity, setQuantity] = useState(prefill ? String(prefill.quantity) : '1');
+  const [notes, setNotes] = useState(prefill?.notes ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const scope = procedure?.scope ?? null;
@@ -57,6 +81,7 @@ export default function ProcedureForm({ encounter, jaws }: Props) {
         jaw: scope === 'jaw' ? jaw : null,
         quantity: result.data.quantity,
         notes,
+        ...(prefill ? { plan_item_id: prefill.plan_item_id } : {}),
       },
       {
         onError: (serverErrors) => {
@@ -72,6 +97,12 @@ export default function ProcedureForm({ encounter, jaws }: Props) {
   return (
     <EncounterFormShell title="Tambah tindakan" encounter={encounter} tab="procedures">
       <form onSubmit={submit} noValidate aria-label="Tambah tindakan" className="form-grid">
+        {prefill ? (
+          <p className="text-muted text-sm">
+            Dari rencana perawatan: {prefill.plan_title}. Setelah disimpan, langkah ini berstatus
+            Selesai.
+          </p>
+        ) : null}
         <ProcedurePicker
           field="procedure_id"
           selected={procedure}

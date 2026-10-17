@@ -163,6 +163,8 @@ final class EloquentEncounterRepository implements EncounterRepository
         int $unitPriceAmount,
         ?string $notes,
         DateTimeImmutable $at,
+        ?string $planItemId = null,
+        ?string $resultConditionCode = null,
     ): string {
         $row = new EncounterProcedureModel;
         $row->forceFill([
@@ -179,6 +181,8 @@ final class EloquentEncounterRepository implements EncounterRepository
             'notes' => $notes,
             'performed_by' => $actorId,
             'performed_at' => $at,
+            'plan_item_id' => $planItemId,
+            'result_condition_code' => $resultConditionCode,
             'created_by' => $actorId,
         ])->save();
 
@@ -203,6 +207,12 @@ final class EloquentEncounterRepository implements EncounterRepository
         $row = EncounterProcedureModel::query()->where('encounter_id', $encounterId)->findOrFail($id);
         $row->forceFill(['updated_by' => $actorId])->save();
         $row->delete();
+    }
+
+    public function setProcedureOdontogramStatus(string $actorId, string $encounterId, string $id, string $status): void
+    {
+        $row = EncounterProcedureModel::query()->where('encounter_id', $encounterId)->findOrFail($id);
+        $row->forceFill(['odontogram_status' => $status, 'updated_by' => $actorId])->save();
     }
 
     private function record(EncounterModel $e): EncounterRecord
@@ -236,6 +246,6 @@ final class EloquentEncounterRepository implements EncounterRepository
 
     private function procedure(EncounterProcedureModel $p): EncounterProcedureRecord
     {
-        return new EncounterProcedureRecord($p->id, $p->encounter_id, $p->procedure_id, $p->procedure_code, $p->procedure_name, $p->scope, $p->tooth_fdi, $p->surfaces, $p->jaw, $p->quantity, $p->unit_price_amount, $p->notes, $p->performed_by, $p->performed_at->toDateTimeImmutable());
+        return new EncounterProcedureRecord($p->id, $p->encounter_id, $p->procedure_id, $p->procedure_code, $p->procedure_name, $p->scope, $p->tooth_fdi, $p->surfaces, $p->jaw, $p->quantity, $p->unit_price_amount, $p->notes, $p->performed_by, $p->performed_at->toDateTimeImmutable(), $p->plan_item_id, $p->result_condition_code, $p->odontogram_status);
     }
 }

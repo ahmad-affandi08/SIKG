@@ -32,7 +32,7 @@ dataset('matriks', [
     ]],
     'dokter' => [Role::Dokter, [
         'patient.view', 'appointment.view',
-        'encounter.view', 'encounter.create', 'encounter.write', 'encounter.close', 'encounter.addendum',
+        'encounter.view', 'encounter.create', 'encounter.write', 'encounter.close', 'encounter.addendum', 'treatment_plan.manage',
         'odontogram.view', 'odontogram.write',
         'prescription.view', 'prescription.create', 'prescription.update',
         'invoice.view', 'stock.view', 'tariff.view', 'report.view', 'report.clinical.own',

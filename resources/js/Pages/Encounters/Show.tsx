@@ -21,6 +21,8 @@ import type {
   EncounterData,
   FileEntry,
   Note,
+  OdontogramSuggestion,
+  PlanItemSummary,
   ProcedureEntry,
   Warning,
 } from '@/features/clinical/components/EncounterPanels';
@@ -49,6 +51,8 @@ interface Props {
   note_history: Note[];
   diagnoses: DiagnosisEntry[];
   procedures: ProcedureEntry[];
+  plan_items: PlanItemSummary[];
+  odontogram_suggestions: OdontogramSuggestion[];
   files: FileEntry[];
   prescriptions: PrescriptionData[];
   initialTab: TabKey;
@@ -96,6 +100,8 @@ export default function Show(props: Props) {
     note_history: history,
     diagnoses,
     procedures,
+    plan_items: planItems,
+    odontogram_suggestions: suggestions,
     files,
     prescriptions,
     warnings,
@@ -232,6 +238,9 @@ export default function Show(props: Props) {
                   entries={procedures}
                   jaws={jaws}
                   canEdit={canEdit}
+                  planItems={planItems}
+                  suggestions={suggestions}
+                  canOdontogram={can.odontogram && !encounter.is_closed}
                 />
               ) : null}
               {tab === 'prescriptions' ? (

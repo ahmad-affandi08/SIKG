@@ -26,6 +26,9 @@ final readonly class EncounterProcedureRecord
         public ?string $notes,
         public string $performedBy,
         public DateTimeImmutable $performedAt,
+        public ?string $planItemId = null,
+        public ?string $resultConditionCode = null,
+        public ?string $odontogramStatus = null,
     ) {}
 
     /**
@@ -46,6 +49,9 @@ final readonly class EncounterProcedureRecord
             'unit_price_amount' => $this->unitPriceAmount,
             'subtotal_amount' => $this->quantity * $this->unitPriceAmount,
             'notes' => $this->notes,
+            'plan_item_id' => $this->planItemId,
+            'result_condition_code' => $this->resultConditionCode,
+            'odontogram_status' => $this->odontogramStatus,
         ];
     }
 }

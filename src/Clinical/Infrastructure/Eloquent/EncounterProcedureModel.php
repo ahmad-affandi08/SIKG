@@ -25,6 +25,9 @@ use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
  * @property string|null $notes
  * @property string $performed_by
  * @property Carbon $performed_at
+ * @property string|null $plan_item_id
+ * @property string|null $result_condition_code
+ * @property string|null $odontogram_status
  */
 final class EncounterProcedureModel extends Model
 {
@@ -35,7 +38,7 @@ final class EncounterProcedureModel extends Model
     protected $table = 'encounter_procedures';
 
     /** @var list<string> */
-    protected $fillable = ['encounter_id', 'procedure_id', 'procedure_code', 'procedure_name', 'scope', 'tooth_fdi', 'surfaces', 'jaw', 'quantity', 'unit_price_amount', 'notes', 'performed_by', 'performed_at', 'branch_id'];
+    protected $fillable = ['encounter_id', 'procedure_id', 'procedure_code', 'procedure_name', 'scope', 'tooth_fdi', 'surfaces', 'jaw', 'quantity', 'unit_price_amount', 'notes', 'performed_by', 'performed_at', 'branch_id', 'plan_item_id', 'result_condition_code', 'odontogram_status'];
 
     protected static function branchScoped(): bool
     {

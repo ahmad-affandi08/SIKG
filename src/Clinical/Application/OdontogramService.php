@@ -6,6 +6,8 @@ namespace Src\Clinical\Application;
 
 use Src\Clinic\Contracts\ToothConditionCatalog;
 use Src\Clinical\Domain\EncounterNotFound;
+use Src\Clinical\Domain\EncounterProcedureRecord;
+use Src\Clinical\Domain\EncounterRepository;
 use Src\Clinical\Domain\InvalidClinicalData;
 use Src\Clinical\Domain\Odontogram;
 use Src\Clinical\Domain\OdontogramRepository;
@@ -27,6 +29,7 @@ final readonly class OdontogramService
 {
     public function __construct(
         private OdontogramRepository $odontogram,
+        private EncounterRepository $encounters,
         private EncounterGuard $guard,
         private ToothConditionCatalog $conditions,
         private PatientLookup $patients,
@@ -65,6 +68,87 @@ final readonly class OdontogramService
         }
 
         return ['teeth' => $teeth, 'conditions' => array_map(fn ($c) => $c->toArray(), $this->conditions->all())];
+    }
+
+    /**
+     * ODO-05: usulan pembaruan odontogram dari tindakan pada kunjungan yang masih berjalan. Tindakan yang kodenya menghasilkan
+     * kondisi gigi (diatur Admin di katalog tindakan) dan belum diputuskan dokter. Usulan hanya muncul bila kondisi cocok dengan
+     * cakupan tindakan (kondisi per permukaan untuk tindakan per permukaan, kondisi seluruh gigi untuk tindakan per gigi).
+     *
+     * @return list<array{entry_id: string, procedure_name: string, tooth_fdi: int, surfaces: list<string>, condition_code: string, condition_name: string}>
+     */
+    public function suggestions(string $encounterId): array
+    {
+        $list = [];
+        foreach ($this->encounters->procedures($encounterId) as $procedure) {
+            $targets = $this->targets($procedure);
+            $condition = $procedure->resultConditionCode === null ? null : $this->conditions->find($procedure->resultConditionCode);
+            if ($targets === null || $procedure->toothFdi === null || $procedure->odontogramStatus !== null || $condition === null || ! $condition->active) {
+                continue;
+            }
+            $whole = $targets === [Surface::Whole->value];
+            if (($whole && $condition->scope === 'surface') || (! $whole && $condition->scope === 'tooth')) {
+                continue;
+            }
+            $list[] = [
+                'entry_id' => $procedure->id,
+                'procedure_name' => $procedure->name,
+                'tooth_fdi' => $procedure->toothFdi,
+                'surfaces' => $targets,
+                'condition_code' => $condition->code,
+                'condition_name' => $condition->name,
+            ];
+        }
+
+        return $list;
+    }
+
+    /**
+     * Keputusan dokter atas usulan: menerapkan kondisi ke odontogram kunjungan ini, atau mengabaikannya. Keputusan tercatat di
+     * audit log dan usulan tidak muncul lagi.
+     */
+    public function resolveSuggestion(string $actorId, string $encounterId, string $entryId, bool $apply): void
+    {
+        $this->tx->run(function () use ($actorId, $encounterId, $entryId, $apply): void {
+            $encounter = $this->guard->load($encounterId);
+            $this->guard->assertOpen($encounter);
+            $suggestion = null;
+            foreach ($this->suggestions($encounterId) as $candidate) {
+                if ($candidate['entry_id'] === $entryId) {
+                    $suggestion = $candidate;
+                }
+            }
+            if ($suggestion === null) {
+                throw new InvalidClinicalData('odontogram.suggestion_not_found', 'Tidak ada usulan pembaruan odontogram untuk tindakan ini.');
+            }
+
+            if ($apply) {
+                foreach ($suggestion['surfaces'] as $surface) {
+                    $this->setCondition($actorId, $encounterId, $suggestion['tooth_fdi'], $surface, $suggestion['condition_code']);
+                }
+            }
+            $this->encounters->setProcedureOdontogramStatus($actorId, $encounterId, $entryId, $apply ? 'applied' : 'dismissed');
+            $this->audit->record(new AuditEntry($actorId, $apply ? 'odontogram.suggestion_applied' : 'odontogram.suggestion_dismissed', 'encounter', $encounterId, null, [
+                'entry_id' => $entryId,
+                'tooth_fdi' => $suggestion['tooth_fdi'],
+                'surfaces' => $suggestion['surfaces'],
+                'condition' => $suggestion['condition_code'],
+            ]));
+        });
+    }
+
+    /**
+     * Permukaan yang akan diberi kondisi: tiap permukaan untuk tindakan per permukaan, seluruh gigi untuk tindakan per gigi.
+     *
+     * @return list<string>|null null bila tindakan tidak menyangkut gigi
+     */
+    private function targets(EncounterProcedureRecord $procedure): ?array
+    {
+        return match ($procedure->scope) {
+            'surface' => $procedure->surfaces === null || $procedure->surfaces === '' ? null : str_split($procedure->surfaces),
+            'tooth' => [Surface::Whole->value],
+            default => null,
+        };
     }
 
     /**

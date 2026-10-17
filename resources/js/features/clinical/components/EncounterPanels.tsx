@@ -391,21 +391,118 @@ export interface ProcedureEntry {
   notes: string | null;
 }
 
+export interface PlanItemSummary {
+  id: string;
+  plan_id: string;
+  code: string;
+  name: string;
+  tooth_fdi: number | null;
+  quantity: number;
+  estimate_amount: number;
+  status: string;
+  status_label: string;
+}
+
+export interface OdontogramSuggestion {
+  entry_id: string;
+  procedure_name: string;
+  tooth_fdi: number;
+  surfaces: string[];
+  condition_code: string;
+  condition_name: string;
+}
+
+/** ODO-05: usulan pembaruan odontogram dari tindakan; dokter menerapkan atau mengabaikannya. */
+export function suggestionText(s: OdontogramSuggestion): string {
+  const target =
+    s.surfaces.length === 1 && s.surfaces[0] === 'W'
+      ? 'seluruh gigi'
+      : `permukaan ${s.surfaces.join('')}`;
+  return `Tandai gigi ${String(s.tooth_fdi)} (${target}) sebagai ${s.condition_name} setelah ${s.procedure_name}?`;
+}
+
 export function ProcedurePanel({
   encounterId,
   entries,
   jaws,
   canEdit,
+  planItems = [],
+  suggestions = [],
+  canOdontogram = false,
 }: {
   encounterId: string;
   entries: ProcedureEntry[];
   jaws: SelectOption[];
   canEdit: boolean;
+  planItems?: PlanItemSummary[];
+  suggestions?: OdontogramSuggestion[];
+  canOdontogram?: boolean;
 }) {
   const total = entries.reduce((sum, entry) => sum + entry.subtotal_amount, 0);
 
   return (
     <div className="flex flex-col gap-6">
+      {canOdontogram && suggestions.length > 0 ? (
+        <section aria-label="Usulan pembaruan odontogram" className="flex flex-col gap-2">
+          <h3 className="text-sm font-semibold">Perbarui odontogram?</h3>
+          {suggestions.map((s) => (
+            <div
+              key={s.entry_id}
+              className="flex flex-wrap items-center gap-3 rounded border border-slate-300 p-2 text-sm"
+            >
+              <span>{suggestionText(s)}</span>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  router.post(
+                    `/encounters/${encounterId}/procedures/${s.entry_id}/odontogram`,
+                    { action: 'apply' },
+                    { preserveScroll: true },
+                  );
+                }}
+              >
+                Terapkan
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  router.post(
+                    `/encounters/${encounterId}/procedures/${s.entry_id}/odontogram`,
+                    { action: 'dismiss' },
+                    { preserveScroll: true },
+                  );
+                }}
+              >
+                Abaikan
+              </button>
+            </div>
+          ))}
+        </section>
+      ) : null}
+      {canEdit && planItems.length > 0 ? (
+        <section aria-label="Rencana perawatan pasien" className="flex flex-col gap-2">
+          <h3 className="text-sm font-semibold">Dari rencana perawatan</h3>
+          <ul className="flex flex-col gap-1 text-sm">
+            {planItems.map((item) => (
+              <li key={item.id} className="flex flex-wrap items-center gap-3">
+                <span>
+                  {item.code} {item.name}
+                  {item.tooth_fdi ? ` (gigi ${String(item.tooth_fdi)})` : ''} x{item.quantity},
+                  estimasi {formatRupiah(item.estimate_amount)} [{item.status_label}]
+                </span>
+                <Link
+                  href={`/encounters/${encounterId}/procedures/create?plan_item=${item.id}`}
+                  className="btn btn-secondary"
+                >
+                  Kerjakan
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       {canEdit ? (
         <AddLink href={`/encounters/${encounterId}/procedures/create`}>Tambah tindakan</AddLink>
       ) : null}

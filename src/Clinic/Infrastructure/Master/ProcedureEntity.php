@@ -7,6 +7,7 @@ namespace Src\Clinic\Infrastructure\Master;
 use Illuminate\Validation\Rule;
 use Src\Clinic\Domain\ProcedureScope;
 use Src\Clinic\Infrastructure\Eloquent\ProcedureModel;
+use Src\Clinic\Infrastructure\Eloquent\ToothConditionModel;
 use Src\Shared\Application\Master\MasterField;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Infrastructure\Master\EloquentMasterEntity;
@@ -48,12 +49,13 @@ final class ProcedureEntity extends EloquentMasterEntity
                 ProcedureScope::cases(),
             )),
             new MasterField('default_price_amount', 'Tarif standar (Rp)', 'money', required: true, help: 'Rupiah bulat. Mengubah tarif tidak mengubah tagihan yang sudah dibuat.'),
+            new MasterField('result_condition_code', 'Kondisi gigi hasil tindakan', 'select', options: $this->conditionOptions(), help: 'Bila diisi, dokter ditawari memperbarui odontogram setelah tindakan dicatat (contoh: tambal menjadi Tambalan). Kosong berarti odontogram tidak berubah.'),
         ];
     }
 
     public function columns(): array
     {
-        return ['code', 'name', 'category', 'scope', 'default_price_amount'];
+        return ['code', 'name', 'category', 'scope', 'default_price_amount', 'result_condition_code'];
     }
 
     public function rules(?string $ignoreId): array
@@ -66,7 +68,21 @@ final class ProcedureEntity extends EloquentMasterEntity
             'category' => ['nullable', 'string', 'max:100'],
             'scope' => ['required', Rule::enum(ProcedureScope::class)],
             'default_price_amount' => ['required', 'integer', 'min:0', 'max:9999999999'],
+            'result_condition_code' => ['nullable', 'string', Rule::exists('tooth_conditions', 'code')->where('clinic_id', $clinicId)->where('is_active', true)],
         ];
+    }
+
+    /**
+     * @return list<array{value: string, label: string}>
+     */
+    private function conditionOptions(): array
+    {
+        $options = [];
+        foreach (ToothConditionModel::query()->where('is_active', true)->where('code', '!=', 'SEH')->orderBy('name')->get() as $c) {
+            $options[] = ['value' => $c->code, 'label' => $c->name];
+        }
+
+        return $options;
     }
 
     protected function modelClass(): string

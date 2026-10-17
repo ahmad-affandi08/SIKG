@@ -13,7 +13,9 @@ use Src\Clinical\Application\EncounterEntries;
 use Src\Clinical\Application\EncounterLifecycle;
 use Src\Clinical\Application\EncounterNotes;
 use Src\Clinical\Application\EncounterWorkspace;
+use Src\Clinical\Application\OdontogramService;
 use Src\Clinical\Application\OpenEncounter;
+use Src\Clinical\Application\TreatmentPlans;
 use Src\Clinical\Domain\Jaw;
 use Src\Clinical\Domain\Surface;
 use Src\Clinical\Domain\Vitals;
@@ -37,7 +39,7 @@ final class EncounterController
      * Halaman formulir tambah diagnosa, tindakan, berkas, atau addendum. Diagnosa, tindakan, dan berkas hanya selama
      * kunjungan berjalan; addendum hanya setelah kunjungan ditutup (RM-07).
      */
-    public function entryForm(Request $request, string $encounter, EncounterWorkspace $workspace): Response|RedirectResponse
+    public function entryForm(Request $request, string $encounter, EncounterWorkspace $workspace, TreatmentPlans $plans): Response|RedirectResponse
     {
         $form = (string) $request->route('form');
         abort_unless(isset(self::FORMS[$form]), 404);
@@ -68,7 +70,36 @@ final class EncounterController
                 'medical_record_no' => $e['medical_record_no'],
             ],
             'jaws' => array_map(fn (Jaw $j) => ['value' => $j->value, 'label' => $j->label()], Jaw::cases()),
+            'prefill' => $form === 'procedure' ? $this->planPrefill($request, (string) $e['patient_id'], $plans) : null,
         ]);
+    }
+
+    /**
+     * RM-06: formulir tindakan terisi dari langkah rencana perawatan (`?plan_item=`), bila langkah itu milik pasien kunjungan dan masih terbuka.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function planPrefill(Request $request, string $patientId, TreatmentPlans $plans): ?array
+    {
+        $itemId = $request->query('plan_item');
+        if (! is_string($itemId) || preg_match('/^[0-9A-Z]{26}$/', $itemId) !== 1) {
+            return null;
+        }
+        $found = $plans->itemFor($patientId, $itemId);
+        $item = $found['item'];
+
+        return [
+            'plan_item_id' => $item->id,
+            'plan_title' => $found['plan_title'],
+            'procedure_id' => $item->procedureId,
+            'code' => $found['procedure']->code,
+            'name' => $found['procedure']->name,
+            'scope' => $found['procedure']->scope,
+            'price_amount' => $found['procedure']->priceAmount,
+            'tooth_fdi' => $item->toothFdi,
+            'quantity' => $item->quantity,
+            'notes' => $item->notes,
+        ];
     }
 
     public function show(Request $request, string $encounter, EncounterWorkspace $workspace, InvoiceLookup $invoices): Response
@@ -176,9 +207,20 @@ final class EncounterController
             $data['jaw'] ?? null,
             (int) $data['quantity'],
             $data['notes'] ?? null,
+            $data['plan_item_id'] ?? null,
         );
 
         return to_route('encounters.show', ['encounter' => $encounter, 'tab' => 'procedures'])->with('success', 'Tindakan ditambahkan.');
+    }
+
+    /** ODO-05: dokter menerapkan atau mengabaikan usulan pembaruan odontogram dari sebuah tindakan. */
+    public function resolveOdontogram(Request $request, string $encounter, string $entry, OdontogramService $odontogram): RedirectResponse
+    {
+        $data = $request->validate(['action' => ['required', 'in:apply,dismiss']], ['action.required' => 'Pilih terapkan atau abaikan.']);
+        $apply = $data['action'] === 'apply';
+        $odontogram->resolveSuggestion($this->actorId($request), $encounter, $entry, $apply);
+
+        return back()->with('success', $apply ? 'Odontogram diperbarui.' : 'Usulan pembaruan odontogram diabaikan.');
     }
 
     public function removeProcedure(Request $request, string $encounter, string $entry, EncounterEntries $entries): RedirectResponse
@@ -229,6 +271,7 @@ final class EncounterController
             'jaw' => ['nullable', 'string', 'max:10'],
             'quantity' => ['required', 'integer', 'between:1,'.EncounterEntries::MAX_QUANTITY],
             'notes' => ['nullable', 'string', 'max:500'],
+            'plan_item_id' => ['nullable', 'string', 'size:26'],
         ];
     }
 

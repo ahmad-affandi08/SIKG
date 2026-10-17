@@ -81,7 +81,7 @@ export default function Form({ entity, row }: Props) {
                 key={field.key}
                 label={field.label}
                 options={field.options}
-                placeholder={field.required ? 'Pilih' : 'Semua'}
+                placeholder={field.required ? 'Pilih' : 'Tidak dipilih'}
                 value={form.data[field.key] ?? ''}
                 onChange={(event) => {
                   form.setData(field.key, event.target.value);

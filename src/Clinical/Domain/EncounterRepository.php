@@ -72,6 +72,8 @@ interface EncounterRepository
         int $unitPriceAmount,
         ?string $notes,
         DateTimeImmutable $at,
+        ?string $planItemId = null,
+        ?string $resultConditionCode = null,
     ): string;
 
     /**
@@ -82,4 +84,7 @@ interface EncounterRepository
     public function findProcedure(string $encounterId, string $id): ?EncounterProcedureRecord;
 
     public function removeProcedure(string $actorId, string $encounterId, string $id): void;
+
+    /** ODO-05: mencatat keputusan dokter atas usulan pembaruan odontogram (`applied` atau `dismissed`). */
+    public function setProcedureOdontogramStatus(string $actorId, string $encounterId, string $id, string $status): void;
 }

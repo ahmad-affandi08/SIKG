@@ -25,6 +25,7 @@ enum Permission: string
     case EncounterClose = 'encounter.close';
     case EncounterAddendum = 'encounter.addendum';
     case EncounterCorrect = 'encounter.correct';
+    case TreatmentPlanManage = 'treatment_plan.manage';
 
     case OdontogramView = 'odontogram.view';
     case OdontogramWrite = 'odontogram.write';

@@ -16,13 +16,15 @@ final readonly class ProcedureSnapshot
         public string $name,
         public string $scope,
         public int $priceAmount,
+        /** Kode kondisi gigi hasil tindakan (ODO-05); kosong bila tindakan tidak mengubah odontogram. */
+        public ?string $resultConditionCode = null,
     ) {}
 
     /**
-     * @return array{id: string, code: string, name: string, scope: string, price_amount: int}
+     * @return array{id: string, code: string, name: string, scope: string, price_amount: int, result_condition_code: string|null}
      */
     public function toArray(): array
     {
-        return ['id' => $this->id, 'code' => $this->code, 'name' => $this->name, 'scope' => $this->scope, 'price_amount' => $this->priceAmount];
+        return ['id' => $this->id, 'code' => $this->code, 'name' => $this->name, 'scope' => $this->scope, 'price_amount' => $this->priceAmount, 'result_condition_code' => $this->resultConditionCode];
     }
 }

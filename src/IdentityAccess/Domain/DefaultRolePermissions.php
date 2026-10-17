@@ -58,7 +58,7 @@ final class DefaultRolePermissions
                 Permission::PatientView,
                 Permission::AppointmentView,
                 Permission::EncounterView, Permission::EncounterCreate, Permission::EncounterWrite,
-                Permission::EncounterClose, Permission::EncounterAddendum,
+                Permission::EncounterClose, Permission::EncounterAddendum, Permission::TreatmentPlanManage,
                 Permission::OdontogramView, Permission::OdontogramWrite,
                 Permission::PrescriptionView, Permission::PrescriptionCreate, Permission::PrescriptionUpdate,
                 Permission::InvoiceView,

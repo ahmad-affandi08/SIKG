@@ -36,6 +36,7 @@ final readonly class EncounterEntries
         private AuditLogger $audit,
         private EventDispatcher $events,
         private Clock $clock,
+        private TreatmentPlans $plans,
     ) {}
 
     public function addDiagnosis(string $actorId, string $encounterId, string $diagnosisId, ?int $toothFdi, ?string $notes): string
@@ -85,12 +86,13 @@ final readonly class EncounterEntries
         ?string $jaw,
         int $quantity,
         ?string $notes,
+        ?string $planItemId = null,
     ): string {
         if ($quantity < 1 || $quantity > self::MAX_QUANTITY) {
             throw new InvalidClinicalData('clinical.invalid_quantity', 'Jumlah tindakan harus antara 1 dan '.self::MAX_QUANTITY.'.');
         }
 
-        [$id, $event] = $this->tx->run(function () use ($actorId, $encounterId, $procedureId, $toothFdi, $surfaceCodes, $jaw, $quantity, $notes): array {
+        [$id, $event] = $this->tx->run(function () use ($actorId, $encounterId, $procedureId, $toothFdi, $surfaceCodes, $jaw, $quantity, $notes, $planItemId): array {
             $encounter = $this->guard->load($encounterId);
             $this->guard->assertOpen($encounter);
 
@@ -101,13 +103,18 @@ final readonly class EncounterEntries
             $target = ProcedureTarget::for($scope, $toothFdi, $surfaceCodes, $jaw);
             $now = $this->clock->now();
 
-            $id = $this->encounters->addProcedure($actorId, $encounterId, $procedure->id, $procedure->code, $procedure->name, $scope, $target, $quantity, $procedure->priceAmount, $this->clean($notes), $now);
+            $id = $this->encounters->addProcedure($actorId, $encounterId, $procedure->id, $procedure->code, $procedure->name, $scope, $target, $quantity, $procedure->priceAmount, $this->clean($notes), $now, $planItemId, $procedure->resultConditionCode);
+            if ($planItemId !== null) {
+                // Langkah rencana perawatan ditandai selesai dan tertaut ke kunjungan ini (RM-06), dalam transaksi yang sama.
+                $this->plans->markPerformed($actorId, $encounter->patientId, $planItemId, $encounterId);
+            }
             $this->audit->record(new AuditEntry($actorId, 'encounter.procedure_added', 'encounter', $encounterId, null, [
                 'entry_id' => $id,
                 'code' => $procedure->code,
                 'quantity' => $quantity,
                 'unit_price_amount' => $procedure->priceAmount,
                 'tooth_fdi' => $target->tooth?->fdi,
+                'plan_item_id' => $planItemId,
             ]));
 
             return [$id, new ProcedurePerformed($encounterId, $id, $encounter->patientId, $procedure->code, $procedure->name, $quantity, $procedure->priceAmount, $now)];
@@ -127,6 +134,9 @@ final readonly class EncounterEntries
                 ?? throw new InvalidClinicalData('clinical.entry_not_found', 'Tindakan tidak ditemukan pada kunjungan ini.');
 
             $this->encounters->removeProcedure($actorId, $encounterId, $entryId);
+            if ($entry->planItemId !== null) {
+                $this->plans->revertPerformed($actorId, $entry->planItemId);
+            }
             $this->audit->record(new AuditEntry($actorId, 'encounter.procedure_removed', 'encounter', $encounterId, ['entry_id' => $entryId, 'code' => $entry->code, 'quantity' => $entry->quantity, 'unit_price_amount' => $entry->unitPriceAmount], null));
 
             return new ProcedureRetracted($encounterId, $entryId, $this->clock->now());

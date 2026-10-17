@@ -90,6 +90,11 @@ export default function Show({
                 Ubah data
               </Link>
             ) : null}
+            {can.timeline ? (
+              <Link href={`/patients/${patient.id}/treatment-plans`} className="btn btn-secondary">
+                Rencana perawatan
+              </Link>
+            ) : null}
             {can.merge ? (
               <Link href={`/patients/${patient.id}/merge`} className="btn btn-secondary">
                 Gabung data ganda
