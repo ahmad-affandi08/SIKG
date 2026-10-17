@@ -117,9 +117,7 @@ export function PrescriptionPanel({
 
   return (
     <div className="flex max-w-3xl flex-col gap-4">
-      {prescriptions.length === 0 ? (
-        <p className="text-sm text-slate-600">Belum ada resep.</p>
-      ) : null}
+      {prescriptions.length === 0 ? <p className="text-muted text-sm">Belum ada resep.</p> : null}
       {prescriptions.map((prescription) => (
         <section key={prescription.id} aria-label="Resep" className="card flex flex-col gap-2 p-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -134,14 +132,14 @@ export function PrescriptionPanel({
                 href={`/prescriptions/${prescription.id}/print`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-brand-700 text-sm underline"
+                className="text-ink text-sm underline"
               >
                 Cetak resep
               </a>
             ) : null}
           </div>
           {prescription.void_reason ? (
-            <p className="text-sm text-slate-600">Alasan batal: {prescription.void_reason}</p>
+            <p className="text-muted text-sm">Alasan batal: {prescription.void_reason}</p>
           ) : null}
           <ul className="flex flex-col gap-1 text-sm">
             {prescription.items.map((item) => (

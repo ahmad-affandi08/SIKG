@@ -121,9 +121,9 @@ export default function Form({ patient, consent, sexes }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
+      <main className="mx-auto flex max-w-2xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title={editing ? 'Ubah data pasien' : 'Pasien baru'} />
-        <h1 className="text-2xl font-semibold">{editing ? 'Ubah data pasien' : 'Pasien baru'}</h1>
+        <h1>{editing ? 'Ubah data pasien' : 'Pasien baru'}</h1>
 
         {duplicates.length > 0 ? (
           <Alert tone="warning">
@@ -188,7 +188,7 @@ export default function Form({ patient, consent, sexes }: Props) {
 
           <fieldset className="flex flex-col gap-4">
             <legend className="text-lg font-semibold">Wali atau penanggung jawab</legend>
-            <p className="text-sm text-slate-600">Wajib untuk pasien di bawah 18 tahun.</p>
+            <p className="text-muted text-sm">Wajib untuk pasien di bawah 18 tahun.</p>
             <TextField label="Nama wali" {...text('guardian_name')} />
             <TextField label="Hubungan wali dengan pasien" {...text('guardian_relation')} />
             <TextField label="Nomor HP wali" inputMode="tel" {...text('guardian_phone')} />

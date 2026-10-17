@@ -97,9 +97,9 @@ export default function Clinic({
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6">
+      <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
         <Head title="Pengaturan klinik" />
-        <h1 className="text-2xl font-semibold">Pengaturan klinik</h1>
+        <h1>Pengaturan klinik</h1>
 
         <form onSubmit={submit} noValidate className="flex flex-col gap-6">
           {error('settings') ? (
@@ -109,7 +109,7 @@ export default function Clinic({
           ) : null}
 
           <section aria-labelledby="umum" className="grid gap-4 sm:grid-cols-2">
-            <h2 id="umum" className="text-lg font-medium sm:col-span-2">
+            <h2 id="umum" className="sm:col-span-2">
               Umum
             </h2>
             <Select
@@ -135,7 +135,7 @@ export default function Clinic({
           </section>
 
           <section aria-labelledby="nomor" className="grid gap-4 sm:grid-cols-2">
-            <h2 id="nomor" className="text-lg font-medium sm:col-span-2">
+            <h2 id="nomor" className="sm:col-span-2">
               Format nomor
             </h2>
             <div>
@@ -147,9 +147,7 @@ export default function Clinic({
                 }}
                 error={error('medical_record_pattern')}
               />
-              <p className="mt-1 text-sm text-slate-600">
-                Contoh tersimpan: {example.medicalRecordNo}
-              </p>
+              <p className="text-muted mt-1 text-sm">Contoh tersimpan: {example.medicalRecordNo}</p>
             </div>
             <div>
               <TextField
@@ -160,18 +158,16 @@ export default function Clinic({
                 }}
                 error={error('invoice_pattern')}
               />
-              <p className="mt-1 text-sm text-slate-600">Contoh tersimpan: {example.invoiceNo}</p>
+              <p className="text-muted mt-1 text-sm">Contoh tersimpan: {example.invoiceNo}</p>
             </div>
-            <p className="text-sm text-slate-600 sm:col-span-2">
+            <p className="text-muted text-sm sm:col-span-2">
               Token: {'{seq:6}'} nomor urut 6 digit (wajib, satu kali), {'{yyyy}'} {'{yy}'} {'{mm}'}{' '}
               {'{dd}'} tanggal. Urutan mulai dari 1 lagi saat tahun atau bulan di format berganti.
             </p>
           </section>
 
           <section aria-labelledby="jam" className="flex flex-col gap-3">
-            <h2 id="jam" className="text-lg font-medium">
-              Jam operasional
-            </h2>
+            <h2 id="jam">Jam operasional</h2>
             {WEEKDAYS.map(({ day, label }) => {
               const hours = form.data.operating_hours[day] ?? null;
               const dayError = error(`operating_hours.${day}`);
@@ -210,7 +206,7 @@ export default function Clinic({
                       />
                     </>
                   ) : (
-                    <span className="text-sm text-slate-600">Tutup</span>
+                    <span className="text-muted text-sm">Tutup</span>
                   )}
                   {dayError ? (
                     <p role="alert" className="text-danger-600 text-sm">
@@ -230,9 +226,7 @@ export default function Clinic({
         </form>
 
         <section aria-labelledby="libur" className="flex flex-col gap-4">
-          <h2 id="libur" className="text-lg font-medium">
-            Hari libur
-          </h2>
+          <h2 id="libur">Hari libur</h2>
           <form onSubmit={addHoliday} noValidate className="flex flex-wrap items-end gap-3">
             <TextField
               label="Tanggal"
@@ -256,7 +250,7 @@ export default function Clinic({
             </Button>
           </form>
           {holidays.length === 0 ? (
-            <p className="text-sm text-slate-600">Belum ada hari libur.</p>
+            <p className="text-muted text-sm">Belum ada hari libur.</p>
           ) : (
             <table className="w-full text-left text-sm">
               <caption className="sr-only">Daftar hari libur</caption>
@@ -273,7 +267,7 @@ export default function Clinic({
               </thead>
               <tbody>
                 {holidays.map((holiday) => (
-                  <tr key={holiday.id} className="border-t border-slate-200">
+                  <tr key={holiday.id}>
                     <td className="py-2">{formatDate(holiday.date)}</td>
                     <td>{holiday.name}</td>
                     <td>

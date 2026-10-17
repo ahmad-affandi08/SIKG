@@ -21,7 +21,7 @@ export function PatientPicker({ selected, onSelect, error }: PatientPickerProps)
   if (selected) {
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-slate-700">Pasien</span>
+        <span className="text-sm font-semibold">Pasien</span>
         <div className="flex items-center gap-3">
           <span className="text-sm">{selected.name}</span>
           <button
@@ -41,7 +41,7 @@ export function PatientPicker({ selected, onSelect, error }: PatientPickerProps)
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="text-sm font-semibold">
         Cari pasien (nama, nomor RM, NIK, atau HP)
       </label>
       <input
@@ -61,7 +61,7 @@ export function PatientPicker({ selected, onSelect, error }: PatientPickerProps)
         </p>
       ) : null}
       {term !== '' && query.isSuccess && results.length === 0 ? (
-        <p className="text-sm text-slate-600">Pasien tidak ditemukan.</p>
+        <p className="text-muted text-sm">Pasien tidak ditemukan.</p>
       ) : null}
       {results.length > 0 ? (
         <ul className="card">
@@ -69,7 +69,7 @@ export function PatientPicker({ selected, onSelect, error }: PatientPickerProps)
             <li key={patient.id}>
               <button
                 type="button"
-                className="min-h-touch w-full px-3 text-left text-sm hover:bg-slate-100"
+                className="min-h-touch hover:bg-brand-50 w-full px-3 text-left text-sm"
                 onClick={() => {
                   onSelect(patient);
                 }}

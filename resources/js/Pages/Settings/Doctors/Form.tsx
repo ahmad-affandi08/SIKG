@@ -109,9 +109,9 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-3xl flex-col gap-4 p-6">
+      <main className="mx-auto flex max-w-3xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title={editing ? 'Ubah dokter' : 'Tambah dokter'} />
-        <h1 className="text-2xl font-semibold">{editing ? 'Ubah dokter' : 'Tambah dokter'}</h1>
+        <h1>{editing ? 'Ubah dokter' : 'Tambah dokter'}</h1>
 
         <form onSubmit={submit} noValidate className="flex flex-col gap-6">
           <section className="flex flex-col gap-4" aria-label="Data dokter">
@@ -181,9 +181,9 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
               }}
               error={error('fee_value')}
             />
-            <p className="text-sm text-slate-600">{valueHelp}</p>
+            <p className="text-muted text-sm">{valueHelp}</p>
 
-            <h2 className="text-base font-semibold">Pengecualian per tindakan</h2>
+            <h2>Pengecualian per tindakan</h2>
             {form.data.fee_overrides.map((row, index) => (
               <div key={index} className="card flex flex-col gap-3 p-3">
                 <TextField

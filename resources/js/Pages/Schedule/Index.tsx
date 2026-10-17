@@ -98,9 +98,9 @@ export default function Index({ filters, today, calendar, doctors, chairs, canMa
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6">
+      <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title="Jadwal" />
-        <h1 className="text-2xl font-semibold">Jadwal dan janji</h1>
+        <h1>Jadwal dan janji</h1>
 
         <form
           className="flex flex-wrap items-end gap-3"
@@ -215,12 +215,12 @@ export default function Index({ filters, today, calendar, doctors, chairs, canMa
               aria-label={`Janji ${formatDate(day)}`}
               className="flex flex-col gap-2"
             >
-              <h2 className="text-lg font-semibold">
+              <h2>
                 {formatDate(day)}
                 {day === today ? ' (hari ini)' : ''}
               </h2>
               {items.length === 0 ? (
-                <p className="text-sm text-slate-600">Tidak ada janji.</p>
+                <p className="text-muted text-sm">Tidak ada janji.</p>
               ) : (
                 <ul className="flex flex-col gap-2">
                   {items.map((item) => (
@@ -230,11 +230,11 @@ export default function Index({ filters, today, calendar, doctors, chairs, canMa
                           {item.start} - {item.end}
                         </span>
                         <span className="font-medium">{item.patient_name ?? '-'}</span>
-                        <span className="text-sm text-slate-600">{item.medical_record_no}</span>
+                        <span className="text-muted text-sm">{item.medical_record_no}</span>
                         <Badge tone={statusTone(item.status)}>{item.status_label}</Badge>
                         {item.queue_no ? <Badge>{`Antrean ${String(item.queue_no)}`}</Badge> : null}
                       </div>
-                      <div className="text-sm text-slate-600">
+                      <div className="text-muted text-sm">
                         {item.doctor_name ?? '-'} | {item.chair_name ?? 'Kursi belum ditentukan'}
                         {item.complaint ? ` | ${item.complaint}` : ''}
                         {item.cancel_reason ? ` | Alasan batal: ${item.cancel_reason}` : ''}
@@ -392,7 +392,7 @@ function SlotPicker({
     <div className="flex flex-col gap-1">
       <span className="text-sm font-medium">Jam kosong</span>
       {slots.isSuccess && slots.data.length === 0 ? (
-        <p className="text-sm text-slate-600">Tidak ada jam kosong pada tanggal itu.</p>
+        <p className="text-muted text-sm">Tidak ada jam kosong pada tanggal itu.</p>
       ) : null}
       <div className="flex flex-wrap gap-2">
         {(slots.data ?? []).map((slot) => (
@@ -472,7 +472,7 @@ function AppointmentForm({
       aria-label="Buat janji"
       className="card flex max-w-xl flex-col gap-3 p-4"
     >
-      <h2 className="text-lg font-semibold">Buat janji</h2>
+      <h2>Buat janji</h2>
       <PatientPicker selected={patient} onSelect={setPatient} error={errors.patient_id} />
       <Select
         label="Dokter"
@@ -611,7 +611,7 @@ function RescheduleForm({
       aria-label="Jadwal ulang"
       className="card flex max-w-xl flex-col gap-3 p-4"
     >
-      <h2 className="text-lg font-semibold">Jadwal ulang {item.patient_name ?? ''}</h2>
+      <h2>Jadwal ulang {item.patient_name ?? ''}</h2>
       <Select
         label="Dokter"
         options={doctors}

@@ -38,7 +38,7 @@ export function ConfirmAction({
     <div
       role="alertdialog"
       aria-label={label}
-      className="rounded-control flex flex-wrap items-center gap-2 bg-amber-50 px-3 py-2 text-sm text-amber-950 ring-1 ring-amber-200"
+      className="border-t-ink flex flex-wrap items-center gap-3 border-t-[3px] py-2 text-sm"
     >
       <span>{message}</span>
       <Button

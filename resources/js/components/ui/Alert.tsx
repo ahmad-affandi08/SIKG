@@ -3,10 +3,10 @@ import type { ReactNode } from 'react';
 type Tone = 'success' | 'error' | 'warning' | 'info';
 
 const TONES: Record<Tone, string> = {
-  success: 'bg-green-50 text-green-900 ring-green-200 border-l-success-600',
-  error: 'bg-rose-50 text-rose-900 ring-rose-200 border-l-danger-600',
-  warning: 'bg-amber-50 text-amber-950 ring-amber-200 border-l-warning-500',
-  info: 'bg-brand-50 text-brand-800 ring-brand-200 border-l-brand-600',
+  success: 'border-t-success-600',
+  error: 'border-t-signal',
+  warning: 'border-t-ink',
+  info: 'border-t-ink',
 };
 
 const LABELS: Record<Tone, string> = {
@@ -26,9 +26,9 @@ export function Alert({ tone, children }: AlertProps) {
   return (
     <div
       role={tone === 'error' ? 'alert' : 'status'}
-      className={`rounded-control border-l-4 px-4 py-3 text-sm ring-1 ${TONES[tone]}`}
+      className={`border-t-[3px] pt-2.5 pb-1 text-sm ${TONES[tone]}`}
     >
-      <strong>{LABELS[tone]}: </strong>
+      <strong className={tone === 'error' ? 'text-signal-700' : undefined}>{LABELS[tone]}: </strong>
       {children}
     </div>
   );

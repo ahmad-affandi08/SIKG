@@ -99,17 +99,17 @@ export default function Show(props: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6">
+      <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title="Pemeriksaan" />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold">{encounter.patient_name ?? 'Pasien'}</h1>
-            <p className="text-sm text-slate-600">
+            <h1>{encounter.patient_name ?? 'Pasien'}</h1>
+            <p className="text-muted text-sm">
               Nomor RM {encounter.medical_record_no ?? '-'} | Dokter {encounter.doctor_name ?? '-'}{' '}
               | Mulai {formatDateTime(encounter.started_at, timezone)}
             </p>
             <p className="text-sm">
-              <Link href={`/patients/${encounter.patient_id}`} className="text-brand-700 underline">
+              <Link href={`/patients/${encounter.patient_id}`} className="text-ink underline">
                 Data pasien
               </Link>
             </p>
@@ -160,7 +160,7 @@ export default function Show(props: Props) {
         <MedicalWarnings warnings={warnings} />
 
         {encounter.is_closed ? (
-          <p className="text-sm text-slate-600">
+          <p className="text-muted text-sm">
             Kunjungan ditutup{' '}
             {encounter.closed_at ? formatDateTime(encounter.closed_at, timezone) : ''}. Perubahan
             hanya lewat perbaikan 2x24 jam oleh dokter atau addendum.
@@ -243,7 +243,7 @@ export default function Show(props: Props) {
               <section aria-label="Riwayat versi catatan" className="flex max-w-2xl flex-col gap-2">
                 <h3 className="text-base font-semibold">Riwayat versi catatan</h3>
                 {history.length === 0 ? (
-                  <p className="text-sm text-slate-600">Belum ada catatan.</p>
+                  <p className="text-muted text-sm">Belum ada catatan.</p>
                 ) : null}
                 <ul className="flex flex-col gap-1 text-sm">
                   {history.map((note) => (

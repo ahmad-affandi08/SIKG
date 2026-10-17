@@ -56,7 +56,7 @@ interface Props {
 function Row({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col sm:flex-row sm:gap-3">
-      <dt className="w-48 shrink-0 text-sm text-slate-600">{label}</dt>
+      <dt className="text-muted w-48 shrink-0 text-sm">{label}</dt>
       <dd className="text-sm">{value ?? '-'}</dd>
     </div>
   );
@@ -102,12 +102,12 @@ export default function Show({
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-4xl flex-col gap-6 p-6">
+      <main className="mx-auto flex max-w-4xl flex-col gap-6 p-6 lg:px-12 lg:py-10">
         <Head title="Rekam pasien" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold">{patient.name}</h1>
-            <p className="text-sm text-slate-600">Nomor RM {patient.medical_record_no}</p>
+            <h1>{patient.name}</h1>
+            <p className="text-muted text-sm">Nomor RM {patient.medical_record_no}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {can.timeline ? (
@@ -170,9 +170,9 @@ export default function Show({
         </section>
 
         <section aria-label="Riwayat medis" className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">Riwayat medis</h2>
+          <h2>Riwayat medis</h2>
           {histories.length === 0 ? (
-            <p className="text-sm text-slate-600">Belum ada riwayat medis.</p>
+            <p className="text-muted text-sm">Belum ada riwayat medis.</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {histories.map((h) => (
@@ -184,7 +184,7 @@ export default function Show({
                   {h.severity ? (
                     <span className="text-sm">({labelOf(severities, h.severity)})</span>
                   ) : null}
-                  {h.notes ? <span className="text-sm text-slate-600">{h.notes}</span> : null}
+                  {h.notes ? <span className="text-muted text-sm">{h.notes}</span> : null}
                   {can.history ? (
                     <ConfirmAction
                       label={`Hapus ${h.name}`}
@@ -251,7 +251,7 @@ export default function Show({
         </section>
 
         <section aria-label="Persetujuan data" className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">Persetujuan pemrosesan data</h2>
+          <h2>Persetujuan pemrosesan data</h2>
           {consents.length === 0 ? (
             <Alert tone="warning">Persetujuan data pasien belum dicatat.</Alert>
           ) : (

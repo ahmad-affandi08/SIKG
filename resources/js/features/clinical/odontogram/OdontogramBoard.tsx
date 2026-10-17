@@ -251,7 +251,7 @@ export function OdontogramBoard({
   const nodes = useRef(new Map<number, SVGGElement>());
 
   if (query.isPending) {
-    return <p className="text-sm text-slate-600">Memuat odontogram...</p>;
+    return <p className="text-muted text-sm">Memuat odontogram...</p>;
   }
   if (query.isError) {
     return <Alert tone="error">Odontogram tidak dapat dimuat. Muat ulang halaman.</Alert>;
@@ -349,7 +349,7 @@ export function OdontogramBoard({
           <li key={c.code} className="flex items-center gap-1">
             <span
               aria-hidden
-              className="inline-block h-3 w-3 border border-slate-500"
+              className="border-ink inline-block h-3 w-3 border"
               style={{ backgroundColor: c.color }}
             />
             <span className="font-medium">{c.code}</span> {c.name}
@@ -359,7 +359,7 @@ export function OdontogramBoard({
 
       <section aria-label="Panel gigi" className="card flex max-w-xl flex-col gap-3 p-3">
         {selectedFdi === null ? (
-          <p className="text-sm text-slate-600">
+          <p className="text-muted text-sm">
             Pilih gigi (klik atau tekan Enter) untuk melihat atau mengubah kondisinya.
           </p>
         ) : (
@@ -381,7 +381,7 @@ export function OdontogramBoard({
                 setConditionCode('');
               }}
             />
-            <p className="text-sm text-slate-600">
+            <p className="text-muted text-sm">
               Kondisi sekarang:{' '}
               {selectedState
                 ? (findCondition(data.conditions, selectedState.condition_code)?.name ??

@@ -69,9 +69,9 @@ export default function Index({ doctors, chairs, canManage }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
+      <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6 lg:px-12 lg:py-10">
         <Head title="Antrean" />
-        <h1 className="text-2xl font-semibold">Antrean hari ini</h1>
+        <h1>Antrean hari ini</h1>
 
         {queue.isError ? (
           <p role="alert" className="text-danger-600 text-sm">
@@ -100,11 +100,11 @@ export default function Index({ doctors, chairs, canManage }: Props) {
               </thead>
               <tbody>
                 {queue.data.map((item) => (
-                  <tr key={item.id} className="border-t border-slate-200 align-top">
+                  <tr key={item.id} className="align-top">
                     <td className="py-2 pr-3 text-lg font-semibold">{item.queue_no}</td>
                     <td className="pr-3">
                       <div className="font-medium">{item.patient_name ?? '-'}</div>
-                      <div className="text-slate-600">{item.medical_record_no}</div>
+                      <div className="text-muted">{item.medical_record_no}</div>
                     </td>
                     <td className="pr-3">{item.doctor_name ?? '-'}</td>
                     <td className="pr-3">{item.chair_name ?? '-'}</td>
@@ -130,9 +130,9 @@ export default function Index({ doctors, chairs, canManage }: Props) {
               </tbody>
             </table>
           ) : queue.isSuccess ? (
-            <p className="text-sm text-slate-600">Belum ada pasien dalam antrean.</p>
+            <p className="text-muted text-sm">Belum ada pasien dalam antrean.</p>
           ) : null}
-          <p className="mt-2 text-xs text-slate-600">Diperbarui otomatis setiap 10 detik.</p>
+          <p className="text-muted mt-2 text-xs">Diperbarui otomatis setiap 10 detik.</p>
         </section>
 
         {canManage ? (
@@ -142,7 +142,7 @@ export default function Index({ doctors, chairs, canManage }: Props) {
             aria-label="Pasien tanpa janji"
             className="card flex max-w-xl flex-col gap-3 p-4"
           >
-            <h2 className="text-lg font-semibold">Pasien tanpa janji (walk-in)</h2>
+            <h2>Pasien tanpa janji (walk-in)</h2>
             <PatientPicker selected={patient} onSelect={setPatient} error={errors.patient_id} />
             <Select
               label="Dokter"

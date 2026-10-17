@@ -20,10 +20,10 @@ export default function Index({ sexes }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6">
+      <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title="Pasien" />
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-semibold">Pasien</h1>
+          <h1>Pasien</h1>
           {can('patient.import') ? (
             <Link href="/patients/import" className="btn btn-secondary">
               Impor dari Excel
@@ -37,7 +37,7 @@ export default function Index({ sexes }: Props) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="patient-search" className="text-sm font-medium text-slate-700">
+          <label htmlFor="patient-search" className="text-sm font-semibold">
             Cari pasien (nama, nomor RM, NIK, atau nomor HP)
           </label>
           <input
@@ -59,9 +59,9 @@ export default function Index({ sexes }: Props) {
         ) : null}
 
         {term === '' ? (
-          <p className="text-sm text-slate-600">Ketik untuk mencari pasien.</p>
+          <p className="text-muted text-sm">Ketik untuk mencari pasien.</p>
         ) : query.isSuccess && query.data.length === 0 ? (
-          <p className="text-sm text-slate-600">Pasien tidak ditemukan.</p>
+          <p className="text-muted text-sm">Pasien tidak ditemukan.</p>
         ) : null}
 
         {query.data && query.data.length > 0 ? (
@@ -80,10 +80,10 @@ export default function Index({ sexes }: Props) {
             </thead>
             <tbody>
               {query.data.map((patient) => (
-                <tr key={patient.id} className="border-t border-slate-200">
+                <tr key={patient.id}>
                   <td className="py-2 pr-3">{patient.medical_record_no}</td>
                   <td className="pr-3">
-                    <Link href={`/patients/${patient.id}`} className="text-brand-700 underline">
+                    <Link href={`/patients/${patient.id}`} className="text-ink underline">
                       {patient.name}
                     </Link>
                   </td>

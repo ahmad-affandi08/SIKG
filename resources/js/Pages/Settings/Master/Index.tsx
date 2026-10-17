@@ -104,9 +104,9 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6">
+      <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title={entity.title} />
-        <h1 className="text-2xl font-semibold">{entity.title}</h1>
+        <h1>{entity.title}</h1>
 
         {tabs.length > 1 ? (
           <nav aria-label="Jenis master data" className="flex flex-wrap gap-2">
@@ -160,7 +160,7 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
                     }}
                     error={errorFor(field.key)}
                   />
-                  {field.help ? <p className="text-sm text-slate-600">{field.help}</p> : null}
+                  {field.help ? <p className="text-muted text-sm">{field.help}</p> : null}
                 </div>
               ),
             )}
@@ -197,7 +197,7 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.id} className="border-t border-slate-200 align-top">
+              <tr key={row.id} className="align-top">
                 {columns.map((field) => (
                   <td key={field.key} className="py-2 pr-3">
                     {display(field, row[field.key])}
@@ -258,7 +258,7 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
             ))}
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 2} className="py-4 text-slate-600">
+                <td colSpan={columns.length + 2} className="text-muted py-4">
                   Belum ada data.
                 </td>
               </tr>

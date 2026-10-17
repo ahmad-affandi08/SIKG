@@ -27,7 +27,7 @@ export function Select({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="text-sm font-semibold">
         {label}
       </label>
       <select

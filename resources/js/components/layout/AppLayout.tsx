@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { FlashMessages } from '@/components/layout/FlashMessages';
-import { Icon } from '@/components/layout/icons';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
 import type { NavItem } from '@/components/layout/navigation';
 
@@ -15,31 +14,23 @@ interface AppLayoutProps {
 
 interface Section {
   title: string | null;
-  items: NavItem[];
+  items: { item: NavItem; no: string }[];
 }
 
 /** Item berurutan dengan kelompok yang sama digabung di bawah satu judul. */
 function toSections(items: readonly NavItem[]): Section[] {
   const sections: Section[] = [];
-  for (const item of items) {
+  items.forEach((item, index) => {
     const title = item.group ?? null;
+    const entry = { item, no: String(index + 1).padStart(2, '0') };
     const last = sections[sections.length - 1];
     if (last && last.title === title) {
-      last.items.push(item);
+      last.items.push(entry);
     } else {
-      sections.push({ title, items: [item] });
+      sections.push({ title, items: [entry] });
     }
-  }
+  });
   return sections;
-}
-
-function initials(name: string): string {
-  const letters = name
-    .split(/\s+/)
-    .filter((part) => part !== '')
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase());
-  return letters.join('') || '?';
 }
 
 function roleText(role: string | undefined): string {
@@ -68,36 +59,26 @@ export function AppLayout({ children, navItems = NAV_ITEMS }: AppLayoutProps) {
   }, [open]);
 
   return (
-    <div className="min-h-screen lg:pl-64">
+    <div className="min-h-screen lg:pl-60">
       <aside
         id="sidebar"
-        className={`bg-ink fixed inset-y-0 left-0 z-40 flex w-64 flex-col text-slate-300 shadow-xl transition-transform duration-200 lg:translate-x-0 lg:shadow-none ${
+        className={`border-ink fixed inset-y-0 left-0 z-40 flex w-60 flex-col overflow-y-auto border-r bg-white px-6 py-8 transition-transform duration-150 lg:translate-x-0 ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center gap-3 px-5 py-5">
-          <span
-            aria-hidden="true"
-            className="bg-brand-600 flex size-9 shrink-0 items-center justify-center rounded-lg text-white"
-          >
-            <Icon name="tooth" className="size-5" />
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">{clinic?.name ?? 'SIKG'}</p>
-            <p className="text-xs text-slate-400">Sistem Informasi Klinik Gigi</p>
-          </div>
+        <div>
+          <p className="text-xl font-bold tracking-tight">SIKG</p>
+          <p className="text-muted truncate text-xs">{clinic?.name ?? ''}</p>
         </div>
 
-        <nav aria-label="Menu utama" className="flex-1 overflow-y-auto px-3 pb-4">
+        <nav aria-label="Menu utama" className="mt-8 flex-1">
           {sections.map((section) => (
-            <div key={section.title ?? 'utama'} className="mt-4 first:mt-0">
+            <div key={section.title ?? 'utama'} className="mb-5">
               {section.title ? (
-                <p className="px-3 pb-1 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
-                  {section.title}
-                </p>
+                <p className="eyebrow text-signal-700 pb-1">{section.title}</p>
               ) : null}
-              <ul className="flex flex-col gap-0.5">
-                {section.items.map((item) => {
+              <ul>
+                {section.items.map(({ item, no }) => {
                   const active = url.startsWith(item.href);
                   return (
                     <li key={item.href}>
@@ -107,11 +88,11 @@ export function AppLayout({ children, navItems = NAV_ITEMS }: AppLayoutProps) {
                         onClick={() => {
                           setOpen(false);
                         }}
-                        className="min-h-touch aria-[current=page]:bg-brand-600 flex items-center gap-3 rounded-lg px-3 text-sm font-medium text-slate-300 transition-colors hover:bg-white/10 hover:text-white aria-[current=page]:text-white"
+                        className="min-h-touch aria-[current=page]:text-signal-700 hover:text-signal-700 flex items-center border-t border-[#ddd] text-sm font-medium aria-[current=page]:font-bold"
                       >
-                        {item.icon ? (
-                          <Icon name={item.icon} className="size-[18px] shrink-0" />
-                        ) : null}
+                        <span aria-hidden="true" className="text-muted w-7 text-[11px] font-normal">
+                          {no}
+                        </span>
                         <span className="truncate">{item.label}</span>
                       </Link>
                     </li>
@@ -122,28 +103,15 @@ export function AppLayout({ children, navItems = NAV_ITEMS }: AppLayoutProps) {
           ))}
         </nav>
 
-        <div className="border-t border-white/10 p-3">
-          <div className="flex items-center gap-3 px-2 pb-3">
-            <span
-              aria-hidden="true"
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-white"
-            >
-              {initials(auth.user?.name ?? '')}
-            </span>
-            <div className="min-w-0">
-              {auth.user ? (
-                <p className="truncate text-sm font-medium text-white">{auth.user.name}</p>
-              ) : null}
-              <p className="truncate text-xs text-slate-400">{roleText(auth.user?.roles[0])}</p>
-            </div>
-          </div>
+        <div className="border-ink border-t pt-4 text-sm">
+          {auth.user ? <p className="truncate font-semibold">{auth.user.name}</p> : null}
+          <p className="text-muted truncate">{roleText(auth.user?.roles[0])}</p>
           <Link
             href="/logout"
             method="post"
             as="button"
-            className="min-h-touch flex w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+            className="min-h-touch hover:text-signal-700 mt-1 text-left font-medium underline underline-offset-4"
           >
-            <Icon name="logout" className="size-[18px]" />
             Keluar
           </Link>
         </div>
@@ -153,27 +121,26 @@ export function AppLayout({ children, navItems = NAV_ITEMS }: AppLayoutProps) {
         <button
           type="button"
           aria-label="Tutup menu"
-          className="fixed inset-0 z-30 bg-slate-900/50 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
           onClick={() => {
             setOpen(false);
           }}
         />
       ) : null}
 
-      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-slate-200 bg-white/90 px-4 py-2 backdrop-blur lg:hidden">
+      <header className="border-ink sticky top-0 z-20 flex items-center gap-4 border-b bg-white px-4 py-1 lg:hidden">
         <button
           type="button"
-          aria-label="Buka menu"
           aria-expanded={open}
           aria-controls="sidebar"
-          className="btn btn-secondary px-3"
+          className="btn btn-secondary min-h-touch px-4"
           onClick={() => {
             setOpen((value) => !value);
           }}
         >
-          <Icon name={open ? 'close' : 'menu'} />
+          {open ? 'Tutup' : 'Menu'}
         </button>
-        <span className="text-brand-700 font-semibold">SIKG</span>
+        <span className="font-bold tracking-tight">SIKG</span>
       </header>
 
       <FlashMessages />

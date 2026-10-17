@@ -40,37 +40,32 @@ export default function Timeline({ patient, encounters }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-4xl flex-col gap-4 p-6">
+      <main className="mx-auto flex max-w-4xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title="Riwayat kunjungan" />
         <div>
-          <h1 className="text-2xl font-semibold">Riwayat kunjungan</h1>
-          <p className="text-sm text-slate-600">
+          <h1>Riwayat kunjungan</h1>
+          <p className="text-muted text-sm">
             {patient.name} | Nomor RM {patient.medical_record_no} |{' '}
-            <Link href={`/patients/${patient.id}`} className="text-brand-700 underline">
+            <Link href={`/patients/${patient.id}`} className="text-ink underline">
               Data pasien
             </Link>
           </p>
         </div>
 
         {encounters.length === 0 ? (
-          <p className="text-sm text-slate-600">Belum ada kunjungan.</p>
+          <p className="text-muted text-sm">Belum ada kunjungan.</p>
         ) : null}
 
         <ol className="flex flex-col gap-4">
           {encounters.map((encounter) => (
             <li key={encounter.id} className="card flex flex-col gap-2 p-4">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-lg font-semibold">
-                  {formatDateTime(encounter.started_at, timezone)}
-                </h2>
+                <h2>{formatDateTime(encounter.started_at, timezone)}</h2>
                 <Badge tone={encounter.status === 'open' ? 'warning' : 'neutral'}>
                   {encounter.status_label}
                 </Badge>
-                <span className="text-sm text-slate-600">{encounter.doctor_name ?? '-'}</span>
-                <Link
-                  href={`/encounters/${encounter.id}`}
-                  className="text-brand-700 text-sm underline"
-                >
+                <span className="text-muted text-sm">{encounter.doctor_name ?? '-'}</span>
+                <Link href={`/encounters/${encounter.id}`} className="text-ink text-sm underline">
                   Buka pemeriksaan
                 </Link>
               </div>
@@ -113,7 +108,7 @@ export default function Timeline({ patient, encounters }: Props) {
                         href={`/clinical-files/${f.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-brand-700 underline"
+                        className="text-ink underline"
                       >
                         {f.caption ?? f.kind_label}
                       </a>
@@ -122,7 +117,7 @@ export default function Timeline({ patient, encounters }: Props) {
                 </p>
               ) : null}
               {encounter.addendum_count > 0 ? (
-                <p className="text-xs text-slate-600">{encounter.addendum_count} addendum</p>
+                <p className="text-muted text-xs">{encounter.addendum_count} addendum</p>
               ) : null}
             </li>
           ))}

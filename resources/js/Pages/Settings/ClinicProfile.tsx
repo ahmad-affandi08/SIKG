@@ -80,9 +80,9 @@ export default function ClinicProfile({ profile }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
+      <main className="mx-auto flex max-w-2xl flex-col gap-6 p-6 lg:px-12 lg:py-10">
         <Head title="Profil klinik" />
-        <h1 className="text-2xl font-semibold">Profil klinik</h1>
+        <h1>Profil klinik</h1>
 
         <form onSubmit={submit} noValidate className="flex flex-col gap-4">
           <TextField
@@ -133,7 +133,7 @@ export default function ClinicProfile({ profile }: Props) {
         </form>
 
         <section aria-label="Logo klinik" className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold">Logo</h2>
+          <h2>Logo</h2>
           {profile.has_logo ? (
             <img
               src="/settings/profile/logo"
@@ -141,7 +141,7 @@ export default function ClinicProfile({ profile }: Props) {
               className="max-h-32 max-w-xs self-start"
             />
           ) : (
-            <p className="text-sm text-slate-600">Belum ada logo.</p>
+            <p className="text-muted text-sm">Belum ada logo.</p>
           )}
           <div className="flex flex-col gap-1">
             <label htmlFor="logo-file" className="text-sm font-medium">

@@ -24,7 +24,7 @@ export function DiagnosisPicker({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={inputId} className="text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="text-sm font-semibold">
         {label}
       </label>
       <input
@@ -46,14 +46,14 @@ export function DiagnosisPicker({
         </p>
       ) : null}
       {term !== '' && query.isSuccess && results.length === 0 ? (
-        <p className="text-sm text-slate-600">Diagnosa tidak ditemukan.</p>
+        <p className="text-muted text-sm">Diagnosa tidak ditemukan.</p>
       ) : null}
       <ul id={listId} role="listbox" hidden={!showList} className="card">
         {results.map((diagnosis) => (
           <li key={diagnosis.id} role="option" aria-selected={false}>
             <button
               type="button"
-              className="min-h-touch w-full px-3 text-left text-sm hover:bg-slate-100"
+              className="min-h-touch hover:bg-brand-50 w-full px-3 text-left text-sm"
               onClick={() => {
                 onSelect(diagnosis);
                 setText('');

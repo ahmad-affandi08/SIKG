@@ -26,10 +26,10 @@ interface Props {
 export default function Index({ users, canCreate }: Props) {
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6">
+      <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title="Pengguna" />
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-semibold">Pengguna</h1>
+          <h1>Pengguna</h1>
           {canCreate ? (
             <Link href="/settings/users/create" className="btn btn-primary">
               Tambah pengguna
@@ -56,10 +56,10 @@ export default function Index({ users, canCreate }: Props) {
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id} className="border-t border-slate-200 align-top">
+              <tr key={user.id} className="align-top">
                 <td className="py-2 pr-3">
                   <div className="font-medium">{user.name}</div>
-                  <div className="text-slate-600">{user.email}</div>
+                  <div className="text-muted">{user.email}</div>
                 </td>
                 <td className="pr-3">{user.username}</td>
                 <td className="pr-3">{roleLabel(user.role)}</td>

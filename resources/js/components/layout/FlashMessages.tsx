@@ -7,7 +7,7 @@ export function FlashMessages() {
   const { flash } = usePage().props;
 
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-2 px-6 pt-4">
+    <div className="mx-auto flex max-w-5xl flex-col gap-2 px-6 pt-6 lg:px-12">
       {flash.success ? <Alert tone="success">{flash.success}</Alert> : null}
       {flash.error ? <Alert tone="error">{flash.error}</Alert> : null}
     </div>

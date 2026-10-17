@@ -276,7 +276,7 @@ export function SoapPanel({
       <fieldset disabled={!canWrite} className="flex flex-col gap-4">
         {SOAP_FIELDS.map((field) => (
           <div key={field.key} className="flex flex-col gap-1">
-            <label htmlFor={`soap-${field.key}`} className="text-sm font-medium text-slate-700">
+            <label htmlFor={`soap-${field.key}`} className="text-sm font-semibold">
               {field.label}
             </label>
             <textarea
@@ -290,7 +290,7 @@ export function SoapPanel({
               className="field py-2"
             />
             {initial[field.key] ? (
-              <p className="text-xs text-slate-600">
+              <p className="text-muted text-xs">
                 Ditulis {initial[field.key]?.author},{' '}
                 {formatDateTime(initial[field.key]?.authored_at ?? '', timezone)}
               </p>
@@ -374,14 +374,14 @@ export function DiagnosisPanel({
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
-      {entries.length === 0 ? <p className="text-sm text-slate-600">Belum ada diagnosa.</p> : null}
+      {entries.length === 0 ? <p className="text-muted text-sm">Belum ada diagnosa.</p> : null}
       <ul className="flex flex-col gap-2">
         {entries.map((entry) => (
           <li key={entry.id} className="card flex flex-wrap items-center gap-2 p-2">
             <Badge>{entry.code}</Badge>
             <span className="text-sm font-medium">{entry.name}</span>
             {entry.tooth_fdi ? <span className="text-sm">gigi {entry.tooth_fdi}</span> : null}
-            {entry.notes ? <span className="text-sm text-slate-600">{entry.notes}</span> : null}
+            {entry.notes ? <span className="text-muted text-sm">{entry.notes}</span> : null}
             {canEdit ? (
               <ConfirmAction
                 label={`Hapus diagnosa ${entry.code}`}
@@ -545,7 +545,7 @@ export function ProcedurePanel({
 
   return (
     <div className="flex max-w-3xl flex-col gap-4">
-      {entries.length === 0 ? <p className="text-sm text-slate-600">Belum ada tindakan.</p> : null}
+      {entries.length === 0 ? <p className="text-muted text-sm">Belum ada tindakan.</p> : null}
       {entries.length > 0 ? (
         <table className="w-full text-left text-sm">
           <caption className="sr-only">Tindakan pada kunjungan</caption>
@@ -565,11 +565,11 @@ export function ProcedurePanel({
           </thead>
           <tbody>
             {entries.map((entry) => (
-              <tr key={entry.id} className="border-t border-slate-200 align-top">
+              <tr key={entry.id} className="align-top">
                 <td className="py-2 pr-3">
                   <div className="font-medium">{entry.code}</div>
-                  <div className="text-slate-600">{entry.name}</div>
-                  {entry.notes ? <div className="text-slate-600">{entry.notes}</div> : null}
+                  <div className="text-muted">{entry.name}</div>
+                  {entry.notes ? <div className="text-muted">{entry.notes}</div> : null}
                 </td>
                 <td className="pr-3">
                   {[
@@ -603,7 +603,7 @@ export function ProcedurePanel({
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t border-slate-300 font-semibold">
+            <tr className="font-semibold">
               <td colSpan={4} className="py-2">
                 Total tindakan
               </td>
@@ -752,12 +752,12 @@ export function AddendumPanel({
   return (
     <section aria-label="Addendum" className="flex max-w-2xl flex-col gap-3">
       <h3 className="text-base font-semibold">Addendum</h3>
-      {addenda.length === 0 ? <p className="text-sm text-slate-600">Belum ada addendum.</p> : null}
+      {addenda.length === 0 ? <p className="text-muted text-sm">Belum ada addendum.</p> : null}
       <ul className="flex flex-col gap-2">
         {addenda.map((note) => (
           <li key={note.id} className="card p-2">
             <p className="text-sm">{note.body}</p>
-            <p className="text-xs text-slate-600">
+            <p className="text-muted text-xs">
               {note.author}, {formatDateTime(note.authored_at, timezone)}. Alasan: {note.reason}
             </p>
           </li>
@@ -882,7 +882,7 @@ export function FilesPanel({
 
   return (
     <div className="flex max-w-3xl flex-col gap-4">
-      {files.length === 0 ? <p className="text-sm text-slate-600">Belum ada berkas.</p> : null}
+      {files.length === 0 ? <p className="text-muted text-sm">Belum ada berkas.</p> : null}
       <ul className="flex flex-col gap-2">
         {files.map((f) => (
           <li key={f.id} className="card flex flex-wrap items-center gap-2 p-2">
@@ -891,12 +891,12 @@ export function FilesPanel({
               href={`/clinical-files/${f.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-brand-700 text-sm underline"
+              className="text-ink text-sm underline"
             >
               {f.caption ?? 'Buka berkas'}
             </a>
             {f.tooth_fdi ? <span className="text-sm">gigi {f.tooth_fdi}</span> : null}
-            <span className="text-xs text-slate-600">
+            <span className="text-muted text-xs">
               {formatBytes(f.size)}, {f.uploaded_by}, {formatDateTime(f.uploaded_at, timezone)}
             </span>
             {canEdit ? (

@@ -159,9 +159,9 @@ export default function Index({ medicines, selected, movements, can }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-6xl flex-col gap-6 p-6">
+      <main className="mx-auto flex max-w-6xl flex-col gap-6 p-6 lg:px-12 lg:py-10">
         <Head title="Stok obat" />
-        <h1 className="text-2xl font-semibold">Stok obat dan bahan</h1>
+        <h1>Stok obat dan bahan</h1>
 
         <table className="w-full text-left text-sm">
           <caption className="sr-only">Stok obat dan bahan</caption>
@@ -182,7 +182,7 @@ export default function Index({ medicines, selected, movements, can }: Props) {
             {medicines.map((medicine) => {
               const level = stockLevel(medicine.quantity, medicine.min_stock);
               return (
-                <tr key={medicine.id} className="border-t border-slate-200">
+                <tr key={medicine.id}>
                   <td className="py-2 pr-3 font-medium">
                     {medicine.name}
                     {medicine.is_active ? '' : ' (nonaktif)'}
@@ -210,14 +210,14 @@ export default function Index({ medicines, selected, movements, can }: Props) {
           </tbody>
         </table>
         {medicines.length === 0 ? (
-          <p className="text-sm text-slate-600">Belum ada obat di katalog.</p>
+          <p className="text-muted text-sm">Belum ada obat di katalog.</p>
         ) : null}
 
         {selectedMedicine ? (
           <section aria-label="Riwayat mutasi" className="flex flex-col gap-2">
-            <h2 className="text-lg font-semibold">Riwayat mutasi {selectedMedicine.name}</h2>
+            <h2>Riwayat mutasi {selectedMedicine.name}</h2>
             {movements.length === 0 ? (
-              <p className="text-sm text-slate-600">Belum ada mutasi.</p>
+              <p className="text-muted text-sm">Belum ada mutasi.</p>
             ) : (
               <table className="w-full text-left text-sm">
                 <caption className="sr-only">Riwayat mutasi stok</caption>
@@ -235,7 +235,7 @@ export default function Index({ medicines, selected, movements, can }: Props) {
                 </thead>
                 <tbody>
                   {movements.map((m) => (
-                    <tr key={m.id} className="border-t border-slate-200">
+                    <tr key={m.id}>
                       <td className="py-2 pr-3">{formatDateTime(m.created_at, timezone)}</td>
                       <td className="pr-3">{m.type_label}</td>
                       <td className="pr-3">
@@ -263,7 +263,7 @@ export default function Index({ medicines, selected, movements, can }: Props) {
               aria-label="Mutasi stok"
               className="flex flex-col gap-3"
             >
-              <h2 className="text-lg font-semibold">Stok masuk atau keluar</h2>
+              <h2>Stok masuk atau keluar</h2>
               {stockShort && flash.error ? <Alert tone="error">{flash.error}</Alert> : null}
               <Select
                 label="Obat"
@@ -343,7 +343,7 @@ export default function Index({ medicines, selected, movements, can }: Props) {
               aria-label="Penyesuaian stok"
               className="flex flex-col gap-3"
             >
-              <h2 className="text-lg font-semibold">Penyesuaian stok (opname)</h2>
+              <h2>Penyesuaian stok (opname)</h2>
               <Select
                 label="Obat"
                 placeholder="Pilih obat"

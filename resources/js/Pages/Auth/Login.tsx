@@ -1,6 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
 
-import { Icon } from '@/components/layout/icons';
 import { LoginForm } from '@/features/identityAccess/components/LoginForm';
 import type { LoginValues } from '@/features/identityAccess/schemas';
 
@@ -27,38 +26,32 @@ export default function Login() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.1fr_1fr]">
-      <aside className="bg-ink relative hidden flex-col justify-between overflow-hidden p-12 text-slate-300 lg:flex">
-        <div
-          aria-hidden="true"
-          className="from-brand-600/40 pointer-events-none absolute -top-32 -right-32 size-96 rounded-full bg-gradient-to-br to-transparent blur-3xl"
-        />
-        <div className="relative flex items-center gap-3">
-          <span className="bg-brand-600 flex size-10 items-center justify-center rounded-xl text-white">
-            <Icon name="tooth" className="size-6" />
-          </span>
-          <span className="text-lg font-semibold text-white">SIKG</span>
-        </div>
-        <div className="relative max-w-md">
-          <h2 className="text-3xl leading-tight font-semibold tracking-tight text-white">
-            Rekam medis dan operasional klinik gigi, dalam satu tempat.
+      <aside className="border-ink hidden flex-col justify-between border-r p-12 lg:flex">
+        <p className="text-xl font-bold tracking-tight">SIKG</p>
+        <div className="max-w-lg">
+          <p className="eyebrow text-signal-700">Sistem Informasi Klinik Gigi</p>
+          <h2 className="mt-3 border-0 p-0 text-5xl leading-[1.05] font-semibold tracking-tight normal-case">
+            Rekam medis dan operasional klinik, dalam satu tempat.
           </h2>
-          <ul className="mt-6 flex flex-col gap-3 text-sm">
-            <li>Pendaftaran, jadwal, dan antrean pasien</li>
-            <li>Odontogram, diagnosa, tindakan, dan resep</li>
-            <li>Stok obat dengan peringatan dan jejak audit</li>
+          <ul className="border-ink mt-8 border-t-2 text-sm">
+            <li className="border-b border-[#ddd] py-3">Pendaftaran, jadwal, dan antrean pasien</li>
+            <li className="border-b border-[#ddd] py-3">
+              Odontogram, diagnosa, tindakan, dan resep
+            </li>
+            <li className="border-b border-[#ddd] py-3">
+              Stok obat dengan peringatan dan jejak audit
+            </li>
           </ul>
         </div>
-        <p className="relative text-xs text-slate-400">
-          Data pasien dilindungi dan setiap akses tercatat.
-        </p>
+        <p className="text-muted text-xs">Data pasien dilindungi dan setiap akses tercatat.</p>
       </aside>
 
       <main className="flex items-center justify-center p-6">
         <Head title="Masuk" />
-        <div className="card w-full max-w-sm p-8">
-          <header className="mb-6">
-            <h1 className="text-2xl font-semibold">Masuk ke SIKG</h1>
-            <p className="mt-1 text-sm text-slate-600">Sistem Informasi Klinik Gigi</p>
+        <div className="w-full max-w-sm">
+          <header className="mb-8">
+            <h1>Masuk</h1>
+            <p className="text-muted mt-1 text-sm">Gunakan email atau nama pengguna Anda.</p>
           </header>
           <LoginForm serverErrors={serverErrors} processing={form.processing} onSubmit={submit} />
         </div>

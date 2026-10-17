@@ -64,9 +64,9 @@ export default function Import({ batch }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
+      <main className="mx-auto flex max-w-3xl flex-col gap-6 p-6 lg:px-12 lg:py-10">
         <Head title="Impor pasien" />
-        <h1 className="text-2xl font-semibold">Impor pasien dari Excel</h1>
+        <h1>Impor pasien dari Excel</h1>
 
         {batch === null ? (
           <section className="flex flex-col gap-4">
@@ -125,19 +125,19 @@ export default function Import({ batch }: Props) {
 
             <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
               <div>
-                <dt className="text-slate-600">Total baris</dt>
+                <dt className="text-muted">Total baris</dt>
                 <dd className="text-lg font-semibold">{batch.total_rows}</dd>
               </div>
               <div>
-                <dt className="text-slate-600">Valid</dt>
+                <dt className="text-muted">Valid</dt>
                 <dd className="text-lg font-semibold">{batch.valid_rows}</dd>
               </div>
               <div>
-                <dt className="text-slate-600">Galat</dt>
+                <dt className="text-muted">Galat</dt>
                 <dd className="text-lg font-semibold">{batch.error_rows}</dd>
               </div>
               <div>
-                <dt className="text-slate-600">Dugaan duplikat</dt>
+                <dt className="text-muted">Dugaan duplikat</dt>
                 <dd className="text-lg font-semibold">{batch.duplicate_rows}</dd>
               </div>
             </dl>
@@ -160,7 +160,7 @@ export default function Import({ batch }: Props) {
 
             {batch.errors.length > 0 ? (
               <div>
-                <h2 className="text-lg font-semibold">Baris galat (tidak diimpor)</h2>
+                <h2>Baris galat (tidak diimpor)</h2>
                 <table className="w-full text-left text-sm">
                   <caption className="sr-only">Daftar baris galat</caption>
                   <thead>
@@ -173,7 +173,7 @@ export default function Import({ batch }: Props) {
                   </thead>
                   <tbody>
                     {batch.errors.map((error) => (
-                      <tr key={error.row} className="border-t border-slate-200">
+                      <tr key={error.row}>
                         <td className="py-1 pr-3">{error.row}</td>
                         <td>{error.message}</td>
                       </tr>

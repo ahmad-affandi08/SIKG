@@ -22,10 +22,10 @@ interface Props {
 export default function Index({ doctors }: Props) {
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6">
+      <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title="Dokter" />
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-semibold">Dokter</h1>
+          <h1>Dokter</h1>
           <Link href="/settings/doctors/create" className="btn btn-primary">
             Tambah dokter
           </Link>
@@ -51,7 +51,7 @@ export default function Index({ doctors }: Props) {
           </thead>
           <tbody>
             {doctors.map((doctor) => (
-              <tr key={doctor.id} className="border-t border-slate-200 align-top">
+              <tr key={doctor.id} className="align-top">
                 <td className="py-2 pr-3 font-medium">{doctor.name}</td>
                 <td className="pr-3">{doctor.sip_no ?? '-'}</td>
                 <td className="pr-3">{doctor.specialty ?? '-'}</td>
@@ -105,7 +105,7 @@ export default function Index({ doctors }: Props) {
             ))}
             {doctors.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-4 text-slate-600">
+                <td colSpan={8} className="text-muted py-4">
                   Belum ada dokter.
                 </td>
               </tr>

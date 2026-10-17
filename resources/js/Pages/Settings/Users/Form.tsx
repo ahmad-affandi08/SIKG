@@ -60,11 +60,11 @@ export default function Form({ user, roles, branches, canManage = true }: Props)
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-xl flex-col gap-4 p-6">
+      <main className="mx-auto flex max-w-xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title={editing ? 'Ubah pengguna' : 'Tambah pengguna'} />
-        <h1 className="text-2xl font-semibold">{editing ? 'Ubah pengguna' : 'Tambah pengguna'}</h1>
+        <h1>{editing ? 'Ubah pengguna' : 'Tambah pengguna'}</h1>
         {!canManage ? (
-          <p className="text-sm text-slate-600">Anda hanya dapat melihat pengguna ini.</p>
+          <p className="text-muted text-sm">Anda hanya dapat melihat pengguna ini.</p>
         ) : null}
 
         <form onSubmit={submit} noValidate className="flex flex-col gap-4">
@@ -119,7 +119,7 @@ export default function Form({ user, roles, branches, canManage = true }: Props)
           </fieldset>
 
           {!editing ? (
-            <p className="text-sm text-slate-600">
+            <p className="text-muted text-sm">
               Kata sandi sementara dibuat otomatis dan ditampilkan satu kali setelah pengguna
               dibuat.
             </p>

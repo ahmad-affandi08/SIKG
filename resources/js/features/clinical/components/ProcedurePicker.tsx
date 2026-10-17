@@ -22,7 +22,7 @@ export function ProcedurePicker({ selected, onSelect, error }: ProcedurePickerPr
   if (selected) {
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-slate-700">Tindakan</span>
+        <span className="text-sm font-semibold">Tindakan</span>
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm">
             {selected.code} - {selected.name} ({formatRupiah(selected.price_amount)})
@@ -44,7 +44,7 @@ export function ProcedurePicker({ selected, onSelect, error }: ProcedurePickerPr
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="text-sm font-semibold">
         Cari tindakan (kode atau nama)
       </label>
       <input
@@ -63,7 +63,7 @@ export function ProcedurePicker({ selected, onSelect, error }: ProcedurePickerPr
         </p>
       ) : null}
       {term !== '' && query.isSuccess && results.length === 0 ? (
-        <p className="text-sm text-slate-600">Tindakan tidak ditemukan.</p>
+        <p className="text-muted text-sm">Tindakan tidak ditemukan.</p>
       ) : null}
       {results.length > 0 ? (
         <ul className="card">
@@ -71,7 +71,7 @@ export function ProcedurePicker({ selected, onSelect, error }: ProcedurePickerPr
             <li key={procedure.id}>
               <button
                 type="button"
-                className="min-h-touch w-full px-3 text-left text-sm hover:bg-slate-100"
+                className="min-h-touch hover:bg-brand-50 w-full px-3 text-left text-sm"
                 onClick={() => {
                   onSelect(procedure);
                 }}

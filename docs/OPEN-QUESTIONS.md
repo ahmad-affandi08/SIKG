@@ -121,6 +121,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pengguna memperbaiki konfigurasi Deptrac (jalur dan sintaks collector) dan merapikan `tests-templates/` dengan Pint; (b) pengecualian jalur `tests-templates` pada konfigurasi Pint
 - Rekomendasi: (a)
 
+### Q-19: Aset huruf Schibsted Grotesk dihosting sendiri
+- Kebutuhan terkait: M1 (dependensi), `docs/rules/frontend.md` bagian 6
+- Butir: Desain tampilan Swiss (pilihan pengguna) memakai huruf Schibsted Grotesk (lisensi SIL OFL). Dua berkas woff2 (latin dan latin-ext) disimpan di `resources/fonts/` dan dimuat lewat `@font-face` di `resources/css/app.css`, sehingga tidak ada permintaan ke CDN dan CSP `font-src 'self'` tetap berlaku. Ini aset statis, bukan paket npm atau Composer, tetapi dicatat di sini agar pengguna dapat meninjau atau menggantinya.
+- Opsi: (a) pertahankan; (b) pakai huruf sistem saja (hapus dua berkas dan blok `@font-face`)
+- Rekomendasi: (a)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

@@ -39,10 +39,10 @@ export default function System({ checks, health, hostingProfile }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6">
+      <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
         <Head title="Sistem" />
-        <h1 className="text-2xl font-semibold">Kesiapan sistem</h1>
-        <p className="text-sm text-slate-600">
+        <h1>Kesiapan sistem</h1>
+        <p className="text-muted text-sm">
           Profil hosting: <strong>{hostingProfile}</strong>.{' '}
           {failed === 0
             ? 'Semua butir wajib lulus.'
@@ -50,9 +50,7 @@ export default function System({ checks, health, hostingProfile }: Props) {
         </p>
 
         <section aria-labelledby="denyut" className="flex flex-col gap-2">
-          <h2 id="denyut" className="text-lg font-medium">
-            Denyut cron dan antrean
-          </h2>
+          <h2 id="denyut">Denyut cron dan antrean</h2>
           <p>
             Status:{' '}
             <Badge tone={health.status === 'ok' ? 'success' : 'warning'}>
@@ -69,9 +67,7 @@ export default function System({ checks, health, hostingProfile }: Props) {
         </section>
 
         <section aria-labelledby="pemeriksaan" className="flex flex-col gap-2">
-          <h2 id="pemeriksaan" className="text-lg font-medium">
-            Pemeriksaan lingkungan
-          </h2>
+          <h2 id="pemeriksaan">Pemeriksaan lingkungan</h2>
           <table className="w-full text-left text-sm">
             <caption className="sr-only">Hasil pemeriksaan kesiapan lingkungan</caption>
             <thead>
@@ -85,7 +81,7 @@ export default function System({ checks, health, hostingProfile }: Props) {
             </thead>
             <tbody>
               {checks.map((check) => (
-                <tr key={check.key} className="border-t border-slate-200 align-top">
+                <tr key={check.key} className="align-top">
                   <td className="py-2 pr-3">{check.label}</td>
                   <td className="pr-3">
                     <Badge tone={STATUS[check.status].tone}>{STATUS[check.status].label}</Badge>
