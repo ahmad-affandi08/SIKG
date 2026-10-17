@@ -38,32 +38,24 @@ export default function Beranda() {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-5xl flex-col gap-10 p-6 lg:px-12 lg:py-10">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Beranda" />
         <header>
-          <p className="eyebrow text-signal-700">{formatDate(now)}</p>
-          <h1 className="mt-1">
+          <p className="text-muted">{formatDate(now)}</p>
+          <h1 className="mt-0.5">
             {greeting(now.getHours())}, {firstName}
           </h1>
-          <p className="text-muted mt-2">Pilih pekerjaan yang ingin Anda mulai hari ini.</p>
+          <p className="text-muted mt-1">Pilih pekerjaan yang ingin Anda mulai hari ini.</p>
         </header>
 
         {items.length > 0 ? (
           <section aria-label="Akses cepat">
-            <ul className="border-ink border-t-2">
-              {items.map((item, index) => (
-                <li key={item.href} className="border-b border-[#ddd]">
-                  <Link
-                    href={item.href}
-                    className="hover:text-signal-700 group flex flex-wrap items-baseline gap-x-6 gap-y-1 py-5"
-                  >
-                    <span aria-hidden="true" className="text-muted w-8 text-sm tabular-nums">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <span className="min-w-40 text-2xl font-semibold tracking-tight">
-                      {item.label}
-                    </span>
-                    <span className="text-muted text-sm">{DESCRIPTIONS[item.href] ?? ''}</span>
+            <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              {items.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="pane hover:bg-brand-50 block h-full">
+                    <span className="pane-head">{item.label}</span>
+                    <span className="text-muted block p-2">{DESCRIPTIONS[item.href] ?? ''}</span>
                   </Link>
                 </li>
               ))}

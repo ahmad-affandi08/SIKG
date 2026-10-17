@@ -142,7 +142,7 @@ export function CalendarGrid({
           onClick={() => {
             shiftMonth(-1);
           }}
-          className="hover:bg-brand-100 flex size-11 items-center justify-center text-lg"
+          className="hover:bg-brand-100 flex size-[max(2rem,var(--spacing-touch))] items-center justify-center text-lg"
         >
           <span aria-hidden="true">‹</span>
         </button>
@@ -180,7 +180,7 @@ export function CalendarGrid({
           onClick={() => {
             shiftMonth(1);
           }}
-          className="hover:bg-brand-100 flex size-11 items-center justify-center text-lg"
+          className="hover:bg-brand-100 flex size-[max(2rem,var(--spacing-touch))] items-center justify-center text-lg"
         >
           <span aria-hidden="true">›</span>
         </button>
@@ -213,7 +213,7 @@ export function CalendarGrid({
               const isSelected = iso === selected || iso === range?.from || iso === range?.to;
               const inside = lo !== '' && compareIso(iso, lo) > 0 && compareIso(iso, hi) < 0;
               const classes = [
-                'size-11 text-sm tabular-nums',
+                'size-[max(2rem,var(--spacing-touch))] text-sm tabular-nums',
                 isSelected ? 'bg-ink font-semibold text-white' : '',
                 !isSelected && inside ? 'bg-brand-100' : '',
                 !isSelected && !inside && enabled ? 'hover:bg-brand-100' : '',

@@ -61,7 +61,7 @@ export default function Form({ user, roles, branches, canManage = true }: Props)
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
+      <main className="flex max-w-xl flex-col gap-3 p-3">
         <PageHead title={editing ? 'Ubah pengguna' : 'Tambah pengguna'} />
         <h1>{editing ? 'Ubah pengguna' : 'Tambah pengguna'}</h1>
         {!canManage ? (

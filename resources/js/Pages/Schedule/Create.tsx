@@ -68,7 +68,7 @@ export default function Create({ defaultDate, doctors, chairs }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-2xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
+      <main className="flex max-w-2xl flex-col gap-3 p-3">
         <PageHead title="Buat janji" />
         <PageHeader title="Buat janji" back={{ href: back, label: 'jadwal' }} />
         <form onSubmit={submit} noValidate aria-label="Buat janji" className="flex flex-col gap-5">

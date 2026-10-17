@@ -22,7 +22,7 @@ export const PickerToggle = forwardRef<HTMLButtonElement, PickerToggleProps>(fun
       aria-expanded={expanded}
       disabled={disabled === true}
       onClick={onClick}
-      className="hover:bg-brand-100 absolute top-0 right-0 flex size-11 items-center justify-center disabled:opacity-40"
+      className="hover:bg-brand-100 absolute top-0 right-0 flex size-(--spacing-touch) items-center justify-center disabled:opacity-40"
     >
       <svg
         viewBox="0 0 24 24"

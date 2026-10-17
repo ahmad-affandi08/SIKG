@@ -111,7 +111,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-3xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
+      <main className="flex max-w-3xl flex-col gap-3 p-3">
         <PageHead title={editing ? 'Ubah dokter' : 'Tambah dokter'} />
         <h1>{editing ? 'Ubah dokter' : 'Tambah dokter'}</h1>
 

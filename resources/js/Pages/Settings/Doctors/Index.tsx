@@ -23,7 +23,7 @@ interface Props {
 export default function Index({ doctors }: Props) {
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Dokter" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1>Dokter</h1>

@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { useState } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { PageHead } from '@/components/layout/PageTitle';
 import { usePatientSearch } from '@/features/patient/queries';
 import { formatDate } from '@/lib/format';
@@ -21,21 +22,25 @@ export default function Index({ sexes }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Pasien" />
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1>Pasien</h1>
-          {can('patient.import') ? (
-            <Link href="/patients/import" className="btn btn-secondary">
-              Impor dari Excel
-            </Link>
-          ) : null}
-          {can('patient.create') ? (
-            <Link href="/patients/create" className="btn btn-primary">
-              Daftarkan pasien baru
-            </Link>
-          ) : null}
-        </div>
+        <PageHeader
+          title="Pasien"
+          actions={
+            <>
+              {can('patient.import') ? (
+                <Link href="/patients/import" className="btn btn-secondary">
+                  Impor dari Excel
+                </Link>
+              ) : null}
+              {can('patient.create') ? (
+                <Link href="/patients/create" className="btn btn-primary">
+                  Daftarkan pasien baru
+                </Link>
+              ) : null}
+            </>
+          }
+        />
 
         <div className="flex flex-col gap-1">
           <label htmlFor="patient-search" className="text-sm font-semibold">

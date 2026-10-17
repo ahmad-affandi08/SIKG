@@ -81,7 +81,7 @@ export default function ClinicProfile({ profile }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-2xl flex-col gap-6 p-6 lg:px-12 lg:py-10">
+      <main className="flex max-w-2xl flex-col gap-3 p-3">
         <PageHead title="Profil klinik" />
         <h1>Profil klinik</h1>
 

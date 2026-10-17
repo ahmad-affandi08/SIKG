@@ -77,7 +77,7 @@ export default function Clinic({
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Pengaturan klinik" />
         <h1>Pengaturan klinik</h1>
 

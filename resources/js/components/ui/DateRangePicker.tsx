@@ -240,7 +240,7 @@ export function DateRangePicker({
             className="field w-40"
           />
         </div>
-        <div className="relative size-11">
+        <div className="relative size-(--spacing-touch)">
           <PickerToggle
             icon="calendar"
             label={`Pilih rentang tanggal: ${label}`}

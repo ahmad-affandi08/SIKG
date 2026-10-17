@@ -159,7 +159,7 @@ export function TimePicker({
                 onClick={() => {
                   choose(h, current?.m ?? 0, false);
                 }}
-                className={`size-11 text-sm tabular-nums ${current?.h === h ? 'bg-ink font-semibold text-white' : 'hover:bg-brand-100'}`}
+                className={`size-[max(2rem,var(--spacing-touch))] text-sm tabular-nums ${current?.h === h ? 'bg-ink font-semibold text-white' : 'hover:bg-brand-100'}`}
               >
                 {String(h).padStart(2, '0')}
               </button>
@@ -175,7 +175,7 @@ export function TimePicker({
                 onClick={() => {
                   choose(current?.h ?? 8, m, true);
                 }}
-                className={`size-11 text-sm tabular-nums ${current?.m === m ? 'bg-ink font-semibold text-white' : 'hover:bg-brand-100'}`}
+                className={`size-[max(2rem,var(--spacing-touch))] text-sm tabular-nums ${current?.m === m ? 'bg-ink font-semibold text-white' : 'hover:bg-brand-100'}`}
               >
                 {String(m).padStart(2, '0')}
               </button>

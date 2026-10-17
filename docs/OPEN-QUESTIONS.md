@@ -127,6 +127,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan; (b) pakai huruf sistem saja (hapus dua berkas dan blok `@font-face`)
 - Rekomendasi: (a)
 
+### Q-20: Desain Klasik menggantikan sidebar dan toggle sidebar
+- Kebutuhan terkait: `docs/rules/frontend.md` bagian 6 (tata letak), permintaan pengguna sebelumnya (sidebar yang dapat ditutup dan dibuka)
+- Butir: Atas pilihan pengguna ("A. Klasik"), tata letak aplikasi kini berupa menubar teks dengan menu turun, bar jejak halaman, satu panel isi yang menggulir sendiri, dan status bar biru (klinik, pengguna dan peran, jam). Sidebar dan tombol buka-tutupnya dihapus karena menubar sudah memuat seluruh menu. Halaman Pemeriksaan memakai tiga panel (antrean hari ini, tab pemeriksaan, ringkasan pasien). Target sentuh tetap 44 px pada layar sentuh lewat `@media (pointer: coarse)`; pada pointer halus tinggi kontrol 28 px agar padat. Bila dokumen aturan memuat ketentuan sidebar atau ukuran kontrol, perlu disesuaikan oleh pengguna.
+- Opsi: (a) pertahankan menubar; (b) tambahkan kembali sidebar sebagai opsi tampilan
+- Rekomendasi: (a)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

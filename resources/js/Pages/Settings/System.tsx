@@ -38,7 +38,7 @@ export default function System({ checks, health, hostingProfile }: Props) {
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Sistem" />
         <h1>Kesiapan sistem</h1>
         <p className="text-muted text-sm">

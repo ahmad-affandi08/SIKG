@@ -10,21 +10,23 @@ interface PageHeaderProps {
   actions?: ReactNode;
 }
 
-/** Kepala halaman seragam: tautan kembali, judul, keterangan, dan aksi. */
+/** Kepala halaman seragam: bar alat dengan judul di kiri, tautan kembali dan aksi di kanan. */
 export function PageHeader({ title, back, description, actions }: PageHeaderProps) {
   return (
-    <header className="flex flex-col gap-3">
-      {back ? (
-        <Link href={back.href} className="text-muted hover:text-signal-700 w-fit text-sm underline">
-          Kembali ke {back.label}
-        </Link>
-      ) : null}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
+    <header className="flex flex-col gap-1">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#b9b9b9] pb-2">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
           <h1>{title}</h1>
-          {description ? <p className="text-muted mt-1 text-sm">{description}</p> : null}
+          {description ? <p className="text-muted text-xs">{description}</p> : null}
         </div>
-        {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {back ? (
+            <Link href={back.href} className="btn btn-secondary">
+              Kembali ke {back.label}
+            </Link>
+          ) : null}
+          {actions}
+        </div>
       </div>
     </header>
   );

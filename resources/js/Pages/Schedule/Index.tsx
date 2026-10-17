@@ -77,7 +77,7 @@ export default function Index({ filters, today, calendar, doctors, chairs, canMa
 
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Jadwal" />
         <PageHeader
           title="Jadwal dan janji"

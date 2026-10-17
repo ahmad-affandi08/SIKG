@@ -26,7 +26,7 @@ const LEVEL_TONE = { empty: 'danger', low: 'warning', ok: 'success' } as const;
 export default function Index({ medicines, can }: Props) {
   return (
     <AppLayout>
-      <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Stok obat" />
         <PageHeader
           title="Stok obat dan bahan"

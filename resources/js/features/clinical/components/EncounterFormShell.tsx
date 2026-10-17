@@ -29,7 +29,7 @@ export function EncounterFormShell({
 }: EncounterFormShellProps) {
   return (
     <AppLayout>
-      <main className={`mx-auto flex ${maxWidth} flex-col gap-8 p-6 lg:px-12 lg:py-10`}>
+      <main className={`flex ${maxWidth} flex-col gap-3 p-3`}>
         <PageHead title={title} />
         <PageHeader
           title={title}
