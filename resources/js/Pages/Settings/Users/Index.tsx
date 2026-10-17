@@ -15,6 +15,7 @@ interface UserRow {
   role: string | null;
   branch: string | null;
   isActive: boolean;
+  twoFactorEnabled: boolean;
   lastLoginAt: string | null;
   canManage: boolean;
 }
@@ -115,6 +116,16 @@ export default function Index({ users, canCreate }: Props) {
                           router.post(`/settings/users/${user.id}/reset-password`);
                         }}
                       />
+                      {user.twoFactorEnabled ? (
+                        <ConfirmAction
+                          label={`Matikan verifikasi dua langkah ${user.name}`}
+                          message={`${user.name} tidak lagi diminta kode saat masuk dan sesinya berakhir. Pakai ini hanya bila perangkat dan kode pemulihannya hilang.`}
+                          confirmLabel="Ya, matikan"
+                          onConfirm={() => {
+                            router.post(`/settings/users/${user.id}/reset-two-factor`);
+                          }}
+                        />
+                      ) : null}
                     </div>
                   ) : null}
                 </td>

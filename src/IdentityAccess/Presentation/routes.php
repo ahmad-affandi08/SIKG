@@ -9,11 +9,16 @@ use Src\IdentityAccess\Presentation\Http\Controllers\DashboardController;
 use Src\IdentityAccess\Presentation\Http\Controllers\LoginController;
 use Src\IdentityAccess\Presentation\Http\Controllers\NotificationController;
 use Src\IdentityAccess\Presentation\Http\Controllers\RoleController;
+use Src\IdentityAccess\Presentation\Http\Controllers\TwoFactorController;
+use Src\IdentityAccess\Presentation\Http\Controllers\TwoFactorLoginController;
 use Src\IdentityAccess\Presentation\Http\Controllers\UserController;
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'store']);
+    // AUTH-05: langkah kedua masuk; percobaan juga dibatasi di use case.
+    Route::get('/login/two-factor', [TwoFactorLoginController::class, 'show'])->name('login.two-factor');
+    Route::post('/login/two-factor', [TwoFactorLoginController::class, 'store'])->middleware('throttle:20,1');
 });
 
 Route::middleware('auth')->group(function (): void {
@@ -25,6 +30,15 @@ Route::middleware('auth')->group(function (): void {
 Route::middleware(['auth', 'can:account.password'])->prefix('account')->group(function (): void {
     Route::get('/password', [AccountController::class, 'show'])->name('account.password');
     Route::put('/password', [AccountController::class, 'update'])->middleware('throttle:6,1');
+});
+
+// AUTH-05: verifikasi dua langkah opsional untuk Pemilik dan Admin. Gate account.two-factor; percobaan dibatasi.
+Route::middleware(['auth', 'can:account.two-factor'])->prefix('account/two-factor')->group(function (): void {
+    Route::get('/', [TwoFactorController::class, 'show'])->name('account.two-factor');
+    Route::post('/start', [TwoFactorController::class, 'start'])->middleware('throttle:10,1');
+    Route::post('/confirm', [TwoFactorController::class, 'confirm'])->middleware('throttle:6,1');
+    Route::post('/disable', [TwoFactorController::class, 'disable'])->middleware('throttle:6,1');
+    Route::post('/recovery-codes', [TwoFactorController::class, 'regenerate'])->middleware('throttle:6,1');
 });
 
 // SYS-05: pemberitahuan dalam aplikasi. Gate notifications.view = pengguna aktif; isi disaring menurut izin pengguna.
@@ -50,6 +64,7 @@ Route::middleware(['auth', 'can:user.manage'])->prefix('settings/users')->group(
     Route::post('/{user}/deactivate', [UserController::class, 'deactivate']);
     Route::post('/{user}/activate', [UserController::class, 'activate']);
     Route::post('/{user}/reset-password', [UserController::class, 'resetPassword']);
+    Route::post('/{user}/reset-two-factor', [UserController::class, 'resetTwoFactor']);
 });
 
 // AUTH-07: peran dan izin. Peran Pemilik hanya dapat diubah Pemilik (diperiksa di RoleAdministration).

@@ -26,6 +26,11 @@ use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
  * @property string $password
  * @property Carbon|null $password_changed_at
  * @property Carbon|null $last_login_at
+ * @property string|null $two_factor_secret_encrypted
+ * @property string|null $two_factor_pending_encrypted
+ * @property Carbon|null $two_factor_confirmed_at
+ * @property int $two_factor_last_step
+ * @property list<string>|null $two_factor_recovery_hashes
  */
 class User extends Authenticatable
 {
@@ -42,7 +47,7 @@ class User extends Authenticatable
     protected $fillable = ['name', 'email', 'username', 'password', 'is_active', 'branch_id'];
 
     /** @var list<string> */
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'two_factor_secret_encrypted', 'two_factor_pending_encrypted', 'two_factor_recovery_hashes'];
 
     /**
      * Pengguna dikelola di tingkat klinik; cabang boleh kosong (akses semua cabang).
@@ -62,6 +67,8 @@ class User extends Authenticatable
             'must_change_password' => 'boolean',
             'password_changed_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'two_factor_confirmed_at' => 'datetime',
+            'two_factor_recovery_hashes' => 'array',
             'password' => 'hashed',
         ];
     }

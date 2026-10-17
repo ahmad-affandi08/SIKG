@@ -56,3 +56,17 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
+
+/** Kode faktor kedua: 6 digit dari autentikator atau kode pemulihan; server memeriksa keabsahannya (AUTH-05). */
+export const twoFactorCodeSchema = z
+  .string()
+  .trim()
+  .min(1, 'Kode verifikasi wajib diisi.')
+  .max(32, 'Kode terlalu panjang.');
+
+export const twoFactorChangeSchema = z.object({
+  password: z.string().min(1, 'Kata sandi wajib diisi.').max(255, 'Terlalu panjang.'),
+  code: twoFactorCodeSchema,
+});
+
+export type TwoFactorChangeValues = z.infer<typeof twoFactorChangeSchema>;

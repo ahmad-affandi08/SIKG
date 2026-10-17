@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   changePasswordSchema,
   loginSchema,
+  twoFactorChangeSchema,
+  twoFactorCodeSchema,
   userFormSchema,
 } from '@/features/identityAccess/schemas';
 
@@ -108,5 +110,19 @@ describe('AUTH-06 skema ganti kata sandi', () => {
     ['kata sandi lama kosong', { current_password: '' }, 'Kata sandi saat ini wajib diisi.'],
   ])('menolak %s', (_label, override, message) => {
     expect(messages({ ...valid, ...override })).toContain(message);
+  });
+});
+
+describe('AUTH-05 formulir verifikasi dua langkah', () => {
+  it('kata sandi dan kode wajib diisi', () => {
+    expect(twoFactorChangeSchema.safeParse({ password: '', code: '' }).success).toBe(false);
+    expect(
+      twoFactorChangeSchema.safeParse({ password: 'rahasia123', code: ' 123456 ' }).success,
+    ).toBe(true);
+  });
+
+  it('kode pemulihan dan kode autentikator sama-sama diterima bentuknya', () => {
+    expect(twoFactorCodeSchema.safeParse('k3m9p-x2tqa').success).toBe(true);
+    expect(twoFactorCodeSchema.safeParse('x'.repeat(40)).success).toBe(false);
   });
 });

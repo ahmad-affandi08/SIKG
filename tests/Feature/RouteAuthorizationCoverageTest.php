@@ -14,6 +14,7 @@ use Illuminate\Routing\Route;
 const ROUTE_PUBLIK = [
     '/' => '*',
     '/login' => ['GET', 'POST'],
+    '/login/two-factor' => ['GET', 'POST'], // AUTH-05: hanya berlaku dengan ID pengguna tertunda di sesi setelah kata sandi benar
     '/up' => ['GET'],
     '/health' => ['GET'], // dilindungi token X-Health-Token, bukan sesi (SYS-07)
 ];

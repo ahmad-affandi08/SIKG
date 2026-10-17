@@ -6,6 +6,7 @@ namespace Src\IdentityAccess\Presentation\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 use Src\IdentityAccess\Application\Account\AccountSecurity;
@@ -27,6 +28,8 @@ final class AccountController
             'required' => RequiredFields::from(ChangePasswordRequest::createFrom($request)->rules()),
             'forced' => $this->account->mustChangePassword($this->userId($request)),
             'minLength' => ChangePasswordRequest::MIN_LENGTH,
+            // AUTH-05: tautan ke verifikasi dua langkah hanya untuk Pemilik dan Admin.
+            'canTwoFactor' => Gate::allows('account.two-factor'),
         ]);
     }
 

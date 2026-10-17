@@ -44,6 +44,7 @@ final readonly class EloquentUserAdministration implements UserAdministration
             'role' => $u->getRoleNames()->first(),
             'branch' => $u->branch_id !== null ? $branchNames->get($u->branch_id) : null,
             'isActive' => $u->is_active,
+            'twoFactorEnabled' => $u->two_factor_confirmed_at !== null,
             'lastLoginAt' => $u->last_login_at?->toIso8601String(),
             'canManage' => Gate::forUser($actor)->allows('update', $u),
         ])->all());
@@ -68,6 +69,7 @@ final readonly class EloquentUserAdministration implements UserAdministration
             'role' => $target->getRoleNames()->first(),
             'branch_id' => $target->branch_id,
             'isActive' => $target->is_active,
+            'twoFactorEnabled' => $target->two_factor_confirmed_at !== null,
             'canManage' => Gate::forUser($actor)->allows('update', $target),
         ];
     }
@@ -190,6 +192,22 @@ final readonly class EloquentUserAdministration implements UserAdministration
         });
 
         return new UserCredential($target->id, $target->name, $target->username, $password);
+    }
+
+    public function resetTwoFactor(string $actorId, string $userId): void
+    {
+        $actor = $this->actor($actorId);
+        $target = User::query()->findOrFail($userId);
+        Gate::forUser($actor)->authorize('update', $target);
+
+        $this->tx->run(function () use ($actor, $target): void {
+            $target->forceFill([
+                'two_factor_secret_encrypted' => null, 'two_factor_pending_encrypted' => null, 'two_factor_confirmed_at' => null,
+                'two_factor_last_step' => 0, 'two_factor_recovery_hashes' => null, 'remember_token' => null, 'updated_by' => $actor->id,
+            ])->save();
+            DB::table((string) config('session.table', 'sessions'))->where('user_id', $target->id)->delete();
+            $this->audit->record(new AuditEntry($actor->id, 'user.two_factor_reset', 'user', $target->id));
+        });
     }
 
     private function actor(string $actorId): User

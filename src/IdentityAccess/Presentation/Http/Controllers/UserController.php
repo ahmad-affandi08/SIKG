@@ -88,6 +88,13 @@ final class UserController
         return $this->credential($this->users->resetPassword($this->actorId($request), $user));
     }
 
+    public function resetTwoFactor(Request $request, string $user): RedirectResponse
+    {
+        $this->users->resetTwoFactor($this->actorId($request), $user);
+
+        return back()->with('success', 'Verifikasi dua langkah pengguna dimatikan. Ia dapat mengaktifkannya lagi setelah masuk.');
+    }
+
     private function credential(UserCredential $credential): Response
     {
         return Inertia::render('Settings/Users/Credential', [

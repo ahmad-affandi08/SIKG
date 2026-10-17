@@ -42,4 +42,9 @@ interface UserAdministration
     public function activate(string $actorId, string $userId): void;
 
     public function resetPassword(string $actorId, string $userId): UserCredential;
+
+    /**
+     * AUTH-05: mematikan verifikasi dua langkah pengguna lain yang kehilangan perangkat dan kode pemulihannya. Sesinya berakhir.
+     */
+    public function resetTwoFactor(string $actorId, string $userId): void;
 }

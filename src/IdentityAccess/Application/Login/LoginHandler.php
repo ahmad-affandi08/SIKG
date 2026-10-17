@@ -6,6 +6,7 @@ namespace Src\IdentityAccess\Application\Login;
 
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Support\Facades\Hash;
+use Src\IdentityAccess\Application\TwoFactor\TwoFactorStore;
 use Src\IdentityAccess\Domain\InvalidCredentials;
 use Src\IdentityAccess\Domain\LoginCandidate;
 use Src\IdentityAccess\Domain\TooManyLoginAttempts;
@@ -18,7 +19,8 @@ use Src\Shared\Application\Transaction;
 
 /**
  * AUTH-01: login dengan email atau username. Percobaan gagal dibatasi 5 kali per menit per akun dan IP.
- * Mengembalikan ID pengguna; Presentation yang memulai sesi.
+ * AUTH-05: bila pengguna mengaktifkan verifikasi dua langkah, kata sandi yang benar belum memulai sesi; `TwoFactorChallenge`
+ * menyelesaikan masuk. Mengembalikan hasilnya; Presentation yang memulai sesi.
  */
 final readonly class LoginHandler
 {
@@ -33,13 +35,14 @@ final readonly class LoginHandler
         private Clock $clock,
         private AuditLogger $audit,
         private TenantContext $tenant,
+        private TwoFactorStore $twoFactor,
     ) {}
 
     /**
      * @throws TooManyLoginAttempts
      * @throws InvalidCredentials
      */
-    public function __invoke(LoginCommand $command): string
+    public function __invoke(LoginCommand $command): LoginOutcome
     {
         $key = $this->throttleKey($command);
 
@@ -64,12 +67,18 @@ final readonly class LoginHandler
 
         $this->limiter->clear($key);
 
+        if ($this->twoFactor->isEnabled($candidate->id)) {
+            $this->auditAs($candidate, 'auth.password_accepted');
+
+            return new LoginOutcome($candidate->id, true);
+        }
+
         $this->tx->run(function () use ($candidate): void {
             $this->users->recordLogin($candidate->id, $this->clock->now());
             $this->auditAs($candidate, 'auth.login');
         });
 
-        return $candidate->id;
+        return new LoginOutcome($candidate->id, false);
     }
 
     private function throttleKey(LoginCommand $command): string

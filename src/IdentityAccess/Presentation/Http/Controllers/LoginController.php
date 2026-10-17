@@ -26,7 +26,7 @@ final class LoginController
     public function store(LoginRequest $request, LoginHandler $handler): RedirectResponse
     {
         try {
-            $userId = $handler(new LoginCommand(
+            $outcome = $handler(new LoginCommand(
                 identifier: trim($request->string('identifier')->toString()),
                 password: $request->string('password')->toString(),
                 ip: (string) $request->ip(),
@@ -35,7 +35,15 @@ final class LoginController
             return back()->withErrors(['identifier' => $e->getMessage()])->onlyInput('identifier');
         }
 
-        Auth::loginUsingId($userId);
+        if ($outcome->needsSecondFactor) {
+            // AUTH-05: sesi belum dimulai; hanya ID tertunda yang disimpan sampai kode kedua sah.
+            $request->session()->regenerate();
+            $request->session()->put(TwoFactorLoginController::SESSION_KEY, ['user_id' => $outcome->userId, 'at' => now()->getTimestamp()]);
+
+            return redirect('/login/two-factor');
+        }
+
+        Auth::loginUsingId($outcome->userId);
         $request->session()->regenerate();
 
         return redirect()->intended('/dashboard');

@@ -19,10 +19,23 @@ final class EloquentUserDirectory implements UserDirectory
             ->where(fn ($query) => $query->where('email', $identifier)->orWhere('username', $identifier))
             ->first();
 
-        if (! $user instanceof User) {
-            return null;
-        }
+        return $user instanceof User ? $this->candidate($user) : null;
+    }
 
+    public function findLoginCandidateById(string $userId): ?LoginCandidate
+    {
+        $user = User::query()->withoutGlobalScope(ClinicScope::class)->find($userId);
+
+        return $user instanceof User ? $this->candidate($user) : null;
+    }
+
+    public function recordLogin(string $userId, DateTimeImmutable $at): void
+    {
+        User::query()->withoutGlobalScope(ClinicScope::class)->whereKey($userId)->update(['last_login_at' => $at]);
+    }
+
+    private function candidate(User $user): LoginCandidate
+    {
         return new LoginCandidate(
             id: $user->id,
             clinicId: $user->clinic_id,
@@ -30,10 +43,5 @@ final class EloquentUserDirectory implements UserDirectory
             passwordHash: (string) $user->getAuthPassword(),
             isActive: $user->is_active,
         );
-    }
-
-    public function recordLogin(string $userId, DateTimeImmutable $at): void
-    {
-        User::query()->withoutGlobalScope(ClinicScope::class)->whereKey($userId)->update(['last_login_at' => $at]);
     }
 }

@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
@@ -13,10 +13,11 @@ import type { ChangePasswordValues } from '@/features/identityAccess/schemas';
 interface Props {
   forced: boolean;
   minLength: number;
+  canTwoFactor?: boolean;
 }
 
 /** AUTH-06: ganti kata sandi sendiri; wajib bila kata sandi saat ini masih sementara. */
-export default function Password({ forced, minLength }: Props) {
+export default function Password({ forced, minLength, canTwoFactor = false }: Props) {
   const form = useForm<ChangePasswordValues>({
     current_password: '',
     password: '',
@@ -104,6 +105,15 @@ export default function Password({ forced, minLength }: Props) {
             </Button>
           </div>
         </form>
+        {canTwoFactor ? (
+          <p className="text-sm">
+            Untuk keamanan tambahan, aktifkan{' '}
+            <Link href="/account/two-factor" className="underline">
+              verifikasi dua langkah
+            </Link>
+            .
+          </p>
+        ) : null}
       </main>
     </AppLayout>
   );

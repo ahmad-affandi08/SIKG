@@ -14,5 +14,8 @@ interface UserDirectory
 {
     public function findLoginCandidate(string $identifier): ?LoginCandidate;
 
+    /** Pengguna menurut ID (langkah kedua masuk, sebelum ada konteks klinik). */
+    public function findLoginCandidateById(string $userId): ?LoginCandidate;
+
     public function recordLogin(string $userId, DateTimeImmutable $at): void;
 }
