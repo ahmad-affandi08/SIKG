@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Src\Reporting\Presentation\Http\Controllers\DoctorFeeSlipController;
 use Src\Reporting\Presentation\Http\Controllers\ReportController;
 use Src\Reporting\Presentation\Http\Controllers\ReportJobController;
 
@@ -13,6 +14,9 @@ use Src\Reporting\Presentation\Http\Controllers\ReportJobController;
 
 $job = '[0-9A-Z]{26}';
 $key = '[a-z-]+';
+
+// P2-09: slip jasa dokter hanya untuk pemegang laporan keuangan penuh; didaftarkan sebelum {key} agar tidak tertutup.
+Route::get('/reports/doctor-fees/slip', DoctorFeeSlipController::class)->middleware(['can:report.financial', 'throttle:30,1'])->name('reports.doctor-fees.slip');
 
 Route::middleware('can:reports.open')->group(function () use ($job, $key): void {
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

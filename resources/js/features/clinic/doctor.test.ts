@@ -12,6 +12,8 @@ const valid: DoctorFormValues = {
   fee_mode: 'percentage',
   fee_value: '30',
   fee_overrides: [],
+  fee_tiers: [],
+  fee_lab_share: '0',
   schedule: [{ weekday: 1, start: '09:00', end: '12:00' }],
 };
 
@@ -67,5 +69,51 @@ describe('MST-02 formulir dokter', () => {
     expect(basisPointsToPercent(3205)).toBe('32.05');
     expect(basisPointsToPercent(0)).toBe('0');
     expect(feeValueToText('fixed', 75000)).toBe('75000');
+  });
+});
+
+describe('P2-09 jasa bertingkat dan beban biaya lab', () => {
+  const tiers = (rows: { up_to: string; rate: string }[]) => issues({ ...valid, fee_tiers: rows });
+
+  it('menerima tingkat menaik dengan tingkat terakhir tanpa batas', () => {
+    expect(
+      tiers([
+        { up_to: '10000000', rate: '30' },
+        { up_to: '25000000', rate: '35' },
+        { up_to: '', rate: '40' },
+      ]),
+    ).toEqual([]);
+  });
+
+  it('menolak batas yang tidak menaik, tingkat terakhir bernilai batas, dan persen di atas 100', () => {
+    expect(
+      tiers([
+        { up_to: '10000000', rate: '30' },
+        { up_to: '5000000', rate: '35' },
+        { up_to: '', rate: '40' },
+      ]),
+    ).toContain('Batas harus lebih besar dari tingkat sebelumnya.');
+    expect(tiers([{ up_to: '10', rate: '30' }])).toContain(
+      'Tingkat terakhir tanpa batas; kosongkan isian ini.',
+    );
+    expect(
+      tiers([
+        { up_to: '10000', rate: '101' },
+        { up_to: '', rate: '40' },
+      ]),
+    ).toContain('Persentase harus 0 sampai 100 (maksimal dua desimal).');
+  });
+
+  it('batas berupa rupiah bulat dan beban lab 0 sampai 100 persen', () => {
+    expect(
+      tiers([
+        { up_to: '10.000', rate: '30' },
+        { up_to: '', rate: '40' },
+      ]),
+    ).toContain('Batas berupa rupiah bulat lebih dari nol.');
+    expect(issues({ ...valid, fee_lab_share: '50' })).toEqual([]);
+    expect(issues({ ...valid, fee_lab_share: '120' })).toContain(
+      'Beban biaya lab harus 0 sampai 100 persen.',
+    );
   });
 });

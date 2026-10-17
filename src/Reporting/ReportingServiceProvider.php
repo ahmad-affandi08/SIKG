@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Src\Reporting\Application\DoctorFeeStatementSource;
 use Src\Reporting\Application\ReportExportService;
 use Src\Reporting\Application\ReportFileStore;
 use Src\Reporting\Application\ReportJobDispatcher;
@@ -20,6 +21,7 @@ use Src\Reporting\Infrastructure\Console\PruneReportFilesCommand;
 use Src\Reporting\Infrastructure\EloquentReportJobStore;
 use Src\Reporting\Infrastructure\Export\DelegatingReportRenderer;
 use Src\Reporting\Infrastructure\PrivateReportFileStore;
+use Src\Reporting\Infrastructure\Queries\DoctorFeeQueries;
 use Src\Reporting\Infrastructure\Queries\EloquentOwnerDashboard;
 use Src\Reporting\Infrastructure\Queries\QueryReportLookups;
 use Src\Reporting\Infrastructure\QueueReportJobDispatcher;
@@ -46,6 +48,7 @@ final class ReportingServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(ReportLookups::class, QueryReportLookups::class);
+        $this->app->bind(DoctorFeeStatementSource::class, DoctorFeeQueries::class);
         $this->app->bind(OwnerDashboard::class, EloquentOwnerDashboard::class);
         $this->app->bind(ReportJobStore::class, EloquentReportJobStore::class);
         $this->app->bind(ReportFileStore::class, PrivateReportFileStore::class);

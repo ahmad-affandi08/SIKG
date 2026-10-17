@@ -124,6 +124,19 @@ export default function Show({ report, filters, options, scope, description }: P
           }}
         />
 
+        {report.key === 'doctor-fees' && filters.doctor_id !== '' ? (
+          <p>
+            <a
+              className="btn btn-secondary"
+              href={`/reports/doctor-fees/slip?${new URLSearchParams({ doctor_id: filters.doctor_id, from: filters.from, to: filters.to }).toString()}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Cetak slip jasa dokter
+            </a>
+          </p>
+        ) : null}
+
         <ReportView report={report} />
       </main>
     </AppLayout>

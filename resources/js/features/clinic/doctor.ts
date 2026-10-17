@@ -44,6 +44,13 @@ export const doctorFormSchema = z
         value: z.string(),
       }),
     ),
+    fee_tiers: z.array(
+      z.object({
+        up_to: z.string(),
+        rate: z.string(),
+      }),
+    ),
+    fee_lab_share: z.string(),
     schedule: z.array(scheduleSlotSchema),
   })
   .superRefine((values, ctx) => {
@@ -68,6 +75,60 @@ export const doctorFormSchema = z
       }
       codes.add(code);
     });
+
+    let previous = 0;
+    values.fee_tiers.forEach((tier, index) => {
+      const last = index === values.fee_tiers.length - 1;
+      const rate = tier.rate.trim();
+      if (!PERCENT.test(rate) || Number(rate) > 100) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['fee_tiers', index, 'rate'],
+          message: 'Persentase harus 0 sampai 100 (maksimal dua desimal).',
+        });
+      }
+      const upTo = tier.up_to.trim();
+      if (last) {
+        if (upTo !== '') {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['fee_tiers', index, 'up_to'],
+            message: 'Tingkat terakhir tanpa batas; kosongkan isian ini.',
+          });
+        }
+        return;
+      }
+      if (!/^\d{1,12}$/.test(upTo) || Number(upTo) < 1) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['fee_tiers', index, 'up_to'],
+          message: 'Batas berupa rupiah bulat lebih dari nol.',
+        });
+      } else if (Number(upTo) <= previous) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['fee_tiers', index, 'up_to'],
+          message: 'Batas harus lebih besar dari tingkat sebelumnya.',
+        });
+      } else {
+        previous = Number(upTo);
+      }
+    });
+    if (values.fee_tiers.length > 6) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['fee_tiers'],
+        message: 'Jasa bertingkat paling banyak 6 tingkat.',
+      });
+    }
+    const share = values.fee_lab_share.trim();
+    if (share !== '' && (!PERCENT.test(share) || Number(share) > 100)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['fee_lab_share'],
+        message: 'Beban biaya lab harus 0 sampai 100 persen.',
+      });
+    }
 
     values.schedule.forEach((slot, index) => {
       if (slot.end <= slot.start) {

@@ -9,7 +9,7 @@ import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
 import { TimePicker } from '@/components/ui/TimePicker';
-import { doctorFormSchema, feeValueToText } from '@/features/clinic/doctor';
+import { basisPointsToPercent, doctorFormSchema, feeValueToText } from '@/features/clinic/doctor';
 import type { DoctorFormValues } from '@/features/clinic/doctor';
 import { WEEKDAYS } from '@/features/clinic/schemas';
 
@@ -26,7 +26,12 @@ interface Props {
     specialty: string | null;
     branch_id: string | null;
     user_id: string | null;
-    fee_scheme: { default: RuleDto; overrides: Record<string, RuleDto> };
+    fee_scheme: {
+      default: RuleDto;
+      overrides: Record<string, RuleDto>;
+      tiers?: { up_to: number | null; rate_bp: number }[];
+      lab_share_bp?: number;
+    };
     schedule: { weekday: number; start: string; end: string }[];
   } | null;
   branches: SelectOption[];
@@ -45,6 +50,8 @@ function initialValues(doctor: Props['doctor']): DoctorFormValues {
       fee_mode: 'percentage',
       fee_value: '0',
       fee_overrides: [],
+      fee_tiers: [],
+      fee_lab_share: '0',
       schedule: [],
     };
   }
@@ -61,6 +68,11 @@ function initialValues(doctor: Props['doctor']): DoctorFormValues {
       mode: rule.mode,
       value: feeValueToText(rule.mode, rule.value),
     })),
+    fee_tiers: (doctor.fee_scheme.tiers ?? []).map((tier) => ({
+      up_to: tier.up_to === null ? '' : String(tier.up_to),
+      rate: basisPointsToPercent(tier.rate_bp),
+    })),
+    fee_lab_share: basisPointsToPercent(doctor.fee_scheme.lab_share_bp ?? 0),
     schedule: doctor.schedule,
   };
 }
@@ -96,6 +108,13 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
     form.setData(
       'fee_overrides',
       form.data.fee_overrides.map((row, i) => (i === index ? { ...row, ...patch } : row)),
+    );
+  }
+
+  function patchTier(index: number, patch: Partial<DoctorFormValues['fee_tiers'][number]>) {
+    form.setData(
+      'fee_tiers',
+      form.data.fee_tiers.map((tier, i) => (i === index ? { ...tier, ...patch } : tier)),
     );
   }
 
@@ -253,6 +272,88 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
                 Tambah pengecualian
               </Button>
             </div>
+
+            <h2>Jasa bertingkat (opsional)</h2>
+            <p className="text-muted text-sm">
+              Persentase tiap tingkat berlaku untuk bagian produksi tindakan bulanan di dalam
+              batasnya. Tindakan yang punya pengecualian di atas tidak ikut bertingkat. Bila diisi,
+              tingkat ini menggantikan nilai bawaan untuk tindakan tanpa pengecualian. Tingkat
+              terakhir tanpa batas.
+            </p>
+            {error('fee_tiers') ? (
+              <p role="alert" className="text-danger-600 text-sm">
+                {error('fee_tiers')}
+              </p>
+            ) : null}
+            {form.data.fee_tiers.map((tier, index) => {
+              const last = index === form.data.fee_tiers.length - 1;
+              return (
+                <div key={index} className="card flex flex-wrap items-end gap-3 p-3">
+                  <TextField
+                    field={`fee_tiers.${String(index)}.up_to`}
+                    label={
+                      last
+                        ? `Batas tingkat ${String(index + 1)} (tanpa batas)`
+                        : `Sampai produksi (Rp) ${String(index + 1)}`
+                    }
+                    inputMode="numeric"
+                    disabled={last}
+                    value={last ? '' : tier.up_to}
+                    onChange={(event) => {
+                      patchTier(index, { up_to: event.target.value });
+                    }}
+                    error={error(`fee_tiers.${String(index)}.up_to`)}
+                  />
+                  <TextField
+                    field={`fee_tiers.${String(index)}.rate`}
+                    label={`Persen jasa ${String(index + 1)}`}
+                    inputMode="decimal"
+                    value={tier.rate}
+                    onChange={(event) => {
+                      patchTier(index, { rate: event.target.value });
+                    }}
+                    error={error(`fee_tiers.${String(index)}.rate`)}
+                  />
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      form.setData(
+                        'fee_tiers',
+                        form.data.fee_tiers.filter((_, i) => i !== index),
+                      );
+                    }}
+                  >
+                    {`Hapus tingkat ${String(index + 1)}`}
+                  </Button>
+                </div>
+              );
+            })}
+            <div>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  form.setData('fee_tiers', [...form.data.fee_tiers, { up_to: '', rate: '0' }]);
+                }}
+              >
+                Tambah tingkat
+              </Button>
+            </div>
+
+            <h2>Beban biaya lab</h2>
+            <TextField
+              field="fee_lab_share"
+              label="Bagian biaya lab yang dipotong dari jasa (%)"
+              inputMode="decimal"
+              value={form.data.fee_lab_share}
+              onChange={(event) => {
+                form.setData('fee_lab_share', event.target.value);
+              }}
+              error={error('fee_lab_share')}
+            />
+            <p className="text-muted text-sm">
+              0 berarti biaya lab ditanggung klinik; 100 berarti seluruh biaya lab pesanan dokter
+              ini dipotong dari jasanya pada bulan pekerjaan lab diterima.
+            </p>
           </fieldset>
 
           <fieldset className="form-grid">
