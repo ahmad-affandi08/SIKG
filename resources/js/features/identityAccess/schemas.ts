@@ -27,3 +27,32 @@ export const userFormSchema = z.object({
 });
 
 export type UserFormValues = z.infer<typeof userFormSchema>;
+
+export const PASSWORD_MIN_LENGTH = 10;
+
+/** Aturan kata sandi baru (AUTH-06); server memvalidasi ulang dan berwenang. */
+export const changePasswordSchema = z
+  .object({
+    current_password: z
+      .string()
+      .min(1, 'Kata sandi saat ini wajib diisi.')
+      .max(255, 'Terlalu panjang.'),
+    password: z
+      .string()
+      .min(1, 'Kata sandi baru wajib diisi.')
+      .min(PASSWORD_MIN_LENGTH, `Kata sandi baru minimal ${String(PASSWORD_MIN_LENGTH)} karakter.`)
+      .max(255, 'Terlalu panjang.')
+      .regex(/\p{L}/u, 'Kata sandi baru harus memuat huruf.')
+      .regex(/\d/, 'Kata sandi baru harus memuat angka.'),
+    password_confirmation: z.string(),
+  })
+  .refine((v) => v.password === v.password_confirmation, {
+    path: ['password_confirmation'],
+    message: 'Konfirmasi kata sandi tidak sama.',
+  })
+  .refine((v) => v.password !== v.current_password, {
+    path: ['password'],
+    message: 'Kata sandi baru harus berbeda dari kata sandi saat ini.',
+  });
+
+export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;

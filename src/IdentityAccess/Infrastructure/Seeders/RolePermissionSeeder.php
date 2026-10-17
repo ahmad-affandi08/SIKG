@@ -14,7 +14,8 @@ use Src\IdentityAccess\Domain\Role;
 
 /**
  * Mengisi peran dan izin bawaan dari matriks PRD. Aman dijalankan berulang (tidak menggandakan).
- * Catatan: menyelaraskan ulang izin peran ke bawaan; penyesuaian pemilik klinik dikelola lewat antarmuka peran (AUTH-02).
+ * Peran yang sudah disesuaikan Pemilik lewat halaman Peran dan izin (AUTH-07, `customized_at`) tidak ditimpa; izin barunya
+ * diberikan lewat halaman itu. Peran bawaan yang belum disesuaikan diselaraskan ke matriks.
  */
 final class RolePermissionSeeder extends Seeder
 {
@@ -28,6 +29,9 @@ final class RolePermissionSeeder extends Seeder
 
         foreach (Role::cases() as $role) {
             $model = RoleModel::findOrCreate($role->value, 'web');
+            if ($model->getAttribute('customized_at') !== null) {
+                continue;
+            }
             $model->syncPermissions(array_map(
                 static fn (Permission $p): string => $p->value,
                 DefaultRolePermissions::for($role),

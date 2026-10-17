@@ -22,6 +22,9 @@ use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
  * @property string $email
  * @property string $username
  * @property bool $is_active
+ * @property bool $must_change_password
+ * @property string $password
+ * @property Carbon|null $password_changed_at
  * @property Carbon|null $last_login_at
  */
 class User extends Authenticatable
@@ -56,6 +59,8 @@ class User extends Authenticatable
     {
         return [
             'is_active' => 'boolean',
+            'must_change_password' => 'boolean',
+            'password_changed_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];

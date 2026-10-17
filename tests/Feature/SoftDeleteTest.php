@@ -157,6 +157,8 @@ it('SYS-03 tidak ada kode aplikasi yang menghapus permanen: setiap delete() terd
         'src/Patient/Infrastructure/EloquentPatientRepository.php' => 4,      // arsip pasien (juga pasien ganda yang digabung), riwayat medis, wali (soft delete)
         'src/Clinical/Infrastructure/EloquentTreatmentPlanRepository.php' => 1, // langkah rencana perawatan (soft delete)
         'src/Patient/Infrastructure/Import/PrivateImportFileStore.php' => 2,  // berkas impor sementara di disk
+        'src/IdentityAccess/Infrastructure/EloquentAccountSecurity.php' => 1,    // sesi login lama pengguna (tabel sessions, bukan data klinis atau keuangan)
+        'src/IdentityAccess/Infrastructure/EloquentUserAdministration.php' => 1, // sesi login lama pengguna yang kata sandinya direset
         'src/Patient/Application/Import/ProcessImportChunk.php' => 1,         // berkas impor sementara via port
         'src/Patient/Application/Import/StartPatientImport.php' => 1,         // berkas impor sementara via port
         'src/Billing/Infrastructure/EloquentInvoiceRepository.php' => 1,      // item tagihan (soft delete)

@@ -21,7 +21,7 @@ export default function Credential({ name, username, temporaryPassword }: Props)
         <h1>Kata sandi sementara</h1>
         <Alert tone="warning">
           Catat dan serahkan sekarang. Kata sandi ini tidak akan ditampilkan lagi; bila hilang,
-          lakukan reset.
+          lakukan reset. Pengguna akan diminta menggantinya saat masuk pertama kali.
         </Alert>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
           <dt className="font-medium">Nama</dt>

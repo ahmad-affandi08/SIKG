@@ -59,12 +59,14 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Dokumen yang bertabrakan atau kurang: kalimat itu ada di PRD, tetapi tidak ada ID yang meminta halaman untuk mengubah izin per peran (AUTH-02 hanya meminta peran dan izin granular, dicek di backend, dan menu disembunyikan; AUTH-03 hanya mengelola pengguna). Izin dan peran sudah disimpan di database sehingga dapat diubah tanpa kode, tetapi belum ada layarnya
 - Opsi: (a) tambah ID baru (mis. halaman Pengguna dan peran: ubah izin per peran, dengan perlindungan agar Pemilik tidak kehilangan `user.manage` dan `role.manage`); (b) cukup lewat seeder dan perubahan data oleh pengembang pada Fase 1
 - Rekomendasi: (a) sebagai Should, dikerjakan setelah Must Fase 1; jangan dibangun sebelum disetujui (M14)
+- Keputusan: (a) disetujui pengguna dan dikerjakan sebagai AUTH-07 (Should); asumsi rinci di Q-25
 
 ### Q-9: Pergantian kata sandi oleh pengguna sendiri
 - Kebutuhan terkait: AUTH-03, AUTH-01
 - Dokumen yang kurang: PRD hanya meminta admin membuat pengguna dan mereset kata sandi (kata sandi sementara tampil sekali kepada admin). Tidak ada ID untuk pengguna mengganti kata sandinya sendiri atau memaksa ganti saat masuk pertama, sehingga admin mengetahui kata sandi sementara itu sampai direset lagi
 - Opsi: (a) tambah ID (ganti kata sandi sendiri dan wajib ganti setelah reset); (b) biarkan, dengan prosedur bahwa admin mereset lagi bila perlu
 - Rekomendasi: (a) sebagai Must kecil, karena menyangkut kerahasiaan akun tenaga kesehatan (Permenkes 24/2022 Pasal 29)
+- Keputusan: (a) disetujui pengguna dan dikerjakan sebagai AUTH-06 (Must kecil); asumsi rinci di Q-25
 
 ### Q-10: Sumber nama diagnosa ICD-10 bab K00-K14
 - Kebutuhan terkait: MST-07, RM-04
@@ -78,6 +80,7 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Asumsi yang dipakai: `doctors.fee_scheme` JSON berisi `default` (`mode` `percentage` dengan `value` basis poin, atau `fixed` dengan `value` rupiah per tindakan) dan `overrides` per kode tindakan dengan bentuk aturan yang sama. Hanya disimpan dan ditampilkan; belum ada perhitungan jasa di laporan (itu P2-09)
 - Opsi: (a) pertahankan asumsi ini; (b) pemilik klinik menjawab butir 8 lalu skema diubah lewat migrasi
 - Rekomendasi: (b) sebelum KSR/LAP memakai data ini
+- Keputusan sementara: (a) dipertahankan. LAP-03 sudah memakai skema ini (Q-23 butir 5) dan menampilkan catatan asumsinya. Ini keputusan bisnis pemilik klinik, bukan teknis, sehingga tetap terbuka sampai pemilik menjawab tiga hal: (1) jasa dokter berupa persentase, jumlah tetap per tindakan, atau gabungan; (2) dihitung dari tagihan terbit atau saat dibayar lunas; (3) apakah biaya laboratorium atau bahan dipotong lebih dulu. Skema yang berbeda diubah lewat migrasi `doctors.fee_scheme` dan `FeeScheme`, tanpa mengubah laporan lain
 
 ### Q-12: Penyimpangan kecil pada modul pasien (dikerjakan dengan asumsi)
 - Kebutuhan terkait: PAS-01, PAS-02, PAS-03, PAS-04
@@ -171,6 +174,18 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
   5. **RM-09 dan RM-10.** Dokumen dicetak dari templat; yang disimpan adalah salinan teks akhir beserta nama dan SIP dokter, hanya-tambah (koreksi berarti menerbitkan dokumen baru). Nomor IC/SKD/RJK per tahun menurut zona klinik. Izin: informed consent bagi pemegang `encounter.write` atau `record.print`; surat keterangan dan rujukan bagi pemegang `encounter.close` atau `record.print`; melihat dan mencetak butuh `encounter.view`. Templat bawaan tersedia tanpa konfigurasi; Admin (`setting.manage`) dapat membuat templat sendiri dan penanda yang tidak dikenal ditolak. Teks yang masih memuat `{{...}}` tidak dapat diterbitkan. Tanda tangan pasien dan dokter adalah tanda tangan basah di kertas; tanda tangan digital di luar lingkup.
   6. Kebutuhan PAS-07, RM-06, RM-09, RM-10, ODO-05, dan ODO-06 dicentang di `docs/STATUS.md`. Perubahan `tests/Feature/SoftDeleteTest.php` hanya mendaftarkan `clinical_documents` sebagai hanya-tambah dan repository baru pada daftar pengecualian, tanpa melonggarkan aturan.
 - Opsi: (a) pertahankan asumsi di atas; (b) pengguna menetapkan lain per butir (terutama butir 2 bila Perawat atau Admin juga perlu membuat rencana)
+- Rekomendasi: (a)
+
+### Q-25: Keputusan asumsi AUTH-06 dan AUTH-07
+- Kebutuhan terkait: AUTH-06, AUTH-07, AUTH-02, AUTH-03, M9, M10, M11, Q-8, Q-9
+- Butir:
+  1. **AUTH-06 ganti kata sandi sendiri.** Setiap pengguna aktif dapat membuka `/account/password` (gerbang `account.password`, bukan izin peran) dan harus mengisi kata sandi saat ini; kata sandi baru minimal 10 karakter, memuat huruf dan angka, berbeda dari yang lama, dengan konfirmasi. Percobaan dibatasi 6 per menit. Daftar kata sandi bocor (layanan luar) tidak dipakai karena menambah ketergantungan eksternal (M21). Setelah berhasil, sesi pengguna itu di perangkat lain diakhiri (sesi lewat database), token ingat-saya dibuang, dan `user.password_changed` tercatat tanpa kata sandi; kegagalan tercatat `user.password_change_failed`.
+  2. **Wajib ganti.** Akun baru dan akun hasil reset memakai kata sandi sementara dengan `must_change_password`; sebelum diganti, semua halaman dialihkan ke halaman ganti kata sandi (permintaan JSON mendapat 403 `auth.password_change_required`) kecuali keluar. Reset oleh Admin juga mengakhiri sesi lama pengguna itu. Akun yang sudah ada sebelum perubahan ini tidak dipaksa.
+  3. **AUTH-07 peran dan izin.** Halaman `/settings/roles` dibuka pemegang `role.manage` (Pemilik dan Admin menurut matriks). Setiap izin ditampilkan dengan penjelasan Indonesia per modul dan ditandai bila berbeda dari bawaan. Hanya Pemilik yang mengubah peran Pemilik (selaras aturan pengguna), dan peran Pemilik tidak pernah kehilangan `user.view`, `user.manage`, dan `role.manage` agar klinik tidak terkunci. Perubahan berlaku pada permintaan berikutnya pengguna terkait dan tercatat sebagai `role.permissions_changed` (sebelum, sesudah, ditambah, dicabut) atau `role.permissions_reset`.
+  4. **Seeder tidak menimpa penyesuaian.** Kolom `roles.customized_at` menandai peran yang disesuaikan; seeder melewati peran itu. Konsekuensinya, izin baru yang ditambahkan kode pada rilis berikutnya tidak otomatis masuk ke peran yang sudah disesuaikan dan harus dicentang lewat halaman ini (atau dengan Kembalikan ke bawaan). Peran bersifat global, bukan per klinik, sesuai skema izin yang ada.
+  5. Perubahan pada tes yang sudah ada: tidak ada yang dilonggarkan. `RouteAuthorizationCoverageTest` tetap tanpa pengecualian baru karena route akun memakai gerbang `account.password`; `SoftDeleteTest` hanya mendaftarkan dua penghapusan baris sesi login lama (tabel `sessions`), bukan data klinis atau keuangan.
+  6. AUTH-06 dicatat sebagai Must Fase 1 (Must menjadi 55 dari 55) dan AUTH-07 sebagai Should di `docs/STATUS.md`; dokumen PRD tidak diubah.
+- Opsi: (a) pertahankan asumsi di atas; (b) pengguna menetapkan lain per butir (mis. panjang minimal kata sandi atau memaksa ganti berkala)
 - Rekomendasi: (a)
 
 ### Q-7: Tabel pengguna bawaan skeleton Laravel

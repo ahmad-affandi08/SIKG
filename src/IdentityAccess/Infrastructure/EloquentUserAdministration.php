@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Src\IdentityAccess\Infrastructure;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Src\Clinic\Contracts\BranchDirectory;
@@ -105,6 +106,7 @@ final readonly class EloquentUserAdministration implements UserAdministration
                 'email' => $data->email,
                 'username' => $data->username,
                 'password' => $password,
+                'must_change_password' => true,
                 'is_active' => true,
                 'created_by' => $actor->id,
             ])->save();
@@ -181,7 +183,9 @@ final readonly class EloquentUserAdministration implements UserAdministration
         $password = $this->generatePassword();
 
         $this->tx->run(function () use ($actor, $target, $password): void {
-            $target->forceFill(['password' => $password, 'remember_token' => null, 'updated_by' => $actor->id])->save();
+            $target->forceFill(['password' => $password, 'must_change_password' => true, 'remember_token' => null, 'updated_by' => $actor->id])->save();
+            // Sesi lama pengguna itu berakhir; ia harus masuk dengan kata sandi sementara lalu menggantinya (AUTH-06).
+            DB::table((string) config('session.table', 'sessions'))->where('user_id', $target->id)->delete();
             $this->audit->record(new AuditEntry($actor->id, 'user.password_reset', 'user', $target->id));
         });
 

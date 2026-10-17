@@ -46,6 +46,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Pengaturan',
   },
   {
+    label: 'Peran dan izin',
+    href: '/settings/roles',
+    permission: 'role.manage',
+    group: 'Pengaturan',
+  },
+  {
     label: 'Profil klinik',
     href: '/settings/profile',
     permission: 'setting.manage',
@@ -107,6 +113,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     permission: 'setting.manage',
     group: 'Pengaturan',
   },
+  { label: 'Ganti kata sandi', href: '/account/password', group: 'Akun' },
 ];
 
 /**

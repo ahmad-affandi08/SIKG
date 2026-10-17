@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { loginSchema, userFormSchema } from '@/features/identityAccess/schemas';
+import {
+  changePasswordSchema,
+  loginSchema,
+  userFormSchema,
+} from '@/features/identityAccess/schemas';
 
 describe('AUTH-01 skema form login', () => {
   it('menerima email atau nama pengguna dengan kata sandi', () => {
@@ -57,5 +61,52 @@ describe('AUTH-03 skema form pengguna', () => {
 
   it('menolak nama pengguna dengan spasi', () => {
     expect(userFormSchema.safeParse({ ...valid, username: 'a b' }).success).toBe(false);
+  });
+});
+
+describe('AUTH-06 skema ganti kata sandi', () => {
+  const valid = {
+    current_password: 'kata-lama-123',
+    password: 'KataBaruAman2024',
+    password_confirmation: 'KataBaruAman2024',
+  };
+  const messages = (input: object) => {
+    const result = changePasswordSchema.safeParse(input);
+    return result.success ? [] : result.error.issues.map((issue) => issue.message);
+  };
+
+  it('menerima kata sandi yang memenuhi aturan', () => {
+    expect(changePasswordSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it.each([
+    [
+      'terlalu pendek',
+      { password: 'Pendek1', password_confirmation: 'Pendek1' },
+      'Kata sandi baru minimal 10 karakter.',
+    ],
+    [
+      'tanpa angka',
+      { password: 'HurufSajaPanjang', password_confirmation: 'HurufSajaPanjang' },
+      'Kata sandi baru harus memuat angka.',
+    ],
+    [
+      'tanpa huruf',
+      { password: '12345678901234', password_confirmation: '12345678901234' },
+      'Kata sandi baru harus memuat huruf.',
+    ],
+    [
+      'konfirmasi beda',
+      { password_confirmation: 'Lain12345678' },
+      'Konfirmasi kata sandi tidak sama.',
+    ],
+    [
+      'sama dengan lama',
+      { password: 'kata-lama-123', password_confirmation: 'kata-lama-123' },
+      'Kata sandi baru harus berbeda dari kata sandi saat ini.',
+    ],
+    ['kata sandi lama kosong', { current_password: '' }, 'Kata sandi saat ini wajib diisi.'],
+  ])('menolak %s', (_label, override, message) => {
+    expect(messages({ ...valid, ...override })).toContain(message);
   });
 });

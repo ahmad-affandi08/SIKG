@@ -12,6 +12,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] AUTH-02 | M | Peran dan izin granular per modul sesuai matriks bagian 4
 - [x] AUTH-03 | M | Kelola pengguna
 - [x] AUTH-04 | M | Sesi berakhir otomatis setelah tidak aktif (default 30 menit, dapat diatur)
+- [x] AUTH-06 | M | Pengguna mengganti kata sandinya sendiri; kata sandi sementara wajib diganti saat masuk pertama (Q-9)
 - [x] MST-01 | M | Profil klinik
 - [x] MST-02 | M | Dokter
 - [x] MST-03 | M | Kursi atau unit perawatan, dapat dinonaktifkan
@@ -66,6 +67,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 ### Should
 
 - [ ] AUTH-05 | S | Autentikasi dua faktor (TOTP) opsional untuk Pemilik dan Admin
+- [x] AUTH-07 | S | Halaman Peran dan izin: Pemilik dan Admin menyesuaikan izin per peran, tercatat di audit log (Q-8)
 - [x] PAS-07 | S | Penggabungan data pasien ganda oleh Admin, tercatat di audit log
 - [x] JDW-06 | S | Papan antrean untuk resepsionis dan layar dokter, diperbarui otomatis maksimal ...
 - [ ] JDW-07 | S | Pengingat WhatsApp H-1 dan hari-H

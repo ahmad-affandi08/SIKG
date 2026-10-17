@@ -52,6 +52,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/cash-closings',
       '/reports',
       '/settings/users',
+      '/settings/roles',
       '/settings/profile',
       '/settings/clinic',
       '/settings/doctors',
@@ -64,6 +65,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/audit',
       '/audit/access',
       '/settings/system',
+      '/account/password',
     ]);
   });
 });
