@@ -103,6 +103,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan; (b) pengguna menetapkan izin persetujuan addendum dan perlakuan draf otomatis
 - Rekomendasi: (a) sementara; (b) sebelum go-live
 
+### Q-16: Odontogram: asumsi model data
+- Kebutuhan terkait: ODO-01 sampai ODO-04
+- Butir: (1) Snapshot kunjungan hanya memuat perubahan yang dicatat pada kunjungan itu; odontogram terkini dihitung dari entri terbaru tiap pasangan gigi dan permukaan lintas snapshot (sesuai aturan basis data). Kondisi seluruh gigi (permukaan `W`) menimpa semua entri permukaan yang dicatat lebih dulu atau bersamaan. (2) "Menghapus" kondisi dilakukan dengan menetapkan kondisi Sehat (SEH); baris odontogram tidak dihapus (M5). (3) Setiap kondisi memiliki cakupan (per permukaan, seluruh gigi, atau keduanya) yang dijaga server; cakupan bawaan: karies dan tambalan per permukaan; mahkota, perawatan saluran akar, impaksi, hilang, sisa akar, implan, gigi tiruan seluruh gigi; sehat dan lainnya keduanya. (4) Kode kondisi tidak dapat diubah setelah dibuat karena snapshot menyimpan kode, bukan id. (5) Odontogram hanya dapat diubah selama kunjungan berjalan; setelah ditutup terkunci (koreksi lewat addendum teks). (6) Daftar kondisi bawaan dibuat otomatis saat klinik dibuat (dan lewat migrasi untuk klinik yang sudah ada). (7) Tabel `odontogram_tooth_states` mendapat `set_by` dan `set_at` untuk menentukan urutan entri.
+- Opsi: (a) pertahankan; (b) pengguna menetapkan daftar kondisi bawaan dan aturan cakupan lain
+- Rekomendasi: (a)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

@@ -21,6 +21,7 @@ import type {
   ProcedureEntry,
   Warning,
 } from '@/features/clinical/components/EncounterPanels';
+import { OdontogramBoard } from '@/features/clinical/odontogram/OdontogramBoard';
 import { formatDateTime } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
 
@@ -45,12 +46,20 @@ interface Props {
   medical_history: Warning[];
   chairs: SelectOption[];
   jaws: SelectOption[];
-  can: { write: boolean; start: boolean; close: boolean; addendum: boolean; prescribe: boolean };
+  can: {
+    write: boolean;
+    start: boolean;
+    close: boolean;
+    addendum: boolean;
+    prescribe: boolean;
+    odontogram: boolean;
+  };
 }
 
 const TABS = [
   { key: 'anamnesis', label: 'Anamnesis' },
   { key: 'soap', label: 'Catatan SOAP' },
+  { key: 'odontogram', label: 'Odontogram' },
   { key: 'diagnosis', label: 'Diagnosa' },
   { key: 'procedures', label: 'Tindakan' },
   { key: 'addenda', label: 'Addendum dan riwayat' },
@@ -179,6 +188,13 @@ export default function Show(props: Props) {
               encounter={encounter}
               notes={notes}
               canWrite={can.write}
+            />
+          ) : null}
+          {tab === 'odontogram' ? (
+            <OdontogramBoard
+              patientId={encounter.patient_id}
+              encounterId={encounter.id}
+              canWrite={can.odontogram && !encounter.is_closed}
             />
           ) : null}
           {tab === 'diagnosis' ? (

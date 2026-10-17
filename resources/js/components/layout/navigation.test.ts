@@ -45,6 +45,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/settings/doctors',
       '/settings/master/chairs',
       '/settings/master/procedures',
+      '/settings/master/tooth-conditions',
       '/settings/master/payment-methods',
       '/settings/master/medicines',
       '/settings/system',

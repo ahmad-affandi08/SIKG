@@ -27,43 +27,6 @@ afterEach(function () {
     Carbon::setTestNow();
 });
 
-/**
- * Janji yang sudah check-in sehingga kunjungan terbuat otomatis.
- *
- * @return array<string, mixed>
- */
-function siapKunjungan(): array
-{
-    $s = siapJadwal();
-    $janjiId = bukaJanji($s);
-    test()->actingAs($s['user'])->post("/appointments/{$janjiId}/check-in")->assertSessionHasNoErrors();
-    tenant()->set($s['klinik']->id);
-    $kunjungan = EncounterModel::query()->where('appointment_id', $janjiId)->firstOrFail();
-
-    return $s + [
-        'janji' => $janjiId,
-        'kunjungan' => $kunjungan->id,
-        'dokter_user' => makeUser(Role::Dokter, $s['klinik']),
-        'perawat' => makeUser(Role::Perawat, $s['klinik']),
-    ];
-}
-
-function tindakan(array $s, array $o = []): ProcedureModel
-{
-    tenant()->set($s['klinik']->id);
-    static $n = 0;
-    $n++;
-    $p = new ProcedureModel;
-    $p->forceFill(['code' => "TDK-{$n}", 'name' => "Tindakan {$n}", 'scope' => 'tooth', 'default_price_amount' => 150000, 'is_active' => true, ...$o])->save();
-
-    return $p;
-}
-
-function icd(string $kode = 'K02.1'): string
-{
-    return DiagnosisModel::query()->where('icd10_code', $kode)->firstOrFail()->id;
-}
-
 it('RM-01 kunjungan dibuat otomatis saat check-in dengan satu dokter utama', function () {
     $s = siapKunjungan();
 

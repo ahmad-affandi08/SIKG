@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 use Src\Clinical\Presentation\Http\Controllers\DiagnosisSearchController;
 use Src\Clinical\Presentation\Http\Controllers\EncounterController;
+use Src\Clinical\Presentation\Http\Controllers\OdontogramController;
 
 Route::middleware(['can:encounter.view', 'throttle:60,1'])->prefix('internal-api')->group(function (): void {
     Route::get('/diagnoses/search', DiagnosisSearchController::class);
@@ -39,4 +40,12 @@ Route::middleware('can:encounter.close')->group(function () use ($id): void {
 
 Route::middleware('can:encounter.addendum')->group(function () use ($id): void {
     Route::post('/encounters/{encounter}/addenda', [EncounterController::class, 'addendum'])->where('encounter', $id);
+});
+
+Route::middleware(['can:odontogram.view', 'throttle:120,1'])->prefix('internal-api')->group(function () use ($id): void {
+    Route::get('/patients/{patient}/odontogram', [OdontogramController::class, 'show'])->where('patient', $id);
+});
+
+Route::middleware(['can:odontogram.write', 'throttle:120,1'])->prefix('internal-api')->group(function () use ($id): void {
+    Route::put('/encounters/{encounter}/odontogram/teeth/{fdi}', [OdontogramController::class, 'update'])->where('encounter', $id)->where('fdi', '[0-9]{2}');
 });

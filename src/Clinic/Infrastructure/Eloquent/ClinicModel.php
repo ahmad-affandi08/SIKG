@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Src\Clinic\Domain\ClinicSettings;
+use Src\Clinic\Infrastructure\ToothConditionDefaults;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Infrastructure\Eloquent\UsesUlid;
 
@@ -33,6 +34,9 @@ final class ClinicModel extends Model
 
     protected static function booted(): void
     {
+        // Klinik baru langsung memiliki daftar kondisi gigi bawaan (ODO-03).
+        self::created(fn (self $clinic) => ToothConditionDefaults::seed($clinic->id));
+
         // Pengguna hanya melihat kliniknya sendiri; tanpa konteks tidak melihat apa pun (gagal tertutup).
         self::addGlobalScope('klinik-sendiri', function (Builder $builder): void {
             $clinicId = app(TenantContext::class)->clinicId();

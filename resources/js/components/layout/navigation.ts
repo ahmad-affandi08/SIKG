@@ -35,6 +35,11 @@ export const NAV_ITEMS: readonly NavItem[] = [
     permission: 'tariff.view',
   },
   {
+    label: 'Kondisi gigi',
+    href: '/settings/master/tooth-conditions',
+    permission: 'setting.manage',
+  },
+  {
     label: 'Metode pembayaran',
     href: '/settings/master/payment-methods',
     permission: 'setting.manage',

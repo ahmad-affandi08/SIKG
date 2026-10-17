@@ -32,6 +32,7 @@ final class EncounterController
                 'close' => (bool) $request->user()?->can('encounter.close'),
                 'addendum' => (bool) $request->user()?->can('encounter.addendum'),
                 'prescribe' => (bool) $request->user()?->can('prescription.create'),
+                'odontogram' => (bool) $request->user()?->can('odontogram.write'),
             ],
             'surfaces' => array_map(fn (Surface $s) => ['value' => $s->value, 'label' => $s->label()], Surface::faces()),
             'jaws' => array_map(fn (Jaw $j) => ['value' => $j->value, 'label' => $j->label()], Jaw::cases()),
