@@ -110,3 +110,29 @@ export const historyFormSchema = z.object({
 });
 
 export type HistoryFormValues = z.infer<typeof historyFormSchema>;
+
+/**
+ * JDW-07: kontak pengingat. Persetujuan pengingat butuh sedikitnya satu saluran; Telegram yang sudah tertaut dihitung dari
+ * server (`telegramLinked`), sedangkan email diperiksa di sini.
+ */
+export function buildContactSchema(options: { telegramLinked: boolean }) {
+  return z
+    .object({
+      email: z.string().trim().max(255, 'Terlalu panjang.'),
+      reminders_opt_in: z.boolean(),
+    })
+    .superRefine((v, ctx) => {
+      if (v.email !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) {
+        ctx.addIssue({ code: 'custom', path: ['email'], message: 'Alamat email tidak valid.' });
+      }
+      if (v.reminders_opt_in && v.email === '' && !options.telegramLinked) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['reminders_opt_in'],
+          message: 'Isi email atau tautkan Telegram dahulu agar pengingat dapat dikirim.',
+        });
+      }
+    });
+}
+
+export type ContactFormValues = z.infer<ReturnType<typeof buildContactSchema>>;

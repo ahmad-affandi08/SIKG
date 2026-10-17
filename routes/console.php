@@ -37,6 +37,18 @@ Schedule::command('sikg:stock:alerts')
     ->everyThirtyMinutes()
     ->withoutOverlapping(20);
 
+// JDW-07: pengingat janji H-1 (mulai 09.00) dan hari kunjungan (mulai 07.00) ke pasien yang menyetujui; idempoten per janji.
+Schedule::command('sikg:appointments:remind')
+    ->name('sikg-appointment-reminders')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping(10);
+
+// JDW-07: membaca pesan masuk bot Telegram untuk menautkan pasien (polling, tanpa webhook; M21).
+Schedule::command('sikg:telegram:poll')
+    ->name('sikg-telegram-poll')
+    ->everyFiveMinutes()
+    ->withoutOverlapping(5);
+
 // SYS-05: pemberitahuan dalam aplikasi dipangkas setelah 90 hari.
 Schedule::command('sikg:notifications:prune')
     ->name('sikg-notifications-prune')

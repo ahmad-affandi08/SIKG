@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { ageOn, buildPatientSchema, historyFormSchema } from './schemas';
+import { ageOn, buildContactSchema, buildPatientSchema, historyFormSchema } from './schemas';
 import type { PatientFormValues } from './schemas';
 
 const TODAY = new Date(2025, 5, 15); // 15 Juni 2025
@@ -100,5 +100,23 @@ describe('PAS-04 formulir riwayat medis', () => {
       historyFormSchema.safeParse({ type: 'allergy', name: 'Penisilin', severity: '', notes: '' })
         .success,
     ).toBe(true);
+  });
+});
+
+describe('JDW-07 formulir kontak pengingat', () => {
+  it('persetujuan pengingat butuh email atau Telegram tertaut', () => {
+    const none = buildContactSchema({ telegramLinked: false });
+    expect(none.safeParse({ email: '', reminders_opt_in: true }).success).toBe(false);
+    expect(none.safeParse({ email: 'budi@contoh.id', reminders_opt_in: true }).success).toBe(true);
+    expect(
+      buildContactSchema({ telegramLinked: true }).safeParse({ email: '', reminders_opt_in: true })
+        .success,
+    ).toBe(true);
+  });
+
+  it('email yang diisi harus berbentuk alamat email', () => {
+    const schema = buildContactSchema({ telegramLinked: false });
+    expect(schema.safeParse({ email: 'bukan-email', reminders_opt_in: false }).success).toBe(false);
+    expect(schema.safeParse({ email: '', reminders_opt_in: false }).success).toBe(true);
   });
 });

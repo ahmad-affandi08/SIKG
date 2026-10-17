@@ -201,3 +201,24 @@ it('PAS-07 tombol gabung hanya muncul bagi yang berhak dan NIK tidak tampil utuh
     test()->actingAs($s['admin'])->get("/patients/{$s['utama']}")->assertInertia(fn ($p) => $p->where('can.merge', true));
     test()->actingAs($s['user'])->get("/patients/{$s['utama']}")->assertInertia(fn ($p) => $p->where('can.merge', false));
 });
+
+it('JDW-07 PAS-07 kontak pasien ganda berpindah ke pasien utama yang belum punya kontak', function () {
+    $s = siapGabung();
+    setujuiPengingat([...$s, 'pasien' => $s['ganda']]);
+
+    gabung($s)->assertSessionHasNoErrors();
+
+    expect(DB::table('patient_contacts')->where('patient_id', $s['utama'])->count())->toBe(1)->and(DB::table('patient_contacts')->where('patient_id', $s['ganda'])->count())->toBe(0);
+});
+
+it('JDW-07 PAS-07 bila pasien utama sudah punya kontak, kontak ganda dikosongkan', function () {
+    $s = siapGabung();
+    setujuiPengingat([...$s, 'pasien' => $s['ganda']], 'ganda@contoh.test', '111');
+    setujuiPengingat([...$s, 'pasien' => $s['utama']], 'utama@contoh.test', null);
+
+    gabung($s)->assertSessionHasNoErrors();
+
+    $ganda = DB::table('patient_contacts')->where('patient_id', $s['ganda'])->first();
+    expect($ganda->email_encrypted)->toBeNull()->and($ganda->telegram_chat_id_encrypted)->toBeNull()->and((bool) $ganda->reminders_opt_in)->toBeFalse()
+        ->and(DB::table('patient_contacts')->where('patient_id', $s['utama'])->value('email_encrypted'))->not->toBeNull();
+});

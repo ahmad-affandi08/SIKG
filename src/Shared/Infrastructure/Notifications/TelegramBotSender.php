@@ -18,6 +18,13 @@ final class TelegramBotSender implements TelegramSender
         return $this->token() !== '';
     }
 
+    public function botUsername(): ?string
+    {
+        $name = ltrim((string) config('sikg.telegram_bot_username'), '@');
+
+        return $name === '' ? null : $name;
+    }
+
     public function send(string $chatId, string $text): bool
     {
         if (! $this->configured() || $chatId === '') {

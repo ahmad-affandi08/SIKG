@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Src\Patient\Presentation\Http\Controllers\PatientContactController;
 use Src\Patient\Presentation\Http\Controllers\PatientController;
 use Src\Patient\Presentation\Http\Controllers\PatientImportController;
 use Src\Patient\Presentation\Http\Controllers\PatientMergeController;
@@ -33,6 +34,10 @@ Route::middleware('can:patient.update')->group(function (): void {
     Route::get('/patients/{patient}/edit', [PatientController::class, 'edit'])->where('patient', '[0-9A-Z]{26}');
     Route::put('/patients/{patient}', [PatientController::class, 'update'])->where('patient', '[0-9A-Z]{26}');
     Route::post('/patients/{patient}/consent', [PatientController::class, 'recordConsent'])->where('patient', '[0-9A-Z]{26}');
+    Route::get('/patients/{patient}/contact', [PatientContactController::class, 'show'])->name('patients.contact')->where('patient', '[0-9A-Z]{26}');
+    Route::put('/patients/{patient}/contact', [PatientContactController::class, 'update'])->where('patient', '[0-9A-Z]{26}');
+    Route::post('/patients/{patient}/contact/telegram-link', [PatientContactController::class, 'startLink'])->middleware('throttle:10,1')->where('patient', '[0-9A-Z]{26}');
+    Route::delete('/patients/{patient}/contact/telegram', [PatientContactController::class, 'unlink'])->where('patient', '[0-9A-Z]{26}');
 });
 
 Route::middleware('can:patient.delete')->group(function (): void {
