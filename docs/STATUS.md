@@ -66,18 +66,18 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 
 ### Should
 
-- [ ] AUTH-05 | S | Autentikasi dua faktor (TOTP) opsional untuk Pemilik dan Admin
+- [x] AUTH-05 | S | Autentikasi dua faktor (TOTP) opsional untuk Pemilik dan Admin
 - [x] AUTH-07 | S | Halaman Peran dan izin: Pemilik dan Admin menyesuaikan izin per peran, tercatat di audit log (Q-8)
 - [x] PAS-07 | S | Penggabungan data pasien ganda oleh Admin, tercatat di audit log
 - [x] JDW-06 | S | Papan antrean untuk resepsionis dan layar dokter, diperbarui otomatis maksimal ...
-- [ ] JDW-07 | S | Pengingat WhatsApp H-1 dan hari-H
+- [x] JDW-07 | S | Pengingat WhatsApp H-1 dan hari-H
 - [x] RM-06 | S | Rencana perawatan multi-kunjungan dengan estimasi biaya dan status tiap langkah ...
 - [x] RM-09 | S | Informed consent
 - [x] RM-10 | S | Surat keterangan dan rujukan dicetak dari template
 - [x] ODO-05 | S | Tindakan pada gigi dapat memperbarui kondisi gigi (contoh
 - [x] ODO-06 | S | Cetak odontogram ke PDF
 - [x] OBT-02 | S | Peringatan alergi
-- [ ] OBT-06 | S | Peringatan stok di bawah minimum dan obat yang kedaluwarsa dalam 30 hari
+- [x] OBT-06 | S | Peringatan stok di bawah minimum dan obat yang kedaluwarsa dalam 30 hari
 - [x] KSR-05 | S | Paket cicilan (contoh
 - [x] LAP-01 | S | Laporan ringkasan harian
 - [x] LAP-02 | S | Laporan pendapatan
@@ -92,9 +92,9 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 
 ### Could
 
-- [ ] ODO-07 | C | Bandingkan odontogram antar kunjungan berdampingan
+- [x] ODO-07 | C | Bandingkan odontogram antar kunjungan berdampingan
 - [x] KSR-09 | C | Pengaturan pajak opsional (default 0%)
-- [ ] SYS-05 | C | Notifikasi dalam aplikasi (janji baru, stok menipis)
+- [x] SYS-05 | C | Notifikasi dalam aplikasi (janji baru, stok menipis)
 
 ## Fase 2 (dimulai setelah Gerbang 2; P2-01 lebih dulu)
 

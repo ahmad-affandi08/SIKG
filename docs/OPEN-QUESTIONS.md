@@ -204,6 +204,20 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan; (b) pengguna menetapkan lain per butir (terutama butir 1 dan butir 3)
 - Rekomendasi: (a), dengan butir 1 ditinjau dokter atau pengurus PDGI setempat
 
+### Q-27: Keputusan asumsi notifikasi, ringkasan janji, perbandingan odontogram, dan verifikasi dua langkah
+- Kebutuhan terkait: SYS-05, OBT-06, JDW-07, ODO-07, AUTH-05; ADR-0010; M11, M13, M20, M21
+- Butir:
+  1. **JDW-07 bukan WhatsApp dan bukan ke pasien.** PRD menyebut pengingat WhatsApp H-1 dan hari-H. Atas permintaan pengguna, notifikasi memakai email atau Telegram dan hanya untuk pemilik dan staf. JDW-07 dipenuhi sebagai ringkasan janji hari ini dan besok (jumlah dan jam pertama, tanpa nama pasien) lewat notifikasi dalam aplikasi, email, dan grup Telegram klinik. Pasien tidak dihubungi otomatis dan nomor HP pasien tidak berubah. Pengaturan "pengingat aktif" di pengaturan klinik mematikan ringkasan ini.
+  2. **Integrasi Telegram dikerjakan sebelum Fase 2** (M20 melarang integrasi eksternal ad hoc) atas permintaan eksplisit pengguna. Ruangnya hanya pengiriman keluar lewat satu antarmuka (`TelegramSender`); tanpa webhook dan tanpa membaca pesan masuk.
+  3. **Token bot** (`TELEGRAM_BOT_TOKEN`) hanya dari lingkungan; `.env.example` memuat kuncinya kosong. Admin cukup mengisi ID obrolan grup di pengaturan klinik. Server perlu surel keluar (`MAIL_MAILER` selain `log`) agar email terkirim; tanpa itu hanya notifikasi dalam aplikasi dan Telegram yang jalan.
+  4. **Jadwal.** Notifikasi bergantung pada cron `schedule:run` (sudah dibutuhkan antrean dan cadangan). Peringatan stok terbit sekali per hari mulai 07.00 waktu klinik; ringkasan janji besok mulai 09.00 dan hari ini mulai 07.00.
+  5. **Notifikasi dipangkas setelah 90 hari** (`sikg:notifications:prune`); status baca disimpan per pengguna dan notifikasi disaring menurut izin pengguna.
+  6. **ODO-07** membandingkan keadaan odontogram sampai akhir dua kunjungan yang dipilih (semua entri kunjungan itu dan sebelumnya). Bawaan: dua kunjungan terbaru. Perbedaan dirinci per gigi dan per permukaan; kondisi seluruh gigi satu baris.
+  7. **AUTH-05** tanpa pustaka baru: TOTP RFC 6238 (HMAC-SHA1, 6 digit, 30 detik, toleransi satu langkah), diuji dengan vektor RFC. Tidak ada kode QR karena pembuatnya memerlukan pustaka; aplikasi menampilkan kunci setelan dan alamat otpauth untuk dimasukkan manual. Rahasia terenkripsi; kode pemulihan sepuluh buah berupa hash dan tampil sekali; satu kode TOTP tidak bisa dipakai dua kali; lima percobaan salah per menit. Verifikasi dua langkah tidak wajib. Pemilik atau Admin yang berwenang dapat mematikannya untuk pengguna yang kehilangan perangkat dan kode pemulihan (sesi pengguna itu berakhir, tercatat di audit); Admin tidak dapat melakukannya pada Pemilik.
+  8. **Perubahan pada tes yang sudah ada**: tidak ada yang dilonggarkan. `RouteAuthorizationCoverageTest` menambah `/login/two-factor` sebagai route publik karena hanya berlaku setelah kata sandi benar; `SoftDeleteTest` mendaftarkan penghapusan baris sesi login lama pada reset verifikasi dua langkah dan dua tabel notifikasi (hanya-tambah, dipangkas oleh perintah prune).
+- Opsi: (a) pertahankan asumsi di atas; (b) pengguna menetapkan lain per butir (terutama butir 1 bila pasien ingin dihubungi otomatis)
+- Rekomendasi: (a)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`
