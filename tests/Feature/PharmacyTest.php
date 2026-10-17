@@ -412,3 +412,22 @@ it('OBT izin resep: perawat melihat tetapi tidak membuat; resepsionis tidak meli
     test()->actingAs($b['dokter_user'])->post("/prescriptions/{$resep->id}/void", ['reason' => 'x'])->assertSessionHasErrors('domain');
     test()->actingAs($b['dokter_user'])->post("/encounters/{$a['kunjungan']}/prescriptions", ['items' => [barisResep($m)]])->assertSessionHasErrors('domain');
 });
+
+it('OBT-01 formulir resep adalah halaman sendiri; simpan kembali ke tab resep kunjungan', function () {
+    $s = siapKunjungan();
+    $m = makeMedicine($s['klinik']);
+
+    test()->actingAs($s['dokter_user'])->get("/encounters/{$s['kunjungan']}/prescriptions/create")->assertOk()->assertInertia(fn ($p) => $p
+        ->component('Encounters/PrescriptionForm')->where('encounter.id', $s['kunjungan'])->where('can.overrideStock', false));
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$s['kunjungan']}/prescriptions", ['items' => [barisResep($m)]])
+        ->assertRedirect("/encounters/{$s['kunjungan']}?tab=prescriptions");
+});
+
+it('OBT-01 formulir resep ditolak untuk yang tidak berhak dan setelah kunjungan ditutup', function () {
+    $s = siapKunjungan();
+    test()->actingAs(makeUser(Role::Kasir, $s['klinik']))->get("/encounters/{$s['kunjungan']}/prescriptions/create")->assertForbidden();
+
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$s['kunjungan']}/diagnoses", ['diagnosis_id' => icd()]);
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$s['kunjungan']}/close");
+    test()->actingAs($s['dokter_user'])->get("/encounters/{$s['kunjungan']}/prescriptions/create")->assertRedirect("/encounters/{$s['kunjungan']}?tab=prescriptions");
+});

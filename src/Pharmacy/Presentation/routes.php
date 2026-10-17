@@ -28,6 +28,7 @@ Route::middleware('can:stock.manage')->group(function (): void {
 });
 
 Route::middleware('can:prescription.create')->group(function () use ($id): void {
+    Route::get('/encounters/{encounter}/prescriptions/create', [PrescriptionController::class, 'create'])->name('prescriptions.create')->where('encounter', $id);
     Route::post('/encounters/{encounter}/prescriptions', [PrescriptionController::class, 'store'])->where('encounter', $id);
 });
 

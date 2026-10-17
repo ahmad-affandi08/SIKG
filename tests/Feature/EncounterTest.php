@@ -376,3 +376,43 @@ it('RM kunjungan klinik lain tidak dapat dibuka atau diubah', function () {
     test()->actingAs($b['dokter_user'])->post("/encounters/{$a['kunjungan']}/diagnoses", ['diagnosis_id' => icd()])->assertNotFound();
     test()->actingAs($b['dokter_user'])->post("/encounters/{$a['kunjungan']}/close")->assertNotFound();
 });
+
+it('RM-04 formulir diagnosa, tindakan, dan berkas adalah halaman sendiri selama kunjungan berjalan', function () {
+    $s = siapKunjungan();
+
+    foreach (['diagnoses' => 'Encounters/DiagnosisForm', 'procedures' => 'Encounters/ProcedureForm', 'files' => 'Encounters/FileForm'] as $bagian => $halaman) {
+        test()->actingAs($s['dokter_user'])->get("/encounters/{$s['kunjungan']}/{$bagian}/create")->assertOk()->assertInertia(fn ($p) => $p
+            ->component($halaman)->where('encounter.id', $s['kunjungan'])->has('encounter.patient_name'));
+    }
+    test()->actingAs($s['dokter_user'])->get("/encounters/{$s['kunjungan']}/addenda/create")->assertRedirect("/encounters/{$s['kunjungan']}?tab=addenda");
+});
+
+it('RM-07 formulir addendum hanya setelah kunjungan ditutup; formulir lain ditolak setelah ditutup', function () {
+    $s = siapKunjungan();
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$s['kunjungan']}/diagnoses", ['diagnosis_id' => icd()]);
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$s['kunjungan']}/close")->assertSessionHasNoErrors();
+
+    test()->actingAs($s['dokter_user'])->get("/encounters/{$s['kunjungan']}/addenda/create")->assertOk()->assertInertia(fn ($p) => $p->component('Encounters/AddendumForm'));
+    foreach (['diagnoses', 'procedures', 'files'] as $bagian) {
+        test()->actingAs($s['dokter_user'])->get("/encounters/{$s['kunjungan']}/{$bagian}/create")->assertRedirect("/encounters/{$s['kunjungan']}?tab=".($bagian === 'diagnoses' ? 'diagnosis' : $bagian));
+    }
+});
+
+it('RM-04 setelah menambah diagnosa, tindakan, dan addendum pengguna kembali ke tab yang sama', function () {
+    $s = siapKunjungan();
+    $k = $s['kunjungan'];
+    $p = tindakan($s);
+
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$k}/diagnoses", ['diagnosis_id' => icd()])->assertRedirect("/encounters/{$k}?tab=diagnosis");
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$k}/procedures", ['procedure_id' => $p->id, 'tooth_fdi' => 16, 'quantity' => 1, 'surfaces' => ['O']])->assertRedirect("/encounters/{$k}?tab=procedures");
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$k}/close");
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$k}/addenda", ['body' => 'Koreksi', 'reason' => 'Salah ketik'])->assertRedirect("/encounters/{$k}?tab=addenda");
+    test()->actingAs($s['dokter_user'])->get("/encounters/{$k}?tab=addenda")->assertInertia(fn ($pg) => $pg->where('initialTab', 'addenda'));
+    test()->actingAs($s['dokter_user'])->get("/encounters/{$k}?tab=ngawur")->assertInertia(fn ($pg) => $pg->where('initialTab', 'anamnesis'));
+});
+
+it('RM-05 perawat tanpa izin tulis tidak dapat membuka formulir tambah', function () {
+    $s = siapKunjungan();
+
+    test()->actingAs(makeUser(Role::Kasir, $s['klinik']))->get("/encounters/{$s['kunjungan']}/diagnoses/create")->assertForbidden();
+});

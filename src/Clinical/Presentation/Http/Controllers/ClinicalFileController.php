@@ -34,7 +34,7 @@ final class ClinicalFileController
 
         $files->upload($this->actorId($request), $encounter, $upload->getContent(), (string) $upload->getMimeType(), $data['kind'], $data['tooth_fdi'] ?? null, $data['caption'] ?? null);
 
-        return back()->with('success', 'Berkas diunggah.');
+        return to_route('encounters.show', ['encounter' => $encounter, 'tab' => 'files'])->with('success', 'Berkas diunggah.');
     }
 
     public function destroy(Request $request, string $encounter, string $file, ClinicalFiles $files): RedirectResponse

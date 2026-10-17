@@ -22,10 +22,52 @@ use Src\Clinical\Domain\Vitals;
  */
 final class EncounterController
 {
+    private const FORMS = [
+        'diagnosis' => ['page' => 'Encounters/DiagnosisForm', 'tab' => 'diagnosis'],
+        'procedure' => ['page' => 'Encounters/ProcedureForm', 'tab' => 'procedures'],
+        'file' => ['page' => 'Encounters/FileForm', 'tab' => 'files'],
+        'addendum' => ['page' => 'Encounters/AddendumForm', 'tab' => 'addenda'],
+    ];
+
+    private const TABS = ['anamnesis', 'soap', 'odontogram', 'diagnosis', 'procedures', 'prescriptions', 'files', 'addenda'];
+
+    /**
+     * Halaman formulir tambah diagnosa, tindakan, berkas, atau addendum. Diagnosa, tindakan, dan berkas hanya selama
+     * kunjungan berjalan; addendum hanya setelah kunjungan ditutup (RM-07).
+     */
+    public function entryForm(Request $request, string $encounter, EncounterWorkspace $workspace): Response|RedirectResponse
+    {
+        $form = (string) $request->route('form');
+        abort_unless(isset(self::FORMS[$form]), 404);
+        $config = self::FORMS[$form];
+
+        $e = $workspace($encounter, 'encounters.'.$form.'.create')['encounter'];
+        $closed = (bool) $e['is_closed'];
+        $back = to_route('encounters.show', ['encounter' => $encounter, 'tab' => $config['tab']]);
+        if ($form === 'addendum' && ! $closed) {
+            return $back->with('error', 'Addendum hanya untuk kunjungan yang sudah ditutup.');
+        }
+        if ($form !== 'addendum' && $closed) {
+            return $back->with('error', 'Kunjungan sudah ditutup. Perubahan hanya lewat addendum.');
+        }
+
+        return Inertia::render($config['page'], [
+            'encounter' => [
+                'id' => $e['id'],
+                'patient_name' => $e['patient_name'],
+                'medical_record_no' => $e['medical_record_no'],
+            ],
+            'jaws' => array_map(fn (Jaw $j) => ['value' => $j->value, 'label' => $j->label()], Jaw::cases()),
+        ]);
+    }
+
     public function show(Request $request, string $encounter, EncounterWorkspace $workspace): Response
     {
+        $tab = $request->query('tab');
+
         return Inertia::render('Encounters/Show', [
             ...$workspace($encounter, 'encounters.show'),
+            'initialTab' => is_string($tab) && in_array($tab, self::TABS, true) ? $tab : 'anamnesis',
             'can' => [
                 'write' => (bool) $request->user()?->can('encounter.write'),
                 'start' => (bool) $request->user()?->can('encounter.create'),
@@ -104,7 +146,7 @@ final class EncounterController
 
         $entries->addDiagnosis($this->actorId($request), $encounter, $data['diagnosis_id'], $data['tooth_fdi'] ?? null, $data['notes'] ?? null);
 
-        return back()->with('success', 'Diagnosa ditambahkan.');
+        return to_route('encounters.show', ['encounter' => $encounter, 'tab' => 'diagnosis'])->with('success', 'Diagnosa ditambahkan.');
     }
 
     public function removeDiagnosis(Request $request, string $encounter, string $entry, EncounterEntries $entries): RedirectResponse
@@ -137,7 +179,7 @@ final class EncounterController
             $data['notes'] ?? null,
         );
 
-        return back()->with('success', 'Tindakan ditambahkan.');
+        return to_route('encounters.show', ['encounter' => $encounter, 'tab' => 'procedures'])->with('success', 'Tindakan ditambahkan.');
     }
 
     public function removeProcedure(Request $request, string $encounter, string $entry, EncounterEntries $entries): RedirectResponse
@@ -163,7 +205,7 @@ final class EncounterController
 
         $notes->addAddendum($this->actorId($request), $encounter, $data['body'], $data['reason']);
 
-        return back()->with('success', 'Addendum ditambahkan.');
+        return to_route('encounters.show', ['encounter' => $encounter, 'tab' => 'addenda'])->with('success', 'Addendum ditambahkan.');
     }
 
     private function actorId(Request $request): string

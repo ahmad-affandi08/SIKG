@@ -48,6 +48,7 @@ interface Props {
   procedures: ProcedureEntry[];
   files: FileEntry[];
   prescriptions: PrescriptionData[];
+  initialTab: TabKey;
   warnings: Warning[];
   medical_history: Warning[];
   chairs: SelectOption[];
@@ -59,7 +60,6 @@ interface Props {
     addendum: boolean;
     prescribe: boolean;
     printPrescription: boolean;
-    overrideStock: boolean;
     odontogram: boolean;
   };
 }
@@ -91,8 +91,9 @@ export default function Show(props: Props) {
     chairs,
     jaws,
     can,
+    initialTab,
   } = props;
-  const [tab, setTab] = useState<TabKey>('anamnesis');
+  const [tab, setTab] = useState<TabKey>(initialTab);
   const [chairId, setChairId] = useState(encounter.chair_id ?? '');
   const timezone = useClinicTimezone();
   const canEdit = can.write && !encounter.is_closed;
@@ -227,7 +228,6 @@ export default function Show(props: Props) {
               canCreate={can.prescribe && !encounter.is_closed}
               canVoid={can.prescribe && !encounter.is_closed}
               canPrint={can.printPrescription}
-              canOverrideStock={can.overrideStock}
             />
           ) : null}
           {tab === 'files' ? (

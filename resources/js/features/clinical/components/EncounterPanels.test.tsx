@@ -1,9 +1,12 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import AddendumForm from '@/Pages/Encounters/AddendumForm';
 import {
   AddendumPanel,
+  DiagnosisPanel,
   AnamnesisPanel,
   MedicalWarnings,
   ProcedurePanel,
@@ -23,7 +26,18 @@ vi.mock('@inertiajs/react', () => ({
     },
     delete: vi.fn(),
   },
-  usePage: () => ({ props: { clinic: { name: 'Klinik Uji', timezone: 'Asia/Jakarta' } } }),
+  Head: () => null,
+  Link: ({ href, children }: { href: string; children: ReactNode }) => (
+    <a href={href}>{children}</a>
+  ),
+  usePage: () => ({
+    url: '/encounters/E1',
+    props: {
+      clinic: { name: 'Klinik Uji', timezone: 'Asia/Jakarta' },
+      auth: { user: { id: 'U1', name: 'Dokter Uji', roles: ['dokter'] }, permissions: [] },
+      flash: { success: null, error: null },
+    },
+  }),
 }));
 
 const encounter = {
@@ -170,16 +184,46 @@ describe('RM-05 tindakan', () => {
 });
 
 describe('RM-07 addendum', () => {
-  it('formulir addendum hanya untuk yang berwenang dan wajib diisi', async () => {
+  it('tautan tambah addendum hanya untuk yang berwenang', () => {
     const { rerender } = render(<AddendumPanel encounterId="E1" addenda={[]} canAdd={false} />);
-    expect(screen.queryByRole('form', { name: 'Tambah addendum' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Tambah addendum' })).not.toBeInTheDocument();
 
     rerender(<AddendumPanel encounterId="E1" addenda={[]} canAdd />);
-    await userEvent.click(screen.getByRole('button', { name: 'Tambah addendum' }));
+    expect(screen.getByRole('link', { name: 'Tambah addendum' })).toHaveAttribute(
+      'href',
+      '/encounters/E1/addenda/create',
+    );
+  });
+
+  it('formulir addendum wajib diisi dan tidak mengirim bila kosong', async () => {
+    render(
+      <AddendumForm
+        encounter={{ id: 'E1', patient_name: 'Budi Uji', medical_record_no: 'RM-1' }}
+      />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Simpan addendum' }));
 
     expect(post).not.toHaveBeenCalled();
     expect(screen.getAllByRole('alert').map((a) => a.textContent)).toEqual(
       expect.arrayContaining(['Isi addendum wajib diisi.', 'Alasan addendum wajib diisi.']),
+    );
+  });
+});
+
+describe('RM-04 dan RM-05 tambah diagnosa dan tindakan lewat halaman sendiri', () => {
+  it('daftar menautkan ke halaman tambah dan menyembunyikannya bila tidak boleh mengubah', () => {
+    const { rerender } = render(<DiagnosisPanel encounterId="E1" entries={[]} canEdit />);
+    expect(screen.getByRole('link', { name: 'Tambah diagnosa' })).toHaveAttribute(
+      'href',
+      '/encounters/E1/diagnoses/create',
+    );
+    rerender(<DiagnosisPanel encounterId="E1" entries={[]} canEdit={false} />);
+    expect(screen.queryByRole('link', { name: 'Tambah diagnosa' })).not.toBeInTheDocument();
+
+    rerender(<ProcedurePanel encounterId="E1" entries={[]} jaws={[]} canEdit />);
+    expect(screen.getByRole('link', { name: 'Tambah tindakan' })).toHaveAttribute(
+      'href',
+      '/encounters/E1/procedures/create',
     );
   });
 });

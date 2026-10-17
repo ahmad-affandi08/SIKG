@@ -32,6 +32,9 @@ Route::middleware('can:encounter.create')->group(function () use ($id): void {
 Route::middleware('can:encounter.write')->group(function () use ($id): void {
     Route::put('/encounters/{encounter}/anamnesis', [EncounterController::class, 'anamnesis'])->where('encounter', $id);
     Route::put('/encounters/{encounter}/notes', [EncounterController::class, 'notes'])->where('encounter', $id);
+    Route::get('/encounters/{encounter}/diagnoses/create', [EncounterController::class, 'entryForm'])->defaults('form', 'diagnosis')->where('encounter', $id);
+    Route::get('/encounters/{encounter}/procedures/create', [EncounterController::class, 'entryForm'])->defaults('form', 'procedure')->where('encounter', $id);
+    Route::get('/encounters/{encounter}/files/create', [EncounterController::class, 'entryForm'])->defaults('form', 'file')->where('encounter', $id);
     Route::post('/encounters/{encounter}/diagnoses', [EncounterController::class, 'addDiagnosis'])->where('encounter', $id);
     Route::delete('/encounters/{encounter}/diagnoses/{entry}', [EncounterController::class, 'removeDiagnosis'])->where('encounter', $id)->where('entry', $id);
     Route::post('/encounters/{encounter}/files', [ClinicalFileController::class, 'store'])->where('encounter', $id);
@@ -45,6 +48,7 @@ Route::middleware('can:encounter.close')->group(function () use ($id): void {
 });
 
 Route::middleware('can:encounter.addendum')->group(function () use ($id): void {
+    Route::get('/encounters/{encounter}/addenda/create', [EncounterController::class, 'entryForm'])->defaults('form', 'addendum')->where('encounter', $id);
     Route::post('/encounters/{encounter}/addenda', [EncounterController::class, 'addendum'])->where('encounter', $id);
 });
 

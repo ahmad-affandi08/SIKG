@@ -7,6 +7,9 @@ namespace Src\Pharmacy\Presentation\Http\Controllers;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Src\Clinical\Contracts\EncounterLookup;
+use Src\Patient\Contracts\PatientLookup;
 use Src\Pharmacy\Application\PrescriptionPrint;
 use Src\Pharmacy\Application\PrescriptionService;
 use Src\Pharmacy\Domain\PrescriptionItemInput;
@@ -17,6 +20,24 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class PrescriptionController
 {
+    /**
+     * Halaman formulir resep baru. Resep hanya dibuat selama kunjungan berjalan.
+     */
+    public function create(Request $request, string $encounter, EncounterLookup $encounters, PatientLookup $patients): \Inertia\Response|RedirectResponse
+    {
+        $info = $encounters->find($encounter);
+        abort_if($info === null, 404);
+        if (! $info->open) {
+            return to_route('encounters.show', ['encounter' => $encounter, 'tab' => 'prescriptions'])->with('error', 'Kunjungan sudah ditutup. Resep baru tidak dapat dibuat.');
+        }
+        $patient = $patients->summaries([$info->patientId])[$info->patientId] ?? null;
+
+        return Inertia::render('Encounters/PrescriptionForm', [
+            'encounter' => ['id' => $encounter, 'patient_name' => $patient?->name, 'medical_record_no' => $patient?->medicalRecordNo],
+            'can' => ['overrideStock' => (bool) $request->user()?->can('stock.override')],
+        ]);
+    }
+
     public function store(Request $request, string $encounter, PrescriptionService $prescriptions): RedirectResponse
     {
         $data = $request->validate([
@@ -55,7 +76,7 @@ final class PrescriptionController
 
         $prescriptions->create($this->actorId($request), $encounter, $items, $data['allergy_acknowledgement'] ?? null, $override);
 
-        return back()->with('success', 'Resep disimpan.');
+        return to_route('encounters.show', ['encounter' => $encounter, 'tab' => 'prescriptions'])->with('success', 'Resep disimpan.');
     }
 
     public function void(Request $request, string $prescription, PrescriptionService $prescriptions): RedirectResponse

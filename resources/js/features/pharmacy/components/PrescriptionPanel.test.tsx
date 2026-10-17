@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { PrescriptionForm } from '@/features/pharmacy/components/PrescriptionForm';
 import { PrescriptionPanel } from '@/features/pharmacy/components/PrescriptionPanel';
 import type { PrescriptionData } from '@/features/pharmacy/components/PrescriptionPanel';
 
@@ -15,6 +17,9 @@ vi.mock('@inertiajs/react', () => ({
       post(...args);
     },
   },
+  Link: ({ href, children }: { href: string; children: ReactNode }) => (
+    <a href={href}>{children}</a>
+  ),
   usePage: () => ({
     props: { clinic: { name: 'Klinik Uji', timezone: 'Asia/Jakarta' }, flash },
   }),
@@ -42,18 +47,23 @@ const issued: PrescriptionData = {
 };
 
 function renderPanel(overrides: Partial<Parameters<typeof PrescriptionPanel>[0]> = {}) {
+  render(
+    <PrescriptionPanel
+      encounterId="E1"
+      prescriptions={[issued]}
+      canCreate
+      canVoid
+      canPrint
+      {...overrides}
+    />,
+  );
+}
+
+function renderForm(canOverrideStock = false) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={client}>
-      <PrescriptionPanel
-        encounterId="E1"
-        prescriptions={[issued]}
-        canCreate
-        canVoid
-        canPrint
-        canOverrideStock={false}
-        {...overrides}
-      />
+      <PrescriptionForm encounterId="E1" canOverrideStock={canOverrideStock} />
     </QueryClientProvider>,
   );
 }
@@ -63,7 +73,7 @@ beforeEach(() => {
   flash = {};
 });
 
-describe('OBT-01 resep dari kunjungan', () => {
+describe('OBT-01 daftar resep pada kunjungan', () => {
   it('menampilkan butir resep, harga jual di klinik sebagai rupiah, dan tautan cetak', () => {
     renderPanel();
     expect(screen.getByText('Amoksisilin 500 mg')).toBeInTheDocument();
@@ -74,8 +84,26 @@ describe('OBT-01 resep dari kunjungan', () => {
     );
   });
 
+  it('menautkan ke halaman resep baru, bukan menampilkan formulir di bawah daftar', () => {
+    renderPanel();
+    expect(screen.getByRole('link', { name: 'Resep baru' })).toHaveAttribute(
+      'href',
+      '/encounters/E1/prescriptions/create',
+    );
+    expect(screen.queryByRole('form', { name: 'Buat resep' })).not.toBeInTheDocument();
+  });
+
+  it('menyembunyikan tautan baru dan tombol batal bila tidak berhak', () => {
+    renderPanel({ canCreate: false, canVoid: false, canPrint: false });
+    expect(screen.queryByRole('link', { name: 'Resep baru' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Cetak resep' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Batalkan resep' })).not.toBeInTheDocument();
+  });
+});
+
+describe('OBT-01 formulir resep baru', () => {
   it('menolak resep tanpa nama obat atau dosis dan tidak mengirim ke server', async () => {
-    renderPanel({ prescriptions: [] });
+    renderForm();
     await userEvent.click(screen.getByRole('button', { name: 'Simpan resep' }));
     expect(post).not.toHaveBeenCalled();
     expect(
@@ -85,7 +113,7 @@ describe('OBT-01 resep dari kunjungan', () => {
   });
 
   it('mengirim obat di luar katalog dengan jumlah bilangan bulat', async () => {
-    renderPanel({ prescriptions: [] });
+    renderForm();
     await userEvent.type(screen.getByLabelText('Atau tulis nama obat (di luar katalog)'), 'Obat X');
     await userEvent.type(screen.getByLabelText('Dosis'), '1 tablet');
     await userEvent.type(screen.getByLabelText('Frekuensi'), '2 kali sehari');
@@ -103,11 +131,12 @@ describe('OBT-01 resep dari kunjungan', () => {
     });
   });
 
-  it('menyembunyikan formulir dan tombol batal bila tidak berhak', () => {
-    renderPanel({ canCreate: false, canVoid: false, canPrint: false });
-    expect(screen.queryByRole('form', { name: 'Buat resep' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Cetak resep' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Batalkan resep' })).not.toBeInTheDocument();
+  it('menyediakan tautan batal kembali ke tab resep kunjungan', () => {
+    renderForm();
+    expect(screen.getByRole('link', { name: 'Batal' })).toHaveAttribute(
+      'href',
+      '/encounters/E1?tab=prescriptions',
+    );
   });
 });
 
@@ -117,7 +146,7 @@ describe('OBT-02 peringatan alergi', () => {
       error: 'Pasien memiliki alergi terhadap Penisilin.',
       error_code: 'prescription.allergy_warning',
     };
-    renderPanel({ prescriptions: [] });
+    renderForm();
     expect(screen.getByRole('status')).toHaveTextContent(
       'Pasien memiliki alergi terhadap Penisilin.',
     );
@@ -130,13 +159,13 @@ describe('OBT-02 peringatan alergi', () => {
 describe('OBT-04 stok tidak cukup', () => {
   it('menampilkan kolom override hanya untuk yang berhak', () => {
     flash = { error: 'Stok tidak cukup.', error_code: 'stock.insufficient' };
-    renderPanel({ prescriptions: [], canOverrideStock: false });
+    renderForm(false);
     expect(screen.queryByLabelText('Alasan override stok (Admin)')).not.toBeInTheDocument();
   });
 
   it('menampilkan kolom override untuk Admin', () => {
     flash = { error: 'Stok tidak cukup.', error_code: 'stock.insufficient' };
-    renderPanel({ prescriptions: [], canOverrideStock: true });
+    renderForm(true);
     expect(screen.getByLabelText('Alasan override stok (Admin)')).toBeInTheDocument();
   });
 });
