@@ -10,6 +10,11 @@ namespace Src\Clinical\Application\Diagnosis;
 interface DiagnosisCatalog
 {
     /**
+     * Satu kode aktif menurut id, atau null bila tidak ada atau sudah nonaktif.
+     */
+    public function find(string $diagnosisId): ?DiagnosisSummary;
+
+    /**
      * Hanya kode aktif. Cocok pada awal kode atau potongan nama; kode lebih dulu.
      *
      * @return list<DiagnosisSummary>

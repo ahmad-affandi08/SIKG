@@ -10,6 +10,13 @@ use Src\Clinical\Infrastructure\Eloquent\DiagnosisModel;
 
 final class EloquentDiagnosisCatalog implements DiagnosisCatalog
 {
+    public function find(string $diagnosisId): ?DiagnosisSummary
+    {
+        $d = DiagnosisModel::query()->where('is_active', true)->find($diagnosisId);
+
+        return $d === null ? null : new DiagnosisSummary($d->id, $d->icd10_code, $d->name);
+    }
+
     public function search(string $term, int $limit = 20): array
     {
         $term = trim($term);

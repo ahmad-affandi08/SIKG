@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Src\Clinic\Infrastructure\Eloquent\BranchModel;
@@ -13,6 +14,7 @@ use Src\Clinic\Infrastructure\Eloquent\DoctorScheduleModel;
 use Src\IdentityAccess\Domain\Role;
 use Src\IdentityAccess\Infrastructure\Eloquent\User;
 use Src\IdentityAccess\Infrastructure\Seeders\RolePermissionSeeder;
+use Src\Scheduling\Infrastructure\Eloquent\AppointmentModel;
 use Src\Shared\Application\TenantContext;
 use Tests\TestCase;
 
@@ -141,4 +143,58 @@ function makePatient(ClinicModel $clinic, string $name = 'Pasien Uji', string $b
     ]);
 
     return $id;
+}
+
+// Senin dan Selasa pada pekan uji; zona waktu klinik Asia/Jakarta (UTC+7).
+const SENIN = '2025-06-16';
+const SELASA = '2025-06-17';
+
+/** Memajukan jam tes; sesi dikosongkan agar batas tidak aktif (AUTH-04) tidak memutus pengguna tes. */
+function majuKe(string $waktu): void
+{
+    Carbon::setTestNow(Carbon::parse($waktu, 'Asia/Jakarta'));
+    test()->flushSession();
+}
+
+/**
+ * @return array{klinik: ClinicModel, user: object, dokter: object, kursi: object, pasien: string}
+ */
+function siapJadwal(Role $peran = Role::Resepsionis): array
+{
+    $klinik = makeClinic();
+    $dokter = makeDoctor($klinik, 'drg. Sari', [
+        ['weekday' => 1, 'start' => '09:00', 'end' => '12:00'],
+        ['weekday' => 1, 'start' => '14:00', 'end' => '17:00'],
+        ['weekday' => 2, 'start' => '09:00', 'end' => '12:00'],
+    ]);
+
+    return [
+        'klinik' => $klinik,
+        'user' => makeUser($peran, $klinik),
+        'dokter' => $dokter,
+        'kursi' => makeChair($klinik, 'Kursi 1'),
+        'pasien' => makePatient($klinik, 'Budi Santoso'),
+    ];
+}
+
+function janji(array $s, array $o = []): array
+{
+    return [
+        'patient_id' => $s['pasien'],
+        'doctor_id' => $s['dokter']->id,
+        'chair_id' => $s['kursi']->id,
+        'date' => SENIN,
+        'time' => '09:00',
+        'minutes' => 30,
+        'complaint' => 'Sakit gigi',
+        ...$o,
+    ];
+}
+
+function bukaJanji(array $s, array $o = []): string
+{
+    test()->actingAs($s['user'])->post('/appointments', janji($s, $o))->assertSessionHasNoErrors();
+    tenant()->set($s['klinik']->id);
+
+    return AppointmentModel::query()->orderByDesc('created_at')->orderByDesc('id')->firstOrFail()->id;
 }

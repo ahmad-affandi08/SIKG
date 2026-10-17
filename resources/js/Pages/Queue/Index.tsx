@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
+import { useCan } from '@/lib/permissions';
 import { PatientPicker } from '@/features/patient/components/PatientPicker';
 import { useQueue } from '@/features/scheduling/queries';
 import { walkInSchema } from '@/features/scheduling/schemas';
@@ -22,6 +23,7 @@ interface Props {
 
 export default function Index({ doctors, chairs, canManage }: Props) {
   const queue = useQueue();
+  const can = useCan();
   const client = useQueryClient();
   const [patient, setPatient] = useState<{ id: string; name: string } | null>(null);
   const [doctorId, setDoctorId] = useState('');
@@ -91,6 +93,9 @@ export default function Index({ doctors, chairs, canManage }: Props) {
                   <th scope="col">Kursi</th>
                   <th scope="col">Keluhan</th>
                   <th scope="col">Status</th>
+                  <th scope="col">
+                    <span className="sr-only">Aksi</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -104,8 +109,21 @@ export default function Index({ doctors, chairs, canManage }: Props) {
                     <td className="pr-3">{item.doctor_name ?? '-'}</td>
                     <td className="pr-3">{item.chair_name ?? '-'}</td>
                     <td className="pr-3">{item.complaint ?? '-'}</td>
-                    <td>
+                    <td className="pr-3">
                       <Badge tone={statusTone(item.status)}>{item.status_label}</Badge>
+                    </td>
+                    <td>
+                      {can('encounter.create') &&
+                      ['checked_in', 'in_progress', 'completed'].includes(item.status) ? (
+                        <Button
+                          variant="secondary"
+                          onClick={() => {
+                            router.post('/encounters', { appointment_id: item.id });
+                          }}
+                        >
+                          Buka pemeriksaan
+                        </Button>
+                      ) : null}
                     </td>
                   </tr>
                 ))}

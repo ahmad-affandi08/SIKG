@@ -7,7 +7,36 @@ use Illuminate\Support\Facades\Route;
 // Setiap route wajib punya pemeriksaan izin: ->middleware('can:<permission>') atau authorize() di controller.
 
 use Src\Clinical\Presentation\Http\Controllers\DiagnosisSearchController;
+use Src\Clinical\Presentation\Http\Controllers\EncounterController;
 
 Route::middleware(['can:encounter.view', 'throttle:60,1'])->prefix('internal-api')->group(function (): void {
     Route::get('/diagnoses/search', DiagnosisSearchController::class);
+});
+
+$id = '[0-9A-Z]{26}';
+
+Route::middleware('can:encounter.view')->group(function () use ($id): void {
+    Route::get('/encounters/{encounter}', [EncounterController::class, 'show'])->name('encounters.show')->where('encounter', $id);
+});
+
+Route::middleware('can:encounter.create')->group(function () use ($id): void {
+    Route::post('/encounters', [EncounterController::class, 'store']);
+    Route::post('/encounters/{encounter}/start', [EncounterController::class, 'start'])->where('encounter', $id);
+});
+
+Route::middleware('can:encounter.write')->group(function () use ($id): void {
+    Route::put('/encounters/{encounter}/anamnesis', [EncounterController::class, 'anamnesis'])->where('encounter', $id);
+    Route::put('/encounters/{encounter}/notes', [EncounterController::class, 'notes'])->where('encounter', $id);
+    Route::post('/encounters/{encounter}/diagnoses', [EncounterController::class, 'addDiagnosis'])->where('encounter', $id);
+    Route::delete('/encounters/{encounter}/diagnoses/{entry}', [EncounterController::class, 'removeDiagnosis'])->where('encounter', $id)->where('entry', $id);
+    Route::post('/encounters/{encounter}/procedures', [EncounterController::class, 'addProcedure'])->where('encounter', $id);
+    Route::delete('/encounters/{encounter}/procedures/{entry}', [EncounterController::class, 'removeProcedure'])->where('encounter', $id)->where('entry', $id);
+});
+
+Route::middleware('can:encounter.close')->group(function () use ($id): void {
+    Route::post('/encounters/{encounter}/close', [EncounterController::class, 'close'])->where('encounter', $id);
+});
+
+Route::middleware('can:encounter.addendum')->group(function () use ($id): void {
+    Route::post('/encounters/{encounter}/addenda', [EncounterController::class, 'addendum'])->where('encounter', $id);
 });

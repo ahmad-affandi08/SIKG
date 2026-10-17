@@ -15,10 +15,12 @@ use Src\Patient\Application\Import\ImportRowMapper;
 use Src\Patient\Application\Import\ProcessImportChunk;
 use Src\Patient\Application\Import\SpreadsheetReader;
 use Src\Patient\Application\Import\StartPatientImport;
+use Src\Patient\Contracts\PatientAlerts;
 use Src\Patient\Contracts\PatientLookup;
 use Src\Patient\Domain\Import\ImportBatchRepository;
 use Src\Patient\Domain\PatientRepository;
 use Src\Patient\Infrastructure\EloquentImportBatchRepository;
+use Src\Patient\Infrastructure\EloquentPatientAlerts;
 use Src\Patient\Infrastructure\EloquentPatientLookup;
 use Src\Patient\Infrastructure\EloquentPatientRepository;
 use Src\Patient\Infrastructure\Import\PrivateImportFileStore;
@@ -35,6 +37,7 @@ final class PatientServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(PatientRepository::class, EloquentPatientRepository::class);
+        $this->app->singleton(PatientAlerts::class, EloquentPatientAlerts::class);
         $this->app->singleton(PatientLookup::class, EloquentPatientLookup::class);
         $this->app->singleton(ImportBatchRepository::class, EloquentImportBatchRepository::class);
         $this->app->singleton(SpreadsheetReader::class, XlsxSpreadsheetReader::class);
