@@ -15,6 +15,7 @@ use Src\Patient\Application\Import\ImportRowMapper;
 use Src\Patient\Application\Import\ProcessImportChunk;
 use Src\Patient\Application\Import\SpreadsheetReader;
 use Src\Patient\Application\Import\StartPatientImport;
+use Src\Patient\Application\Merge\MergePatients;
 use Src\Patient\Contracts\PatientAlerts;
 use Src\Patient\Contracts\PatientLookup;
 use Src\Patient\Domain\Import\ImportBatchRepository;
@@ -26,6 +27,7 @@ use Src\Patient\Infrastructure\EloquentPatientRepository;
 use Src\Patient\Infrastructure\Import\PrivateImportFileStore;
 use Src\Patient\Infrastructure\Import\QueueImportChunkScheduler;
 use Src\Patient\Infrastructure\Import\XlsxSpreadsheetReader;
+use Src\Shared\Application\AccessLogger;
 use Src\Shared\Application\AuditLogger;
 use Src\Shared\Application\Clock;
 use Src\Shared\Application\PiiProtector;
@@ -43,6 +45,10 @@ final class PatientServiceProvider extends ServiceProvider
         $this->app->singleton(SpreadsheetReader::class, XlsxSpreadsheetReader::class);
         $this->app->singleton(ImportChunkScheduler::class, QueueImportChunkScheduler::class);
         $this->app->singleton(ImportFileStore::class, fn ($app) => new PrivateImportFileStore($app->make(PiiProtector::class), $app->make(IdGenerator::class), (bool) config('sikg.encrypt_files')));
+        $this->app->bind(MergePatients::class, fn ($app) => new MergePatients(
+            $app->make(PatientRepository::class), $app->tagged('sikg.patient-movers'), $app->make(Transaction::class),
+            $app->make(AuditLogger::class), $app->make(AccessLogger::class), $app->make(Clock::class),
+        ));
         $this->app->bind(StartPatientImport::class, fn ($app) => new StartPatientImport(
             $app->make(ImportFileStore::class), $app->make(SpreadsheetReader::class), $app->make(ImportRowMapper::class), $app->make(PatientRepository::class),
             $app->make(ImportBatchRepository::class), $app->make(Transaction::class), $app->make(AuditLogger::class), $app->make(Clock::class),

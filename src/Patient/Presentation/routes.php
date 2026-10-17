@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Src\Patient\Presentation\Http\Controllers\PatientController;
 use Src\Patient\Presentation\Http\Controllers\PatientImportController;
+use Src\Patient\Presentation\Http\Controllers\PatientMergeController;
 use Src\Patient\Presentation\Http\Controllers\PatientSearchController;
 
 // Semua route di balik 'auth' (dipasang oleh ServiceProvider).
@@ -36,6 +37,11 @@ Route::middleware('can:patient.update')->group(function (): void {
 
 Route::middleware('can:patient.delete')->group(function (): void {
     Route::delete('/patients/{patient}', [PatientController::class, 'archive'])->where('patient', '[0-9A-Z]{26}');
+});
+
+Route::middleware('can:patient.merge')->group(function (): void {
+    Route::get('/patients/{patient}/merge', [PatientMergeController::class, 'create'])->name('patients.merge')->where('patient', '[0-9A-Z]{26}');
+    Route::post('/patients/{patient}/merge', [PatientMergeController::class, 'store'])->where('patient', '[0-9A-Z]{26}');
 });
 
 Route::middleware('can:patient.history.manage')->group(function (): void {

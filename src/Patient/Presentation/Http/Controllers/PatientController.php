@@ -77,6 +77,7 @@ final class PatientController
             'can' => [
                 'update' => $canUpdate,
                 'archive' => (bool) $request->user()?->can('patient.delete'),
+                'merge' => (bool) $request->user()?->can('patient.merge'),
                 'history' => (bool) $request->user()?->can('patient.history.manage'),
                 'timeline' => (bool) $request->user()?->can('encounter.view'),
             ],

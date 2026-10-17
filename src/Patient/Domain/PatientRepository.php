@@ -40,6 +40,18 @@ interface PatientRepository
      */
     public function findDuplicates(PatientProfile $profile, ?string $ignoreId = null): array;
 
+    /**
+     * Pasien ganda menyatu ke pasien utama (PAS-07): data kosong pada pasien utama dilengkapi dari pasien ganda, riwayat
+     * medis, persetujuan, dan wali dipindahkan, lalu pasien ganda diarsipkan dengan penunjuk ke pasien utama. Pemanggil
+     * memindahkan data konteks lain lebih dulu dan membungkus semuanya dalam satu transaksi.
+     *
+     * @return array{histories: int, consents: int, guardian: bool, filled: list<string>}
+     *
+     * @throws PatientNotFound
+     * @throws InvalidPatientData
+     */
+    public function absorb(string $actorId, string $sourceId, string $targetId, DateTimeImmutable $at): array;
+
     public function addHistory(string $actorId, string $patientId, MedicalHistoryEntry $entry): string;
 
     /**

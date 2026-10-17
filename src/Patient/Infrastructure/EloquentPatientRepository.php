@@ -12,6 +12,7 @@ use Src\Patient\Domain\DuplicateCandidate;
 use Src\Patient\Domain\EmergencyContact;
 use Src\Patient\Domain\Guardian;
 use Src\Patient\Domain\HistoryRecord;
+use Src\Patient\Domain\InvalidPatientData;
 use Src\Patient\Domain\MedicalHistoryEntry;
 use Src\Patient\Domain\MedicalHistoryType;
 use Src\Patient\Domain\NameKey;
@@ -137,6 +138,72 @@ final readonly class EloquentPatientRepository implements PatientRepository
         }
 
         return array_values($found);
+    }
+
+    public function absorb(string $actorId, string $sourceId, string $targetId, DateTimeImmutable $at): array
+    {
+        if ($sourceId === $targetId) {
+            throw new InvalidPatientData('patient.merge_same', 'Pilih pasien ganda yang berbeda dari pasien utama.');
+        }
+        // Kunci berurutan menurut id agar dua penggabungan bersamaan tidak saling menunggu.
+        $rows = PatientModel::query()->whereIn('id', [$sourceId, $targetId])->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+        $source = $rows->get($sourceId);
+        $target = $rows->get($targetId);
+        if (! $source instanceof PatientModel || ! $target instanceof PatientModel) {
+            throw new PatientNotFound;
+        }
+        if ($source->nik_hash !== null && $target->nik_hash !== null && $source->nik_hash !== $target->nik_hash) {
+            throw new InvalidPatientData('patient.merge_nik_conflict', 'NIK kedua pasien berbeda, jadi keduanya kemungkinan orang yang berbeda dan tidak dapat digabung.');
+        }
+
+        $filled = [];
+        $fill = [];
+        if ($target->nik_hash === null && $source->nik_hash !== null) {
+            $fill += ['nik_encrypted' => $source->nik_encrypted, 'nik_hash' => $source->nik_hash, 'nik_missing_reason' => null];
+            $filled[] = 'NIK';
+        }
+        if ($target->phone_hash === null && $source->phone_hash !== null) {
+            $fill += ['phone_encrypted' => $source->phone_encrypted, 'phone_hash' => $source->phone_hash];
+            $filled[] = 'Nomor HP';
+        }
+        foreach (['address' => 'Alamat', 'occupation' => 'Pekerjaan', 'emergency_contact' => 'Kontak darurat'] as $column => $label) {
+            if (($target->{$column} === null || $target->{$column} === '') && $source->{$column} !== null && $source->{$column} !== '') {
+                $fill[$column] = $source->{$column};
+                $filled[] = $label;
+            }
+        }
+        if ($target->data_consent_at === null && $source->data_consent_at !== null) {
+            $fill['data_consent_at'] = $source->data_consent_at;
+            $filled[] = 'Persetujuan data';
+        }
+        if ($fill !== []) {
+            $target->forceFill($fill + ['updated_by' => $actorId])->save();
+        }
+
+        $existing = [];
+        foreach (PatientMedicalHistoryModel::query()->where('patient_id', $targetId)->get() as $h) {
+            $existing[$h->type.'|'.mb_strtolower($h->name)] = true;
+        }
+        $histories = 0;
+        foreach (PatientMedicalHistoryModel::query()->where('patient_id', $sourceId)->get() as $h) {
+            if (isset($existing[$h->type.'|'.mb_strtolower($h->name)])) {
+                continue;
+            }
+            $h->forceFill(['patient_id' => $targetId, 'updated_by' => $actorId])->save();
+            $histories++;
+        }
+
+        $consents = PatientConsentModel::query()->where('patient_id', $sourceId)->update(['patient_id' => $targetId]);
+
+        $guardian = false;
+        if (! PatientGuardianModel::withTrashed()->where('patient_id', $targetId)->exists()) {
+            $guardian = PatientGuardianModel::query()->where('patient_id', $sourceId)->update(['patient_id' => $targetId]) > 0;
+        }
+
+        $source->forceFill(['merged_into_id' => $targetId, 'merged_at' => $at, 'updated_by' => $actorId])->save();
+        $source->delete();
+
+        return ['histories' => $histories, 'consents' => $consents, 'guardian' => $guardian, 'filled' => $filled];
     }
 
     public function addHistory(string $actorId, string $patientId, MedicalHistoryEntry $entry): string

@@ -41,7 +41,7 @@ interface Props {
   histories: History[];
   consents: { version: string; given_at: string; recorded_by: string }[];
   currentConsentVersion: string;
-  can: { update: boolean; archive: boolean; history: boolean; timeline: boolean };
+  can: { update: boolean; archive: boolean; merge: boolean; history: boolean; timeline: boolean };
   sexes?: SelectOption[];
   historyTypes: SelectOption[];
   severities: SelectOption[];
@@ -88,6 +88,11 @@ export default function Show({
             {can.update ? (
               <Link href={`/patients/${patient.id}/edit`} className="btn btn-secondary">
                 Ubah data
+              </Link>
+            ) : null}
+            {can.merge ? (
+              <Link href={`/patients/${patient.id}/merge`} className="btn btn-secondary">
+                Gabung data ganda
               </Link>
             ) : null}
             {can.archive ? (

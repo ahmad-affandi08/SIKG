@@ -15,6 +15,7 @@ use Src\Billing\Contracts\InvoiceLookup;
 use Src\Billing\Domain\InstallmentRepository;
 use Src\Billing\Domain\InvoiceRepository;
 use Src\Billing\Infrastructure\ClinicBillingNumbering;
+use Src\Billing\Infrastructure\Eloquent\InvoiceModel;
 use Src\Billing\Infrastructure\EloquentCashRegister;
 use Src\Billing\Infrastructure\EloquentInstallmentRepository;
 use Src\Billing\Infrastructure\EloquentInvoiceListing;
@@ -24,11 +25,15 @@ use Src\Clinical\Domain\Events\ProcedurePerformed;
 use Src\Clinical\Domain\Events\ProcedureRetracted;
 use Src\Pharmacy\Domain\Events\MedicineDispensed;
 use Src\Pharmacy\Domain\Events\MedicineReturned;
+use Src\Shared\Application\TenantContext;
+use Src\Shared\Infrastructure\ModelPatientMover;
 
 final class BillingServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->bind('sikg.patient-mover.invoices', fn ($app) => new ModelPatientMover('Tagihan', InvoiceModel::class, $app->make(TenantContext::class)));
+        $this->app->tag(['sikg.patient-mover.invoices'], 'sikg.patient-movers');
         $this->app->singleton(InvoiceRepository::class, EloquentInvoiceRepository::class);
         $this->app->singleton(InstallmentRepository::class, EloquentInstallmentRepository::class);
         $this->app->singleton(BillingNumbering::class, ClinicBillingNumbering::class);
