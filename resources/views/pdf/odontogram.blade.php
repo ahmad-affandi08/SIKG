@@ -9,11 +9,10 @@
 @section('footer-left', 'Odontogram · '.$patient['name'].' (RM '.$patient['medical_record_no'].') · Dicetak '.$printed_at)
 @section('style')
     body { font-size: 8.5pt; }
-    table.arch { margin: 0 auto 2pt; border-collapse: separate; border-spacing: 2pt 0; }
+    table.arch { margin: 0 auto 2pt; border-collapse: separate; border-spacing: 1pt 0; }
     table.arch td.t { text-align: center; vertical-align: top; padding: 0; }
     .n { font-size: 8.5pt; font-weight: bold; margin: 1pt 0; }
-    table.tooth { border-collapse: collapse; margin: 0 auto; }
-    table.tooth td { width: 14pt; height: 13pt; border: 0.6pt solid #000000; padding: 0; font-size: 6pt; line-height: 13pt; text-align: center; color: #000000; }
+    img.glyph { width: 40pt; height: 40pt; }
     .gap { height: 8pt; }
     .jaw { text-align: center; font-size: 7.5pt; letter-spacing: 0.5pt; color: #444444; margin: 2pt 0 3pt; text-transform: uppercase; }
     table.legend { width: 100%; border-collapse: collapse; }
@@ -37,24 +36,9 @@
             <table class="arch">
                 <tr>
                     @foreach ($group[$arch] as $tooth)
-                        @php
-                            $s = $tooth['surfaces'];
-                            $w = $tooth['whole_color'];
-                            $col = fn (string $code) => $w ?? ($s[$code]['color'] ?? '#FFFFFF');
-                            $left = $tooth['mesial_right'] ? 'D' : 'M';
-                            $right = $tooth['mesial_right'] ? 'M' : 'D';
-                        @endphp
                         <td class="t">
                             @if ($arch === 'upper')<div class="n">{{ $tooth['fdi'] }}</div>@endif
-                            <table class="tooth">
-                                <tr><td style="background: {{ $w ?? '#FFFFFF' }};"></td><td style="background: {{ $col('B') }};">{{ $s['B']['code'] ?? '' }}</td><td style="background: {{ $w ?? '#FFFFFF' }};"></td></tr>
-                                <tr>
-                                    <td style="background: {{ $col($left) }};">{{ $s[$left]['code'] ?? '' }}</td>
-                                    <td style="background: {{ $col('O') }};">{{ $tooth['whole'] ?? ($s['O']['code'] ?? '') }}</td>
-                                    <td style="background: {{ $col($right) }};">{{ $s[$right]['code'] ?? '' }}</td>
-                                </tr>
-                                <tr><td style="background: {{ $w ?? '#FFFFFF' }};"></td><td style="background: {{ $col('L') }};">{{ $s['L']['code'] ?? '' }}</td><td style="background: {{ $w ?? '#FFFFFF' }};"></td></tr>
-                            </table>
+                            <img class="glyph" src="{{ $tooth['glyph'] }}" alt="Gigi {{ $tooth['fdi'] }}">
                             @if ($arch === 'lower')<div class="n">{{ $tooth['fdi'] }}</div>@endif
                         </td>
                     @endforeach
@@ -64,7 +48,7 @@
         @endforeach
     @endforeach
 
-    <p class="small muted" style="margin-top: 6pt;">Cara membaca: kotak atas = bukal atau labial (B), bawah = lingual atau palatal (L), tengah = oklusal atau insisal (O), kiri dan kanan = mesial (M) dan distal (D) sesuai letak gigi. Kotak tengah berisi kode bila seluruh gigi memiliki satu kondisi. Kode kondisi dicetak di tiap kotak sehingga tetap terbaca pada cetakan hitam putih.</p>
+    <p class="small muted" style="margin-top: 6pt;">Cara membaca: tiap gigi digambar sebagai persegi dengan lima bidang. Bidang atas = bukal atau labial (B), bawah = lingual atau palatal (L), kiri dan kanan = mesial (M) dan distal (D) sesuai letak gigi, dan persegi tengah = oklusal atau insisal (O). Bila seluruh gigi memiliki satu kondisi, semua bidang diwarnai dan kodenya ditulis di tengah. Kode kondisi dicetak di dalam bidangnya sehingga tetap terbaca pada cetakan hitam putih.</p>
 
     @if (count($details) > 0)
         <h2 class="section">Rincian kondisi</h2>

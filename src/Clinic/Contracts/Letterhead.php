@@ -17,15 +17,16 @@ final readonly class Letterhead
         public ?string $headerText,
         public ?string $logoDataUri,
         public ?string $footnote = null,
+        public ?string $city = null,
     ) {}
 
     /**
      * Bentuk yang dipakai templat PDF; satu pemetaan untuk semua cetakan agar kop tidak pernah berbeda antardokumen.
      *
-     * @return array{name: string, address: string|null, license: string|null, header: string|null, logo: string|null, footnote: string|null}
+     * @return array{name: string, address: string|null, license: string|null, header: string|null, logo: string|null, footnote: string|null, city: string|null}
      */
     public function toArray(): array
     {
-        return ['name' => $this->clinicName, 'address' => $this->address, 'license' => $this->licenseNo, 'header' => $this->headerText, 'logo' => $this->logoDataUri, 'footnote' => $this->footnote];
+        return ['name' => $this->clinicName, 'address' => $this->address, 'license' => $this->licenseNo, 'header' => $this->headerText, 'logo' => $this->logoDataUri, 'footnote' => $this->footnote, 'city' => $this->city];
     }
 }

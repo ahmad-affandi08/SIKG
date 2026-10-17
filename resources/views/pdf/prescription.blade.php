@@ -22,7 +22,7 @@
 
     <table class="kv" style="margin-bottom: 6pt;">
         <tr><td class="k">Dokter</td><td class="s">:</td><td><strong>{{ $doctor['name'] }}</strong>@if ($doctor['sip']) · SIP {{ $doctor['sip'] }}@endif</td></tr>
-        <tr><td class="k">Tanggal</td><td class="s">:</td><td>{{ $issuedAt }}</td></tr>
+        <tr><td class="k">Tanggal</td><td class="s">:</td><td>{{ ! empty($letterhead['city']) ? $letterhead['city'].', ' : '' }}{{ $issuedAt }}</td></tr>
     </table>
 
     <table class="rx">

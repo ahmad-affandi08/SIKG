@@ -290,7 +290,7 @@ function rekamPdf(): void
 /**
  * Mengisi kop klinik lengkap (alamat, izin, teks tambahan, catatan kaki) dan mengembalikan kop yang harus tampil di SEMUA cetakan.
  *
- * @return array{name: string, address: string, license: string, header: string, logo: null, footnote: string}
+ * @return array{name: string, address: string, license: string, header: string, logo: null, footnote: string, city: string}
  */
 function isiKop(ClinicModel $klinik): array
 {
@@ -301,8 +301,9 @@ function isiKop(ClinicModel $klinik): array
         'header' => 'Telp. (0271) 123456 · Senin sampai Sabtu 09.00-20.00',
         'logo' => null,
         'footnote' => 'Obat dan pembayaran yang sudah diterima tidak dapat dikembalikan.',
+        'city' => 'Surakarta',
     ];
-    DB::table('clinics')->where('id', $klinik->id)->update(['address' => $kop['address'], 'license_no' => $kop['license'], 'receipt_header' => $kop['header'], 'prescription_header' => $kop['footnote']]);
+    DB::table('clinics')->where('id', $klinik->id)->update(['address' => $kop['address'], 'license_no' => $kop['license'], 'receipt_header' => $kop['header'], 'prescription_header' => $kop['footnote'], 'city' => $kop['city']]);
 
     return $kop;
 }

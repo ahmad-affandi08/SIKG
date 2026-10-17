@@ -15,6 +15,7 @@ interface Props {
   profile: {
     name: string;
     address: string | null;
+    city: string | null;
     license_no: string | null;
     receipt_header: string | null;
     prescription_header: string | null;
@@ -26,6 +27,7 @@ export default function ClinicProfile({ profile }: Props) {
   const form = useForm<ClinicProfileValues>({
     name: profile.name,
     address: profile.address ?? '',
+    city: profile.city ?? '',
     license_no: profile.license_no ?? '',
     receipt_header: profile.receipt_header ?? '',
     prescription_header: profile.prescription_header ?? '',
@@ -103,6 +105,15 @@ export default function ClinicProfile({ profile }: Props) {
               form.setData('address', event.target.value);
             }}
             error={error('address')}
+          />
+          <TextField
+            field="city"
+            label="Kota (untuk tempat dan tanggal pada surat dan kwitansi)"
+            value={form.data.city}
+            onChange={(event) => {
+              form.setData('city', event.target.value);
+            }}
+            error={error('city')}
           />
           <TextField
             field="license_no"

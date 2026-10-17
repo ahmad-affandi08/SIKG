@@ -60,6 +60,7 @@ export const WEEKDAYS: readonly { day: string; label: string }[] = [
 export const clinicProfileSchema = z.object({
   name: z.string().trim().min(1, 'Nama klinik wajib diisi.').max(255, 'Terlalu panjang.'),
   address: z.string().trim().max(1000, 'Terlalu panjang.'),
+  city: z.string().trim().max(100, 'Terlalu panjang.'),
   license_no: z.string().trim().max(100, 'Terlalu panjang.'),
   receipt_header: z.string().trim().max(500, 'Terlalu panjang.'),
   prescription_header: z.string().trim().max(500, 'Terlalu panjang.'),

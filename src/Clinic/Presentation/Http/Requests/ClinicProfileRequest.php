@@ -21,6 +21,7 @@ final class ClinicProfileRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:1000'],
+            'city' => ['nullable', 'string', 'max:100'],
             'license_no' => ['nullable', 'string', 'max:100'],
             'receipt_header' => ['nullable', 'string', 'max:500'],
             'prescription_header' => ['nullable', 'string', 'max:500'],

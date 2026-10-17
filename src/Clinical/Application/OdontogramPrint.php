@@ -56,13 +56,14 @@ final readonly class OdontogramPrint
             }
             $wholeCode = $whole === null ? null : (string) $whole['condition_code'];
 
-            return [
-                'fdi' => $fdi,
+            $tooth = [
                 'mesial_right' => in_array(intdiv($fdi, 10), [1, 4, 5, 8], true),
                 'whole' => $wholeCode,
                 'whole_color' => $wholeCode === null ? null : ($colors[$wholeCode] ?? '#9CA3AF'),
                 'surfaces' => array_map(fn (string $code) => ['code' => $code, 'color' => $colors[$code] ?? '#9CA3AF'], $surfaces),
             ];
+
+            return ['fdi' => $fdi, 'glyph' => ToothGlyph::dataUri($tooth), ...$tooth];
         };
 
         $hasPrimary = false;

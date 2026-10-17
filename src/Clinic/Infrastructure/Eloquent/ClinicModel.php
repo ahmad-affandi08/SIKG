@@ -20,6 +20,7 @@ use Src\Shared\Infrastructure\Eloquent\UsesUlid;
  * @property string|null $license_no
  * @property string $timezone
  * @property string|null $logo_path
+ * @property string|null $city
  * @property string|null $receipt_header
  * @property string|null $prescription_header
  * @property array<string, mixed>|null $settings
@@ -32,7 +33,7 @@ final class ClinicModel extends Model
 
     protected $table = 'clinics';
 
-    protected $fillable = ['name', 'address', 'license_no', 'timezone', 'logo_path', 'receipt_header', 'prescription_header', 'settings'];
+    protected $fillable = ['name', 'address', 'city', 'license_no', 'timezone', 'logo_path', 'receipt_header', 'prescription_header', 'settings'];
 
     protected static function booted(): void
     {

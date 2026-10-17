@@ -54,7 +54,7 @@
                     @endif
                 </td>
                 <td style="width: 50%;">
-                    <div class="role">Penerima,</div>
+                    <div class="role">{{ ! empty($letterhead['city']) ? $letterhead['city'].', ' : '' }}{{ substr($receipt['paid_at_local'], 0, 10) }}<br>Penerima,</div>
                     <div class="space"></div>
                     <div class="name">{{ $receipt['received_by_name'] ?? '-' }}</div>
                     <div class="meta">Kasir {{ $letterhead['name'] }}</div>
@@ -132,7 +132,7 @@
             <tr>
                 <td style="width: 58%;"></td>
                 <td style="width: 42%;">
-                    <div class="role">Hormat kami,<br>{{ $letterhead['name'] }}</div>
+                    <div class="role">{{ ! empty($letterhead['city']) ? $letterhead['city'].', ' : '' }}{{ substr((string) ($i['issued_at_local'] ?? ''), 0, 10) }}<br>Hormat kami,<br>{{ $letterhead['name'] }}</div>
                     <div class="space"></div>
                     <div class="blank">Kasir</div>
                 </td>

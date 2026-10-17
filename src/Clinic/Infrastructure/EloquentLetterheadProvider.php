@@ -17,7 +17,7 @@ final class EloquentLetterheadProvider implements LetterheadProvider
     {
         $clinic = ClinicModel::query()->firstOrFail();
 
-        return new Letterhead($clinic->name, $clinic->address, $clinic->license_no, $clinic->receipt_header, $this->logo($clinic->logo_path), $clinic->prescription_header);
+        return new Letterhead($clinic->name, $clinic->address, $clinic->license_no, $clinic->receipt_header, $this->logo($clinic->logo_path), $clinic->prescription_header, $clinic->city);
     }
 
     private function logo(?string $path): ?string

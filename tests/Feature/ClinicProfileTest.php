@@ -13,6 +13,7 @@ function payloadProfil(array $override = []): array
     return [
         'name' => 'Klinik Gigi Senyum',
         'address' => 'Jl. Merdeka No. 1',
+        'city' => 'Surakarta',
         'license_no' => 'IZIN/123/2025',
         'receipt_header' => "Klinik Gigi Senyum\nJl. Merdeka No. 1",
         'prescription_header' => 'Klinik Gigi Senyum - Resep',
@@ -28,6 +29,7 @@ it('MST-01 Admin menyimpan profil klinik dan perubahan tercatat di audit', funct
 
     $klinik->refresh();
     expect($klinik->name)->toBe('Klinik Gigi Senyum')
+        ->and($klinik->city)->toBe('Surakarta')
         ->and($klinik->license_no)->toBe('IZIN/123/2025')
         ->and($klinik->receipt_header)->toContain('Jl. Merdeka');
     tenant()->set($klinik->id);

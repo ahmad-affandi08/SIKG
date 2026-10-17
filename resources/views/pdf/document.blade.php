@@ -11,7 +11,7 @@
         <table class="letter-meta">
             <tr>
                 <td class="k">Nomor</td><td class="s">:</td><td>{{ $number }}</td>
-                <td class="date" rowspan="3">{{ $issued_on }}</td>
+                <td class="date" rowspan="3">{{ $place ? $place.', ' : '' }}{{ $issued_on }}</td>
             </tr>
             <tr><td class="k">Lampiran</td><td class="s">:</td><td>-</td></tr>
             <tr><td class="k">Perihal</td><td class="s">:</td><td><strong>{{ $subject }}</strong></td></tr>
@@ -33,7 +33,7 @@
     @endforeach
 
     @if (! $official_letter)
-        <p style="text-align: right; margin-top: 12pt;">Diterbitkan tanggal {{ $issued_on }}</p>
+        <p style="text-align: right; margin-top: 12pt;">{{ $place ? $place.', ' : 'Diterbitkan tanggal ' }}{{ $issued_on }}</p>
     @endif
 
     @if ($patient_signature)

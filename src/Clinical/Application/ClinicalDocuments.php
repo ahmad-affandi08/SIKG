@@ -196,7 +196,7 @@ final readonly class ClinicalDocuments
             'subject' => $document->type->subject(),
             'signer_role' => $document->type->signerRole(),
             'issued_on' => $issued->format('d/m/Y'),
-            'place' => $head->clinicName,
+            'place' => $head->city,
             'doctor' => ['name' => $document->doctorName, 'sip' => $document->doctorSip],
             'patient' => ['name' => $patient->name, 'medical_record_no' => $patient->medicalRecordNo],
             'patient_signature' => $document->type->needsPatientSignature(),

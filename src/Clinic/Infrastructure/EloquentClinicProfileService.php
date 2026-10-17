@@ -24,7 +24,7 @@ final readonly class EloquentClinicProfileService implements ClinicProfileServic
     {
         $clinic = ClinicModel::query()->firstOrFail();
 
-        return new ClinicProfile($clinic->name, $clinic->address, $clinic->license_no, $clinic->receipt_header, $clinic->prescription_header, $clinic->logo_path !== null);
+        return new ClinicProfile($clinic->name, $clinic->address, $clinic->city, $clinic->license_no, $clinic->receipt_header, $clinic->prescription_header, $clinic->logo_path !== null);
     }
 
     public function update(string $actorId, ClinicProfile $profile): void
@@ -36,6 +36,7 @@ final readonly class EloquentClinicProfileService implements ClinicProfileServic
             $clinic->forceFill([
                 'name' => $profile->name,
                 'address' => $profile->address,
+                'city' => $profile->city,
                 'license_no' => $profile->licenseNo,
                 'receipt_header' => $profile->receiptHeader,
                 'prescription_header' => $profile->prescriptionHeader,
@@ -101,6 +102,7 @@ final readonly class EloquentClinicProfileService implements ClinicProfileServic
         return [
             'name' => $clinic->name,
             'address' => $clinic->address,
+            'city' => $clinic->city,
             'license_no' => $clinic->license_no,
             'receipt_header' => $clinic->receipt_header,
             'prescription_header' => $clinic->prescription_header,

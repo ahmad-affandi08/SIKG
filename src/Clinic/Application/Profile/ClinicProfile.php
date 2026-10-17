@@ -9,6 +9,7 @@ final readonly class ClinicProfile
     public function __construct(
         public string $name,
         public ?string $address,
+        public ?string $city,
         public ?string $licenseNo,
         public ?string $receiptHeader,
         public ?string $prescriptionHeader,
@@ -16,13 +17,14 @@ final readonly class ClinicProfile
     ) {}
 
     /**
-     * @return array{name: string, address: ?string, license_no: ?string, receipt_header: ?string, prescription_header: ?string, has_logo: bool}
+     * @return array{name: string, address: ?string, city: ?string, license_no: ?string, receipt_header: ?string, prescription_header: ?string, has_logo: bool}
      */
     public function toArray(): array
     {
         return [
             'name' => $this->name,
             'address' => $this->address,
+            'city' => $this->city,
             'license_no' => $this->licenseNo,
             'receipt_header' => $this->receiptHeader,
             'prescription_header' => $this->prescriptionHeader,

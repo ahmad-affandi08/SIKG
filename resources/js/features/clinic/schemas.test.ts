@@ -89,6 +89,7 @@ describe('MST-01 profil klinik', () => {
   const valid = {
     name: 'Klinik Senyum',
     address: '',
+    city: '',
     license_no: '',
     receipt_header: '',
     prescription_header: '',

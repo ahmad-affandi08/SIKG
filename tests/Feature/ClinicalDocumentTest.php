@@ -258,5 +258,6 @@ it('ADR-0008 kop dokumen klinis sama dengan kop semua cetakan klinik', function 
 
     test()->actingAs($s['dokter_user'])->get("/documents/{$id}/print")->assertOk();
 
-    expect(PdfPerekam::$permintaan)->toHaveCount(1)->and(PdfPerekam::$permintaan[0]->data['letterhead'])->toBe($kop);
+    expect(PdfPerekam::$permintaan)->toHaveCount(1)->and(PdfPerekam::$permintaan[0]->data['letterhead'])->toBe($kop)
+        ->and(PdfPerekam::$permintaan[0]->data['place'])->toBe('Surakarta');
 });

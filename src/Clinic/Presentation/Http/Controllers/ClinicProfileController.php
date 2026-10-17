@@ -36,6 +36,7 @@ final class ClinicProfileController
         $this->profile->update($this->actorId($request), new ClinicProfile(
             name: $request->string('name')->trim()->toString(),
             address: $this->nullable($request->input('address')),
+            city: $this->nullable($request->input('city')),
             licenseNo: $this->nullable($request->input('license_no')),
             receiptHeader: $this->nullable($request->input('receipt_header')),
             prescriptionHeader: $this->nullable($request->input('prescription_header')),
