@@ -33,6 +33,14 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
     expect(labels(visibleNavItems(MENU, ['patient.view']))).not.toContain('Pengaturan');
   });
 
+  it('LAP menu Laporan tampil bagi pemegang report.view atau stock.manage (Perawat), tidak bagi lainnya', () => {
+    const laporan = NAV_ITEMS.filter((item) => item.href === '/reports');
+
+    expect(labels(visibleNavItems(laporan, ['report.view']))).toEqual(['Laporan']);
+    expect(labels(visibleNavItems(laporan, ['stock.manage']))).toEqual(['Laporan']);
+    expect(labels(visibleNavItems(laporan, ['patient.view', 'invoice.view']))).toEqual([]);
+  });
+
   it('daftar menu bawaan aplikasi hanya memuat halaman yang sudah ada', () => {
     expect(NAV_ITEMS.map((item) => item.href)).toEqual([
       '/dashboard',
@@ -42,6 +50,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/stock',
       '/invoices',
       '/cash-closings',
+      '/reports',
       '/settings/users',
       '/settings/profile',
       '/settings/clinic',

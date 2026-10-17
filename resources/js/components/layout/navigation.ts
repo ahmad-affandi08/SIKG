@@ -5,6 +5,8 @@ export interface NavItem {
   href: string;
   /** Izin yang diperlukan untuk menampilkan menu. Kosong berarti untuk semua pengguna yang masuk. */
   permission?: string;
+  /** Alternatif `permission`: menu tampil bila pengguna memiliki salah satu izin ini. */
+  anyOf?: readonly string[];
   /** Judul kelompok menu; item berurutan dengan kelompok sama ditampilkan di bawah satu judul. */
   group?: string;
 }
@@ -36,6 +38,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Stok obat', href: '/stock', permission: 'stock.view', group: 'Farmasi' },
   { label: 'Tagihan', href: '/invoices', permission: 'invoice.view', group: 'Kasir' },
   { label: 'Tutup kas', href: '/cash-closings', permission: 'cash.close', group: 'Kasir' },
+  { label: 'Laporan', href: '/reports', anyOf: ['report.view', 'stock.manage'] },
   {
     label: 'Pengguna',
     href: '/settings/users',
@@ -116,5 +119,10 @@ export function visibleNavItems(
   items: readonly NavItem[],
   permissions: readonly string[],
 ): NavItem[] {
-  return items.filter((item) => item.permission === undefined || can(permissions, item.permission));
+  return items.filter((item) => {
+    if (item.anyOf !== undefined) {
+      return item.anyOf.some((permission) => can(permissions, permission));
+    }
+    return item.permission === undefined || can(permissions, item.permission);
+  });
 }

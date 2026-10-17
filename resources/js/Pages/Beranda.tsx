@@ -3,6 +3,8 @@ import { Link, usePage } from '@inertiajs/react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
+import { OwnerDashboard } from '@/features/reporting/components/OwnerDashboard';
+import type { Dashboard } from '@/features/reporting/schemas';
 import { formatDate } from '@/lib/format';
 
 const QUICK_ACCESS_GROUPS = new Set(['Layanan', 'Farmasi', 'Kasir']);
@@ -14,6 +16,7 @@ const DESCRIPTIONS: Record<string, string> = {
   '/stock': 'Lihat stok, catat mutasi, dan lakukan penyesuaian.',
   '/invoices': 'Tagihan, pembayaran, diskon, dan cetak kwitansi.',
   '/cash-closings': 'Hitung uang fisik dan cocokkan dengan catatan kas.',
+  '/reports': 'Laporan keuangan, kunjungan, stok, dan aktivitas, dengan ekspor PDF dan Excel.',
 };
 
 function greeting(hour: number): string {
@@ -30,11 +33,12 @@ function greeting(hour: number): string {
 }
 
 /** Beranda: sapaan dan akses cepat ke modul yang boleh dibuka pengguna. Isi per peran menyusul bersama kebutuhannya. */
-export default function Beranda() {
+export default function Beranda({ dashboard }: { dashboard?: Dashboard | null }) {
   const { auth } = usePage().props;
   const now = new Date();
   const items = visibleNavItems(NAV_ITEMS, auth.permissions).filter(
-    (item) => item.group !== undefined && QUICK_ACCESS_GROUPS.has(item.group),
+    (item) =>
+      item.href === '/reports' || (item.group !== undefined && QUICK_ACCESS_GROUPS.has(item.group)),
   );
   const firstName = auth.user?.name.split(' ')[0] ?? '';
 
@@ -49,6 +53,8 @@ export default function Beranda() {
           </h1>
           <p className="text-muted mt-1">Pilih pekerjaan yang ingin Anda mulai hari ini.</p>
         </header>
+
+        {dashboard ? <OwnerDashboard dashboard={dashboard} /> : null}
 
         {items.length > 0 ? (
           <section aria-label="Akses cepat">

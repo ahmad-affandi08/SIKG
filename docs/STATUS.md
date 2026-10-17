@@ -77,6 +77,16 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] OBT-02 | S | Peringatan alergi
 - [ ] OBT-06 | S | Peringatan stok di bawah minimum dan obat yang kedaluwarsa dalam 30 hari
 - [x] KSR-05 | S | Paket cicilan (contoh
+- [x] LAP-01 | S | Laporan ringkasan harian
+- [x] LAP-02 | S | Laporan pendapatan
+- [x] LAP-03 | S | Laporan jasa dokter
+- [x] LAP-04 | S | Laporan kunjungan
+- [x] LAP-05 | S | Laporan tindakan
+- [x] LAP-06 | S | Laporan piutang dan DP
+- [x] LAP-07 | S | Laporan stok
+- [x] LAP-08 | S | Laporan tutup kas
+- [x] LAP-09 | S | Laporan kelengkapan rekam medis
+- [x] LAP-10 | S | Laporan aktivitas pengguna
 
 ### Could
 

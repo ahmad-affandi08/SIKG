@@ -30,3 +30,9 @@ Schedule::command('sikg:backup:prune')
     ->name('sikg-backup-prune')
     ->dailyAt('04:30')
     ->withoutOverlapping(30);
+
+// LAP: berkas ekspor laporan dilepas setelah masa simpan; tahan cron yang terlewat karena hanya menghapus yang kedaluwarsa.
+Schedule::command('sikg:reports:prune')
+    ->name('sikg-reports-prune')
+    ->dailyAt('05:00')
+    ->withoutOverlapping(30);
