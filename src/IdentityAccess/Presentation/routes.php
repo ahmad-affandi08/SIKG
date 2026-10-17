@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Src\IdentityAccess\Presentation\Http\Controllers\AuditController;
 use Src\IdentityAccess\Presentation\Http\Controllers\DashboardController;
 use Src\IdentityAccess\Presentation\Http\Controllers\LoginController;
 use Src\IdentityAccess\Presentation\Http\Controllers\UserController;
@@ -30,4 +31,11 @@ Route::middleware(['auth', 'can:user.manage'])->prefix('settings/users')->group(
     Route::post('/{user}/deactivate', [UserController::class, 'deactivate']);
     Route::post('/{user}/activate', [UserController::class, 'activate']);
     Route::post('/{user}/reset-password', [UserController::class, 'resetPassword']);
+});
+
+// SYS-01: audit log dan jejak akses. Hanya Pemilik dan Admin (izin audit.view); semua hanya-baca.
+Route::middleware(['auth', 'can:audit.view'])->prefix('audit')->group(function (): void {
+    Route::get('/', [AuditController::class, 'index'])->name('audit.index');
+    Route::get('/access', [AuditController::class, 'accesses'])->name('audit.access');
+    Route::get('/{entry}', [AuditController::class, 'show'])->name('audit.show')->where('entry', '[0-9A-Z]{26}');
 });

@@ -90,6 +90,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
     permission: 'stock.view',
     group: 'Pengaturan',
   },
+  { label: 'Audit log', href: '/audit', permission: 'audit.view', group: 'Pengaturan' },
+  { label: 'Jejak akses', href: '/audit/access', permission: 'audit.view', group: 'Pengaturan' },
   {
     label: 'Sistem',
     href: '/settings/system',

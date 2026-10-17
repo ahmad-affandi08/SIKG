@@ -6,6 +6,7 @@ namespace Src\Shared\Infrastructure\Audit;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
 use LogicException;
 use Src\Shared\Infrastructure\Eloquent\UsesUlid;
 use Src\Shared\Infrastructure\Tenancy\ClinicScope;
@@ -15,6 +16,8 @@ use Src\Shared\Infrastructure\Tenancy\ClinicScope;
  * @property string|null $actor_id
  * @property string|null $patient_id
  * @property string $route
+ * @property string|null $ip
+ * @property Carbon $at
  */
 final class AccessLogModel extends Model
 {

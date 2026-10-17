@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Src\Shared\Application\AccessLogger;
 use Src\Shared\Application\AuditLogger;
+use Src\Shared\Application\AuditTrailReader;
 use Src\Shared\Application\Clock;
 use Src\Shared\Application\EnvironmentInspector;
 use Src\Shared\Application\EventDispatcher;
@@ -22,6 +23,7 @@ use Src\Shared\Application\Transaction;
 use Src\Shared\Domain\IdGenerator;
 use Src\Shared\Infrastructure\Audit\DatabaseAccessLogger;
 use Src\Shared\Infrastructure\Audit\DatabaseAuditLogger;
+use Src\Shared\Infrastructure\Audit\EloquentAuditTrailReader;
 use Src\Shared\Infrastructure\Console\HealthCheckCommand;
 use Src\Shared\Infrastructure\Console\PreflightCommand;
 use Src\Shared\Infrastructure\Health\DatabaseHealthMonitor;
@@ -44,6 +46,7 @@ final class SharedServiceProvider extends ServiceProvider
         $this->app->singleton(EnvironmentInspector::class, PhpEnvironmentInspector::class);
         $this->app->scoped(AuditLogger::class, DatabaseAuditLogger::class);
         $this->app->scoped(AccessLogger::class, DatabaseAccessLogger::class);
+        $this->app->singleton(AuditTrailReader::class, EloquentAuditTrailReader::class);
     }
 
     public function boot(): void

@@ -6,6 +6,7 @@ namespace Src\Shared\Infrastructure\Audit;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
 use LogicException;
 use Src\Shared\Infrastructure\Eloquent\UsesUlid;
 use Src\Shared\Infrastructure\Tenancy\ClinicScope;
@@ -18,6 +19,9 @@ use Src\Shared\Infrastructure\Tenancy\ClinicScope;
  * @property string $subject_id
  * @property array<string, mixed>|null $before
  * @property array<string, mixed>|null $after
+ * @property string|null $ip
+ * @property string|null $user_agent
+ * @property Carbon $created_at
  */
 final class AuditLogModel extends Model
 {
