@@ -6,6 +6,7 @@ namespace Src\Clinical\Application;
 
 use Src\Clinic\Contracts\ChairDirectory;
 use Src\Clinic\Contracts\DoctorDirectory;
+use Src\Clinical\Domain\ClinicalFileRepository;
 use Src\Clinical\Domain\EncounterNotFound;
 use Src\Clinical\Domain\EncounterRepository;
 use Src\IdentityAccess\Contracts\UserLookup;
@@ -21,6 +22,7 @@ final readonly class EncounterWorkspace
 {
     public function __construct(
         private EncounterRepository $encounters,
+        private ClinicalFileRepository $files,
         private PatientLookup $patients,
         private PatientAlerts $alerts,
         private DoctorDirectory $doctors,
@@ -54,6 +56,8 @@ final readonly class EncounterWorkspace
             'supersedes_id' => $n->supersedesId,
         ];
 
+        $files = $this->files->forEncounter($encounterId);
+        $uploaders = $this->users->names(array_values(array_unique(array_map(fn ($f) => $f->uploadedBy, $files))));
         $superseded = array_filter(array_map(fn ($n) => $n->supersedesId, $history));
         $current = array_values(array_filter($history, fn ($n) => ! in_array($n->id, $superseded, true)));
 
@@ -83,6 +87,17 @@ final readonly class EncounterWorkspace
             'note_history' => array_map($present, $history),
             'diagnoses' => array_map(fn ($d) => $d->toArray(), $this->encounters->diagnoses($encounterId)),
             'procedures' => array_map(fn ($p) => $p->toArray(), $this->encounters->procedures($encounterId)),
+            'files' => array_map(fn ($f) => [
+                'id' => $f->id,
+                'kind' => $f->kind->value,
+                'kind_label' => $f->kind->label(),
+                'tooth_fdi' => $f->toothFdi,
+                'mime' => $f->mime,
+                'size' => $f->size,
+                'caption' => $f->caption,
+                'uploaded_at' => $f->uploadedAt->format('c'),
+                'uploaded_by' => $uploaders[$f->uploadedBy] ?? '-',
+            ], $files),
             'warnings' => array_map(fn ($a) => $a->toArray(), $this->alerts->warnings($encounter->patientId)),
             'medical_history' => array_map(fn ($a) => $a->toArray(), $this->alerts->history($encounter->patientId)),
             'chairs' => array_map(fn ($c) => ['value' => $c->id, 'label' => $c->name], $this->chairs->active()),

@@ -10,6 +10,7 @@ import {
   AddendumPanel,
   AnamnesisPanel,
   DiagnosisPanel,
+  FilesPanel,
   MedicalWarnings,
   ProcedurePanel,
   SoapPanel,
@@ -17,6 +18,7 @@ import {
 import type {
   DiagnosisEntry,
   EncounterData,
+  FileEntry,
   Note,
   ProcedureEntry,
   Warning,
@@ -42,6 +44,7 @@ interface Props {
   note_history: Note[];
   diagnoses: DiagnosisEntry[];
   procedures: ProcedureEntry[];
+  files: FileEntry[];
   warnings: Warning[];
   medical_history: Warning[];
   chairs: SelectOption[];
@@ -62,6 +65,7 @@ const TABS = [
   { key: 'odontogram', label: 'Odontogram' },
   { key: 'diagnosis', label: 'Diagnosa' },
   { key: 'procedures', label: 'Tindakan' },
+  { key: 'files', label: 'Berkas' },
   { key: 'addenda', label: 'Addendum dan riwayat' },
 ] as const;
 
@@ -75,6 +79,7 @@ export default function Show(props: Props) {
     note_history: history,
     diagnoses,
     procedures,
+    files,
     warnings,
     chairs,
     jaws,
@@ -207,6 +212,9 @@ export default function Show(props: Props) {
               jaws={jaws}
               canEdit={canEdit}
             />
+          ) : null}
+          {tab === 'files' ? (
+            <FilesPanel encounterId={encounter.id} files={files} canEdit={canEdit} />
           ) : null}
           {tab === 'addenda' ? (
             <div className="flex flex-col gap-6">

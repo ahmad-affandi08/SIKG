@@ -23,7 +23,8 @@ import {
   tenthsToTemperature,
 } from '@/features/clinical/schemas';
 import type { SoapKey } from '@/features/clinical/schemas';
-import { SURFACES } from '@/features/clinical/tooth';
+import { FILE_KINDS, fileIssue, fileMetaSchema, formatBytes } from '@/features/clinical/files';
+import { isValidFdi, SURFACES } from '@/features/clinical/tooth';
 import { formatDateTime, formatRupiah } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
 
@@ -812,5 +813,177 @@ export function AddendumPanel({
         </form>
       ) : null}
     </section>
+  );
+}
+
+export interface FileEntry {
+  id: string;
+  kind: string;
+  kind_label: string;
+  tooth_fdi: number | null;
+  mime: string;
+  size: number;
+  caption: string | null;
+  uploaded_at: string;
+  uploaded_by: string;
+}
+
+export function FilesPanel({
+  encounterId,
+  files,
+  canEdit,
+}: {
+  encounterId: string;
+  files: FileEntry[];
+  canEdit: boolean;
+}) {
+  const [file, setFile] = useState<File | null>(null);
+  const [kind, setKind] = useState('xray');
+  const [tooth, setTooth] = useState('');
+  const [caption, setCaption] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const timezone = useClinicTimezone();
+
+  function submit(event: SyntheticEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const issue = fileIssue(file);
+    const meta = fileMetaSchema.safeParse({ kind, tooth_fdi: tooth, caption });
+    const next: Record<string, string> = meta.success ? {} : collect(meta.error.issues);
+    if (issue) {
+      next.file = issue;
+    }
+    if (tooth !== '' && !isValidFdi(Number(tooth))) {
+      next.tooth_fdi = 'Nomor gigi tidak valid menurut FDI.';
+    }
+    if (Object.keys(next).length > 0) {
+      setErrors(next);
+      return;
+    }
+    setErrors({});
+    setSaving(true);
+    router.post(
+      `/encounters/${encounterId}/files`,
+      { file, kind, tooth_fdi: tooth === '' ? null : Number(tooth), caption },
+      {
+        forceFormData: true,
+        preserveScroll: true,
+        onSuccess: () => {
+          setFile(null);
+          setTooth('');
+          setCaption('');
+        },
+        onError: (serverErrors) => {
+          setErrors(serverErrors);
+        },
+        onFinish: () => {
+          setSaving(false);
+        },
+      },
+    );
+  }
+
+  return (
+    <div className="flex max-w-3xl flex-col gap-4">
+      {files.length === 0 ? <p className="text-sm text-slate-600">Belum ada berkas.</p> : null}
+      <ul className="flex flex-col gap-2">
+        {files.map((f) => (
+          <li
+            key={f.id}
+            className="rounded-control flex flex-wrap items-center gap-2 p-2 ring-1 ring-slate-200"
+          >
+            <Badge>{f.kind_label}</Badge>
+            <a
+              href={`/clinical-files/${f.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-700 text-sm underline"
+            >
+              {f.caption ?? 'Buka berkas'}
+            </a>
+            {f.tooth_fdi ? <span className="text-sm">gigi {f.tooth_fdi}</span> : null}
+            <span className="text-xs text-slate-600">
+              {formatBytes(f.size)}, {f.uploaded_by}, {formatDateTime(f.uploaded_at, timezone)}
+            </span>
+            {canEdit ? (
+              <ConfirmAction
+                label={`Lepas ${f.caption ?? f.kind_label}`}
+                message="Berkas dilepas dari kunjungan; arsip tetap tersimpan."
+                confirmLabel="Ya, lepas"
+                onConfirm={() => {
+                  router.delete(`/encounters/${encounterId}/files/${f.id}`, {
+                    preserveScroll: true,
+                  });
+                }}
+              />
+            ) : null}
+          </li>
+        ))}
+      </ul>
+
+      {canEdit ? (
+        <form
+          onSubmit={submit}
+          noValidate
+          aria-label="Unggah berkas"
+          className="rounded-control flex flex-col gap-3 p-3 ring-1 ring-slate-200"
+        >
+          <div className="flex flex-col gap-1">
+            <label htmlFor="clinical-file" className="text-sm font-medium">
+              Berkas (JPG, PNG, atau PDF, maksimal 10 MB)
+            </label>
+            <input
+              id="clinical-file"
+              type="file"
+              accept="image/jpeg,image/png,application/pdf"
+              onChange={(event) => {
+                setFile(event.target.files?.[0] ?? null);
+              }}
+            />
+            {errors.file ? (
+              <p role="alert" className="text-danger-600 text-sm">
+                {errors.file}
+              </p>
+            ) : null}
+          </div>
+          <Select
+            label="Jenis"
+            options={FILE_KINDS.map((k) => ({ value: k.value, label: k.label }))}
+            value={kind}
+            onChange={(event) => {
+              setKind(event.target.value);
+            }}
+            error={errors.kind}
+          />
+          <TextField
+            label="Nomor gigi (opsional, FDI)"
+            inputMode="numeric"
+            value={tooth}
+            onChange={(e) => {
+              setTooth(e.target.value);
+            }}
+            error={errors.tooth_fdi}
+          />
+          <TextField
+            label="Keterangan"
+            value={caption}
+            onChange={(e) => {
+              setCaption(e.target.value);
+            }}
+            error={errors.caption}
+          />
+          {errors.domain ? (
+            <p role="alert" className="text-danger-600 text-sm">
+              {errors.domain}
+            </p>
+          ) : null}
+          <div>
+            <Button type="submit" loading={saving}>
+              Unggah berkas
+            </Button>
+          </div>
+        </form>
+      ) : null}
+    </div>
   );
 }

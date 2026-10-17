@@ -8,19 +8,28 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Src\Clinical\Application\Diagnosis\DiagnosisCatalog;
+use Src\Clinical\Application\FileVault;
 use Src\Clinical\Application\OpenEncounterListener;
+use Src\Clinical\Domain\ClinicalFileRepository;
 use Src\Clinical\Domain\EncounterRepository;
 use Src\Clinical\Domain\OdontogramRepository;
+use Src\Clinical\Infrastructure\EloquentClinicalFileRepository;
 use Src\Clinical\Infrastructure\EloquentDiagnosisCatalog;
 use Src\Clinical\Infrastructure\EloquentEncounterRepository;
 use Src\Clinical\Infrastructure\EloquentOdontogramRepository;
+use Src\Clinical\Infrastructure\PrivateFileVault;
 use Src\Scheduling\Domain\Events\PatientCheckedIn;
+use Src\Shared\Application\PiiProtector;
+use Src\Shared\Application\TenantContext;
+use Src\Shared\Domain\IdGenerator;
 
 final class ClinicalServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->app->singleton(OdontogramRepository::class, EloquentOdontogramRepository::class);
+        $this->app->singleton(ClinicalFileRepository::class, EloquentClinicalFileRepository::class);
+        $this->app->singleton(FileVault::class, fn ($app) => new PrivateFileVault($app->make(PiiProtector::class), $app->make(IdGenerator::class), $app->make(TenantContext::class), (bool) config('sikg.encrypt_files')));
         $this->app->singleton(EncounterRepository::class, EloquentEncounterRepository::class);
         $this->app->singleton(DiagnosisCatalog::class, EloquentDiagnosisCatalog::class);
     }

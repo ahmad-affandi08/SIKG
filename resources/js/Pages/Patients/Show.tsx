@@ -47,7 +47,7 @@ interface Props {
   histories: History[];
   consents: { version: string; given_at: string; recorded_by: string }[];
   currentConsentVersion: string;
-  can: { update: boolean; archive: boolean; history: boolean };
+  can: { update: boolean; archive: boolean; history: boolean; timeline: boolean };
   sexes?: SelectOption[];
   historyTypes: SelectOption[];
   severities: SelectOption[];
@@ -110,6 +110,14 @@ export default function Show({
             <p className="text-sm text-slate-600">Nomor RM {patient.medical_record_no}</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {can.timeline ? (
+              <Link
+                href={`/patients/${patient.id}/timeline`}
+                className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
+              >
+                Riwayat kunjungan
+              </Link>
+            ) : null}
             {can.update ? (
               <Link
                 href={`/patients/${patient.id}/edit`}

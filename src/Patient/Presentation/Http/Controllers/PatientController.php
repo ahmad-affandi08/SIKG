@@ -75,6 +75,7 @@ final class PatientController
                 'update' => $canUpdate,
                 'archive' => (bool) $request->user()?->can('patient.delete'),
                 'history' => (bool) $request->user()?->can('patient.history.manage'),
+                'timeline' => (bool) $request->user()?->can('encounter.view'),
             ],
             ...$this->historyOptions(),
         ]);
