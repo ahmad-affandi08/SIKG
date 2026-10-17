@@ -38,6 +38,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Stok obat', href: '/stock', permission: 'stock.view', group: 'Farmasi' },
   { label: 'Tagihan', href: '/invoices', permission: 'invoice.view', group: 'Kasir' },
   { label: 'Tutup kas', href: '/cash-closings', permission: 'cash.close', group: 'Kasir' },
+  {
+    label: 'Klaim penjamin',
+    href: '/insurance/claims',
+    permission: 'invoice.view',
+    group: 'Kasir',
+  },
   { label: 'Laporan', href: '/reports', anyOf: ['report.view', 'stock.manage'] },
   {
     label: 'Pengguna',
@@ -91,6 +97,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Metode pembayaran',
     href: '/settings/master/payment-methods',
     permission: 'setting.manage',
+    group: 'Pengaturan',
+  },
+  {
+    label: 'Penjamin',
+    href: '/settings/master/insurers',
+    permission: 'invoice.view',
     group: 'Pengaturan',
   },
   {

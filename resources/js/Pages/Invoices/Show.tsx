@@ -162,6 +162,14 @@ export default function Show({ invoice, items, payments, installments, can }: Pr
                 Diskon tagihan
               </Link>
             ) : null}
+            {can.edit && invoice.lifecycle === 'issued' && !voided ? (
+              <Link
+                href={`/insurance/claims/create?invoice=${invoice.id}`}
+                className="btn btn-secondary"
+              >
+                Tagih ke penjamin
+              </Link>
+            ) : null}
             {can.edit && invoice.lifecycle === 'draft' ? (
               <ConfirmAction
                 label="Terbitkan tagihan"

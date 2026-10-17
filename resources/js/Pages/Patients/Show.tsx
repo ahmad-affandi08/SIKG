@@ -100,6 +100,9 @@ export default function Show({
                 Dokumen klinis
               </Link>
             ) : null}
+            <Link href={`/patients/${patient.id}/insurance`} className="btn btn-secondary">
+              Penjamin
+            </Link>
             {can.merge ? (
               <Link href={`/patients/${patient.id}/merge`} className="btn btn-secondary">
                 Gabung data ganda

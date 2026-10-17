@@ -11,9 +11,11 @@ use Src\Billing\Application\BillingNumbering;
 use Src\Billing\Application\CashRegister;
 use Src\Billing\Application\InvoiceDrafting;
 use Src\Billing\Application\InvoiceListing;
+use Src\Billing\Contracts\InvoiceClaimGateway;
 use Src\Billing\Contracts\InvoiceLookup;
 use Src\Billing\Domain\InstallmentRepository;
 use Src\Billing\Domain\InvoiceRepository;
+use Src\Billing\Infrastructure\BillingInvoiceClaimGateway;
 use Src\Billing\Infrastructure\ClinicBillingNumbering;
 use Src\Billing\Infrastructure\Eloquent\InvoiceModel;
 use Src\Billing\Infrastructure\EloquentCashRegister;
@@ -40,6 +42,7 @@ final class BillingServiceProvider extends ServiceProvider
         $this->app->singleton(CashRegister::class, EloquentCashRegister::class);
         $this->app->singleton(InvoiceListing::class, EloquentInvoiceListing::class);
         $this->app->singleton(InvoiceLookup::class, EloquentInvoiceListing::class);
+        $this->app->singleton(InvoiceClaimGateway::class, BillingInvoiceClaimGateway::class);
     }
 
     public function boot(): void
