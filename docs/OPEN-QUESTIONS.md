@@ -40,6 +40,24 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) layanan uptime pihak ketiga dengan header token; (b) layanan yang hanya mendukung token di URL, dengan token khusus-baca yang hanya menampilkan status ya/tidak
 - Rekomendasi: (a) bila tersedia, kalau tidak (b); tidak ada PHI yang pernah dikirim ke layanan itu (M11)
 
+### Q-5: Paket dev Composer tidak dapat diunduh di sandbox, dan MySQL tidak tersedia
+- Kebutuhan terkait: Fase 0 langkah 5, 7, 8; `scripts/verify.sh`
+- Dokumen yang bertabrakan atau kurang: `docs/BOOTSTRAP.md` langkah 5 dan 7. Kebijakan jaringan sandbox menolak `api.github.com` dan git clone repositori GitHub lain, sehingga `pestphp/pest`, `pest-plugin-laravel`, `pest-plugin-arch`, `larastan/larastan`, dan `deptrac/deptrac` tidak terpasang (constraint di `composer.json` masih `*` dan perlu dikencangkan setelah terpasang). Docker daemon tidak berjalan sehingga MySQL 8 lokal tidak ada
+- Opsi: (a) pengguna membuka akses ke `api.github.com` dan `github.com` pada pengaturan jaringan lingkungan (dengan opsi package managers tetap aktif) dan menyediakan MySQL, lalu `/bootstrap` dilanjutkan; (b) pengguna menjalankan `composer install` dan tes di mesin lokal; (c) tetap di sandbox tanpa Pest/MySQL, akibatnya langkah 6-8 (kode Shared, pengaman, inti keamanan) tidak dapat diverifikasi dan tidak dikerjakan
+- Rekomendasi: (a)
+
+### Q-6: Berkas kit yang menghalangi `scripts/verify.sh` hijau
+- Kebutuhan terkait: M16, `docs/BOOTSTRAP.md` langkah 3 dan 11
+- Dokumen yang bertabrakan atau kurang (semua berkas terlindungi, hanya pengguna yang boleh mengubah): (1) `tooling/pint.json` memindai `tests-templates/`, dan tiga templat (`Feature/CronJobsTest.php`, `Feature/IdempotentPaymentTest.php`, `Feature/AuthorizationMatrixTest.php`) gagal Pint; (2) `tooling/tsconfig.base.json` memakai `baseUrl` yang usang di TypeScript 6 dan berhenti berfungsi di 7.0, jadi `tsconfig.json` memakai `ignoreDeprecations: "6.0"` sementara; (3) `.claude/settings.json` menolak `Read(./.env.*)` sehingga `.env.example` tidak dapat disunting Claude Code padahal `CLAUDE.md` M13 membolehkannya, dan hook `pre_bash` ikut memblokir perintah yang menyebut kata kunci `.env` pada isi skrip; (4) `.env.example` di akar masih bawaan Laravel, perlu diganti dengan `tooling/templates/env.example`
+- Opsi: (a) pengguna memperbaiki empat butir itu (kecualikan `tests-templates` dari Pint, hapus `baseUrl` dari tsconfig dasar dan sesuaikan alias, longgarkan deny `.env.example`, salin templat env); (b) membiarkan, akibatnya langkah Pint di `verify.sh` terus gagal
+- Rekomendasi: (a)
+
+### Q-7: Tabel pengguna bawaan skeleton Laravel
+- Kebutuhan terkait: AUTH-01, M3
+- Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`
+- Opsi: (a) ditulis ulang sebagai bagian AUTH-01 sebelum ada migrasi yang digabung (menyunting migrasi yang belum dipakai); (b) migrasi baru yang mengubahnya
+- Rekomendasi: (a)
+
 ## Terjawab
 
 (belum ada)

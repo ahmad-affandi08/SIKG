@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+
+@source '../views/**/*.blade.php';
+@source '../js/**/*.tsx';
+
+/* Token desain (docs/rules/frontend.md bagian 6). Tanpa font dari CDN eksternal. */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --color-brand-50: #eff8ff;
+  --color-brand-100: #dbeefe;
+  --color-brand-500: #2b7fd9;
+  --color-brand-600: #1f67b8;
+  --color-brand-700: #1a5496;
+  --color-danger-600: #c0262d;
+  --color-warning-500: #d98a06;
+  --color-success-600: #1c7c4a;
+  --radius-control: 0.5rem;
+  --spacing-touch: 2.75rem;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "extends": "./tooling/tsconfig.base.json",
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": { "@/*": ["resources/js/*"] },
+    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom", "node"]
+  },
+  "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "vitest.config.ts", "vite.config.ts", "playwright.config.ts"]
+}
