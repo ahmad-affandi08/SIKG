@@ -75,7 +75,7 @@ it('SYS-03 setiap tabel bertenant memiliki model yang aman dan setiap tabel data
     $hanyaTambah = [
         'access_logs', 'audit_logs', 'cash_closings', 'payments', 'stock_movements', 'installment_plans', 'installments',
         'clinical_notes', 'patient_consents', 'odontogram_tooth_states', 'prescription_items', 'stock_balances',
-        'backup_runs', 'diagnoses',
+        'backup_runs', 'diagnoses', 'report_jobs',
     ];
     $sistem = ['cache', 'cache_locks', 'failed_jobs', 'job_batches', 'jobs', 'migrations', 'model_has_permissions', 'model_has_roles', 'permissions', 'role_has_permissions', 'roles', 'sequences', 'sessions', 'system_heartbeats'];
 
@@ -159,6 +159,8 @@ it('SYS-03 tidak ada kode aplikasi yang menghapus permanen: setiap delete() terd
         'src/Patient/Application/Import/ProcessImportChunk.php' => 1,         // berkas impor sementara via port
         'src/Patient/Application/Import/StartPatientImport.php' => 1,         // berkas impor sementara via port
         'src/Billing/Infrastructure/EloquentInvoiceRepository.php' => 1,      // item tagihan (soft delete)
+        'src/Reporting/Application/ReportExportService.php' => 1,             // berkas ekspor laporan kedaluwarsa via port; baris report_jobs tetap
+        'src/Reporting/Infrastructure/PrivateReportFileStore.php' => 1,       // berkas ekspor laporan di disk privat, bukan data aplikasi
         'src/Shared/Infrastructure/Backup/PhpBackupEngine.php' => 1,          // cadangan lama sesuai retensi, bukan data aplikasi
     ];
 
