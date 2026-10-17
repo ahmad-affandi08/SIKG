@@ -3,8 +3,13 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Src\Clinic\Infrastructure\Eloquent\BranchModel;
+use Src\Clinic\Infrastructure\Eloquent\ChairModel;
 use Src\Clinic\Infrastructure\Eloquent\ClinicModel;
+use Src\Clinic\Infrastructure\Eloquent\DoctorModel;
+use Src\Clinic\Infrastructure\Eloquent\DoctorScheduleModel;
 use Src\IdentityAccess\Domain\Role;
 use Src\IdentityAccess\Infrastructure\Eloquent\User;
 use Src\IdentityAccess\Infrastructure\Seeders\RolePermissionSeeder;
@@ -94,4 +99,46 @@ function payloadPasien(array $o = []): array
         'consent' => true,
         ...$o,
     ];
+}
+
+/**
+ * Dokter uji dengan jadwal praktik mingguan.
+ *
+ * @param  list<array{weekday: int, start: string, end: string}>  $schedule
+ */
+function makeDoctor(ClinicModel $clinic, string $name = 'drg. Uji', array $schedule = [], bool $active = true): DoctorModel
+{
+    tenant()->set($clinic->id);
+    $doctor = new DoctorModel;
+    $doctor->forceFill(['name' => $name, 'is_active' => $active, 'fee_scheme' => null])->save();
+    foreach ($schedule as $slot) {
+        (new DoctorScheduleModel)->forceFill(['doctor_id' => $doctor->id, 'weekday' => $slot['weekday'], 'start_time' => $slot['start'].':00', 'end_time' => $slot['end'].':00'])->save();
+    }
+
+    return $doctor;
+}
+
+function makeChair(ClinicModel $clinic, string $name = 'Kursi Uji', bool $active = true): ChairModel
+{
+    tenant()->set($clinic->id);
+    $chair = new ChairModel;
+    $chair->forceFill(['name' => $name, 'is_active' => $active])->save();
+
+    return $chair;
+}
+
+/**
+ * Pasien sintetis langsung ke tabel (tanpa melewati pendaftaran) untuk tes modul lain.
+ */
+function makePatient(ClinicModel $clinic, string $name = 'Pasien Uji', string $birthDate = '1990-01-01'): string
+{
+    static $n = 0;
+    $n++;
+    $id = strtoupper((string) Str::ulid());
+    DB::table('patients')->insert([
+        'id' => $id, 'clinic_id' => $clinic->id, 'medical_record_no' => sprintf('UJI-%05d', $n), 'name' => $name,
+        'name_search' => mb_strtolower($name), 'birth_date' => $birthDate, 'sex' => 'male', 'created_at' => now(), 'updated_at' => now(),
+    ]);
+
+    return $id;
 }

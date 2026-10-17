@@ -3,6 +3,28 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Src\Scheduling\Presentation\Http\Controllers\AppointmentController;
 
 // Semua route di balik 'auth' (dipasang oleh ServiceProvider).
 // Setiap route wajib punya pemeriksaan izin: ->middleware('can:<permission>') atau authorize() di controller.
+
+Route::middleware('can:appointment.view')->group(function (): void {
+    Route::get('/schedule', [AppointmentController::class, 'schedule'])->name('schedule');
+    Route::get('/queue', [AppointmentController::class, 'queue'])->name('queue');
+});
+
+Route::middleware(['can:appointment.view', 'throttle:60,1'])->prefix('internal-api')->group(function (): void {
+    Route::get('/queue', [AppointmentController::class, 'queueData']);
+    Route::get('/appointments/availability', [AppointmentController::class, 'availability']);
+});
+
+Route::middleware('can:appointment.manage')->group(function (): void {
+    $id = '[0-9A-Z]{26}';
+    Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::put('/appointments/{appointment}', [AppointmentController::class, 'update'])->where('appointment', $id);
+    Route::post('/appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->where('appointment', $id);
+    Route::post('/appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn'])->where('appointment', $id);
+    Route::post('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->where('appointment', $id);
+    Route::post('/appointments/{appointment}/no-show', [AppointmentController::class, 'noShow'])->where('appointment', $id);
+    Route::post('/walk-ins', [AppointmentController::class, 'walkIn']);
+});

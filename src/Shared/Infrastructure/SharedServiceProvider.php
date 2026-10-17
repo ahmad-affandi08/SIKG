@@ -15,6 +15,7 @@ use Src\Shared\Application\EventDispatcher;
 use Src\Shared\Application\HealthMonitor;
 use Src\Shared\Application\Master\MasterEntityRegistry;
 use Src\Shared\Application\PiiProtector;
+use Src\Shared\Application\ResourceLock;
 use Src\Shared\Application\SequenceGenerator;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Application\Transaction;
@@ -36,6 +37,7 @@ final class SharedServiceProvider extends ServiceProvider
         $this->app->singleton(EventDispatcher::class, AfterCommitEventDispatcher::class);
         $this->app->singleton(SequenceGenerator::class, DatabaseSequenceGenerator::class);
         $this->app->singleton(TenantContext::class);
+        $this->app->singleton(ResourceLock::class, DatabaseResourceLock::class);
         $this->app->singleton(MasterEntityRegistry::class);
         $this->app->singleton(PiiProtector::class, fn ($app) => new LaravelPiiProtector($app->make('encrypter'), config('sikg.pii_hash_key')));
         $this->app->singleton(HealthMonitor::class, DatabaseHealthMonitor::class);

@@ -91,6 +91,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan; (b) pengguna menetapkan batas baris lain atau meminta daftar kerja "perlu dilengkapi"
 - Rekomendasi: (a)
 
+### Q-14: Penjadwalan: asumsi aturan dan batas pengujian konkurensi
+- Kebutuhan terkait: JDW-01 sampai JDW-06, JDW-08
+- Butir: (1) Bentrok dicegah dengan kunci baris pada dokter, kursi, dan pasien lewat tabel `sequences` (nama `lock`) di dalam transaksi, lalu pemeriksaan tumpang tindih; rentang setengah terbuka sehingga janji yang selesai tepat saat janji lain mulai tidak bentrok. Pasien yang sama juga tidak boleh punya dua janji bertumpuk. (2) Walk-in tidak diperiksa terhadap jadwal praktik dan bentrok karena urutannya ditentukan antrean; janji berstatus Batal atau Tidak datang melepas slot. (3) Check-in hanya pada hari janji (zona waktu klinik); Tidak datang hanya setelah jam janji; Jadwal ulang hanya untuk janji Dijadwalkan atau Dikonfirmasi dan mengembalikan status ke Dijadwalkan. (4) Status Sedang diperiksa dan Selesai diubah konteks Clinical lewat kontrak `AppointmentProgress` (belum ada tombol manual untuk resepsionis). (5) Uji konkurensi dengan dua proses paralel (`docs/PRD/12`) belum ada: tes Pest berjalan dalam satu transaksi per tes sehingga tidak dapat meniru dua koneksi; yang diuji adalah penguncian baris (kunci terambil) dan pemeriksaan tumpang tindih. (6) Papan antrean (JDW-06) memakai satu halaman Antrean yang di-poll tiap 10 detik dan dipakai resepsionis maupun dokter; layar khusus dokter tidak dibuat terpisah.
+- Opsi: (a) pertahankan; (b) pengguna meminta uji konkurensi proses paralel dan layar dokter khusus
+- Rekomendasi: (a); (b) dapat menjadi ID baru bila diperlukan
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

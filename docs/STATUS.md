@@ -27,12 +27,12 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] PAS-05 | M | Persetujuan pemrosesan data pribadi dicatat (tanggal, versi teks, siapa yang ...
 - [x] PAS-06 | M | Pasien di bawah 18 tahun wajib memiliki data wali atau penanggung jawab
 - [x] PAS-08 | M | Impor pasien dari Excel dengan pratinjau dan laporan kesalahan per baris
-- [ ] JDW-01 | M | Buat janji
-- [ ] JDW-02 | M | Cegah bentrok
-- [ ] JDW-03 | M | Kalender harian dan mingguan per dokter dan per kursi
-- [ ] JDW-04 | M | Status janji
-- [ ] JDW-05 | M | Pasien walk-in masuk antrean langsung dengan nomor antrean harian
-- [ ] JDW-08 | M | Jadwal ulang dan pembatalan menyimpan alasan
+- [x] JDW-01 | M | Buat janji
+- [x] JDW-02 | M | Cegah bentrok
+- [x] JDW-03 | M | Kalender harian dan mingguan per dokter dan per kursi
+- [x] JDW-04 | M | Status janji
+- [x] JDW-05 | M | Pasien walk-in masuk antrean langsung dengan nomor antrean harian
+- [x] JDW-08 | M | Jadwal ulang dan pembatalan menyimpan alasan
 - [ ] RM-01 | M | Kunjungan dibuat saat check-in
 - [ ] RM-02 | M | Anamnesis
 - [ ] RM-03 | M | Pemeriksaan klinis ekstra oral dan intra oral dengan format SOAP
@@ -67,7 +67,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 
 - [ ] AUTH-05 | S | Autentikasi dua faktor (TOTP) opsional untuk Pemilik dan Admin
 - [ ] PAS-07 | S | Penggabungan data pasien ganda oleh Admin, tercatat di audit log
-- [ ] JDW-06 | S | Papan antrean untuk resepsionis dan layar dokter, diperbarui otomatis maksimal ...
+- [x] JDW-06 | S | Papan antrean untuk resepsionis dan layar dokter, diperbarui otomatis maksimal ...
 - [ ] JDW-07 | S | Pengingat WhatsApp H-1 dan hari-H
 - [ ] RM-06 | S | Rencana perawatan multi-kunjungan dengan estimasi biaya dan status tiap langkah ...
 - [ ] RM-09 | S | Informed consent
