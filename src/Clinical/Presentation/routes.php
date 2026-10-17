@@ -29,6 +29,13 @@ Route::middleware('can:encounter.view')->group(function () use ($id): void {
     Route::get('/patients/{patient}/treatment-plans', [TreatmentPlanController::class, 'index'])->name('treatment-plans.index')->where('patient', $id);
     Route::get('/patients/{patient}/documents', [DocumentController::class, 'index'])->name('documents.index')->where('patient', $id);
     Route::get('/documents/{document}/print', [DocumentController::class, 'print'])->name('documents.print')->where('document', $id);
+    Route::get('/documents/{document}/signed', [DocumentController::class, 'signed'])->name('documents.signed')->where('document', $id);
+});
+
+// P2-07: tanda tangan digital informed consent di tablet dan PDF bertanda tangan di rekam medis.
+Route::middleware('can:documents.consent')->group(function () use ($id): void {
+    Route::get('/documents/{document}/sign', [DocumentController::class, 'signForm'])->name('documents.sign')->where('document', $id);
+    Route::post('/documents/{document}/sign', [DocumentController::class, 'sign'])->where('document', $id)->middleware('throttle:20,1');
 });
 
 // Izin per jenis dokumen diperiksa di controller (documents.consent atau documents.letter).

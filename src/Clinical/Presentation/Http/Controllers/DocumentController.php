@@ -10,6 +10,7 @@ use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use Src\Clinical\Application\ClinicalDocuments;
+use Src\Clinical\Application\DocumentSigning;
 use Src\Clinical\Domain\DocumentType;
 use Src\Shared\Application\PdfRenderer;
 use Src\Shared\Application\PdfRequest;
@@ -72,6 +73,42 @@ final class DocumentController
         return response($output, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => ($request->boolean('download') ? 'attachment' : 'inline').'; filename="'.preg_replace('/[^A-Za-z0-9._-]/', '_', (string) $data['file_name']).'.pdf"',
+            'Cache-Control' => 'private, no-store',
+        ]);
+    }
+
+    public function signForm(string $document, DocumentSigning $signing): InertiaResponse
+    {
+        return Inertia::render('Documents/Sign', $signing->page($document));
+    }
+
+    public function sign(Request $request, string $document, DocumentSigning $signing, ClinicalDocuments $documents): RedirectResponse
+    {
+        $data = $request->validate([
+            'signer_name' => ['required', 'string', 'max:150'],
+            'signer_role' => ['required', 'in:patient,guardian'],
+            'signature' => ['required', 'string', 'max:700000'],
+            'witness_name' => ['nullable', 'string', 'max:150'],
+            'witness_signature' => ['nullable', 'string', 'max:700000'],
+        ], [
+            'signer_name.required' => 'Nama penanda tangan wajib diisi.',
+            'signer_role.required' => 'Pilih pasien atau wali pasien.',
+            'signature.required' => 'Tanda tangan wajib diisi.',
+        ]);
+
+        $signing->sign($this->actorId($request), $document, $data['signer_name'], $data['signer_role'], $data['witness_name'] ?? null, $data['signature'], $data['witness_signature'] ?? null);
+        $patientId = $documents->documentOf($document)['patient_id'];
+
+        return to_route('documents.index', ['patient' => $patientId])->with('success', 'Dokumen ditandatangani dan PDF tersimpan di rekam medis.');
+    }
+
+    public function signed(Request $request, string $document, DocumentSigning $signing): Response
+    {
+        $file = $signing->signedPdf($this->actorId($request), $document);
+
+        return response($file['contents'], 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => ($request->boolean('download') ? 'attachment' : 'inline').'; filename="'.preg_replace('/[^A-Za-z0-9._-]/', '_', $file['file_name']).'.pdf"',
             'Cache-Control' => 'private, no-store',
         ]);
     }

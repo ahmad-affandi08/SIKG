@@ -13,6 +13,7 @@ use Src\Clinic\Contracts\LetterheadProvider;
 use Src\Clinical\Domain\DocumentDefaults;
 use Src\Clinical\Domain\DocumentRecord;
 use Src\Clinical\Domain\DocumentRepository;
+use Src\Clinical\Domain\DocumentSignatureRepository;
 use Src\Clinical\Domain\DocumentType;
 use Src\Clinical\Domain\EncounterNotFound;
 use Src\Clinical\Domain\EncounterRepository;
@@ -41,6 +42,7 @@ final readonly class ClinicalDocuments
 
     public function __construct(
         private DocumentRepository $documents,
+        private DocumentSignatureRepository $signatures,
         private EncounterRepository $encounters,
         private DocumentTemplateCatalog $templates,
         private PatientLookup $patients,
@@ -63,10 +65,16 @@ final readonly class ClinicalDocuments
         $patient = $this->patients->summaries([$patientId])[$patientId] ?? throw new EncounterNotFound;
         $this->access->patientRecordOpened($patientId, $route);
         $zone = new DateTimeZone($this->calendar->timezone());
+        $records = $this->documents->forPatient($patientId);
+        $signed = $this->signatures->forDocuments(array_map(fn (DocumentRecord $d) => $d->id, $records));
 
         return [
             'patient' => ['id' => $patient->id, 'name' => $patient->name, 'medical_record_no' => $patient->medicalRecordNo],
             'documents' => array_map(fn (DocumentRecord $d) => [
+                'signable' => $d->type->needsPatientSignature(),
+                'signed' => isset($signed[$d->id]),
+                'signed_at' => isset($signed[$d->id]) ? $signed[$d->id]->signedAt->setTimezone($zone)->format('Y-m-d H:i') : null,
+                'signer_name' => isset($signed[$d->id]) ? $signed[$d->id]->signerName : null,
                 'id' => $d->id,
                 'type' => $d->type->value,
                 'type_label' => $d->type->label(),
@@ -75,7 +83,7 @@ final readonly class ClinicalDocuments
                 'doctor_name' => $d->doctorName,
                 'encounter_id' => $d->encounterId,
                 'issued_at' => $d->issuedAt->setTimezone($zone)->format('Y-m-d H:i'),
-            ], $this->documents->forPatient($patientId)),
+            ], $records),
         ];
     }
 
@@ -179,18 +187,32 @@ final readonly class ClinicalDocuments
      */
     public function printData(string $actorId, string $documentId): array
     {
+        $data = $this->compose($documentId);
+        $this->access->patientRecordOpened((string) $data['patient_id'], 'documents.print');
+        $this->audit->record(new AuditEntry($actorId, 'document.printed', 'clinical_document', $documentId, null, ['type' => $data['type'], 'number' => $data['number']]));
+
+        return $data;
+    }
+
+    /**
+     * Menyusun data cetak dari salinan yang tersimpan tanpa mencatat apa pun; pemanggil bertanggung jawab atas audit.
+     *
+     * @return array<string, mixed>
+     */
+    public function compose(string $documentId): array
+    {
         $document = $this->documents->find($documentId) ?? throw new EncounterNotFound;
         $patient = $this->patients->summaries([$document->patientId])[$document->patientId] ?? throw new EncounterNotFound;
-        $this->access->patientRecordOpened($document->patientId, 'documents.print');
-        $this->audit->record(new AuditEntry($actorId, 'document.printed', 'clinical_document', $documentId, null, ['type' => $document->type->value, 'number' => $document->number]));
         $head = $this->letterhead->forDocument();
         $issued = $document->issuedAt->setTimezone(new DateTimeZone($this->calendar->timezone()));
 
         return [
+            'patient_id' => $document->patientId,
             'letterhead' => $head->toArray(),
             'heading' => $document->type->heading(),
             'number' => $document->number,
             'title' => $document->title,
+            'body' => $document->body,
             'blocks' => self::blocks($document->body),
             'official_letter' => $document->type->isOfficialLetter(),
             'subject' => $document->type->subject(),

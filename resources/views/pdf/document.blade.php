@@ -40,14 +40,25 @@
         <table class="sign">
             <tr>
                 <td style="width: 34%;">
-                    <div class="role">Pasien / wali</div>
-                    <div class="space"></div>
-                    <div class="blank">Nama jelas dan hubungan dengan pasien</div>
+                    <div class="role">{{ isset($signature) ? $signature['role_label'] : 'Pasien / wali' }}</div>
+                    @isset($signature)
+                        <div class="space"><img src="{{ $signature['image'] }}" alt="Tanda tangan" style="max-height: 50pt; max-width: 100%;"></div>
+                        <div class="name">{{ $signature['signer_name'] }}</div>
+                        <div class="meta">Ditandatangani secara elektronik {{ $signature['signed_at'] }}</div>
+                    @else
+                        <div class="space"></div>
+                        <div class="blank">Nama jelas dan hubungan dengan pasien</div>
+                    @endisset
                 </td>
                 <td style="width: 32%;">
                     <div class="role">Saksi</div>
-                    <div class="space"></div>
-                    <div class="blank">Nama jelas</div>
+                    @if (isset($signature) && $signature['witness_image'])
+                        <div class="space"><img src="{{ $signature['witness_image'] }}" alt="Tanda tangan saksi" style="max-height: 50pt; max-width: 100%;"></div>
+                        <div class="name">{{ $signature['witness_name'] }}</div>
+                    @else
+                        <div class="space"></div>
+                        <div class="blank">Nama jelas</div>
+                    @endif
                 </td>
                 <td style="width: 34%;">
                     <div class="role">{{ $signer_role }}</div>

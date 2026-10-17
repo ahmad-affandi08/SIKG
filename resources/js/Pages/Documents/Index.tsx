@@ -14,6 +14,10 @@ interface DocumentRow {
   doctor_name: string;
   encounter_id: string | null;
   issued_at: string;
+  signable: boolean;
+  signed: boolean;
+  signed_at: string | null;
+  signer_name: string | null;
 }
 
 interface Props {
@@ -70,14 +74,36 @@ export default function Index({ patient, documents, can, types }: Props) {
                   <td>{d.doctor_name}</td>
                   <td>{`${toDisplayDate(d.issued_at)} ${d.issued_at.slice(11, 16)}`}</td>
                   <td>
-                    <a
-                      href={`/documents/${d.id}/print`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-secondary"
-                    >
-                      Cetak
-                    </a>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <a
+                        href={`/documents/${d.id}/print`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-secondary"
+                      >
+                        Cetak
+                      </a>
+                      {d.signed ? (
+                        <>
+                          <a
+                            href={`/documents/${d.id}/signed`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-secondary"
+                          >
+                            PDF bertanda tangan
+                          </a>
+                          <span className="text-muted text-xs">
+                            Ditandatangani {d.signer_name}{' '}
+                            {d.signed_at ? toDisplayDate(d.signed_at) : ''}
+                          </span>
+                        </>
+                      ) : d.signable && can.consent ? (
+                        <Link href={`/documents/${d.id}/sign`} className="btn btn-primary">
+                          Tanda tangan di layar
+                        </Link>
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               ))}
