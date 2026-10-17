@@ -35,7 +35,7 @@ function display(field: MasterFieldDef, value: Row[string] | undefined): string 
   if (field.type === 'select') {
     return field.options.find((option) => option.value === String(value))?.label ?? String(value);
   }
-  return String(value);
+  return String(value).length > 80 ? `${String(value).slice(0, 80)}...` : String(value);
 }
 
 export default function Index({ entity, rows, canManage, tabs }: Props) {

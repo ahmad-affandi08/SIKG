@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 use Src\Clinical\Presentation\Http\Controllers\ClinicalFileController;
 use Src\Clinical\Presentation\Http\Controllers\DiagnosisSearchController;
+use Src\Clinical\Presentation\Http\Controllers\DocumentController;
 use Src\Clinical\Presentation\Http\Controllers\EncounterController;
 use Src\Clinical\Presentation\Http\Controllers\OdontogramController;
 use Src\Clinical\Presentation\Http\Controllers\OdontogramPrintController;
@@ -25,6 +26,14 @@ Route::middleware('can:encounter.view')->group(function () use ($id): void {
     Route::get('/clinical-files/{file}', [ClinicalFileController::class, 'show'])->name('clinical-files.show')->where('file', $id);
     Route::get('/patients/{patient}/timeline', TimelineController::class)->name('patients.timeline')->where('patient', $id);
     Route::get('/patients/{patient}/treatment-plans', [TreatmentPlanController::class, 'index'])->name('treatment-plans.index')->where('patient', $id);
+    Route::get('/patients/{patient}/documents', [DocumentController::class, 'index'])->name('documents.index')->where('patient', $id);
+    Route::get('/documents/{document}/print', [DocumentController::class, 'print'])->name('documents.print')->where('document', $id);
+});
+
+// Izin per jenis dokumen diperiksa di controller (documents.consent atau documents.letter).
+Route::middleware('can:documents.issue')->group(function () use ($id): void {
+    Route::get('/patients/{patient}/documents/create', [DocumentController::class, 'create'])->name('documents.create')->where('patient', $id);
+    Route::post('/patients/{patient}/documents', [DocumentController::class, 'store'])->where('patient', $id);
 });
 
 Route::middleware('can:treatment_plan.manage')->group(function () use ($id): void {

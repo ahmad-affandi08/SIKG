@@ -95,6 +95,11 @@ export default function Show({
                 Rencana perawatan
               </Link>
             ) : null}
+            {can.timeline ? (
+              <Link href={`/patients/${patient.id}/documents`} className="btn btn-secondary">
+                Dokumen klinis
+              </Link>
+            ) : null}
             {can.merge ? (
               <Link href={`/patients/${patient.id}/merge`} className="btn btn-secondary">
                 Gabung data ganda

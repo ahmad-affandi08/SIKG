@@ -66,14 +66,14 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 ### Should
 
 - [ ] AUTH-05 | S | Autentikasi dua faktor (TOTP) opsional untuk Pemilik dan Admin
-- [ ] PAS-07 | S | Penggabungan data pasien ganda oleh Admin, tercatat di audit log
+- [x] PAS-07 | S | Penggabungan data pasien ganda oleh Admin, tercatat di audit log
 - [x] JDW-06 | S | Papan antrean untuk resepsionis dan layar dokter, diperbarui otomatis maksimal ...
 - [ ] JDW-07 | S | Pengingat WhatsApp H-1 dan hari-H
-- [ ] RM-06 | S | Rencana perawatan multi-kunjungan dengan estimasi biaya dan status tiap langkah ...
-- [ ] RM-09 | S | Informed consent
-- [ ] RM-10 | S | Surat keterangan dan rujukan dicetak dari template
-- [ ] ODO-05 | S | Tindakan pada gigi dapat memperbarui kondisi gigi (contoh
-- [ ] ODO-06 | S | Cetak odontogram ke PDF
+- [x] RM-06 | S | Rencana perawatan multi-kunjungan dengan estimasi biaya dan status tiap langkah ...
+- [x] RM-09 | S | Informed consent
+- [x] RM-10 | S | Surat keterangan dan rujukan dicetak dari template
+- [x] ODO-05 | S | Tindakan pada gigi dapat memperbarui kondisi gigi (contoh
+- [x] ODO-06 | S | Cetak odontogram ke PDF
 - [x] OBT-02 | S | Peringatan alergi
 - [ ] OBT-06 | S | Peringatan stok di bawah minimum dan obat yang kedaluwarsa dalam 30 hari
 - [x] KSR-05 | S | Paket cicilan (contoh

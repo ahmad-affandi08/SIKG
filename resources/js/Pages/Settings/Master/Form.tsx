@@ -7,6 +7,7 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
+import { TextArea } from '@/components/ui/TextArea';
 import { TextField } from '@/components/ui/TextField';
 import { buildMasterSchema, emptyValues } from '@/features/master/schema';
 import type { MasterFieldDef } from '@/features/master/schema';
@@ -88,6 +89,19 @@ export default function Form({ entity, row }: Props) {
                 }}
                 error={errorFor(field.key)}
               />
+            ) : field.type === 'textarea' ? (
+              <div key={field.key} className="flex flex-col gap-1">
+                <TextArea
+                  field={field.key}
+                  label={field.label}
+                  value={form.data[field.key] ?? ''}
+                  onChange={(event) => {
+                    form.setData(field.key, event.target.value);
+                  }}
+                  error={errorFor(field.key)}
+                />
+                {field.help ? <p className="text-muted text-sm">{field.help}</p> : null}
+              </div>
             ) : (
               <div key={field.key} className="flex flex-col gap-1">
                 <TextField

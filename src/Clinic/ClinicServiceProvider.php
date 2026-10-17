@@ -14,6 +14,7 @@ use Src\Clinic\Contracts\ChairDirectory;
 use Src\Clinic\Contracts\ClinicCalendar;
 use Src\Clinic\Contracts\DiscountLimits;
 use Src\Clinic\Contracts\DoctorDirectory;
+use Src\Clinic\Contracts\DocumentTemplateCatalog;
 use Src\Clinic\Contracts\InvoiceNumbering;
 use Src\Clinic\Contracts\LetterheadProvider;
 use Src\Clinic\Contracts\MedicalRecordNumbering;
@@ -32,11 +33,13 @@ use Src\Clinic\Infrastructure\EloquentClinicProfileService;
 use Src\Clinic\Infrastructure\EloquentClinicSettingsService;
 use Src\Clinic\Infrastructure\EloquentDoctorAdministration;
 use Src\Clinic\Infrastructure\EloquentDoctorDirectory;
+use Src\Clinic\Infrastructure\EloquentDocumentTemplateCatalog;
 use Src\Clinic\Infrastructure\EloquentLetterheadProvider;
 use Src\Clinic\Infrastructure\EloquentPaymentMethodCatalog;
 use Src\Clinic\Infrastructure\EloquentProcedureCatalog;
 use Src\Clinic\Infrastructure\EloquentToothConditionCatalog;
 use Src\Clinic\Infrastructure\Master\ChairEntity;
+use Src\Clinic\Infrastructure\Master\DocumentTemplateEntity;
 use Src\Clinic\Infrastructure\Master\PaymentMethodEntity;
 use Src\Clinic\Infrastructure\Master\ProcedureEntity;
 use Src\Clinic\Infrastructure\Master\ToothConditionEntity;
@@ -59,6 +62,7 @@ final class ClinicServiceProvider extends ServiceProvider
         $this->app->singleton(PaymentMethodCatalog::class, EloquentPaymentMethodCatalog::class);
         $this->app->singleton(ToothConditionCatalog::class, EloquentToothConditionCatalog::class);
         $this->app->singleton(ProcedureCatalog::class, EloquentProcedureCatalog::class);
+        $this->app->singleton(DocumentTemplateCatalog::class, EloquentDocumentTemplateCatalog::class);
         $this->app->singleton(ClinicProfileService::class, EloquentClinicProfileService::class);
         $this->app->singleton(DoctorAdministration::class, EloquentDoctorAdministration::class);
     }
@@ -72,6 +76,7 @@ final class ClinicServiceProvider extends ServiceProvider
         $registry->register($this->app->make(ProcedureEntity::class));
         $registry->register($this->app->make(PaymentMethodEntity::class));
         $registry->register($this->app->make(ToothConditionEntity::class));
+        $registry->register($this->app->make(DocumentTemplateEntity::class));
 
         Route::middleware(['web', 'auth'])
             ->group(__DIR__.'/Presentation/routes.php');

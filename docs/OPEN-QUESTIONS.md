@@ -161,6 +161,18 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan asumsi di atas; (b) pengguna menetapkan lain per butir (terutama butir 1 untuk Perawat dan butir 5 setelah Q-11 dijawab)
 - Rekomendasi: (a); (b) pada butir 5 sebelum laporan jasa dipakai menggaji dokter
 
+### Q-24: Keputusan asumsi PAS-07, RM-06, ODO-05, ODO-06, RM-09, dan RM-10
+- Kebutuhan terkait: PAS-07, RM-06, ODO-05, ODO-06, RM-09, RM-10, M5, M6, M7, M9, M10, M11, M2
+- Butir:
+  1. **PAS-07 penggabungan.** Hanya `patient.merge` (Admin). Pasien ganda diarsipkan (`merged_into_id`, `merged_at`), tidak dihapus (M5); semua riwayat konteks lain (janji, kunjungan, odontogram, berkas, rencana, dokumen, resep, tagihan) dipindah ke pasien utama dalam satu transaksi lewat port `PatientReferenceMover` yang didaftarkan tiap konteks sehingga antar-konteks tetap lewat kontrak (M2). Bila kedua pasien memiliki NIK berbeda, penggabungan ditolak dan Admin harus membereskannya dulu; data kosong pasien utama diisi dari pasien ganda; alasan minimal 5 karakter dan konfirmasi wajib; audit mencatat kedua sisi serta jumlah baris yang dipindah.
+  2. **RM-06 rencana perawatan.** Izin baru `treatment_plan.manage` untuk Dokter (matriks PRD tidak menyebutnya); melihat rencana cukup `encounter.view`. Estimasi = jumlah x tarif katalog yang disalin saat langkah dibuat (MST-08); status rencana diturunkan dari status langkah (M7). Langkah yang sudah berjalan atau selesai tidak dapat dihapus; langkah dilaksanakan lewat tindakan kunjungan yang menautkan `plan_item_id`, dan menghapus tindakan itu mengembalikan langkahnya.
+  3. **ODO-05.** Tindakan katalog memiliki kondisi hasil opsional. Setelah tindakan dicatat, kondisi gigi hanya ditawarkan sebagai saran; dokter menerapkan atau menolaknya (`odontogram.write`), tidak pernah otomatis, agar snapshot odontogram tetap keputusan klinis dokter (M8).
+  4. **ODO-06.** Cetak PDF odontogram terkini membutuhkan `odontogram.view`, tercatat di access log dan audit (`odontogram.printed`).
+  5. **RM-09 dan RM-10.** Dokumen dicetak dari templat; yang disimpan adalah salinan teks akhir beserta nama dan SIP dokter, hanya-tambah (koreksi berarti menerbitkan dokumen baru). Nomor IC/SKD/RJK per tahun menurut zona klinik. Izin: informed consent bagi pemegang `encounter.write` atau `record.print`; surat keterangan dan rujukan bagi pemegang `encounter.close` atau `record.print`; melihat dan mencetak butuh `encounter.view`. Templat bawaan tersedia tanpa konfigurasi; Admin (`setting.manage`) dapat membuat templat sendiri dan penanda yang tidak dikenal ditolak. Teks yang masih memuat `{{...}}` tidak dapat diterbitkan. Tanda tangan pasien dan dokter adalah tanda tangan basah di kertas; tanda tangan digital di luar lingkup.
+  6. Kebutuhan PAS-07, RM-06, RM-09, RM-10, ODO-05, dan ODO-06 dicentang di `docs/STATUS.md`. Perubahan `tests/Feature/SoftDeleteTest.php` hanya mendaftarkan `clinical_documents` sebagai hanya-tambah dan repository baru pada daftar pengecualian, tanpa melonggarkan aturan.
+- Opsi: (a) pertahankan asumsi di atas; (b) pengguna menetapkan lain per butir (terutama butir 2 bila Perawat atau Admin juga perlu membuat rencana)
+- Rekomendasi: (a)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`
