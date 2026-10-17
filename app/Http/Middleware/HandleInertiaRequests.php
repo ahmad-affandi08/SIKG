@@ -6,46 +6,52 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Src\Clinic\Infrastructure\Eloquent\ClinicModel;
+use Src\IdentityAccess\Infrastructure\Eloquent\User;
 
-class HandleInertiaRequests extends Middleware
+final class HandleInertiaRequests extends Middleware
 {
     /**
      * The root template that's loaded on the first page visit.
-     *
-     * @see https://inertiajs.com/server-side-setup#root-template
      *
      * @var string
      */
     protected $rootView = 'app';
 
-    /**
-     * Determines the current asset version.
-     *
-     * @see https://inertiajs.com/asset-versioning
-     */
     public function version(Request $request): ?string
     {
         return parent::version($request);
     }
 
     /**
-     * Define the props that are shared by default.
-     *
-     * @see https://inertiajs.com/shared-data
+     * Props bersama sesuai resources/js/types/inertia.d.ts. Tanpa PHI: hanya ID, nama pengguna, peran, dan
+     * daftar izin. Menyembunyikan menu lewat izin hanya kenyamanan; server tetap menolak (M9).
      *
      * @return array<string, mixed>
      */
     public function share(Request $request): array
     {
-        // Props bersama sesuai resources/js/types/inertia.d.ts. Diisi pengguna dan izin nyata bersama AUTH-01 dan AUTH-02.
-        // Tanpa PHI: hanya ID, nama pengguna, dan daftar izin (menyembunyikan menu bukan keamanan, M9).
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => null,
-                'permissions' => [],
+                'user' => $user instanceof User
+                    ? ['id' => $user->id, 'name' => $user->name, 'roles' => $user->getRoleNames()->values()->all()]
+                    : null,
+                'permissions' => $user instanceof User ? $user->getAllPermissions()->pluck('name')->values()->all() : [],
             ],
-            'clinic' => null,
+            'clinic' => $user instanceof User ? $this->clinic() : null,
         ];
+    }
+
+    /**
+     * @return array{name: string, timezone: string}|null
+     */
+    private function clinic(): ?array
+    {
+        $clinic = ClinicModel::query()->first();
+
+        return $clinic instanceof ClinicModel ? ['name' => $clinic->name, 'timezone' => $clinic->timezone] : null;
     }
 }

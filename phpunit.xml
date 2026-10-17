@@ -17,6 +17,9 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!-- Kunci khusus tes (bukan rahasia) agar tes tidak bergantung pada berkas lingkungan lokal. -->
+        <env name="APP_KEY" value="base64:a3VuY2ktdWppLXNhamEtYnVrYW4tcmFoYXNpYS0zMmI="/>
+        <env name="PII_HASH_KEY" value="kunci-hash-uji-saja"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
+use Src\IdentityAccess\Infrastructure\Eloquent\User;
 
 return [
 
@@ -65,7 +65,7 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'eloquent',
+            'driver' => 'sikg',
             'model' => env('AUTH_MODEL', User::class),
         ],
 

@@ -15,16 +15,16 @@
         "spatie/laravel-permission": "^8.3"
     },
     "require-dev": {
-        "deptrac/deptrac": "*",
+        "deptrac/deptrac": "^4.7",
         "fakerphp/faker": "^1.23",
-        "larastan/larastan": "*",
+        "larastan/larastan": "^3.13",
         "laravel/pail": "^1.2.5",
         "laravel/pint": "^1.27",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "pestphp/pest": "*",
-        "pestphp/pest-plugin-arch": "*",
-        "pestphp/pest-plugin-laravel": "*",
+        "pestphp/pest": "^4.7",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.1",
         "phpunit/phpunit": "^12.5.12"
     },
     "autoload": {

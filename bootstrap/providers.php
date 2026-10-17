@@ -11,9 +11,11 @@ use Src\Patient\PatientServiceProvider;
 use Src\Pharmacy\PharmacyServiceProvider;
 use Src\Reporting\ReportingServiceProvider;
 use Src\Scheduling\SchedulingServiceProvider;
+use Src\Shared\Infrastructure\SharedServiceProvider;
 
 return [
     AppServiceProvider::class,
+    SharedServiceProvider::class,
     IdentityAccessServiceProvider::class,
     ClinicServiceProvider::class,
     PatientServiceProvider::class,

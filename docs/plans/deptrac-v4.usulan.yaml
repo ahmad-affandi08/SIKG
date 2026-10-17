@@ -1,0 +1,51 @@
+# Usulan pengganti tooling/deptrac.yaml untuk deptrac/deptrac 4.x (collector classNameRegex dengan delimiter, path relatif terhadap berkas ini).
+# Aturan lapisan TIDAK dilonggarkan; hanya sintaks yang berbeda. Terverifikasi: 0 pelanggaran pada src/ saat ini.
+deptrac:
+  paths:
+    - ../src
+  exclude_files:
+    - '#.*/tests/.*#'
+  layers:
+    # Shared dipisah per lapisan agar aturan dapat dibedakan.
+    - name: SharedDomain
+      collectors:
+        - { type: classNameRegex, value: '#^Src\\Shared\\Domain\\.*#' }
+    - name: SharedApplication
+      collectors:
+        - { type: classNameRegex, value: '#^Src\\Shared\\Application\\.*#' }
+    - name: SharedInfrastructure
+      collectors:
+        - { type: classNameRegex, value: '#^Src\\Shared\\Infrastructure\\.*#' }
+    - name: Contracts
+      collectors:
+        - { type: classNameRegex, value: '#^Src\\(?!Shared)\w+\\Contracts\\.*#' }
+    - name: Domain
+      collectors:
+        - { type: classNameRegex, value: '#^Src\\(?!Shared)\w+\\Domain\\.*#' }
+    # Application konteks inti (DDD penuh): tanpa Eloquent/HTTP.
+    - name: Application
+      collectors:
+        - { type: classNameRegex, value: '#^Src\\(?!Shared|Clinic|IdentityAccess|Reporting)\w+\\Application\\.*#' }
+    # Application konteks CRUD terstruktur (ADR-0001): boleh memakai Eloquent.
+    - name: CrudApplication
+      collectors:
+        - { type: classNameRegex, value: '#^Src\\(Clinic|IdentityAccess|Reporting)\\Application\\.*#' }
+    - name: Infrastructure
+      collectors:
+        - { type: classNameRegex, value: '#^Src\\(?!Shared)\w+\\Infrastructure\\.*#' }
+    - name: Presentation
+      collectors:
+        - { type: classNameRegex, value: '#^Src\\(?!Shared)\w+\\Presentation\\.*#' }
+    - name: Framework
+      collectors:
+        - { type: classNameRegex, value: '#^(Illuminate|Inertia|Symfony|Laravel|Spatie|Maatwebsite|Psr)\\.*#' }
+  ruleset:
+    SharedDomain: []
+    SharedApplication: [SharedDomain]
+    SharedInfrastructure: [SharedDomain, SharedApplication, Framework]
+    Contracts: [SharedDomain]
+    Domain: [SharedDomain, Contracts]
+    Application: [Domain, SharedDomain, SharedApplication, Contracts]
+    CrudApplication: [Domain, SharedDomain, SharedApplication, Contracts, Infrastructure, Framework]
+    Infrastructure: [Domain, Application, CrudApplication, SharedDomain, SharedApplication, SharedInfrastructure, Contracts, Framework]
+    Presentation: [Application, CrudApplication, Domain, SharedDomain, SharedApplication, Contracts, Framework]
