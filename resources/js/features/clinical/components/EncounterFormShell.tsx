@@ -1,7 +1,7 @@
-import { Head } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 
 export interface EncounterRef {
@@ -30,7 +30,7 @@ export function EncounterFormShell({
   return (
     <AppLayout>
       <main className={`mx-auto flex ${maxWidth} flex-col gap-8 p-6 lg:px-12 lg:py-10`}>
-        <Head title={title} />
+        <PageHead title={title} />
         <PageHeader
           title={title}
           back={{ href: `/encounters/${encounter.id}?tab=${tab}`, label: 'pemeriksaan' }}

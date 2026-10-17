@@ -1,8 +1,9 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
@@ -111,7 +112,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-3xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
-        <Head title={editing ? 'Ubah dokter' : 'Tambah dokter'} />
+        <PageHead title={editing ? 'Ubah dokter' : 'Tambah dokter'} />
         <h1>{editing ? 'Ubah dokter' : 'Tambah dokter'}</h1>
 
         <form onSubmit={submit} noValidate className="flex flex-col gap-6">

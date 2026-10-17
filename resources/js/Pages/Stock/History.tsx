@@ -1,6 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { formatDateTime } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
@@ -29,7 +30,7 @@ export default function History({ medicine, movements, can }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
-        <Head title={`Riwayat stok ${medicine.name}`} />
+        <PageHead title={`Riwayat stok ${medicine.name}`} />
         <PageHeader
           title={medicine.name}
           back={{ href: '/stock', label: 'stok obat' }}

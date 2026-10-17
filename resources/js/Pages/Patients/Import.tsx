@@ -1,8 +1,9 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -65,7 +66,7 @@ export default function Import({ batch }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-3xl flex-col gap-6 p-6 lg:px-12 lg:py-10">
-        <Head title="Impor pasien" />
+        <PageHead title="Impor pasien" />
         <h1>Impor pasien dari Excel</h1>
 
         {batch === null ? (

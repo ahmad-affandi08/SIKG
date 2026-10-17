@@ -1,6 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { Alert } from '@/components/ui/Alert';
 
 interface Props {
@@ -16,7 +17,7 @@ export default function Credential({ name, username, temporaryPassword }: Props)
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
-        <Head title="Kata sandi sementara" />
+        <PageHead title="Kata sandi sementara" />
         <h1>Kata sandi sementara</h1>
         <Alert tone="warning">
           Catat dan serahkan sekarang. Kata sandi ini tidak akan ditampilkan lagi; bila hilang,

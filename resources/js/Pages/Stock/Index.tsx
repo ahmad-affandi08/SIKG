@@ -1,6 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { stockLevel } from '@/features/pharmacy/schemas';
@@ -26,7 +27,7 @@ export default function Index({ medicines, can }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
-        <Head title="Stok obat" />
+        <PageHead title="Stok obat" />
         <PageHeader
           title="Stok obat dan bahan"
           actions={

@@ -1,8 +1,9 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
@@ -53,7 +54,7 @@ export default function Cancel({ item }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-2xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
-        <Head title="Batalkan janji" />
+        <PageHead title="Batalkan janji" />
         <PageHeader
           title="Batalkan janji"
           back={{ href: back, label: 'jadwal' }}

@@ -1,6 +1,7 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
@@ -46,7 +47,7 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
-        <Head title={entity.title} />
+        <PageHead title={entity.title} />
         <PageHeader
           title={entity.title}
           actions={

@@ -1,6 +1,7 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
 import { formatDate } from '@/lib/format';
 
@@ -38,7 +39,7 @@ export default function Beranda() {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-5xl flex-col gap-10 p-6 lg:px-12 lg:py-10">
-        <Head title="Beranda" />
+        <PageHead title="Beranda" />
         <header>
           <p className="eyebrow text-signal-700">{formatDate(now)}</p>
           <h1 className="mt-1">

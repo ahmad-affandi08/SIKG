@@ -1,8 +1,9 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
@@ -31,7 +32,7 @@ export default function HolidayForm() {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-2xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
-        <Head title="Tambah hari libur" />
+        <PageHead title="Tambah hari libur" />
         <PageHeader
           title="Tambah hari libur"
           back={{ href: '/settings/clinic', label: 'pengaturan klinik' }}

@@ -1,6 +1,7 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import { roleLabel } from '@/features/identityAccess/roles';
@@ -27,7 +28,7 @@ export default function Index({ users, canCreate }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
-        <Head title="Pengguna" />
+        <PageHead title="Pengguna" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1>Pengguna</h1>
           {canCreate ? (

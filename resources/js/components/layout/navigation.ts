@@ -96,6 +96,17 @@ export const NAV_ITEMS: readonly NavItem[] = [
   },
 ];
 
+/**
+ * Halaman yang bukan menu sendiri dikaitkan ke menu induknya untuk jejak halaman (awalan URL ke href menu).
+ */
+export const NAV_ALIASES: Readonly<Record<string, string>> = {
+  '/appointments': '/schedule',
+  '/encounters': '/patients',
+  '/prescriptions': '/patients',
+  '/clinical-files': '/patients',
+  '/settings/holidays': '/settings/clinic',
+};
+
 /** Bawaan aman: item berizin hanya tampil bila izinnya ada. */
 export function visibleNavItems(
   items: readonly NavItem[],

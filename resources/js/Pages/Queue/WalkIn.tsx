@@ -1,8 +1,9 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
@@ -56,7 +57,7 @@ export default function WalkIn({ doctors, chairs }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-2xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
-        <Head title="Pasien tanpa janji" />
+        <PageHead title="Pasien tanpa janji" />
         <PageHeader
           title="Pasien tanpa janji"
           back={{ href: '/queue', label: 'antrean' }}

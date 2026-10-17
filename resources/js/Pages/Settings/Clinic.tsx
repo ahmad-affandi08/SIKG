@@ -1,8 +1,9 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import { Select } from '@/components/ui/Select';
@@ -77,7 +78,7 @@ export default function Clinic({
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-5xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
-        <Head title="Pengaturan klinik" />
+        <PageHead title="Pengaturan klinik" />
         <h1>Pengaturan klinik</h1>
 
         <form onSubmit={submit} noValidate className="flex flex-col gap-6">

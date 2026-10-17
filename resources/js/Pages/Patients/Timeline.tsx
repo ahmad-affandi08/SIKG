@@ -1,6 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { Badge } from '@/components/ui/Badge';
 import { formatDateTime, formatRupiah } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
@@ -41,7 +42,7 @@ export default function Timeline({ patient, encounters }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-4xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
-        <Head title="Riwayat kunjungan" />
+        <PageHead title="Riwayat kunjungan" />
         <div>
           <h1>Riwayat kunjungan</h1>
           <p className="text-muted text-sm">

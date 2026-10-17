@@ -1,7 +1,8 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { useState } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { usePatientSearch } from '@/features/patient/queries';
 import { formatDate } from '@/lib/format';
 import { useCan } from '@/lib/permissions';
@@ -21,7 +22,7 @@ export default function Index({ sexes }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
-        <Head title="Pasien" />
+        <PageHead title="Pasien" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1>Pasien</h1>
           {can('patient.import') ? (

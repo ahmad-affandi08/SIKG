@@ -1,7 +1,8 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import { Select } from '@/components/ui/Select';
@@ -101,7 +102,7 @@ export default function Show(props: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
-        <Head title="Pemeriksaan" />
+        <PageHead title="Pemeriksaan" />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1>{encounter.patient_name ?? 'Pasien'}</h1>

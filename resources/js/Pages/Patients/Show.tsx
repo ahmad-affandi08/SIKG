@@ -1,6 +1,7 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
@@ -72,7 +73,7 @@ export default function Show({
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-4xl flex-col gap-6 p-6 lg:px-12 lg:py-10">
-        <Head title="Rekam pasien" />
+        <PageHead title="Rekam pasien" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1>{patient.name}</h1>

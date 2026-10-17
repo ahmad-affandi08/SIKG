@@ -1,8 +1,9 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
@@ -79,7 +80,7 @@ export default function MovementForm({ medicines, preset, can }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-2xl flex-col gap-8 p-6 lg:px-12 lg:py-10">
-        <Head title="Stok masuk atau keluar" />
+        <PageHead title="Stok masuk atau keluar" />
         <PageHeader title="Stok masuk atau keluar" back={{ href: '/stock', label: 'stok obat' }} />
         <form onSubmit={submit} noValidate aria-label="Mutasi stok" className="flex flex-col gap-5">
           {stockShort && flash.error ? <Alert tone="error">{flash.error}</Alert> : null}

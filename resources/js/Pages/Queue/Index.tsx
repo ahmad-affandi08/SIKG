@@ -1,6 +1,7 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -19,7 +20,7 @@ export default function Index({ canManage }: Props) {
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6 lg:px-12 lg:py-10">
-        <Head title="Antrean" />
+        <PageHead title="Antrean" />
         <PageHeader
           title="Antrean hari ini"
           actions={
