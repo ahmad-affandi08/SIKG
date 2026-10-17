@@ -39,4 +39,4 @@ arch('Tidak ada debug tertinggal')
 arch('Model Eloquent hanya di Infrastructure')
     ->expect('Illuminate\Database\Eloquent\Model')
     // Pola wildcard tidak didukung oleh toOnlyBeUsedIn; daftar konteks ditulis eksplisit.
-    ->toOnlyBeUsedIn(['Src\\Shared\\Infrastructure', 'Src\\IdentityAccess\\Infrastructure', 'Src\\Clinic\\Infrastructure', 'Src\\Patient\\Infrastructure', 'Src\\Scheduling\\Infrastructure', 'Src\\Clinical\\Infrastructure', 'Src\\Pharmacy\\Infrastructure', 'Src\\Billing\\Infrastructure', 'Src\\Reporting\\Infrastructure']);
+    ->toOnlyBeUsedIn(['Src\\Shared\\Infrastructure', 'Src\\IdentityAccess\\Infrastructure', 'Src\\Clinic\\Infrastructure', 'Src\\Patient\\Infrastructure', 'Src\\Scheduling\\Infrastructure', 'Src\\Clinical\\Infrastructure', 'Src\\Pharmacy\\Infrastructure', 'Src\\Billing\\Infrastructure', 'Src\\Reporting\\Infrastructure', 'Src\\Integration\\Infrastructure', 'Src\\Insurance\\Infrastructure', 'Src\\Lab\\Infrastructure', 'Src\\Orthodontics\\Infrastructure']);

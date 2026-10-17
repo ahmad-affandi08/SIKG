@@ -36,6 +36,15 @@ final class EloquentProcedureCatalog implements ProcedureCatalog
             ->all());
     }
 
+    public function icd9Codes(array $procedureIds): array
+    {
+        if ($procedureIds === []) {
+            return [];
+        }
+
+        return ProcedureModel::query()->whereKey(array_values(array_unique($procedureIds)))->whereNotNull('icd9_code')->pluck('icd9_code', 'id')->all();
+    }
+
     private function snapshot(ProcedureModel $p): ProcedureSnapshot
     {
         return new ProcedureSnapshot($p->id, $p->code, $p->name, $p->scope, (int) $p->default_price_amount, $p->result_condition_code);

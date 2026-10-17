@@ -15,4 +15,12 @@ interface ProcedureCatalog
      * @return list<ProcedureSnapshot> maksimal 20 hasil, kode lebih dulu
      */
     public function search(string $term, int $limit = 20): array;
+
+    /**
+     * Kode ICD-9-CM tindakan untuk pelaporan SATUSEHAT (P2-01); tindakan tanpa kode tidak ada di hasil.
+     *
+     * @param  list<string>  $procedureIds
+     * @return array<string, string> procedure_id => kode ICD-9-CM
+     */
+    public function icd9Codes(array $procedureIds): array;
 }

@@ -62,6 +62,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/settings/master/payment-methods',
       '/settings/master/medicines',
       '/settings/master/document-templates',
+      '/settings/satusehat',
       '/audit',
       '/audit/access',
       '/settings/system',

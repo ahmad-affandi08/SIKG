@@ -7,6 +7,7 @@ use Src\Billing\BillingServiceProvider;
 use Src\Clinic\ClinicServiceProvider;
 use Src\Clinical\ClinicalServiceProvider;
 use Src\IdentityAccess\IdentityAccessServiceProvider;
+use Src\Integration\IntegrationServiceProvider;
 use Src\Patient\PatientServiceProvider;
 use Src\Pharmacy\PharmacyServiceProvider;
 use Src\Reporting\ReportingServiceProvider;
@@ -24,4 +25,5 @@ return [
     PharmacyServiceProvider::class,
     BillingServiceProvider::class,
     ReportingServiceProvider::class,
+    IntegrationServiceProvider::class,
 ];

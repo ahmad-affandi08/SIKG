@@ -43,6 +43,12 @@ Schedule::command('sikg:appointments:digest')
     ->everyFifteenMinutes()
     ->withoutOverlapping(10);
 
+// P2-01: antrean kunjungan ke SATUSEHAT; percobaan ulang mengikuti jeda bertahap yang disimpan per pengiriman.
+Schedule::command('sikg:satusehat:send')
+    ->name('sikg-satusehat-send')
+    ->everyFiveMinutes()
+    ->withoutOverlapping(10);
+
 // SYS-05: pemberitahuan dalam aplikasi dipangkas setelah 90 hari.
 Schedule::command('sikg:notifications:prune')
     ->name('sikg-notifications-prune')

@@ -50,12 +50,13 @@ final class ProcedureEntity extends EloquentMasterEntity
             )),
             new MasterField('default_price_amount', 'Tarif standar (Rp)', 'money', required: true, help: 'Rupiah bulat. Mengubah tarif tidak mengubah tagihan yang sudah dibuat.'),
             new MasterField('result_condition_code', 'Kondisi gigi hasil tindakan', 'select', options: $this->conditionOptions(), help: 'Bila diisi, dokter ditawari memperbarui odontogram setelah tindakan dicatat (contoh: tambal menjadi Tambalan). Kosong berarti odontogram tidak berubah.'),
+            new MasterField('icd9_code', 'Kode ICD-9-CM (SATUSEHAT)', 'text', max: 10, help: 'Kode prosedur ICD-9-CM untuk pelaporan ke SATUSEHAT, contoh 23.2. Tindakan tanpa kode tidak ikut dikirim sebagai prosedur.'),
         ];
     }
 
     public function columns(): array
     {
-        return ['code', 'name', 'category', 'scope', 'default_price_amount', 'result_condition_code'];
+        return ['code', 'name', 'category', 'scope', 'default_price_amount', 'result_condition_code', 'icd9_code'];
     }
 
     public function rules(?string $ignoreId): array
@@ -68,6 +69,7 @@ final class ProcedureEntity extends EloquentMasterEntity
             'category' => ['nullable', 'string', 'max:100'],
             'scope' => ['required', Rule::enum(ProcedureScope::class)],
             'default_price_amount' => ['required', 'integer', 'min:0', 'max:9999999999'],
+            'icd9_code' => ['nullable', 'string', 'max:10', 'regex:/^\d{1,2}(\.\d{1,2})?$/'],
             'result_condition_code' => ['nullable', 'string', Rule::exists('tooth_conditions', 'code')->where('clinic_id', $clinicId)->where('is_active', true)],
         ];
     }

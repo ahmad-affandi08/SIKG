@@ -105,6 +105,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     permission: 'setting.manage',
     group: 'Pengaturan',
   },
+  {
+    label: 'SATUSEHAT',
+    href: '/settings/satusehat',
+    permission: 'setting.manage',
+    group: 'Pengaturan',
+  },
   { label: 'Audit log', href: '/audit', permission: 'audit.view', group: 'Pengaturan' },
   { label: 'Jejak akses', href: '/audit/access', permission: 'audit.view', group: 'Pengaturan' },
   {
