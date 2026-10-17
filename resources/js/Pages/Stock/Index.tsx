@@ -41,7 +41,11 @@ interface Props {
   can: { manage: boolean };
 }
 
-const LEVEL_LABEL = { empty: 'Habis', low: 'Di bawah minimum', ok: 'Cukup' } as const;
+const LEVEL_LABEL = {
+  empty: 'Habis',
+  low: 'Di bawah minimum',
+  ok: 'Cukup',
+} as const;
 const LEVEL_TONE = { empty: 'danger', low: 'warning', ok: 'success' } as const;
 
 export default function Index({ medicines, alerts, can }: Props) {
@@ -52,16 +56,27 @@ export default function Index({ medicines, alerts, can }: Props) {
         <PageHeader
           title="Stok obat dan bahan"
           actions={
-            can.manage ? (
-              <>
-                <Link href="/stock/adjustments/create" className="btn btn-secondary">
-                  Penyesuaian stok
-                </Link>
-                <Link href="/stock/movements/create" className="btn btn-primary">
-                  Stok masuk atau keluar
-                </Link>
-              </>
-            ) : null
+            <>
+              <Link href="/stock/batches" className="btn btn-secondary">
+                Batch
+              </Link>
+              <Link href="/stock/purchase-orders" className="btn btn-secondary">
+                Pembelian
+              </Link>
+              <Link href="/stock/counts" className="btn btn-secondary">
+                Opname
+              </Link>
+              {can.manage ? (
+                <>
+                  <Link href="/stock/adjustments/create" className="btn btn-secondary">
+                    Penyesuaian stok
+                  </Link>
+                  <Link href="/stock/movements/create" className="btn btn-primary">
+                    Stok masuk atau keluar
+                  </Link>
+                </>
+              ) : null}
+            </>
           }
         />
 
@@ -91,15 +106,11 @@ export default function Index({ medicines, alerts, can }: Props) {
                     <li key={`${item.medicine_id}-${item.batch_no ?? ''}-${item.expiry_date}`}>
                       {item.name}
                       {item.batch_no ? `, batch ${item.batch_no}` : ''}:{' '}
-                      {formatDate(item.expiry_date)} ({expiryText(item.days_left)}), stok kini{' '}
+                      {formatDate(item.expiry_date)} ({expiryText(item.days_left)}), sisa batch{' '}
                       {item.quantity} {item.unit}
                     </li>
                   ))}
                 </ul>
-                <p className="text-muted text-xs">
-                  Sisa per batch tidak dilacak; semua batch yang masuk dengan tanggal itu
-                  ditampilkan selama obatnya masih ada stok.
-                </p>
               </div>
             ) : null}
           </section>

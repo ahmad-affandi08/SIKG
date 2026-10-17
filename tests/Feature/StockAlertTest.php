@@ -65,6 +65,7 @@ it('OBT-06 batch tanpa stok tersisa tidak diperingatkan dan obat nonaktif tidak 
     $s = siapStokPeringatan();
     DB::table('medicines')->where('id', $s['a']->id)->update(['is_active' => false]);
     DB::table('stock_balances')->where('medicine_id', $s['c']->id)->update(['quantity' => 0]);
+    DB::table('stock_batches')->where('medicine_id', $s['c']->id)->update(['remaining_quantity' => 0]);
 
     $alerts = app(StockAlerts::class)->overview();
 
@@ -102,7 +103,7 @@ it('OBT-06 pemberitahuan tidak terbit sebelum jam 07.00 lokal dan tidak ada bila
     expect(app(StockAlerts::class)->raiseDaily())->toBe(['low' => false, 'expiring' => false])->and(DB::table('notifications')->count())->toBe(0);
 
     DB::table('stock_balances')->where('medicine_id', $s['a']->id)->update(['quantity' => 50]);
-    DB::table('stock_movements')->whereNotNull('expiry_date')->update(['expiry_date' => '2026-12-31']);
+    DB::table('stock_batches')->whereNotNull('expiry_date')->update(['expiry_date' => '2026-12-31']);
     Carbon::setTestNow(Carbon::parse('2025-06-16 08:00:00', 'Asia/Jakarta'));
     expect(app(StockAlerts::class)->raiseDaily())->toBe(['low' => false, 'expiring' => false]);
 });

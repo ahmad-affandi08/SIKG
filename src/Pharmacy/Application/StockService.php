@@ -46,6 +46,75 @@ final readonly class StockService implements StockLedger
     }
 
     /**
+     * Penerimaan barang dari pesanan pembelian (P2-05): membuat batch dengan harga beli dan pemasok, mutasi tertaut ke pesanan.
+     */
+    public function receiveFromPurchase(string $actorId, string $medicineId, int $quantity, ?string $batchNo, ?string $expiryDate, int $unitCostAmount, string $supplierId, string $purchaseOrderId, string $poNo): int
+    {
+        $this->positive($quantity);
+        $expiry = $expiryDate === null || $expiryDate === '' ? null : $this->date($expiryDate);
+
+        return $this->tx->run(function () use ($actorId, $medicineId, $quantity, $batchNo, $expiry, $unitCostAmount, $supplierId, $purchaseOrderId, $poNo): int {
+            $this->medicines->assertExists($medicineId);
+            $this->stock->lockedBalance($medicineId);
+            $batch = $this->text($batchNo);
+            $after = $this->stock->apply($actorId, $medicineId, MovementType::In, $quantity, 'purchase_order', $purchaseOrderId, 'Penerimaan '.$poNo, $batch, $expiry, $this->clock->now(), $unitCostAmount, $supplierId, $purchaseOrderId);
+            $this->audit->record(new AuditEntry($actorId, 'stock.received', 'medicine', $medicineId, null, ['quantity' => $quantity, 'balance_after' => $after, 'batch_no' => $batch, 'expiry_date' => $expiry, 'purchase_order_id' => $purchaseOrderId]));
+
+            return $after;
+        });
+    }
+
+    /**
+     * Pemakaian bahan habis pakai oleh tindakan: mengambil sebanyak yang tersedia, tidak pernah menolak (tindakan klinis tidak
+     * boleh terhenti karena stok). Kekurangan dicatat di audit supaya dapat ditelusuri dan dikoreksi lewat opname.
+     *
+     * @return int jumlah yang benar-benar diambil
+     */
+    public function consumeMaterial(string $actorId, string $medicineId, int $quantity, string $referenceType, string $referenceId): int
+    {
+        $this->positive($quantity);
+
+        return $this->tx->run(function () use ($actorId, $medicineId, $quantity, $referenceType, $referenceId): int {
+            $available = $this->stock->lockedBalance($medicineId);
+            $take = min($available, $quantity);
+            if ($take > 0) {
+                $after = $this->stock->apply($actorId, $medicineId, MovementType::Out, -$take, $referenceType, $referenceId, 'Bahan habis pakai tindakan', null, null, $this->clock->now());
+                $this->audit->record(new AuditEntry($actorId, 'stock.material_used', 'medicine', $medicineId, null, ['quantity' => $take, 'needed' => $quantity, 'balance_after' => $after, 'reference_type' => $referenceType, 'reference_id' => $referenceId]));
+            } else {
+                $this->audit->record(new AuditEntry($actorId, 'stock.material_short', 'medicine', $medicineId, null, ['needed' => $quantity, 'reference_type' => $referenceType, 'reference_id' => $referenceId]));
+            }
+
+            return $take;
+        });
+    }
+
+    /**
+     * Mengembalikan bahan yang sudah diambil untuk satu rujukan (tindakan dibatalkan sebelum kunjungan ditutup).
+     */
+    public function returnMaterial(string $actorId, string $medicineId, string $referenceType, string $referenceId): void
+    {
+        $this->tx->run(function () use ($actorId, $medicineId, $referenceType, $referenceId): void {
+            $this->stock->lockedBalance($medicineId);
+            $net = $this->stock->netIssued($medicineId, $referenceType, $referenceId);
+            if ($net < 1) {
+                return;
+            }
+            $after = $this->stock->apply($actorId, $medicineId, MovementType::In, $net, $referenceType, $referenceId, 'Tindakan dibatalkan, bahan dikembalikan', null, null, $this->clock->now());
+            $this->audit->record(new AuditEntry($actorId, 'stock.restored', 'medicine', $medicineId, null, ['quantity' => $net, 'balance_after' => $after, 'reference_type' => $referenceType, 'reference_id' => $referenceId]));
+        });
+    }
+
+    /**
+     * Batch dengan sisa, kedaluwarsa terdekat lebih dulu (P2-05).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function batches(?string $medicineId = null): array
+    {
+        return $this->stock->batches($medicineId);
+    }
+
+    /**
      * Stok keluar manual: penjualan atau pemakaian internal. Alasan wajib.
      */
     public function dispose(string $actorId, string $medicineId, int $quantity, string $reason, ?string $overrideReason = null): int

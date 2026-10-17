@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Src\Insurance\Application;
 
+use DateTimeZone;
 use Src\Clinic\Contracts\ClinicCalendar;
 use Src\Insurance\Domain\InsurerDirectory;
 use Src\Insurance\Domain\InvalidClaim;
@@ -132,6 +133,6 @@ final readonly class PolicyService
 
     private function today(): string
     {
-        return $this->clock->now()->setTimezone(new \DateTimeZone($this->calendar->timezone()))->format('Y-m-d');
+        return $this->clock->now()->setTimezone(new DateTimeZone($this->calendar->timezone()))->format('Y-m-d');
     }
 }

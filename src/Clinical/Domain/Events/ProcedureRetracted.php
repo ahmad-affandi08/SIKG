@@ -12,7 +12,7 @@ use Src\Shared\Domain\DomainEvent;
  */
 final readonly class ProcedureRetracted implements DomainEvent
 {
-    public function __construct(public string $encounterId, public string $encounterProcedureId, private DateTimeImmutable $at) {}
+    public function __construct(public string $encounterId, public string $encounterProcedureId, private DateTimeImmutable $at, public ?string $performedBy = null) {}
 
     public function occurredAt(): DateTimeImmutable
     {

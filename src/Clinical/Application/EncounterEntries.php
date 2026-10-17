@@ -117,7 +117,7 @@ final readonly class EncounterEntries
                 'plan_item_id' => $planItemId,
             ]));
 
-            return [$id, new ProcedurePerformed($encounterId, $id, $encounter->patientId, $procedure->code, $procedure->name, $quantity, $procedure->priceAmount, $now)];
+            return [$id, new ProcedurePerformed($encounterId, $id, $encounter->patientId, $procedure->code, $procedure->name, $quantity, $procedure->priceAmount, $now, $procedure->id, $actorId)];
         });
 
         $this->events->dispatch($event);
@@ -139,7 +139,7 @@ final readonly class EncounterEntries
             }
             $this->audit->record(new AuditEntry($actorId, 'encounter.procedure_removed', 'encounter', $encounterId, ['entry_id' => $entryId, 'code' => $entry->code, 'quantity' => $entry->quantity, 'unit_price_amount' => $entry->unitPriceAmount], null));
 
-            return new ProcedureRetracted($encounterId, $entryId, $this->clock->now());
+            return new ProcedureRetracted($encounterId, $entryId, $this->clock->now(), $actorId);
         });
 
         $this->events->dispatch($event);

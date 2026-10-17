@@ -37,6 +37,12 @@ Schedule::command('sikg:stock:alerts')
     ->everyThirtyMinutes()
     ->withoutOverlapping(20);
 
+// P2-05: opname stok terjadwal; jadwal maju sekali per jatuh tempo, aman diulang.
+Schedule::command('sikg:stock:count')
+    ->name('sikg-stock-count')
+    ->everyThirtyMinutes()
+    ->withoutOverlapping(20);
+
 // JDW-07: ringkasan janji hari ini (mulai 07.00) dan besok (mulai 09.00) untuk pemilik dan staf; sekali per hari, aman diulang.
 Schedule::command('sikg:appointments:digest')
     ->name('sikg-appointment-digest')

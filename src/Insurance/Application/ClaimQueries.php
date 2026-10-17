@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Src\Insurance\Application;
 
 use DateTimeImmutable;
+use DateTimeZone;
 use Src\Billing\Contracts\InvoiceClaimGateway;
 use Src\Clinic\Contracts\ClinicCalendar;
 use Src\Clinic\Contracts\PaymentMethodCatalog;
@@ -199,6 +200,6 @@ final readonly class ClaimQueries
 
     private function today(): string
     {
-        return $this->clock->now()->setTimezone(new \DateTimeZone($this->calendar->timezone()))->format('Y-m-d');
+        return $this->clock->now()->setTimezone(new DateTimeZone($this->calendar->timezone()))->format('Y-m-d');
     }
 }

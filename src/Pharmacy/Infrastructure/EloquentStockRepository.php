@@ -13,6 +13,7 @@ use Src\Pharmacy\Domain\StockMovementRecord;
 use Src\Pharmacy\Domain\StockRepository;
 use Src\Pharmacy\Infrastructure\Eloquent\MedicineModel;
 use Src\Pharmacy\Infrastructure\Eloquent\StockBalanceModel;
+use Src\Pharmacy\Infrastructure\Eloquent\StockBatchModel;
 use Src\Pharmacy\Infrastructure\Eloquent\StockMovementModel;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Domain\IdGenerator;
@@ -37,7 +38,7 @@ final readonly class EloquentStockRepository implements StockRepository
         return StockBalanceModel::query()->where('medicine_id', $medicineId)->lockForUpdate()->firstOrFail()->quantity;
     }
 
-    public function apply(string $actorId, string $medicineId, MovementType $type, int $delta, ?string $referenceType, ?string $referenceId, ?string $reason, ?string $batchNo, ?string $expiryDate, DateTimeImmutable $at): int
+    public function apply(string $actorId, string $medicineId, MovementType $type, int $delta, ?string $referenceType, ?string $referenceId, ?string $reason, ?string $batchNo, ?string $expiryDate, DateTimeImmutable $at, ?int $unitCostAmount = null, ?string $supplierId = null, ?string $purchaseOrderId = null): int
     {
         $balance = StockBalanceModel::query()->where('medicine_id', $medicineId)->lockForUpdate()->firstOrFail();
         $after = $balance->quantity + $delta;
@@ -45,6 +46,22 @@ final readonly class EloquentStockRepository implements StockRepository
             throw new LogicException('Saldo stok tidak boleh negatif.');
         }
         $balance->forceFill(['quantity' => $after])->save();
+
+        if ($delta > 0) {
+            (new StockBatchModel)->forceFill([
+                'medicine_id' => $medicineId,
+                'batch_no' => $batchNo,
+                'expiry_date' => $expiryDate,
+                'received_quantity' => $delta,
+                'remaining_quantity' => $delta,
+                'unit_cost_amount' => $unitCostAmount,
+                'supplier_id' => $supplierId,
+                'purchase_order_id' => $purchaseOrderId,
+                'received_at' => $at,
+            ])->save();
+        } elseif ($delta < 0) {
+            $this->consume($medicineId, -$delta);
+        }
 
         (new StockMovementModel)->forceFill([
             'medicine_id' => $medicineId,
@@ -95,37 +112,91 @@ final readonly class EloquentStockRepository implements StockRepository
         ])->all());
     }
 
-    public function expiringBatches(string $until): array
+    public function netIssued(string $medicineId, string $referenceType, string $referenceId): int
     {
-        $balances = StockBalanceModel::query()->where('quantity', '>', 0)->pluck('quantity', 'medicine_id');
-        if ($balances->isEmpty()) {
-            return [];
-        }
-        $medicines = MedicineModel::query()->whereIn('id', $balances->keys()->all())->get()->keyBy('id');
+        $sum = (int) StockMovementModel::query()
+            ->where('medicine_id', $medicineId)->where('reference_type', $referenceType)->where('reference_id', $referenceId)
+            ->sum('quantity');
+
+        return max(0, -$sum);
+    }
+
+    public function referencedMedicines(string $referenceType, string $referenceId): array
+    {
+        return array_values(StockMovementModel::query()->where('reference_type', $referenceType)->where('reference_id', $referenceId)
+            ->distinct()->pluck('medicine_id')->map(fn ($id) => (string) $id)->all());
+    }
+
+    public function batches(?string $medicineId): array
+    {
+        $rows = StockBatchModel::query()
+            ->where('remaining_quantity', '>', 0)
+            ->when($medicineId !== null, fn ($q) => $q->where('medicine_id', $medicineId))
+            ->orderByRaw('expiry_date is null')->orderBy('expiry_date')->orderBy('received_at')->orderBy('id')
+            ->get();
+        $medicines = MedicineModel::query()->whereIn('id', $rows->pluck('medicine_id')->unique()->all())->get()->keyBy('id');
 
         $list = [];
-        foreach (StockMovementModel::query()
-            ->whereIn('medicine_id', $balances->keys()->all())
-            ->where('type', MovementType::In->value)
-            ->whereNotNull('expiry_date')
-            ->whereDate('expiry_date', '<=', $until)
-            ->orderBy('expiry_date')->orderBy('id')
-            ->get() as $movement) {
-            $medicine = $medicines->get($movement->medicine_id);
+        foreach ($rows as $batch) {
+            $medicine = $medicines->get($batch->medicine_id);
             if ($medicine === null) {
                 continue;
             }
             $list[] = [
-                'medicine_id' => $movement->medicine_id,
+                'id' => $batch->id,
+                'medicine_id' => $batch->medicine_id,
                 'name' => $medicine->name,
                 'unit' => $medicine->unit,
-                'batch_no' => $movement->batch_no,
-                'expiry_date' => (string) $movement->expiry_date?->toDateString(),
-                'received' => (int) $movement->quantity,
-                'quantity' => (int) $balances[$movement->medicine_id],
+                'batch_no' => $batch->batch_no,
+                'expiry_date' => $batch->expiry_date?->toDateString(),
+                'received_quantity' => $batch->received_quantity,
+                'remaining_quantity' => $batch->remaining_quantity,
+                'unit_cost_amount' => $batch->unit_cost_amount,
+                'supplier_id' => $batch->supplier_id,
+                'received_at' => $batch->received_at->toDateString(),
             ];
         }
 
         return $list;
+    }
+
+    public function expiringBatches(string $until): array
+    {
+        $list = [];
+        foreach ($this->batches(null) as $batch) {
+            if ($batch['expiry_date'] === null || $batch['expiry_date'] > $until) {
+                continue;
+            }
+            $list[] = [
+                'medicine_id' => $batch['medicine_id'],
+                'name' => $batch['name'],
+                'unit' => $batch['unit'],
+                'batch_no' => $batch['batch_no'],
+                'expiry_date' => $batch['expiry_date'],
+                'received' => $batch['received_quantity'],
+                'quantity' => $batch['remaining_quantity'],
+            ];
+        }
+
+        return $list;
+    }
+
+    /**
+     * FEFO: batch yang paling cepat kedaluwarsa dipakai lebih dulu, batch tanpa tanggal terakhir. Bila jumlah batch kurang dari kebutuhan
+     * (saldo lama sebelum pelacakan batch), selisihnya dibiarkan.
+     */
+    private function consume(string $medicineId, int $quantity): void
+    {
+        $batches = StockBatchModel::query()->where('medicine_id', $medicineId)->where('remaining_quantity', '>', 0)
+            ->orderByRaw('expiry_date is null')->orderBy('expiry_date')->orderBy('received_at')->orderBy('id')
+            ->lockForUpdate()->get();
+        foreach ($batches as $batch) {
+            if ($quantity <= 0) {
+                break;
+            }
+            $take = min($quantity, $batch->remaining_quantity);
+            $batch->forceFill(['remaining_quantity' => $batch->remaining_quantity - $take])->save();
+            $quantity -= $take;
+        }
     }
 }
