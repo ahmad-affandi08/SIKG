@@ -48,6 +48,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Layanan',
   },
   {
+    label: 'Pesanan lab',
+    href: '/lab-orders',
+    anyOf: ['encounter.view', 'invoice.view'],
+    group: 'Layanan',
+  },
+  {
     label: 'Stok obat',
     href: '/stock',
     permission: 'stock.view',

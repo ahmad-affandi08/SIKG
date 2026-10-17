@@ -111,6 +111,11 @@ export default function Show({
                 Paket ortodonti
               </Link>
             ) : null}
+            {can.timeline ? (
+              <Link href={`/lab-orders/create?patient=${patient.id}`} className="btn btn-secondary">
+                Pesanan lab
+              </Link>
+            ) : null}
             {can.merge ? (
               <Link href={`/patients/${patient.id}/merge`} className="btn btn-secondary">
                 Gabung data ganda
