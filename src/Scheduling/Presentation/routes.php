@@ -20,6 +20,9 @@ Route::middleware(['can:appointment.view', 'throttle:60,1'])->prefix('internal-a
 
 Route::middleware('can:appointment.manage')->group(function (): void {
     $id = '[0-9A-Z]{26}';
+    Route::get('/appointments/create', [AppointmentController::class, 'create'])->name('appointments.create');
+    Route::get('/appointments/{appointment}/edit', [AppointmentController::class, 'edit'])->name('appointments.edit')->where('appointment', $id);
+    Route::get('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancelForm'])->name('appointments.cancel')->where('appointment', $id);
     Route::post('/appointments', [AppointmentController::class, 'store']);
     Route::put('/appointments/{appointment}', [AppointmentController::class, 'update'])->where('appointment', $id);
     Route::post('/appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->where('appointment', $id);

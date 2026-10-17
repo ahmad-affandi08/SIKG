@@ -389,3 +389,32 @@ it('JDW-05 formulir pasien tanpa janji adalah halaman sendiri dan simpan kembali
     test()->actingAs($s['user'])->post('/walk-ins', ['patient_id' => $s['pasien'], 'doctor_id' => $s['dokter']->id])->assertRedirect('/queue');
     test()->actingAs(makeUser(Role::Dokter, $s['klinik']))->get('/queue/walk-in')->assertForbidden();
 });
+
+it('JDW-01 buat janji, jadwal ulang, dan batal adalah halaman sendiri dan kembali ke kalender pada tanggal janji', function () {
+    $s = siapJadwal();
+    majuKe(SENIN.' 08:00');
+
+    test()->actingAs($s['user'])->get('/appointments/create?date='.SENIN)->assertOk()->assertInertia(fn ($p) => $p
+        ->component('Schedule/Create')->where('defaultDate', SENIN)->has('doctors', 1));
+
+    $id = bukaJanji($s);
+    test()->actingAs($s['user'])->get("/appointments/{$id}/edit")->assertOk()->assertInertia(fn ($p) => $p
+        ->component('Schedule/Reschedule')->where('item.id', $id)->where('item.date', SENIN));
+    test()->actingAs($s['user'])->get("/appointments/{$id}/cancel")->assertOk()->assertInertia(fn ($p) => $p
+        ->component('Schedule/Cancel')->where('item.id', $id));
+
+    test()->actingAs($s['user'])->put("/appointments/{$id}", ['doctor_id' => $s['dokter']->id, 'chair_id' => $s['kursi']->id, 'date' => SENIN, 'time' => '10:00', 'minutes' => 30, 'reason' => 'Pasien minta mundur'])
+        ->assertRedirect('/schedule?date='.SENIN);
+    test()->actingAs($s['user'])->post("/appointments/{$id}/cancel", ['reason' => 'Pasien berhalangan'])->assertRedirect('/schedule?date='.SENIN);
+});
+
+it('JDW-01 halaman janji milik klinik lain tidak dapat dibuka dan dokter tidak boleh membuat janji', function () {
+    $a = siapJadwal();
+    $b = siapJadwal();
+    majuKe(SENIN.' 08:00');
+    $id = bukaJanji($a);
+
+    test()->actingAs($b['user'])->get("/appointments/{$id}/edit")->assertNotFound();
+    test()->actingAs($b['user'])->get("/appointments/{$id}/cancel")->assertNotFound();
+    test()->actingAs(makeUser(Role::Dokter, $a['klinik']))->get('/appointments/create')->assertForbidden();
+});

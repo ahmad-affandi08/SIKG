@@ -1,14 +1,9 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
-import type { SyntheticEvent } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
-import { Select } from '@/components/ui/Select';
-import { TextField } from '@/components/ui/TextField';
-import { buildMasterSchema, emptyValues } from '@/features/master/schema';
 import type { MasterFieldDef } from '@/features/master/schema';
 import { formatRupiah } from '@/lib/format';
 
@@ -44,69 +39,24 @@ function display(field: MasterFieldDef, value: Row[string] | undefined): string 
 
 export default function Index({ entity, rows, canManage, tabs }: Props) {
   const base = `/settings/master/${entity.key}`;
-  const form = useForm<Record<string, string>>(emptyValues(entity.fields));
-  const [editing, setEditing] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
-  const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
-  const schema = buildMasterSchema(entity.fields);
   const columns = entity.columns
     .map((key) => entity.fields.find((field) => field.key === key))
     .filter((field): field is MasterFieldDef => field !== undefined);
-
-  function startCreate() {
-    form.setData(emptyValues(entity.fields));
-    form.clearErrors();
-    setClientErrors({});
-    setEditing(null);
-    setOpen(true);
-  }
-
-  function startEdit(row: Row) {
-    const values = emptyValues(entity.fields);
-    for (const field of entity.fields) {
-      const value = row[field.key];
-      values[field.key] = value === null || value === undefined ? '' : String(value);
-    }
-    form.setData(values);
-    form.clearErrors();
-    setClientErrors({});
-    setEditing(row.id);
-    setOpen(true);
-  }
-
-  function submit(event: SyntheticEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const result = schema.safeParse(form.data);
-    if (!result.success) {
-      const next: Record<string, string> = {};
-      for (const issue of result.error.issues) {
-        next[String(issue.path[0])] ??= issue.message;
-      }
-      setClientErrors(next);
-      return;
-    }
-    setClientErrors({});
-    const options = {
-      preserveScroll: true,
-      onSuccess: () => {
-        setOpen(false);
-      },
-    };
-    if (editing === null) {
-      form.post(base, options);
-    } else {
-      form.put(`${base}/${editing}`, options);
-    }
-  }
-
-  const errorFor = (key: string): string | undefined =>
-    clientErrors[key] ?? (form.errors as Record<string, string | undefined>)[key];
 
   return (
     <AppLayout>
       <main className="mx-auto flex max-w-6xl flex-col gap-4 p-6 lg:px-12 lg:py-10">
         <Head title={entity.title} />
-        <h1>{entity.title}</h1>
+        <PageHeader
+          title={entity.title}
+          actions={
+            canManage ? (
+              <Link href={`${base}/create`} className="btn btn-primary">
+                Tambah
+              </Link>
+            ) : null
+          }
+        />
 
         {tabs.length > 1 ? (
           <nav aria-label="Jenis master data" className="flex flex-wrap gap-2">
@@ -121,63 +71,6 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
               </Link>
             ))}
           </nav>
-        ) : null}
-
-        {canManage && !open ? (
-          <div>
-            <Button onClick={startCreate}>Tambah</Button>
-          </div>
-        ) : null}
-
-        {open ? (
-          <form
-            onSubmit={submit}
-            noValidate
-            aria-label={editing === null ? 'Tambah data' : 'Ubah data'}
-            className="card flex max-w-xl flex-col gap-4 p-4"
-          >
-            {entity.fields.map((field) =>
-              field.type === 'select' ? (
-                <Select
-                  key={field.key}
-                  label={field.label}
-                  options={field.options}
-                  placeholder={field.required ? 'Pilih' : 'Semua'}
-                  value={form.data[field.key] ?? ''}
-                  onChange={(event) => {
-                    form.setData(field.key, event.target.value);
-                  }}
-                  error={errorFor(field.key)}
-                />
-              ) : (
-                <div key={field.key} className="flex flex-col gap-1">
-                  <TextField
-                    label={field.label}
-                    inputMode={field.type === 'text' ? undefined : 'numeric'}
-                    value={form.data[field.key] ?? ''}
-                    onChange={(event) => {
-                      form.setData(field.key, event.target.value);
-                    }}
-                    error={errorFor(field.key)}
-                  />
-                  {field.help ? <p className="text-muted text-sm">{field.help}</p> : null}
-                </div>
-              ),
-            )}
-            <div className="flex gap-3">
-              <Button type="submit" loading={form.processing}>
-                Simpan
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setOpen(false);
-                }}
-              >
-                Batal
-              </Button>
-            </div>
-          </form>
         ) : null}
 
         <table className="w-full text-left text-sm">
@@ -211,14 +104,9 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
                 <td>
                   {canManage ? (
                     <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          startEdit(row);
-                        }}
-                      >
+                      <Link href={`${base}/${row.id}/edit`} className="btn btn-secondary">
                         Ubah
-                      </Button>
+                      </Link>
                       {row.is_active ? (
                         <ConfirmAction
                           label="Nonaktifkan"

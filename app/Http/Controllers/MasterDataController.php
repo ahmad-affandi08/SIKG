@@ -36,13 +36,33 @@ final class MasterDataController
         ]);
     }
 
+    public function form(Request $request): Response
+    {
+        $master = $this->master($request);
+        $id = $request->route('id');
+        $row = null;
+        if (is_string($id)) {
+            $row = collect($master->list())->firstWhere('id', $id);
+            abort_if($row === null, 404);
+        }
+
+        return Inertia::render('Settings/Master/Form', [
+            'entity' => [
+                'key' => $master->key(),
+                'title' => $master->title(),
+                'fields' => array_map(fn ($f) => $f->toArray(), $master->fields()),
+            ],
+            'row' => $row,
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $master = $this->master($request);
         $data = $request->validate($master->rules(null));
         $master->create($this->actorId($request), $data);
 
-        return back()->with('success', 'Data disimpan.');
+        return redirect('/settings/master/'.$master->key())->with('success', 'Data disimpan.');
     }
 
     public function update(Request $request, string $id): RedirectResponse
@@ -51,7 +71,7 @@ final class MasterDataController
         $data = $request->validate($master->rules($id));
         $master->update($this->actorId($request), $id, $data);
 
-        return back()->with('success', 'Perubahan disimpan.');
+        return redirect('/settings/master/'.$master->key())->with('success', 'Perubahan disimpan.');
     }
 
     public function activate(Request $request, string $id): RedirectResponse

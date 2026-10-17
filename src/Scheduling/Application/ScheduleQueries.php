@@ -10,6 +10,7 @@ use Src\Clinic\Contracts\ChairDirectory;
 use Src\Clinic\Contracts\ClinicCalendar;
 use Src\Clinic\Contracts\DoctorDirectory;
 use Src\Patient\Contracts\PatientLookup;
+use Src\Scheduling\Domain\AppointmentNotFound;
 use Src\Scheduling\Domain\AppointmentRecord;
 use Src\Scheduling\Domain\AppointmentRepository;
 use Src\Scheduling\Domain\InvalidAppointment;
@@ -51,6 +52,18 @@ final readonly class ScheduleQueries
             'to' => $to->format('Y-m-d'),
             'items' => $this->present($this->appointments->between($fromUtc, $toUtc, $doctorId, $chairId)),
         ];
+    }
+
+    /**
+     * Satu janji dalam bentuk tampilan kalender (untuk halaman jadwal ulang dan pembatalan).
+     *
+     * @return array<string, mixed>
+     */
+    public function find(string $id): array
+    {
+        $record = $this->appointments->find($id) ?? throw new AppointmentNotFound;
+
+        return $this->present([$record])[0];
     }
 
     /**

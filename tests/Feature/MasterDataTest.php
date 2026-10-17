@@ -170,3 +170,23 @@ it('MST-08 pencarian tindakan tidak melintasi klinik dan butuh izin tarif', func
     $this->actingAs(makeUser(Role::Admin, $b))->getJson('/internal-api/procedures/search?q=tindakan')->assertOk()->assertJsonPath('data', []);
     $this->actingAs(makeUser(Role::Perawat, $b))->getJson('/internal-api/procedures/search?q=tindakan')->assertOk();
 });
+
+it('MST formulir tambah dan ubah adalah halaman sendiri; simpan kembali ke daftar', function () {
+    $admin = makeUser(Role::Admin, makeClinic());
+
+    $this->actingAs($admin)->get('/settings/master/chairs/create')->assertOk()
+        ->assertInertia(fn ($p) => $p->component('Settings/Master/Form')->where('row', null)->where('entity.key', 'chairs'));
+    $this->actingAs($admin)->post('/settings/master/chairs', ['name' => 'Kursi Halaman'])->assertRedirect('/settings/master/chairs');
+    $id = collect($this->actingAs($admin)->get('/settings/master/chairs')->viewData('page')['props']['rows'])->firstWhere('name', 'Kursi Halaman')['id'];
+
+    $this->actingAs($admin)->get("/settings/master/chairs/{$id}/edit")->assertOk()
+        ->assertInertia(fn ($p) => $p->component('Settings/Master/Form')->where('row.name', 'Kursi Halaman'));
+    $this->actingAs($admin)->put("/settings/master/chairs/{$id}", ['name' => 'Kursi Baru'])->assertRedirect('/settings/master/chairs');
+    $this->actingAs($admin)->get('/settings/master/chairs/01HZZZZZZZZZZZZZZZZZZZZZZZ/edit')->assertNotFound();
+});
+
+it('MST formulir master data tidak terbuka bagi yang tidak berhak mengelola', function () {
+    $klinik = makeClinic();
+
+    $this->actingAs(makeUser(Role::Dokter, $klinik))->get('/settings/master/chairs/create')->assertForbidden();
+});

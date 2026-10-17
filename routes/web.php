@@ -23,6 +23,8 @@ Route::middleware('auth')->prefix('settings/master')->group(function (): void {
         });
 
         Route::middleware('can:'.$master->managePermission())->group(function () use ($key): void {
+            Route::get('/'.$key.'/create', [MasterDataController::class, 'form'])->defaults('entity', $key)->name('master.'.$key.'.create');
+            Route::get('/'.$key.'/{id}/edit', [MasterDataController::class, 'form'])->defaults('entity', $key)->name('master.'.$key.'.edit');
             Route::post('/'.$key, [MasterDataController::class, 'store'])->defaults('entity', $key);
             Route::put('/'.$key.'/{id}', [MasterDataController::class, 'update'])->defaults('entity', $key);
             Route::post('/'.$key.'/{id}/activate', [MasterDataController::class, 'activate'])->defaults('entity', $key);

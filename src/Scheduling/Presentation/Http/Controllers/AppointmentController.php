@@ -62,6 +62,31 @@ final class AppointmentController
         ]);
     }
 
+    public function create(Request $request): Response
+    {
+        $data = $request->validate(['date' => ['nullable', 'date_format:Y-m-d']]);
+
+        return Inertia::render('Schedule/Create', [
+            'defaultDate' => $data['date'] ?? $this->time->today(),
+            'doctors' => array_map(fn ($d) => ['value' => $d->id, 'label' => $d->name], $this->doctors->active()),
+            'chairs' => array_map(fn ($c) => ['value' => $c->id, 'label' => $c->name], $this->chairs->active()),
+        ]);
+    }
+
+    public function edit(string $appointment): Response
+    {
+        return Inertia::render('Schedule/Reschedule', [
+            'item' => $this->queries->find($appointment),
+            'doctors' => array_map(fn ($d) => ['value' => $d->id, 'label' => $d->name], $this->doctors->active()),
+            'chairs' => array_map(fn ($c) => ['value' => $c->id, 'label' => $c->name], $this->chairs->active()),
+        ]);
+    }
+
+    public function cancelForm(string $appointment): Response
+    {
+        return Inertia::render('Schedule/Cancel', ['item' => $this->queries->find($appointment)]);
+    }
+
     public function walkInForm(): Response
     {
         return Inertia::render('Queue/WalkIn', [
@@ -105,7 +130,7 @@ final class AppointmentController
             $request->input('complaint'),
         );
 
-        return back()->with('success', 'Janji dibuat.');
+        return redirect('/schedule?date='.$request->string('date')->toString())->with('success', 'Janji dibuat.');
     }
 
     public function update(AppointmentRequest $request, string $appointment): RedirectResponse
@@ -121,7 +146,7 @@ final class AppointmentController
             $request->string('reason')->toString(),
         );
 
-        return back()->with('success', 'Janji dijadwalkan ulang.');
+        return redirect('/schedule?date='.$request->string('date')->toString())->with('success', 'Janji dijadwalkan ulang.');
     }
 
     public function walkIn(Request $request): RedirectResponse
@@ -161,9 +186,10 @@ final class AppointmentController
     public function cancel(Request $request, string $appointment): RedirectResponse
     {
         $data = $request->validate(['reason' => ['required', 'string', 'max:255']], ['reason.required' => 'Alasan pembatalan wajib diisi.']);
+        $date = $this->queries->find($appointment)['date'];
         $this->workflow->cancel($this->actorId($request), $appointment, $data['reason']);
 
-        return back()->with('success', 'Janji dibatalkan.');
+        return redirect("/schedule?date={$date}")->with('success', 'Janji dibatalkan.');
     }
 
     public function noShow(Request $request, string $appointment): RedirectResponse
