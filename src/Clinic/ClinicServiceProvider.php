@@ -6,12 +6,17 @@ namespace Src\Clinic;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Src\Clinic\Application\Settings\ClinicSettingsService;
+use Src\Clinic\Contracts\BranchDirectory;
+use Src\Clinic\Infrastructure\EloquentBranchDirectory;
+use Src\Clinic\Infrastructure\EloquentClinicSettingsService;
 
 final class ClinicServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Ikat interface Domain ke implementasi Infrastructure di sini.
+        $this->app->singleton(BranchDirectory::class, EloquentBranchDirectory::class);
+        $this->app->singleton(ClinicSettingsService::class, EloquentClinicSettingsService::class);
     }
 
     public function boot(): void

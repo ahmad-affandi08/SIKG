@@ -6,6 +6,7 @@ namespace Src\IdentityAccess\Infrastructure\Eloquent;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Carbon;
 use Spatie\Permission\Traits\HasRoles;
 use Src\Shared\Infrastructure\Eloquent\UsesUlid;
 use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
@@ -21,6 +22,7 @@ use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
  * @property string $email
  * @property string $username
  * @property bool $is_active
+ * @property Carbon|null $last_login_at
  */
 class User extends Authenticatable
 {

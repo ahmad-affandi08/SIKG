@@ -11,7 +11,12 @@ export interface NavItem {
  * Daftar menu utama. Setiap modul menambahkan itemnya BERSAMA route dan izin servernya, sehingga tidak ada
  * menu ke halaman yang belum ada. Menyembunyikan menu hanya kenyamanan; server tetap menolak aksi (M9).
  */
-export const NAV_ITEMS: readonly NavItem[] = [{ label: 'Beranda', href: '/dashboard' }];
+export const NAV_ITEMS: readonly NavItem[] = [
+  { label: 'Beranda', href: '/dashboard' },
+  { label: 'Pengguna', href: '/settings/users', permission: 'user.view' },
+  { label: 'Pengaturan klinik', href: '/settings/clinic', permission: 'setting.manage' },
+  { label: 'Sistem', href: '/settings/system', permission: 'setting.manage' },
+];
 
 /** Bawaan aman: item berizin hanya tampil bila izinnya ada. */
 export function visibleNavItems(

@@ -148,8 +148,10 @@ it('AUTH-01 form login memvalidasi dengan pesan Indonesia', function () {
         ]);
 });
 
-it('AUTH-04 sesi berakhir setelah 30 menit tidak aktif secara bawaan', function () {
-    expect(config('session.lifetime'))->toBe(30)
+it('AUTH-04 batas tidak aktif bawaan 30 menit, sesi framework hidup sampai batas tertinggi server', function () {
+    expect(config('sikg.session_default_minutes'))->toBe(30)
+        ->and(config('sikg.session_max_minutes'))->toBe(480)
+        ->and(config('session.lifetime'))->toBe(480)
         ->and(config('session.expire_on_close'))->toBeFalse();
 });
 
@@ -160,7 +162,7 @@ it('AUTH-04 cookie sesi Secure, HttpOnly, dan SameSite=Lax', function () {
 });
 
 it('AUTH-04 sesi di database kedaluwarsa setelah tidak aktif', function () {
-    config(['session.driver' => 'database', 'session.lifetime' => 30]);
+    config(['session.driver' => 'database']);
     $user = makeUser();
 
     $login = $this->post('/login', ['identifier' => $user->email, 'password' => 'kata-sandi-uji-123']);

@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 
+import { FlashMessages } from '@/components/layout/FlashMessages';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
 import type { NavItem } from '@/components/layout/navigation';
 
@@ -46,6 +47,7 @@ export function AppLayout({ children, navItems = NAV_ITEMS }: AppLayoutProps) {
           ))}
         </ul>
       </nav>
+      <FlashMessages />
       <div>{children}</div>
     </div>
   );

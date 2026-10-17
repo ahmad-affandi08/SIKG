@@ -21,6 +21,17 @@ return [
     // Ukuran potongan impor/ekspor dan laporan berat agar job muat dalam batas waktu hosting.
     'chunk_size' => (int) env('SIKG_CHUNK_SIZE', 500),
 
+    // Batas sesi tidak aktif bawaan (menit) dan batas tertinggi yang boleh dipilih klinik (AUTH-04).
+    // Sesi framework hidup selama batas tertinggi; penegakan batas sebenarnya oleh middleware EnforceIdleTimeout.
+    'session_default_minutes' => (int) env('SESSION_LIFETIME', 30),
+    'session_max_minutes' => (int) env('SIKG_SESSION_MAX_MINUTES', 480),
+
+    // Denyut cron/antrean dianggap terlambat setelah sekian detik (SYS-07). Naikkan bila cron hosting minimal 5 menit.
+    'heartbeat_stale_seconds' => (int) env('SIKG_HEARTBEAT_STALE_SECONDS', 600),
+
+    // Surel penanggung jawab teknis untuk peringatan kesehatan (kosong = hanya dicatat di log).
+    'alert_email' => env('SIKG_ALERT_EMAIL'),
+
     // Kunci HMAC blind index NIK dan nomor HP (M11).
     'pii_hash_key' => env('PII_HASH_KEY'),
 ];

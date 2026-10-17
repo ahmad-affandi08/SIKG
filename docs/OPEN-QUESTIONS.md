@@ -60,6 +60,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) tambah ID baru (mis. halaman Pengguna dan peran: ubah izin per peran, dengan perlindungan agar Pemilik tidak kehilangan `user.manage` dan `role.manage`); (b) cukup lewat seeder dan perubahan data oleh pengembang pada Fase 1
 - Rekomendasi: (a) sebagai Should, dikerjakan setelah Must Fase 1; jangan dibangun sebelum disetujui (M14)
 
+### Q-9: Pergantian kata sandi oleh pengguna sendiri
+- Kebutuhan terkait: AUTH-03, AUTH-01
+- Dokumen yang kurang: PRD hanya meminta admin membuat pengguna dan mereset kata sandi (kata sandi sementara tampil sekali kepada admin). Tidak ada ID untuk pengguna mengganti kata sandinya sendiri atau memaksa ganti saat masuk pertama, sehingga admin mengetahui kata sandi sementara itu sampai direset lagi
+- Opsi: (a) tambah ID (ganti kata sandi sendiri dan wajib ganti setelah reset); (b) biarkan, dengan prosedur bahwa admin mereset lagi bila perlu
+- Rekomendasi: (a) sebagai Must kecil, karena menyangkut kerahasiaan akun tenaga kesehatan (Permenkes 24/2022 Pasal 29)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

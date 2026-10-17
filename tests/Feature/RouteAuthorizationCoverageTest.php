@@ -15,6 +15,7 @@ const ROUTE_PUBLIK = [
     '/' => '*',
     '/login' => ['GET', 'POST'],
     '/up' => ['GET'],
+    '/health' => ['GET'], // dilindungi token X-Health-Token, bukan sesi (SYS-07)
 ];
 
 /** Route khusus pengguna yang masuk tanpa izin spesifik (tidak memuat data sensitif): uri => metode. */

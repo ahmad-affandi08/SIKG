@@ -13,6 +13,7 @@ vi.mock('@inertiajs/react', () => ({
     props: {
       auth: { user: { id: 'U1', name: 'Pengguna Uji', roles: ['kasir'] }, permissions },
       clinic: { name: 'Klinik Uji', timezone: 'Asia/Jakarta' },
+      flash: { success: null, error: null },
     },
   }),
   Link: ({

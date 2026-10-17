@@ -42,6 +42,10 @@ final class HandleInertiaRequests extends Middleware
                 'permissions' => $user instanceof User ? $user->getAllPermissions()->pluck('name')->values()->all() : [],
             ],
             'clinic' => $user instanceof User ? $this->clinic() : null,
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
         ];
     }
 

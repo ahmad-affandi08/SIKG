@@ -10,8 +10,8 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 
 - [x] AUTH-01 | M | Login dengan email atau username dan kata sandi
 - [x] AUTH-02 | M | Peran dan izin granular per modul sesuai matriks bagian 4
-- [ ] AUTH-03 | M | Kelola pengguna
-- [ ] AUTH-04 | M | Sesi berakhir otomatis setelah tidak aktif (default 30 menit, dapat diatur)
+- [x] AUTH-03 | M | Kelola pengguna
+- [x] AUTH-04 | M | Sesi berakhir otomatis setelah tidak aktif (default 30 menit, dapat diatur)
 - [ ] MST-01 | M | Profil klinik
 - [ ] MST-02 | M | Dokter
 - [ ] MST-03 | M | Kursi atau unit perawatan, dapat dinonaktifkan
@@ -59,9 +59,9 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [ ] SYS-01 | M | Audit log
 - [ ] SYS-02 | M | Cadangan basis data dan berkas unggahan otomatis harian, dengan uji pemulihan ...
 - [ ] SYS-03 | M | Soft delete untuk data klinis dan keuangan
-- [ ] SYS-04 | M | Pengaturan
-- [ ] SYS-06 | M | Pemeriksaan kesiapan lingkungan (perintah dan halaman Admin)
-- [ ] SYS-07 | M | Denyut cron dan antrean, status `/health`
+- [x] SYS-04 | M | Pengaturan
+- [x] SYS-06 | M | Pemeriksaan kesiapan lingkungan (perintah dan halaman Admin)
+- [x] SYS-07 | M | Denyut cron dan antrean, status `/health`
 
 ### Should
 

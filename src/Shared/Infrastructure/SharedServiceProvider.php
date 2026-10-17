@@ -4,17 +4,25 @@ declare(strict_types=1);
 
 namespace Src\Shared\Infrastructure;
 
+use Illuminate\Queue\Events\Looping;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Src\Shared\Application\AccessLogger;
 use Src\Shared\Application\AuditLogger;
 use Src\Shared\Application\Clock;
+use Src\Shared\Application\EnvironmentInspector;
 use Src\Shared\Application\EventDispatcher;
+use Src\Shared\Application\HealthMonitor;
 use Src\Shared\Application\SequenceGenerator;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Application\Transaction;
 use Src\Shared\Domain\IdGenerator;
 use Src\Shared\Infrastructure\Audit\DatabaseAccessLogger;
 use Src\Shared\Infrastructure\Audit\DatabaseAuditLogger;
+use Src\Shared\Infrastructure\Console\HealthCheckCommand;
+use Src\Shared\Infrastructure\Console\PreflightCommand;
+use Src\Shared\Infrastructure\Health\DatabaseHealthMonitor;
+use Src\Shared\Infrastructure\Preflight\PhpEnvironmentInspector;
 
 final class SharedServiceProvider extends ServiceProvider
 {
@@ -26,6 +34,8 @@ final class SharedServiceProvider extends ServiceProvider
         $this->app->singleton(EventDispatcher::class, AfterCommitEventDispatcher::class);
         $this->app->singleton(SequenceGenerator::class, DatabaseSequenceGenerator::class);
         $this->app->singleton(TenantContext::class);
+        $this->app->singleton(HealthMonitor::class, DatabaseHealthMonitor::class);
+        $this->app->singleton(EnvironmentInspector::class, PhpEnvironmentInspector::class);
         $this->app->scoped(AuditLogger::class, DatabaseAuditLogger::class);
         $this->app->scoped(AccessLogger::class, DatabaseAccessLogger::class);
     }
@@ -33,5 +43,18 @@ final class SharedServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/Migrations');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([PreflightCommand::class, HealthCheckCommand::class]);
+        }
+
+        // Denyut antrean: dicatat setiap worker mulai satu putaran, paling sering sekali per 30 detik per proses.
+        $lastBeat = 0;
+        Event::listen(Looping::class, function () use (&$lastBeat): void {
+            if (time() - $lastBeat >= 30) {
+                $lastBeat = time();
+                $this->app->make(HealthMonitor::class)->beat('queue');
+            }
+        });
     }
 }

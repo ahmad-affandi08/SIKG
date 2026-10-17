@@ -34,7 +34,8 @@ return [
     |
     */
 
-    'lifetime' => (int) env('SESSION_LIFETIME', 30),
+    // Umur sesi framework = batas tertinggi yang boleh dipilih klinik; batas aktif ditegakkan EnforceIdleTimeout (AUTH-04).
+    'lifetime' => (int) env('SIKG_SESSION_MAX_MINUTES', 480),
 
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
 
