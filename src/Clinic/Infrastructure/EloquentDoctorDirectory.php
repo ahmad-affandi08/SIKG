@@ -44,6 +44,6 @@ final class EloquentDoctorDirectory implements DoctorDirectory
 
     private function summary(DoctorModel $d): DoctorSummary
     {
-        return new DoctorSummary($d->id, $d->name, $d->is_active, $d->branch_id);
+        return new DoctorSummary($d->id, $d->name, $d->is_active, $d->branch_id, $d->sip_no);
     }
 }

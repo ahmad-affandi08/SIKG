@@ -22,7 +22,7 @@ final class EloquentPatientLookup implements PatientLookup
         }
         $out = [];
         foreach (PatientModel::withTrashed()->whereKey(array_values(array_unique($ids)))->get() as $p) {
-            $out[$p->id] = new PatientSummary($p->id, $p->medical_record_no, $p->name);
+            $out[$p->id] = new PatientSummary($p->id, $p->medical_record_no, $p->name, $p->birth_date->toDateString());
         }
 
         return $out;

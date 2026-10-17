@@ -1,0 +1,92 @@
+import { useId, useState } from 'react';
+
+import type { MedicineOption } from '@/features/pharmacy/api';
+import { useMedicineSearch } from '@/features/pharmacy/queries';
+import { formatRupiah } from '@/lib/format';
+import { useDebouncedValue } from '@/lib/useDebouncedValue';
+
+interface MedicinePickerProps {
+  label?: string;
+  selected: { id: string; name: string } | null;
+  onSelect: (medicine: MedicineOption | null) => void;
+  error?: string | undefined;
+}
+
+/** Memilih obat dari katalog dengan stok tersedia dan harga jual saat ini. */
+export function MedicinePicker({
+  label = 'Cari obat di katalog',
+  selected,
+  onSelect,
+  error,
+}: MedicinePickerProps) {
+  const [text, setText] = useState('');
+  const term = useDebouncedValue(text.trim());
+  const query = useMedicineSearch(selected ? '' : term);
+  const id = useId();
+  const results = query.data ?? [];
+
+  if (selected) {
+    return (
+      <div className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-slate-900">Obat</span>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm">{selected.name}</span>
+          <button
+            type="button"
+            className="min-h-touch rounded-control px-3 text-sm ring-1 ring-slate-300"
+            onClick={() => {
+              onSelect(null);
+              setText('');
+            }}
+          >
+            Ganti obat
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label htmlFor={id} className="text-sm font-medium text-slate-900">
+        {label}
+      </label>
+      <input
+        id={id}
+        autoComplete="off"
+        value={text}
+        onChange={(event) => {
+          setText(event.target.value);
+        }}
+        aria-invalid={error ? true : undefined}
+        className="min-h-touch rounded-control px-3 ring-1 ring-slate-300"
+      />
+      {error ? (
+        <p role="alert" className="text-danger-600 text-sm">
+          {error}
+        </p>
+      ) : null}
+      {term !== '' && query.isSuccess && results.length === 0 ? (
+        <p className="text-sm text-slate-600">Obat tidak ditemukan.</p>
+      ) : null}
+      {results.length > 0 ? (
+        <ul className="rounded-control ring-1 ring-slate-200">
+          {results.map((medicine) => (
+            <li key={medicine.id}>
+              <button
+                type="button"
+                className="min-h-touch w-full px-3 text-left text-sm hover:bg-slate-100"
+                onClick={() => {
+                  onSelect(medicine);
+                }}
+              >
+                <span className="font-medium">{medicine.name}</span> | stok {medicine.available}{' '}
+                {medicine.unit} | {formatRupiah(medicine.sell_price_amount)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}

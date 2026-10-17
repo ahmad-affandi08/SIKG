@@ -39,6 +39,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/patients',
       '/schedule',
       '/queue',
+      '/stock',
       '/settings/users',
       '/settings/profile',
       '/settings/clinic',

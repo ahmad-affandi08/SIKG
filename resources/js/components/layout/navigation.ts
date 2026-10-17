@@ -16,6 +16,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Pasien', href: '/patients', permission: 'patient.view' },
   { label: 'Jadwal', href: '/schedule', permission: 'appointment.view' },
   { label: 'Antrean', href: '/queue', permission: 'appointment.view' },
+  { label: 'Stok obat', href: '/stock', permission: 'stock.view' },
   { label: 'Pengguna', href: '/settings/users', permission: 'user.view' },
   { label: 'Profil klinik', href: '/settings/profile', permission: 'setting.manage' },
   {

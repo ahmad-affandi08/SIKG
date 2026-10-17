@@ -17,6 +17,8 @@ use Src\Clinical\Infrastructure\Eloquent\EncounterModel;
 use Src\IdentityAccess\Domain\Role;
 use Src\IdentityAccess\Infrastructure\Eloquent\User;
 use Src\IdentityAccess\Infrastructure\Seeders\RolePermissionSeeder;
+use Src\Pharmacy\Application\StockService;
+use Src\Pharmacy\Infrastructure\Eloquent\MedicineModel;
 use Src\Scheduling\Infrastructure\Eloquent\AppointmentModel;
 use Src\Shared\Application\TenantContext;
 use Tests\TestCase;
@@ -237,4 +239,26 @@ function tindakan(array $s, array $o = []): ProcedureModel
 function icd(string $kode = 'K02.1'): string
 {
     return DiagnosisModel::query()->where('icd10_code', $kode)->firstOrFail()->id;
+}
+
+/**
+ * Obat uji pada katalog klinik.
+ *
+ * @param  array<string, mixed>  $o
+ */
+function makeMedicine(ClinicModel $clinic, array $o = []): MedicineModel
+{
+    tenant()->set($clinic->id);
+    static $n = 0;
+    $n++;
+    $m = new MedicineModel;
+    $m->forceFill(['name' => "Obat Uji {$n}", 'unit' => 'tablet', 'sell_price_amount' => 5000, 'min_stock' => 10, 'drug_class' => null, 'is_active' => true, ...$o])->save();
+
+    return $m;
+}
+
+function isiStok(ClinicModel $clinic, MedicineModel $m, int $jumlah): void
+{
+    tenant()->set($clinic->id);
+    app(StockService::class)->receive(makeUser(Role::Admin, $clinic)->id, $m->id, $jumlah, null, null, 'Stok awal uji');
 }

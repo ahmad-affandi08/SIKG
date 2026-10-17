@@ -109,6 +109,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan; (b) pengguna menetapkan daftar kondisi bawaan dan aturan cakupan lain
 - Rekomendasi: (a)
 
+### Q-17: Obat dan stok: asumsi aturan
+- Kebutuhan terkait: OBT-01 sampai OBT-05
+- Butir: (1) Stok disimpan sebagai bilangan bulat dalam satuan terkecil obat; satuan pecahan belum didukung. (2) Peringatan alergi memakai pencocokan nama obat, golongan obat, dan kata kunci alergi pasien (tanpa basis data interaksi obat); dokter dapat tetap meresepkan dengan alasan konfirmasi yang masuk audit. (3) Obat yang ditandai dijual di klinik mengurangi stok saat resep dibuat dan memicu event `MedicineDispensed`; pembatalan resep hanya selama kunjungan berjalan dan mengembalikan stok lewat event `MedicineReturned`. (4) Stok tidak boleh negatif; hanya pemegang izin `stock.override` (Admin) yang dapat memaksa pengeluaran melebihi stok, dan kekurangannya dicatat sebagai penyesuaian bertanda dengan alasan di audit. (5) Mutasi stok tidak dapat diubah atau dihapus (hanya mutasi koreksi baru). (6) Nomor batch dan tanggal kedaluwarsa dicatat pada mutasi masuk, tetapi stok belum dilacak per batch; OBT-06 (peringatan kedaluwarsa) hanya dapat memakai tanggal kedaluwarsa dari mutasi masuk terbaru sampai pelacakan per batch (P2-05) dibuat. (7) Kop surat resep dan nomor SIP dokter diambil lewat kontrak `LetterheadProvider` dan `DoctorDirectory`; resep dicetak sebagai PDF lewat dompdf.
+- Opsi: (a) pertahankan; (b) pengguna menetapkan pelacakan stok per batch lebih awal dari P2-05
+- Rekomendasi: (a)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

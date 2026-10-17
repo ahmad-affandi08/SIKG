@@ -6,5 +6,5 @@ namespace Src\Patient\Contracts;
 
 final readonly class PatientSummary
 {
-    public function __construct(public string $id, public string $medicalRecordNo, public string $name) {}
+    public function __construct(public string $id, public string $medicalRecordNo, public string $name, public ?string $birthDate = null) {}
 }

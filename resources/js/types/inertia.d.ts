@@ -9,7 +9,7 @@ declare module '@inertiajs/core' {
         permissions: string[];
       };
       clinic: { name: string; timezone: string } | null;
-      flash: { success: string | null; error: string | null };
+      flash: { success: string | null; error: string | null; error_code?: string | null };
     };
   }
 }

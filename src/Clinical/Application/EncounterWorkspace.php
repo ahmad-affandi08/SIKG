@@ -12,6 +12,7 @@ use Src\Clinical\Domain\EncounterRepository;
 use Src\IdentityAccess\Contracts\UserLookup;
 use Src\Patient\Contracts\PatientAlerts;
 use Src\Patient\Contracts\PatientLookup;
+use Src\Pharmacy\Contracts\PrescriptionLookup;
 use Src\Shared\Application\AccessLogger;
 
 /**
@@ -29,6 +30,7 @@ final readonly class EncounterWorkspace
         private ChairDirectory $chairs,
         private UserLookup $users,
         private AccessLogger $access,
+        private PrescriptionLookup $prescriptions,
     ) {}
 
     /**
@@ -98,6 +100,7 @@ final readonly class EncounterWorkspace
                 'uploaded_at' => $f->uploadedAt->format('c'),
                 'uploaded_by' => $uploaders[$f->uploadedBy] ?? '-',
             ], $files),
+            'prescriptions' => array_map(fn ($p) => $p->toArray(), $this->prescriptions->forEncounters([$encounterId])[$encounterId] ?? []),
             'warnings' => array_map(fn ($a) => $a->toArray(), $this->alerts->warnings($encounter->patientId)),
             'medical_history' => array_map(fn ($a) => $a->toArray(), $this->alerts->history($encounter->patientId)),
             'chairs' => array_map(fn ($c) => ['value' => $c->id, 'label' => $c->name], $this->chairs->active()),

@@ -23,6 +23,8 @@ import type {
   ProcedureEntry,
   Warning,
 } from '@/features/clinical/components/EncounterPanels';
+import { PrescriptionPanel } from '@/features/pharmacy/components/PrescriptionPanel';
+import type { PrescriptionData } from '@/features/pharmacy/components/PrescriptionPanel';
 import { OdontogramBoard } from '@/features/clinical/odontogram/OdontogramBoard';
 import { formatDateTime } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
@@ -45,6 +47,7 @@ interface Props {
   diagnoses: DiagnosisEntry[];
   procedures: ProcedureEntry[];
   files: FileEntry[];
+  prescriptions: PrescriptionData[];
   warnings: Warning[];
   medical_history: Warning[];
   chairs: SelectOption[];
@@ -55,6 +58,8 @@ interface Props {
     close: boolean;
     addendum: boolean;
     prescribe: boolean;
+    printPrescription: boolean;
+    overrideStock: boolean;
     odontogram: boolean;
   };
 }
@@ -65,6 +70,7 @@ const TABS = [
   { key: 'odontogram', label: 'Odontogram' },
   { key: 'diagnosis', label: 'Diagnosa' },
   { key: 'procedures', label: 'Tindakan' },
+  { key: 'prescriptions', label: 'Resep' },
   { key: 'files', label: 'Berkas' },
   { key: 'addenda', label: 'Addendum dan riwayat' },
 ] as const;
@@ -80,6 +86,7 @@ export default function Show(props: Props) {
     diagnoses,
     procedures,
     files,
+    prescriptions,
     warnings,
     chairs,
     jaws,
@@ -211,6 +218,16 @@ export default function Show(props: Props) {
               entries={procedures}
               jaws={jaws}
               canEdit={canEdit}
+            />
+          ) : null}
+          {tab === 'prescriptions' ? (
+            <PrescriptionPanel
+              encounterId={encounter.id}
+              prescriptions={prescriptions}
+              canCreate={can.prescribe && !encounter.is_closed}
+              canVoid={can.prescribe && !encounter.is_closed}
+              canPrint={can.printPrescription}
+              canOverrideStock={can.overrideStock}
             />
           ) : null}
           {tab === 'files' ? (

@@ -10,6 +10,7 @@ use Src\Clinical\Domain\EncounterNotFound;
 use Src\Clinical\Domain\EncounterRepository;
 use Src\Clinical\Domain\NoteType;
 use Src\Patient\Contracts\PatientLookup;
+use Src\Pharmacy\Contracts\PrescriptionLookup;
 use Src\Shared\Application\AccessLogger;
 
 /**
@@ -24,6 +25,7 @@ final readonly class PatientTimeline
         private DoctorDirectory $doctors,
         private PatientLookup $patients,
         private AccessLogger $access,
+        private PrescriptionLookup $prescriptions,
     ) {}
 
     /**
@@ -36,6 +38,7 @@ final readonly class PatientTimeline
 
         $encounters = $this->encounters->forPatient($patientId);
         $filesByEncounter = $this->files->forEncounters(array_map(fn ($e) => $e->id, $encounters));
+        $prescriptionsByEncounter = $this->prescriptions->forEncounters(array_map(fn ($e) => $e->id, $encounters));
         $doctors = $this->doctors->byIds(array_values(array_unique(array_map(fn ($e) => $e->doctorId, $encounters))));
 
         $rows = [];
@@ -55,6 +58,7 @@ final readonly class PatientTimeline
                 'addendum_count' => count(array_filter($notes, fn ($n) => $n->type === NoteType::Addendum)),
                 'diagnoses' => array_map(fn ($d) => $d->toArray(), $this->encounters->diagnoses($encounter->id)),
                 'procedures' => array_map(fn ($p) => $p->toArray(), $this->encounters->procedures($encounter->id)),
+                'prescriptions' => array_map(fn ($p) => $p->toArray(), array_values(array_filter($prescriptionsByEncounter[$encounter->id] ?? [], fn ($p) => $p->status === 'issued'))),
                 'files' => array_map(fn ($f) => [
                     'id' => $f->id,
                     'kind' => $f->kind->value,
