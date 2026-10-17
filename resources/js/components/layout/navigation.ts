@@ -14,7 +14,31 @@ export interface NavItem {
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Beranda', href: '/dashboard' },
   { label: 'Pengguna', href: '/settings/users', permission: 'user.view' },
-  { label: 'Pengaturan klinik', href: '/settings/clinic', permission: 'setting.manage' },
+  {
+    label: 'Pengaturan klinik',
+    href: '/settings/clinic',
+    permission: 'setting.manage',
+  },
+  {
+    label: 'Kursi',
+    href: '/settings/master/chairs',
+    permission: 'setting.manage',
+  },
+  {
+    label: 'Tindakan dan tarif',
+    href: '/settings/master/procedures',
+    permission: 'tariff.view',
+  },
+  {
+    label: 'Metode pembayaran',
+    href: '/settings/master/payment-methods',
+    permission: 'setting.manage',
+  },
+  {
+    label: 'Obat dan bahan',
+    href: '/settings/master/medicines',
+    permission: 'stock.view',
+  },
   { label: 'Sistem', href: '/settings/system', permission: 'setting.manage' },
 ];
 

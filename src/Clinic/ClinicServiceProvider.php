@@ -10,6 +10,10 @@ use Src\Clinic\Application\Settings\ClinicSettingsService;
 use Src\Clinic\Contracts\BranchDirectory;
 use Src\Clinic\Infrastructure\EloquentBranchDirectory;
 use Src\Clinic\Infrastructure\EloquentClinicSettingsService;
+use Src\Clinic\Infrastructure\Master\ChairEntity;
+use Src\Clinic\Infrastructure\Master\PaymentMethodEntity;
+use Src\Clinic\Infrastructure\Master\ProcedureEntity;
+use Src\Shared\Application\Master\MasterEntityRegistry;
 
 final class ClinicServiceProvider extends ServiceProvider
 {
@@ -22,6 +26,11 @@ final class ClinicServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/Infrastructure/Migrations');
+
+        $registry = $this->app->make(MasterEntityRegistry::class);
+        $registry->register($this->app->make(ChairEntity::class));
+        $registry->register($this->app->make(ProcedureEntity::class));
+        $registry->register($this->app->make(PaymentMethodEntity::class));
 
         Route::middleware(['web', 'auth'])
             ->group(__DIR__.'/Presentation/routes.php');

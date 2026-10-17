@@ -14,10 +14,10 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] AUTH-04 | M | Sesi berakhir otomatis setelah tidak aktif (default 30 menit, dapat diatur)
 - [ ] MST-01 | M | Profil klinik
 - [ ] MST-02 | M | Dokter
-- [ ] MST-03 | M | Kursi atau unit perawatan, dapat dinonaktifkan
-- [ ] MST-04 | M | Katalog tindakan
-- [ ] MST-05 | M | Katalog obat dan bahan
-- [ ] MST-06 | M | Metode pembayaran
+- [x] MST-03 | M | Kursi atau unit perawatan, dapat dinonaktifkan
+- [x] MST-04 | M | Katalog tindakan
+- [x] MST-05 | M | Katalog obat dan bahan
+- [x] MST-06 | M | Metode pembayaran
 - [ ] MST-07 | M | Master diagnosa berbasis ICD-10 (bab K00-K14 penyakit rongga mulut) dengan ...
 - [ ] MST-08 | M | Perubahan tarif tidak mengubah tagihan lama
 - [ ] PAS-01 | M | Pasien baru

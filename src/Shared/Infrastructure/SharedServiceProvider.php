@@ -13,6 +13,7 @@ use Src\Shared\Application\Clock;
 use Src\Shared\Application\EnvironmentInspector;
 use Src\Shared\Application\EventDispatcher;
 use Src\Shared\Application\HealthMonitor;
+use Src\Shared\Application\Master\MasterEntityRegistry;
 use Src\Shared\Application\SequenceGenerator;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Application\Transaction;
@@ -34,6 +35,7 @@ final class SharedServiceProvider extends ServiceProvider
         $this->app->singleton(EventDispatcher::class, AfterCommitEventDispatcher::class);
         $this->app->singleton(SequenceGenerator::class, DatabaseSequenceGenerator::class);
         $this->app->singleton(TenantContext::class);
+        $this->app->singleton(MasterEntityRegistry::class);
         $this->app->singleton(HealthMonitor::class, DatabaseHealthMonitor::class);
         $this->app->singleton(EnvironmentInspector::class, PhpEnvironmentInspector::class);
         $this->app->scoped(AuditLogger::class, DatabaseAuditLogger::class);
