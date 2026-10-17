@@ -26,7 +26,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] PAS-04 | M | Riwayat medis
 - [x] PAS-05 | M | Persetujuan pemrosesan data pribadi dicatat (tanggal, versi teks, siapa yang ...
 - [x] PAS-06 | M | Pasien di bawah 18 tahun wajib memiliki data wali atau penanggung jawab
-- [ ] PAS-08 | M | Impor pasien dari Excel dengan pratinjau dan laporan kesalahan per baris
+- [x] PAS-08 | M | Impor pasien dari Excel dengan pratinjau dan laporan kesalahan per baris
 - [ ] JDW-01 | M | Buat janji
 - [ ] JDW-02 | M | Cegah bentrok
 - [ ] JDW-03 | M | Kalender harian dan mingguan per dokter dan per kursi

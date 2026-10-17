@@ -24,6 +24,14 @@ export default function Index({ sexes }: Props) {
         <Head title="Pasien" />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-semibold">Pasien</h1>
+          {can('patient.import') ? (
+            <Link
+              href="/patients/import"
+              className="min-h-touch rounded-control inline-flex items-center px-4 text-sm ring-1 ring-slate-300"
+            >
+              Impor dari Excel
+            </Link>
+          ) : null}
           {can('patient.create') ? (
             <Link
               href="/patients/create"

@@ -9,24 +9,6 @@ use Src\Patient\Infrastructure\Eloquent\PatientMedicalHistoryModel;
 use Src\Patient\Infrastructure\Eloquent\PatientModel;
 use Src\Shared\Infrastructure\Audit\AuditLogModel;
 
-function payloadPasien(array $o = []): array
-{
-    return [
-        'name' => 'Budi Santoso',
-        'nik' => '9999010101900001',
-        'birth_date' => '1990-01-01',
-        'sex' => 'male',
-        'address' => 'Jl. Contoh No. 1',
-        'phone' => '08123456789',
-        'occupation' => 'Karyawan',
-        'emergency_name' => 'Ani Santoso',
-        'emergency_relation' => 'Istri',
-        'emergency_phone' => '08129876543',
-        'consent' => true,
-        ...$o,
-    ];
-}
-
 function daftarkan(object $test, object $user, array $o = []): string
 {
     $test->actingAs($user)->post('/patients', payloadPasien($o))->assertSessionHasNoErrors();

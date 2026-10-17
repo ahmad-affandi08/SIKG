@@ -85,6 +85,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan asumsi ini; (b) pengguna menetapkan lain, lalu disesuaikan lewat perubahan kecil
 - Rekomendasi: (a); PRD route table sebaiknya diselaraskan oleh pengguna
 
+### Q-13: Impor pasien (PAS-08): pembaca berpotongan dan batas baris
+- Kebutuhan terkait: PAS-08
+- Butir: (1) Pembacaan berpotongan memakai kelas `PhpOffice\PhpSpreadsheet` langsung di `Infrastructure/Import`, yaitu mesin yang sudah menjadi dependensi wajib paket `maatwebsite/excel` yang disetujui; fasad `Excel` tidak dipakai karena tidak menyediakan filter baca per potongan tanpa memuat seluruh lembar. Tidak ada paket baru. (2) Batas 5.000 baris data per berkas (`SIKG_IMPORT_MAX_ROWS`) agar pratinjau selesai dalam batas waktu hosting; berkas lebih besar dipecah pengguna. (3) Baris tanpa NIK tidak ditolak dan diberi alasan "Perlu dilengkapi (hasil impor)" sesuai alur migrasi data awal; dugaan duplikat dilewati kecuali petugas memilih ikut mengimpornya. Fitur penandaan "perlu dilengkapi" sebagai daftar kerja tersendiri tidak dibuat (di luar ID); pasien tersebut dapat dicari dan dilengkapi lewat Ubah data. (4) Tabel `import_batches` memuat nomor baris dan pesan galat saja; berkas Excel yang diunggah dienkripsi di disk privat dan dihapus setelah impor selesai.
+- Opsi: (a) pertahankan; (b) pengguna menetapkan batas baris lain atau meminta daftar kerja "perlu dilengkapi"
+- Rekomendasi: (a)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

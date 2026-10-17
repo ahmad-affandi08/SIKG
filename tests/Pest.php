@@ -71,3 +71,27 @@ function tenant(): TenantContext
 {
     return app(TenantContext::class);
 }
+
+/**
+ * Data pasien sintetis untuk tes pendaftaran dan impor (NIK fiktif berawalan 9999, M12).
+ *
+ * @param  array<string, mixed>  $o
+ * @return array<string, mixed>
+ */
+function payloadPasien(array $o = []): array
+{
+    return [
+        'name' => 'Budi Santoso',
+        'nik' => '9999010101900001',
+        'birth_date' => '1990-01-01',
+        'sex' => 'male',
+        'address' => 'Jl. Contoh No. 1',
+        'phone' => '08123456789',
+        'occupation' => 'Karyawan',
+        'emergency_name' => 'Ani Santoso',
+        'emergency_relation' => 'Istri',
+        'emergency_phone' => '08129876543',
+        'consent' => true,
+        ...$o,
+    ];
+}

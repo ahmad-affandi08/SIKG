@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Src\Patient\Presentation\Http\Controllers\PatientController;
+use Src\Patient\Presentation\Http\Controllers\PatientImportController;
 use Src\Patient\Presentation\Http\Controllers\PatientSearchController;
 
 // Semua route di balik 'auth' (dipasang oleh ServiceProvider).
 // Setiap route wajib punya pemeriksaan izin: ->middleware('can:<permission>') atau authorize() di controller.
+
+Route::middleware('can:patient.import')->group(function (): void {
+    Route::get('/patients/import', [PatientImportController::class, 'create'])->name('patients.import');
+    Route::get('/patients/import/template', [PatientImportController::class, 'template']);
+    Route::post('/patients/import', [PatientImportController::class, 'store']);
+    Route::get('/patients/import/{batch}', [PatientImportController::class, 'show'])->name('patients.import.show')->where('batch', '[0-9A-Z]{26}');
+    Route::post('/patients/import/{batch}/commit', [PatientImportController::class, 'commit'])->where('batch', '[0-9A-Z]{26}');
+});
 
 Route::middleware('can:patient.view')->group(function (): void {
     Route::get('/patients', [PatientController::class, 'index'])->name('patients.index');
