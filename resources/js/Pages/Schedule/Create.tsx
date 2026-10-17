@@ -8,10 +8,14 @@ import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
+import { DatePicker } from '@/components/ui/DatePicker';
+import { TimePicker } from '@/components/ui/TimePicker';
 import { PatientPicker } from '@/features/patient/components/PatientPicker';
 import { SlotPicker } from '@/features/scheduling/components/SlotPicker';
 import { collectErrors, DURATION_OPTIONS } from '@/features/scheduling/form';
 import { appointmentFormSchema } from '@/features/scheduling/schemas';
+import { todayIso } from '@/lib/date';
+import { useClinicTimezone } from '@/lib/useClinicTimezone';
 
 interface Props {
   defaultDate: string;
@@ -20,6 +24,7 @@ interface Props {
 }
 
 export default function Create({ defaultDate, doctors, chairs }: Props) {
+  const today = todayIso(useClinicTimezone());
   const [patient, setPatient] = useState<{ id: string; name: string } | null>(null);
   const [values, setValues] = useState({
     doctor_id: '',
@@ -86,12 +91,13 @@ export default function Create({ defaultDate, doctors, chairs }: Props) {
               set('chair_id', event.target.value);
             }}
           />
-          <TextField
+          <DatePicker
             label="Tanggal"
-            type="date"
             value={values.date}
-            onChange={(event) => {
-              set('date', event.target.value);
+            min={today}
+            clearable={false}
+            onChange={(value) => {
+              set('date', value);
             }}
             error={errors.date}
           />
@@ -114,11 +120,12 @@ export default function Create({ defaultDate, doctors, chairs }: Props) {
               set('time', t);
             }}
           />
-          <TextField
-            label="Jam mulai (JJ:MM)"
+          <TimePicker
+            label="Jam mulai"
+            step={15}
             value={values.time}
-            onChange={(event) => {
-              set('time', event.target.value);
+            onChange={(value) => {
+              set('time', value);
             }}
             error={errors.time}
           />

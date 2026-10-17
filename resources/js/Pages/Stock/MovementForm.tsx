@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { stockMovementSchema } from '@/features/pharmacy/schemas';
 
 interface Props {
@@ -119,13 +120,13 @@ export default function MovementForm({ medicines, preset, can }: Props) {
                   setMove({ ...move, batch_no: e.target.value });
                 }}
               />
-              <TextField
-                label="Tanggal kedaluwarsa (YYYY-MM-DD, opsional)"
-                placeholder="YYYY-MM-DD"
+              <DatePicker
+                label="Tanggal kedaluwarsa (opsional)"
                 value={move.expiry_date}
                 error={errors.expiry_date}
-                onChange={(e) => {
-                  setMove({ ...move, expiry_date: e.target.value });
+                maxYear={new Date().getFullYear() + 15}
+                onChange={(value) => {
+                  setMove({ ...move, expiry_date: value });
                 }}
               />
             </>

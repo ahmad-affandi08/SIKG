@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import { Select } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
+import { TimePicker } from '@/components/ui/TimePicker';
 import { clinicSettingsSchema, WEEKDAYS } from '@/features/clinic/schemas';
 import type { ClinicSettingsValues } from '@/features/clinic/schemas';
 import { formatDate } from '@/lib/format';
@@ -166,20 +167,20 @@ export default function Clinic({
                   </label>
                   {hours !== null ? (
                     <>
-                      <TextField
+                      <TimePicker
                         label={`Buka ${label}`}
-                        type="time"
+                        step={15}
                         value={hours.open}
-                        onChange={(event) => {
-                          setDay(day, { ...hours, open: event.target.value });
+                        onChange={(value) => {
+                          setDay(day, { ...hours, open: value });
                         }}
                       />
-                      <TextField
+                      <TimePicker
                         label={`Tutup ${label}`}
-                        type="time"
+                        step={15}
                         value={hours.close}
-                        onChange={(event) => {
-                          setDay(day, { ...hours, close: event.target.value });
+                        onChange={(value) => {
+                          setDay(day, { ...hours, close: value });
                         }}
                       />
                     </>

@@ -8,12 +8,15 @@ import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { checkDuplicates } from '@/features/patient/api';
 import type { DuplicateCandidate } from '@/features/patient/api';
 import { buildPatientSchema } from '@/features/patient/schemas';
 import type { PatientFormValues } from '@/features/patient/schemas';
 import { formatDate } from '@/lib/format';
 import { HttpError } from '@/lib/http';
+import { todayIso } from '@/lib/date';
+import { useClinicTimezone } from '@/lib/useClinicTimezone';
 
 interface PatientDto {
   id: string;
@@ -61,6 +64,7 @@ function initial(patient: PatientDto | null): PatientFormValues {
 
 export default function Form({ patient, consent, sexes }: Props) {
   const editing = patient !== null;
+  const timezone = useClinicTimezone();
   const form = useForm<PatientFormValues & { acknowledge_duplicates: boolean }>({
     ...initial(patient),
     acknowledge_duplicates: false,
@@ -160,7 +164,16 @@ export default function Form({ patient, consent, sexes }: Props) {
             label="Alasan NIK belum ada (isi hanya bila NIK kosong)"
             {...text('nik_missing_reason')}
           />
-          <TextField label="Tanggal lahir" type="date" {...text('birth_date')} />
+          <DatePicker
+            label="Tanggal lahir"
+            value={form.data.birth_date}
+            max={todayIso(timezone)}
+            clearable={false}
+            onChange={(value) => {
+              form.setData('birth_date', value);
+            }}
+            error={clientErrors.birth_date ?? form.errors.birth_date}
+          />
           <Select
             label="Jenis kelamin"
             placeholder="Pilih"

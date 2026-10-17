@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
-import { TextField } from '@/components/ui/TextField';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { statusTone } from '@/features/scheduling/status';
 import { formatDate } from '@/lib/format';
 
@@ -96,13 +96,13 @@ export default function Index({ filters, today, calendar, doctors, chairs, canMa
             event.preventDefault();
           }}
         >
-          <TextField
+          <DatePicker
             label="Tanggal"
-            type="date"
             value={filters.date}
-            onChange={(event) => {
-              if (event.target.value) {
-                go({ date: event.target.value });
+            clearable={false}
+            onChange={(value) => {
+              if (value) {
+                go({ date: value });
               }
             }}
           />

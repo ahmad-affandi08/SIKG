@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
+import { TimePicker } from '@/components/ui/TimePicker';
 import { doctorFormSchema, feeValueToText } from '@/features/clinic/doctor';
 import type { DoctorFormValues } from '@/features/clinic/doctor';
 import { WEEKDAYS } from '@/features/clinic/schemas';
@@ -255,21 +256,21 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
                     patchSlot(index, { weekday: Number(event.target.value) });
                   }}
                 />
-                <TextField
+                <TimePicker
                   label={`Mulai ${String(index + 1)}`}
-                  type="time"
+                  step={15}
                   value={slot.start}
-                  onChange={(event) => {
-                    patchSlot(index, { start: event.target.value });
+                  onChange={(value) => {
+                    patchSlot(index, { start: value });
                   }}
                   error={error(`schedule.${String(index)}.start`)}
                 />
-                <TextField
+                <TimePicker
                   label={`Selesai ${String(index + 1)}`}
-                  type="time"
+                  step={15}
                   value={slot.end}
-                  onChange={(event) => {
-                    patchSlot(index, { end: event.target.value });
+                  onChange={(value) => {
+                    patchSlot(index, { end: value });
                   }}
                   error={error(`schedule.${String(index)}.end`)}
                 />

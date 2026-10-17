@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { holidaySchema } from '@/features/clinic/schemas';
 
 export default function HolidayForm() {
@@ -42,12 +43,12 @@ export default function HolidayForm() {
           aria-label="Tambah hari libur"
           className="flex flex-col gap-5"
         >
-          <TextField
+          <DatePicker
             label="Tanggal"
-            type="date"
             value={form.data.date}
-            onChange={(event) => {
-              form.setData('date', event.target.value);
+            clearable={false}
+            onChange={(value) => {
+              form.setData('date', value);
             }}
             error={errors.date ?? form.errors.date}
           />
