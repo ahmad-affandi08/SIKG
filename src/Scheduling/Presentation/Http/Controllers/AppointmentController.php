@@ -58,9 +58,15 @@ final class AppointmentController
     public function queue(Request $request): Response
     {
         return Inertia::render('Queue/Index', [
+            'canManage' => (bool) $request->user()?->can('appointment.manage'),
+        ]);
+    }
+
+    public function walkInForm(): Response
+    {
+        return Inertia::render('Queue/WalkIn', [
             'doctors' => array_map(fn ($d) => ['value' => $d->id, 'label' => $d->name], $this->doctors->active()),
             'chairs' => array_map(fn ($c) => ['value' => $c->id, 'label' => $c->name], $this->chairs->active()),
-            'canManage' => (bool) $request->user()?->can('appointment.manage'),
         ]);
     }
 
@@ -135,7 +141,7 @@ final class AppointmentController
             $data['complaint'] ?? null,
         );
 
-        return back()->with('success', 'Pasien masuk antrean.');
+        return redirect('/queue')->with('success', 'Pasien masuk antrean.');
     }
 
     public function confirm(Request $request, string $appointment): RedirectResponse

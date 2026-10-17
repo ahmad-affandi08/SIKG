@@ -19,13 +19,20 @@ final class StockController
 {
     public function index(Request $request, StockService $stock): Response
     {
-        $data = $request->validate(['medicine' => ['nullable', 'string', 'size:26']]);
-        $medicine = $data['medicine'] ?? null;
-
         return Inertia::render('Stock/Index', [
             ...$stock->overview(),
-            'selected' => $medicine,
-            'movements' => $medicine === null ? [] : array_map(fn ($m) => [
+            'can' => ['manage' => (bool) $request->user()?->can('stock.manage')],
+        ]);
+    }
+
+    public function history(Request $request, StockService $stock, string $medicine): Response
+    {
+        $row = collect($stock->overview()['medicines'])->firstWhere('id', $medicine);
+        abort_if($row === null, 404);
+
+        return Inertia::render('Stock/History', [
+            'medicine' => $row,
+            'movements' => array_map(fn ($m) => [
                 'id' => $m->id,
                 'type' => $m->type->value,
                 'type_label' => $m->type->label(),
@@ -36,10 +43,28 @@ final class StockController
                 'expiry_date' => $m->expiryDate,
                 'created_at' => $m->createdAt->format('c'),
             ], $stock->history($medicine)),
-            'can' => [
-                'manage' => (bool) $request->user()?->can('stock.manage'),
-                'override' => (bool) $request->user()?->can('stock.override'),
-            ],
+            'can' => ['manage' => (bool) $request->user()?->can('stock.manage')],
+        ]);
+    }
+
+    public function movementForm(Request $request, StockService $stock): Response
+    {
+        $data = $request->validate(['medicine' => ['nullable', 'string', 'size:26'], 'type' => ['nullable', 'in:in,out']]);
+
+        return Inertia::render('Stock/MovementForm', [
+            ...$stock->overview(),
+            'preset' => ['medicine' => $data['medicine'] ?? '', 'type' => $data['type'] ?? 'in'],
+            'can' => ['override' => (bool) $request->user()?->can('stock.override')],
+        ]);
+    }
+
+    public function adjustmentForm(Request $request, StockService $stock): Response
+    {
+        $data = $request->validate(['medicine' => ['nullable', 'string', 'size:26']]);
+
+        return Inertia::render('Stock/AdjustmentForm', [
+            ...$stock->overview(),
+            'preset' => ['medicine' => $data['medicine'] ?? ''],
         ]);
     }
 
@@ -63,7 +88,7 @@ final class StockController
             $stock->dispose($actor, $data['medicine_id'], (int) $data['quantity'], (string) ($data['reason'] ?? ''), $override);
         }
 
-        return back()->with('success', 'Mutasi stok disimpan.');
+        return redirect("/stock/{$data['medicine_id']}/history")->with('success', 'Mutasi stok disimpan.');
     }
 
     public function adjustment(Request $request, StockService $stock): RedirectResponse
@@ -76,7 +101,7 @@ final class StockController
 
         $stock->adjust($this->actorId($request), $data['medicine_id'], (int) $data['counted_quantity'], $data['reason']);
 
-        return back()->with('success', 'Penyesuaian stok disimpan.');
+        return redirect("/stock/{$data['medicine_id']}/history")->with('success', 'Penyesuaian stok disimpan.');
     }
 
     public function search(Request $request, MedicineCatalog $catalog): JsonResponse

@@ -380,3 +380,12 @@ it('JDW-04 check-in memicu event PatientCheckedIn tanpa data pasien', function (
 
     Event::assertDispatched(PatientCheckedIn::class, fn ($e) => $e->appointmentId === $id && $e->patientId === $s['pasien'] && $e->doctorId === $s['dokter']->id);
 });
+
+it('JDW-05 formulir pasien tanpa janji adalah halaman sendiri dan simpan kembali ke antrean', function () {
+    $s = siapJadwal();
+
+    test()->actingAs($s['user'])->get('/queue/walk-in')->assertOk()->assertInertia(fn ($p) => $p
+        ->component('Queue/WalkIn')->has('doctors', 1)->has('chairs', 1));
+    test()->actingAs($s['user'])->post('/walk-ins', ['patient_id' => $s['pasien'], 'doctor_id' => $s['dokter']->id])->assertRedirect('/queue');
+    test()->actingAs(makeUser(Role::Dokter, $s['klinik']))->get('/queue/walk-in')->assertForbidden();
+});

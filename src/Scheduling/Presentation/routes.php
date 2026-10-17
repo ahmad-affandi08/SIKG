@@ -26,5 +26,6 @@ Route::middleware('can:appointment.manage')->group(function (): void {
     Route::post('/appointments/{appointment}/check-in', [AppointmentController::class, 'checkIn'])->where('appointment', $id);
     Route::post('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->where('appointment', $id);
     Route::post('/appointments/{appointment}/no-show', [AppointmentController::class, 'noShow'])->where('appointment', $id);
+    Route::get('/queue/walk-in', [AppointmentController::class, 'walkInForm'])->name('queue.walk-in');
     Route::post('/walk-ins', [AppointmentController::class, 'walkIn']);
 });

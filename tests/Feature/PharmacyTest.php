@@ -147,15 +147,46 @@ it('OBT-05 mutasi stok tidak dapat diubah atau dihapus', function () {
         ->and(fn () => $mut->delete())->toThrow(LogicException::class);
 });
 
-it('OBT-05 halaman stok menampilkan saldo, stok minimum, dan riwayat mutasi obat terpilih', function () {
+it('OBT-05 halaman stok menampilkan saldo dan stok minimum; riwayat mutasi ada di halaman sendiri', function () {
     $klinik = makeClinic();
     $admin = makeUser(Role::Admin, $klinik);
     $m = makeMedicine($klinik, ['min_stock' => 10]);
     isiStok($klinik, $m, 4);
 
-    test()->actingAs($admin)->get("/stock?medicine={$m->id}")->assertOk()->assertInertia(fn ($p) => $p
-        ->component('Stock/Index')->where('medicines.0.quantity', 4)->where('medicines.0.min_stock', 10)
-        ->has('movements', 1)->where('movements.0.type_label', 'Stok masuk')->where('can.manage', true)->where('can.override', true));
+    test()->actingAs($admin)->get('/stock')->assertOk()->assertInertia(fn ($p) => $p
+        ->component('Stock/Index')->where('medicines.0.quantity', 4)->where('medicines.0.min_stock', 10)->where('can.manage', true));
+    test()->actingAs($admin)->get("/stock/{$m->id}/history")->assertOk()->assertInertia(fn ($p) => $p
+        ->component('Stock/History')->where('medicine.quantity', 4)
+        ->has('movements', 1)->where('movements.0.type_label', 'Stok masuk')->where('can.manage', true));
+});
+
+it('OBT-05 formulir mutasi dan penyesuaian stok adalah halaman sendiri dan hanya untuk pengelola stok', function () {
+    $klinik = makeClinic();
+    $admin = makeUser(Role::Admin, $klinik);
+    $m = makeMedicine($klinik);
+
+    test()->actingAs($admin)->get("/stock/movements/create?medicine={$m->id}&type=out")->assertOk()->assertInertia(fn ($p) => $p
+        ->component('Stock/MovementForm')->where('preset.medicine', $m->id)->where('preset.type', 'out')->where('can.override', true));
+    test()->actingAs($admin)->get('/stock/adjustments/create')->assertOk()->assertInertia(fn ($p) => $p->component('Stock/AdjustmentForm'));
+    test()->actingAs(makeUser(Role::Dokter, $klinik))->get('/stock/movements/create')->assertForbidden();
+    test()->actingAs(makeUser(Role::Dokter, $klinik))->get('/stock/adjustments/create')->assertForbidden();
+});
+
+it('OBT-05 setelah menyimpan, pengguna diarahkan ke riwayat mutasi obat itu', function () {
+    $klinik = makeClinic();
+    $admin = makeUser(Role::Admin, $klinik);
+    $m = makeMedicine($klinik);
+
+    test()->actingAs($admin)->post('/stock/movements', ['medicine_id' => $m->id, 'type' => 'in', 'quantity' => 5])->assertRedirect("/stock/{$m->id}/history");
+    test()->actingAs($admin)->post('/stock/adjustments', ['medicine_id' => $m->id, 'counted_quantity' => 3, 'reason' => 'Opname'])->assertRedirect("/stock/{$m->id}/history");
+});
+
+it('OBT-05 riwayat obat klinik lain tidak dapat dibuka', function () {
+    $a = makeClinic('A');
+    $b = makeClinic('B');
+    $m = makeMedicine($b);
+
+    test()->actingAs(makeUser(Role::Admin, $a))->get("/stock/{$m->id}/history")->assertNotFound();
 });
 
 it('OBT-05 pencarian obat mengembalikan stok tersedia, hanya obat aktif klinik sendiri', function () {

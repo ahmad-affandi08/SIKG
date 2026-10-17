@@ -13,6 +13,7 @@ $id = '[0-9A-Z]{26}';
 
 Route::middleware('can:stock.view')->group(function (): void {
     Route::get('/stock', [StockController::class, 'index'])->name('stock');
+    Route::get('/stock/{medicine}/history', [StockController::class, 'history'])->name('stock.history')->where('medicine', '[0-9A-Z]{26}');
 });
 
 Route::middleware(['can:stock.view', 'throttle:60,1'])->prefix('internal-api')->group(function (): void {
@@ -20,6 +21,8 @@ Route::middleware(['can:stock.view', 'throttle:60,1'])->prefix('internal-api')->
 });
 
 Route::middleware('can:stock.manage')->group(function (): void {
+    Route::get('/stock/movements/create', [StockController::class, 'movementForm'])->name('stock.movements.create');
+    Route::get('/stock/adjustments/create', [StockController::class, 'adjustmentForm'])->name('stock.adjustments.create');
     Route::post('/stock/movements', [StockController::class, 'movement']);
     Route::post('/stock/adjustments', [StockController::class, 'adjustment']);
 });
