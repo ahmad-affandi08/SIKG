@@ -60,7 +60,7 @@ export default function Form({ entity, row }: Props) {
 
   return (
     <AppLayout>
-      <main className="flex max-w-2xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title={`${editing ? 'Ubah' : 'Tambah'} ${entity.title}`} />
         <PageHeader
           title={
@@ -72,7 +72,7 @@ export default function Form({ entity, row }: Props) {
           onSubmit={submit}
           noValidate
           aria-label={editing ? 'Ubah data' : 'Tambah data'}
-          className="flex flex-col gap-5"
+          className="form-grid"
         >
           {entity.fields.map((field) =>
             field.type === 'select' ? (

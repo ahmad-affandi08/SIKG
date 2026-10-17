@@ -31,19 +31,14 @@ export default function HolidayForm() {
 
   return (
     <AppLayout>
-      <main className="flex max-w-2xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Tambah hari libur" />
         <PageHeader
           title="Tambah hari libur"
           back={{ href: '/settings/clinic', label: 'pengaturan klinik' }}
           description="Pada hari libur klinik tidak menerima janji baru."
         />
-        <form
-          onSubmit={submit}
-          noValidate
-          aria-label="Tambah hari libur"
-          className="flex flex-col gap-5"
-        >
+        <form onSubmit={submit} noValidate aria-label="Tambah hari libur" className="form-grid">
           <DatePicker
             field="date"
             label="Tanggal"

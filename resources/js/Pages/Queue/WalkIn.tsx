@@ -56,19 +56,14 @@ export default function WalkIn({ doctors, chairs }: Props) {
 
   return (
     <AppLayout>
-      <main className="flex max-w-2xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Pasien tanpa janji" />
         <PageHeader
           title="Pasien tanpa janji"
           back={{ href: '/queue', label: 'antrean' }}
           description="Pasien langsung masuk antrean hari ini dengan nomor antrean berikutnya."
         />
-        <form
-          onSubmit={submit}
-          noValidate
-          aria-label="Pasien tanpa janji"
-          className="flex flex-col gap-5"
-        >
+        <form onSubmit={submit} noValidate aria-label="Pasien tanpa janji" className="form-grid">
           <PatientPicker
             field="patient_id"
             selected={patient}

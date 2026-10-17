@@ -76,19 +76,14 @@ export default function Reschedule({ item, doctors, chairs }: Props) {
 
   return (
     <AppLayout>
-      <main className="flex max-w-2xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Jadwal ulang" />
         <PageHeader
           title="Jadwal ulang"
           back={{ href: back, label: 'jadwal' }}
           description={`${item.patient_name ?? '-'} (${item.medical_record_no ?? '-'})`}
         />
-        <form
-          onSubmit={submit}
-          noValidate
-          aria-label="Jadwal ulang"
-          className="flex flex-col gap-5"
-        >
+        <form onSubmit={submit} noValidate aria-label="Jadwal ulang" className="form-grid">
           <Select
             field="doctor_id"
             label="Dokter"

@@ -61,19 +61,14 @@ export default function AdjustmentForm({ medicines, preset }: Props) {
 
   return (
     <AppLayout>
-      <main className="flex max-w-2xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Penyesuaian stok" />
         <PageHeader
           title="Penyesuaian stok"
           back={{ href: '/stock', label: 'stok obat' }}
           description="Samakan stok tercatat dengan hasil hitung fisik (opname)."
         />
-        <form
-          onSubmit={submit}
-          noValidate
-          aria-label="Penyesuaian stok"
-          className="flex flex-col gap-5"
-        >
+        <form onSubmit={submit} noValidate aria-label="Penyesuaian stok" className="form-grid">
           <Select
             field="medicine_id"
             label="Obat"

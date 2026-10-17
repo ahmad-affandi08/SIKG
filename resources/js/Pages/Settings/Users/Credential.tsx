@@ -16,7 +16,7 @@ interface Props {
 export default function Credential({ name, username, temporaryPassword }: Props) {
   return (
     <AppLayout>
-      <main className="flex max-w-xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Kata sandi sementara" />
         <h1>Kata sandi sementara</h1>
         <Alert tone="warning">

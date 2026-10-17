@@ -42,19 +42,14 @@ export default function HistoryForm({ patient, historyTypes, severities }: Props
 
   return (
     <AppLayout>
-      <main className="flex max-w-2xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Tambah riwayat medis" />
         <PageHeader
           title="Tambah riwayat medis"
           back={{ href: back, label: 'rekam pasien' }}
           description={`${patient.name} (${patient.medical_record_no})`}
         />
-        <form
-          onSubmit={submit}
-          noValidate
-          aria-label="Tambah riwayat medis"
-          className="flex flex-col gap-5"
-        >
+        <form onSubmit={submit} noValidate aria-label="Tambah riwayat medis" className="form-grid">
           <Select
             field="type"
             label="Jenis"

@@ -357,7 +357,7 @@ export function OdontogramBoard({
         ))}
       </ul>
 
-      <section aria-label="Panel gigi" className="card flex max-w-xl flex-col gap-3 p-3">
+      <section aria-label="Panel gigi" className="card flex flex-col gap-3 p-3">
         {selectedFdi === null ? (
           <p className="text-muted text-sm">
             Pilih gigi (klik atau tekan Enter) untuk melihat atau mengubah kondisinya.

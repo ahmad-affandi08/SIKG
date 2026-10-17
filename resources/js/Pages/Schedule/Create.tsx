@@ -68,10 +68,10 @@ export default function Create({ defaultDate, doctors, chairs }: Props) {
 
   return (
     <AppLayout>
-      <main className="flex max-w-2xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Buat janji" />
         <PageHeader title="Buat janji" back={{ href: back, label: 'jadwal' }} />
-        <form onSubmit={submit} noValidate aria-label="Buat janji" className="flex flex-col gap-5">
+        <form onSubmit={submit} noValidate aria-label="Buat janji" className="form-grid">
           <PatientPicker
             field="patient_id"
             selected={patient}

@@ -44,12 +44,7 @@ export default function DiagnosisForm({ encounter }: { encounter: EncounterRef }
 
   return (
     <EncounterFormShell title="Tambah diagnosa" encounter={encounter} tab="diagnosis">
-      <form
-        onSubmit={submit}
-        noValidate
-        aria-label="Tambah diagnosa"
-        className="flex flex-col gap-5"
-      >
+      <form onSubmit={submit} noValidate aria-label="Tambah diagnosa" className="form-grid">
         {picked ? (
           <div className="flex items-center gap-3">
             <span className="text-sm">

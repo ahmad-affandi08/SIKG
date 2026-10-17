@@ -57,7 +57,7 @@ export default function FileForm({ encounter }: { encounter: EncounterRef }) {
 
   return (
     <EncounterFormShell title="Unggah berkas" encounter={encounter} tab="files">
-      <form onSubmit={submit} noValidate aria-label="Unggah berkas" className="flex flex-col gap-5">
+      <form onSubmit={submit} noValidate aria-label="Unggah berkas" className="form-grid">
         <div className="flex flex-col gap-1">
           <FieldLabel htmlFor="clinical-file" required={fileRequired}>
             Berkas (JPG, PNG, atau PDF, maksimal 10 MB)

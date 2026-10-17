@@ -73,7 +73,7 @@ export function PrescriptionForm({ encounterId, canOverrideStock }: Props) {
   }
 
   return (
-    <form onSubmit={submit} noValidate aria-label="Buat resep" className="flex flex-col gap-5">
+    <form onSubmit={submit} noValidate aria-label="Buat resep" className="form-grid">
       <h3 className="text-base font-semibold">Resep baru</h3>
       {rows.map((row, index) => (
         <fieldset key={index} className="card flex flex-col gap-3 p-3">

@@ -351,3 +351,33 @@ main legend {
   font-size: 0.8125rem;
   font-weight: 700;
 }
+
+/* Formulir dua kolom (kiri dan kanan) pada layar lebar; blok tertentu membentang penuh. */
+.form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.625rem 1.5rem;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.form-grid > fieldset,
+.form-grid > p,
+.form-grid > h2,
+.form-grid > h3,
+.form-grid > [role='alert'],
+.form-grid > [role='status'],
+.form-grid > .grid,
+.form-grid > .form-wide,
+.form-grid > :has(textarea),
+.form-grid > :last-child {
+  grid-column: 1 / -1;
+}
+fieldset.form-grid {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+}

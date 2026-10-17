@@ -50,7 +50,7 @@ export function PrescriptionPanel({
   const [voidReason, setVoidReason] = useState('');
 
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {canCreate ? (
         <div>
           <Link

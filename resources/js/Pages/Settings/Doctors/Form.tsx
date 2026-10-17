@@ -111,11 +111,11 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
 
   return (
     <AppLayout>
-      <main className="flex max-w-3xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title={editing ? 'Ubah dokter' : 'Tambah dokter'} />
         <h1>{editing ? 'Ubah dokter' : 'Tambah dokter'}</h1>
 
-        <form onSubmit={submit} noValidate className="flex flex-col gap-6">
+        <form onSubmit={submit} noValidate className="form-grid">
           <section className="flex flex-col gap-4" aria-label="Data dokter">
             <TextField
               field="name"
@@ -168,7 +168,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
             />
           </section>
 
-          <fieldset className="flex flex-col gap-4">
+          <fieldset className="form-grid">
             <legend className="text-lg font-semibold">Skema jasa dokter</legend>
             <Select
               field="fee_mode"
@@ -255,7 +255,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
             </div>
           </fieldset>
 
-          <fieldset className="flex flex-col gap-4">
+          <fieldset className="form-grid">
             <legend className="text-lg font-semibold">Jadwal praktik mingguan</legend>
             {form.data.schedule.map((slot, index) => (
               <div key={index} className="card flex flex-wrap items-end gap-3 p-3">

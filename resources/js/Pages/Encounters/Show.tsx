@@ -244,10 +244,7 @@ export default function Show(props: Props) {
                     addenda={addenda}
                     canAdd={can.addendum && encounter.is_closed}
                   />
-                  <section
-                    aria-label="Riwayat versi catatan"
-                    className="flex max-w-2xl flex-col gap-2"
-                  >
+                  <section aria-label="Riwayat versi catatan" className="flex flex-col gap-2">
                     <h3 className="text-base font-semibold">Riwayat versi catatan</h3>
                     {history.length === 0 ? (
                       <p className="text-muted text-sm">Belum ada catatan.</p>

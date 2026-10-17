@@ -81,7 +81,7 @@ export default function Clinic({
         <PageHead title="Pengaturan klinik" />
         <h1>Pengaturan klinik</h1>
 
-        <form onSubmit={submit} noValidate className="flex flex-col gap-6">
+        <form onSubmit={submit} noValidate className="form-grid">
           {error('settings') ? (
             <p role="alert" className="text-danger-600 text-sm">
               {error('settings')}

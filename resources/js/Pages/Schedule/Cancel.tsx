@@ -53,19 +53,14 @@ export default function Cancel({ item }: Props) {
 
   return (
     <AppLayout>
-      <main className="flex max-w-2xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Batalkan janji" />
         <PageHeader
           title="Batalkan janji"
           back={{ href: back, label: 'jadwal' }}
           description={`${item.patient_name ?? '-'} (${item.medical_record_no ?? '-'}), ${formatDate(item.date)} pukul ${item.start}-${item.end}, ${item.doctor_name ?? '-'}.`}
         />
-        <form
-          onSubmit={submit}
-          noValidate
-          aria-label="Pembatalan janji"
-          className="flex flex-col gap-5"
-        >
+        <form onSubmit={submit} noValidate aria-label="Pembatalan janji" className="form-grid">
           <p className="text-sm">Slot janji dilepas dan alasan pembatalan tersimpan di riwayat.</p>
           <TextField
             field="reason"

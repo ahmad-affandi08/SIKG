@@ -61,15 +61,15 @@ export default function Form({ user, roles, branches, canManage = true }: Props)
 
   return (
     <AppLayout>
-      <main className="flex max-w-xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title={editing ? 'Ubah pengguna' : 'Tambah pengguna'} />
         <h1>{editing ? 'Ubah pengguna' : 'Tambah pengguna'}</h1>
         {!canManage ? (
           <p className="text-muted text-sm">Anda hanya dapat melihat pengguna ini.</p>
         ) : null}
 
-        <form onSubmit={submit} noValidate className="flex flex-col gap-4">
-          <fieldset disabled={!canManage} className="flex flex-col gap-4">
+        <form onSubmit={submit} noValidate className="form-grid">
+          <fieldset disabled={!canManage} className="form-grid">
             <TextField
               field="name"
               label="Nama lengkap"

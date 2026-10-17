@@ -25,7 +25,7 @@ export function EncounterFormShell({
   encounter,
   tab,
   children,
-  maxWidth = 'max-w-2xl',
+  maxWidth = '',
 }: EncounterFormShellProps) {
   return (
     <AppLayout>

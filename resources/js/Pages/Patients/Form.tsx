@@ -129,7 +129,7 @@ export default function Form({ patient, consent, sexes }: Props) {
 
   return (
     <AppLayout>
-      <main className="flex max-w-2xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title={editing ? 'Ubah data pasien' : 'Pasien baru'} />
         <h1>{editing ? 'Ubah data pasien' : 'Pasien baru'}</h1>
 
@@ -194,7 +194,7 @@ export default function Form({ patient, consent, sexes }: Props) {
           <TextField label="Nomor HP atau WhatsApp" inputMode="tel" {...text('phone')} />
           <TextField label="Pekerjaan" {...text('occupation')} />
 
-          <fieldset className="flex flex-col gap-4">
+          <fieldset className="form-grid">
             <legend className="text-lg font-semibold">Kontak darurat</legend>
             <TextField label="Nama kontak darurat" {...text('emergency_name')} />
             <TextField label="Hubungan kontak darurat" {...text('emergency_relation')} />
@@ -205,7 +205,7 @@ export default function Form({ patient, consent, sexes }: Props) {
             />
           </fieldset>
 
-          <fieldset className="flex flex-col gap-4">
+          <fieldset className="form-grid">
             <legend className="text-lg font-semibold">Wali atau penanggung jawab</legend>
             <p className="text-muted text-sm">Wajib untuk pasien di bawah 18 tahun.</p>
             <TextField label="Nama wali" {...text('guardian_name')} />
@@ -214,7 +214,7 @@ export default function Form({ patient, consent, sexes }: Props) {
           </fieldset>
 
           {consent ? (
-            <fieldset className="flex flex-col gap-2">
+            <fieldset className="form-grid">
               <legend className="text-lg font-semibold">Persetujuan data pribadi</legend>
               <p className="rounded-control bg-slate-50 p-3 text-sm">{consent.text}</p>
               <label className="min-h-touch flex items-center gap-2 text-sm">

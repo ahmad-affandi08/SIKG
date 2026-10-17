@@ -39,12 +39,7 @@ export default function AddendumForm({ encounter }: { encounter: EncounterRef })
 
   return (
     <EncounterFormShell title="Tambah addendum" encounter={encounter} tab="addenda">
-      <form
-        onSubmit={submit}
-        noValidate
-        aria-label="Tambah addendum"
-        className="flex flex-col gap-5"
-      >
+      <form onSubmit={submit} noValidate aria-label="Tambah addendum" className="form-grid">
         <p className="text-muted text-sm">
           Kunjungan sudah ditutup. Koreksi dicatat sebagai addendum bertanda waktu dan nama penulis;
           catatan asli tidak berubah.

@@ -81,11 +81,11 @@ export default function ClinicProfile({ profile }: Props) {
 
   return (
     <AppLayout>
-      <main className="flex max-w-2xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Profil klinik" />
         <h1>Profil klinik</h1>
 
-        <form onSubmit={submit} noValidate className="flex flex-col gap-4">
+        <form onSubmit={submit} noValidate className="form-grid">
           <TextField
             field="name"
             label="Nama klinik"

@@ -9,12 +9,7 @@ interface Props {
 
 export default function PrescriptionFormPage({ encounter, can }: Props) {
   return (
-    <EncounterFormShell
-      title="Resep baru"
-      encounter={encounter}
-      tab="prescriptions"
-      maxWidth="max-w-3xl"
-    >
+    <EncounterFormShell title="Resep baru" encounter={encounter} tab="prescriptions">
       <PrescriptionForm encounterId={encounter.id} canOverrideStock={can.overrideStock} />
     </EncounterFormShell>
   );

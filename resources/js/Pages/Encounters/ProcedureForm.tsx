@@ -71,12 +71,7 @@ export default function ProcedureForm({ encounter, jaws }: Props) {
 
   return (
     <EncounterFormShell title="Tambah tindakan" encounter={encounter} tab="procedures">
-      <form
-        onSubmit={submit}
-        noValidate
-        aria-label="Tambah tindakan"
-        className="flex flex-col gap-5"
-      >
+      <form onSubmit={submit} noValidate aria-label="Tambah tindakan" className="form-grid">
         <ProcedurePicker
           field="procedure_id"
           selected={procedure}
@@ -96,7 +91,7 @@ export default function ProcedureForm({ encounter, jaws }: Props) {
           />
         ) : null}
         {scope === 'surface' ? (
-          <fieldset className="flex flex-col gap-1">
+          <fieldset className="form-grid">
             <legend className="text-sm font-semibold">Permukaan</legend>
             <div className="flex flex-wrap gap-3">
               {SURFACES.map((surface) => (

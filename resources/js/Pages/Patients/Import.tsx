@@ -65,7 +65,7 @@ export default function Import({ batch }: Props) {
 
   return (
     <AppLayout>
-      <main className="flex max-w-3xl flex-col gap-3 p-3">
+      <main className="flex flex-col gap-3 p-3">
         <PageHead title="Impor pasien" />
         <h1>Impor pasien dari Excel</h1>
 

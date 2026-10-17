@@ -131,13 +131,8 @@ export function AnamnesisPanel({
   }
 
   return (
-    <form
-      onSubmit={submit}
-      noValidate
-      aria-label="Anamnesis"
-      className="flex max-w-2xl flex-col gap-3"
-    >
-      <fieldset disabled={!canWrite} className="flex flex-col gap-3">
+    <form onSubmit={submit} noValidate aria-label="Anamnesis" className="form-grid">
+      <fieldset disabled={!canWrite} className="form-grid">
         <TextField
           label="Keluhan utama"
           value={values.chief_complaint}
@@ -259,13 +254,8 @@ export function SoapPanel({
   }
 
   return (
-    <form
-      onSubmit={submit}
-      noValidate
-      aria-label="Catatan SOAP"
-      className="flex max-w-2xl flex-col gap-4"
-    >
-      <fieldset disabled={!canWrite} className="flex flex-col gap-4">
+    <form onSubmit={submit} noValidate aria-label="Catatan SOAP" className="form-grid">
+      <fieldset disabled={!canWrite} className="form-grid">
         {SOAP_FIELDS.map((field) => (
           <div key={field.key} className="flex flex-col gap-1">
             <label htmlFor={`soap-${field.key}`} className="text-sm font-semibold">
@@ -339,7 +329,7 @@ export function DiagnosisPanel({
   canEdit: boolean;
 }) {
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {canEdit ? (
         <AddLink href={`/encounters/${encounterId}/diagnoses/create`}>Tambah diagnosa</AddLink>
       ) : null}
@@ -415,7 +405,7 @@ export function ProcedurePanel({
   const total = entries.reduce((sum, entry) => sum + entry.subtotal_amount, 0);
 
   return (
-    <div className="flex max-w-4xl flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {canEdit ? (
         <AddLink href={`/encounters/${encounterId}/procedures/create`}>Tambah tindakan</AddLink>
       ) : null}
@@ -498,7 +488,7 @@ export function AddendumPanel({
   const timezone = useClinicTimezone();
 
   return (
-    <section aria-label="Addendum" className="flex max-w-3xl flex-col gap-4">
+    <section aria-label="Addendum" className="flex flex-col gap-4">
       <h3>Addendum</h3>
       {canAdd ? (
         <AddLink href={`/encounters/${encounterId}/addenda/create`}>Tambah addendum</AddLink>
@@ -542,7 +532,7 @@ export function FilesPanel({
   const timezone = useClinicTimezone();
 
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {canEdit ? (
         <AddLink href={`/encounters/${encounterId}/files/create`}>Unggah berkas</AddLink>
       ) : null}
