@@ -54,6 +54,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pengguna memperbaiki butir itu (kecualikan `tests-templates` dari Pint, hapus `baseUrl` dari tsconfig dasar dan sesuaikan alias, longgarkan deny `.env.example`, salin templat env, ganti Deptrac dengan usulan, samakan guard LAYER); (b) membiarkan, akibatnya langkah Pint dan Deptrac di `verify.sh` terus gagal
 - Rekomendasi: (a)
 
+### Q-8: Antarmuka untuk menyesuaikan peran dan izin
+- Kebutuhan terkait: AUTH-02, AUTH-03, `docs/PRD/00` bagian 4 ("Pemilik klinik dapat menyesuaikan peran tanpa mengubah kode")
+- Dokumen yang bertabrakan atau kurang: kalimat itu ada di PRD, tetapi tidak ada ID yang meminta halaman untuk mengubah izin per peran (AUTH-02 hanya meminta peran dan izin granular, dicek di backend, dan menu disembunyikan; AUTH-03 hanya mengelola pengguna). Izin dan peran sudah disimpan di database sehingga dapat diubah tanpa kode, tetapi belum ada layarnya
+- Opsi: (a) tambah ID baru (mis. halaman Pengguna dan peran: ubah izin per peran, dengan perlindungan agar Pemilik tidak kehilangan `user.manage` dan `role.manage`); (b) cukup lewat seeder dan perubahan data oleh pengembang pada Fase 1
+- Rekomendasi: (a) sebagai Should, dikerjakan setelah Must Fase 1; jangan dibangun sebelum disetujui (M14)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

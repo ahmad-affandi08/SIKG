@@ -9,7 +9,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 ### Must
 
 - [x] AUTH-01 | M | Login dengan email atau username dan kata sandi
-- [ ] AUTH-02 | M | Peran dan izin granular per modul sesuai matriks bagian 4
+- [x] AUTH-02 | M | Peran dan izin granular per modul sesuai matriks bagian 4
 - [ ] AUTH-03 | M | Kelola pengguna
 - [ ] AUTH-04 | M | Sesi berakhir otomatis setelah tidak aktif (default 30 menit, dapat diatur)
 - [ ] MST-01 | M | Profil klinik
