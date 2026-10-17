@@ -10,4 +10,11 @@ namespace Src\Clinical\Contracts;
 interface EncounterLookup
 {
     public function find(string $encounterId): ?EncounterInfo;
+
+    /**
+     * Kunjungan pasien yang masih terbuka (sedang berjalan), terbaru dulu.
+     *
+     * @return list<EncounterInfo>
+     */
+    public function openForPatient(string $patientId): array;
 }

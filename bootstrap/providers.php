@@ -9,6 +9,7 @@ use Src\Clinical\ClinicalServiceProvider;
 use Src\IdentityAccess\IdentityAccessServiceProvider;
 use Src\Insurance\InsuranceServiceProvider;
 use Src\Integration\IntegrationServiceProvider;
+use Src\Orthodontics\OrthodonticsServiceProvider;
 use Src\Patient\PatientServiceProvider;
 use Src\Pharmacy\PharmacyServiceProvider;
 use Src\Reporting\ReportingServiceProvider;
@@ -28,4 +29,5 @@ return [
     ReportingServiceProvider::class,
     IntegrationServiceProvider::class,
     InsuranceServiceProvider::class,
+    OrthodonticsServiceProvider::class,
 ];

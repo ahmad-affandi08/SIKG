@@ -103,6 +103,14 @@ export default function Show({
             <Link href={`/patients/${patient.id}/insurance`} className="btn btn-secondary">
               Penjamin
             </Link>
+            {can.timeline ? (
+              <Link
+                href={`/orthodontics/create?patient=${patient.id}`}
+                className="btn btn-secondary"
+              >
+                Paket ortodonti
+              </Link>
+            ) : null}
             {can.merge ? (
               <Link href={`/patients/${patient.id}/merge`} className="btn btn-secondary">
                 Gabung data ganda

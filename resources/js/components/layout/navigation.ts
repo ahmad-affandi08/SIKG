@@ -41,6 +41,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     permission: 'appointment.manage',
     group: 'Layanan',
   },
+  {
+    label: 'Ortodonti',
+    href: '/orthodontics',
+    anyOf: ['encounter.view', 'invoice.view'],
+    group: 'Layanan',
+  },
   { label: 'Stok obat', href: '/stock', permission: 'stock.view', group: 'Farmasi' },
   { label: 'Tagihan', href: '/invoices', permission: 'invoice.view', group: 'Kasir' },
   { label: 'Tutup kas', href: '/cash-closings', permission: 'cash.close', group: 'Kasir' },
