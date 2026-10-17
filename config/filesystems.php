@@ -49,6 +49,16 @@ return [
             'report' => false,
         ],
 
+        // SYS-02: cadangan data terenkripsi dan cermin berkas unggahan. Di luar disk `private` agar tidak menyalin dirinya sendiri.
+        // Salinan ke lokasi terpisah dilakukan penyedia atau cron hosting (docs/operations.md bagian 3), bukan kode aplikasi.
+        'backup' => [
+            'driver' => 'local',
+            'root' => storage_path('app/backups'),
+            'serve' => false,
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

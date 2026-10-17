@@ -35,6 +35,12 @@ return [
     // Surel penanggung jawab teknis untuk peringatan kesehatan (kosong = hanya dicatat di log).
     'alert_email' => env('SIKG_ALERT_EMAIL'),
 
+    // SYS-02: cadangan. Disk tujuan (bawaan lokal di storage/app/backups; arahkan ke disk lain bila tersedia), interval jatuh tempo
+    // dalam jam (usulan 6 pada shared hosting tanpa binlog; 24 pada server), dan kunci enkripsi cadangan terpisah dari APP_KEY.
+    'backup_disk' => env('SIKG_BACKUP_DISK', 'backup'),
+    'backup_interval_hours' => (int) env('SIKG_BACKUP_INTERVAL_HOURS', 24),
+    'backup_key' => env('BACKUP_KEY'),
+
     // Kunci HMAC blind index NIK dan nomor HP (M11).
     'pii_hash_key' => env('PII_HASH_KEY'),
 ];

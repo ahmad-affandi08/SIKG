@@ -8,8 +8,10 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Src\Shared\Application\Backup\BackupService;
 use Src\Shared\Application\HealthMonitor;
 use Src\Shared\Application\HealthSnapshot;
+use Src\Shared\Infrastructure\Mail\BackupAlertMail;
 use Src\Shared\Infrastructure\Mail\HealthAlertMail;
 
 /**
@@ -23,8 +25,10 @@ final class HealthCheckCommand extends Command
 
     protected $description = 'Periksa denyut cron dan antrean; kirim peringatan saat memburuk';
 
-    public function handle(HealthMonitor $monitor): int
+    public function handle(HealthMonitor $monitor, BackupService $backups): int
     {
+        $this->checkBackups($backups);
+
         $snapshot = $monitor->snapshot();
         $previous = Cache::get('sikg.health.status');
         Cache::forever('sikg.health.status', $snapshot->status);
@@ -44,5 +48,24 @@ final class HealthCheckCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * SYS-02: peringatan cadangan gagal atau terlambat, dikirim hanya saat keadaan berubah menjadi gagal.
+     */
+    private function checkBackups(BackupService $backups): void
+    {
+        $status = $backups->status();
+        $previous = Cache::get('sikg.backup.state');
+        Cache::forever('sikg.backup.state', $status['state']);
+        if ($status['state'] !== 'fail') {
+            return;
+        }
+
+        Log::warning('Cadangan data bermasalah', ['reasons' => $status['reasons']]);
+        $email = config('sikg.alert_email');
+        if ($previous !== 'fail' && is_string($email) && $email !== '') {
+            Mail::to($email)->send(new BackupAlertMail($status['reasons']));
+        }
     }
 }

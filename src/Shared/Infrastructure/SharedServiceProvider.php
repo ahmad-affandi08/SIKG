@@ -10,6 +10,9 @@ use Illuminate\Support\ServiceProvider;
 use Src\Shared\Application\AccessLogger;
 use Src\Shared\Application\AuditLogger;
 use Src\Shared\Application\AuditTrailReader;
+use Src\Shared\Application\Backup\BackupEngine;
+use Src\Shared\Application\Backup\BackupRunLog;
+use Src\Shared\Application\Backup\BackupService;
 use Src\Shared\Application\Clock;
 use Src\Shared\Application\EnvironmentInspector;
 use Src\Shared\Application\EventDispatcher;
@@ -24,6 +27,13 @@ use Src\Shared\Domain\IdGenerator;
 use Src\Shared\Infrastructure\Audit\DatabaseAccessLogger;
 use Src\Shared\Infrastructure\Audit\DatabaseAuditLogger;
 use Src\Shared\Infrastructure\Audit\EloquentAuditTrailReader;
+use Src\Shared\Infrastructure\Backup\BackupKey;
+use Src\Shared\Infrastructure\Backup\EloquentBackupRunLog;
+use Src\Shared\Infrastructure\Backup\PhpBackupEngine;
+use Src\Shared\Infrastructure\Console\BackupCommand;
+use Src\Shared\Infrastructure\Console\BackupPruneCommand;
+use Src\Shared\Infrastructure\Console\BackupRestoreCommand;
+use Src\Shared\Infrastructure\Console\BackupVerifyCommand;
 use Src\Shared\Infrastructure\Console\HealthCheckCommand;
 use Src\Shared\Infrastructure\Console\PreflightCommand;
 use Src\Shared\Infrastructure\Health\DatabaseHealthMonitor;
@@ -47,6 +57,19 @@ final class SharedServiceProvider extends ServiceProvider
         $this->app->scoped(AuditLogger::class, DatabaseAuditLogger::class);
         $this->app->scoped(AccessLogger::class, DatabaseAccessLogger::class);
         $this->app->singleton(AuditTrailReader::class, EloquentAuditTrailReader::class);
+        $this->app->singleton(BackupRunLog::class, EloquentBackupRunLog::class);
+        $this->app->singleton(BackupEngine::class, fn ($app) => new PhpBackupEngine(
+            (string) config('sikg.backup_disk'),
+            'private',
+            BackupKey::resolve(config('sikg.backup_key'), config('app.key')),
+        ));
+        $this->app->singleton(BackupService::class, fn ($app) => new BackupService(
+            $app->make(BackupEngine::class),
+            $app->make(BackupRunLog::class),
+            $app->make(Clock::class),
+            $app->make(AuditLogger::class),
+            max(1, (int) config('sikg.backup_interval_hours')),
+        ));
     }
 
     public function boot(): void
@@ -54,7 +77,7 @@ final class SharedServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/Migrations');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([PreflightCommand::class, HealthCheckCommand::class]);
+            $this->commands([PreflightCommand::class, HealthCheckCommand::class, BackupCommand::class, BackupVerifyCommand::class, BackupPruneCommand::class, BackupRestoreCommand::class]);
         }
 
         // Denyut antrean: dicatat setiap worker mulai satu putaran, paling sering sekali per 30 detik per proses.

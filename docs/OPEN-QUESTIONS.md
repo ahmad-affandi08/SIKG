@@ -139,6 +139,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan asumsi di atas; (b) ubah per butir
 - Rekomendasi: (a)
 
+### Q-22: Keputusan asumsi cadangan (SYS-02)
+- Kebutuhan terkait: SYS-02, NFR-03, M1, M21, Q-1, Q-3
+- Butir: (1) Cadangan memakai mesin PHP murni (data saja, dienkripsi XChaCha20-Poly1305 dengan kunci dari `BACKUP_KEY` atau diturunkan dari `APP_KEY`), bukan `mysqldump`, karena kode aplikasi dilarang memakai proses sistem (M21). (2) Disk tujuan bawaan di server yang sama; salinan ke lokasi terpisah dilakukan penyedia atau cron hosting, bukan kode aplikasi, karena adaptor SFTP atau S3 akan menjadi dependensi baru (M1). Mekanisme akhir mengikuti Q-3. (3) Interval bawaan 24 jam; interval 6 jam pada shared hosting menunggu keputusan pemilik di Q-1. (4) Uji pemulihan terjadwal memulihkan ke tabel sementara (perlu hak `CREATE TEMPORARY TABLES`); uji ke server terpisah tetap dilakukan manual dan dicatat. (5) Pemulihan bencana hanya ke basis data kosong yang sudah dimigrasi sampai versi yang sama; perintah menolak basis data berisi. (6) Binlog dan pemulihan ke titik waktu (RPO 1 jam di server) berada di luar aplikasi dan diatur di server.
+- Opsi: (a) pertahankan; (b) tambahkan dependensi adaptor penyimpanan jarak jauh lewat persetujuan di `tooling/approved-dependencies.json`
+- Rekomendasi: (a), lalu (b) hanya bila hosting sasaran tidak menyediakan alat sinkronisasi
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`
