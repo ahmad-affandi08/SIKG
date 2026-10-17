@@ -33,6 +33,7 @@ use Src\Reporting\Infrastructure\Reports\RevenueReport;
 use Src\Reporting\Infrastructure\Reports\StockReport;
 use Src\Reporting\Infrastructure\Reports\UserActivityReport;
 use Src\Reporting\Infrastructure\Reports\VisitsReport;
+use Src\Shared\Application\AuditLogger;
 
 final class ReportingServiceProvider extends ServiceProvider
 {
@@ -51,7 +52,7 @@ final class ReportingServiceProvider extends ServiceProvider
         $this->app->bind(ReportJobDispatcher::class, QueueReportJobDispatcher::class);
 
         $this->app->tag(self::REPORTS, 'sikg.reports');
-        $this->app->bind(ReportService::class, fn ($app) => new ReportService($app->tagged('sikg.reports'), $app->make(ReportLookups::class)));
+        $this->app->bind(ReportService::class, fn ($app) => new ReportService($app->tagged('sikg.reports'), $app->make(ReportLookups::class), $app->make(AuditLogger::class)));
         $this->app->bind(ReportExportService::class);
     }
 

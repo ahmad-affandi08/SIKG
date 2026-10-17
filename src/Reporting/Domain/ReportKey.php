@@ -108,6 +108,12 @@ enum ReportKey: string
         };
     }
 
+    /** Laporan yang menampilkan nama dan nomor RM pasien; pembukaan dan ekspornya dicatat di audit log. */
+    public function containsPatientNames(): bool
+    {
+        return $this === self::Receivables || $this === self::RecordCompleteness;
+    }
+
     public function usesDoctorFilter(): bool
     {
         return in_array($this, [self::DailySummary, self::Revenue, self::DoctorFees, self::Visits, self::Procedures, self::Receivables, self::RecordCompleteness], true);

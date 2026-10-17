@@ -880,3 +880,15 @@ it('LAP job yang sudah selesai tidak diambil ulang oleh pekerja yang terlambat',
     $store->fail($id, 'terlambat', now()->toDateTimeImmutable());
     expect(DB::table('report_jobs')->where('id', $id)->value('status'))->toBe('done');
 });
+
+it('LAP-06 dan LAP-09 yang menampilkan nama pasien mencatat pembukaannya di audit log, laporan agregat tidak', function () {
+    $d = lapData();
+    lapLihat($d, 'admin', 'record-completeness');
+    lapLihat($d, 'pemilik', 'receivables');
+    lapLihat($d, 'pemilik', 'revenue');
+
+    $catatan = DB::table('audit_logs')->where('action', 'report.opened')->orderBy('subject_id')->get(['actor_id', 'subject_id', 'after']);
+    expect($catatan->pluck('subject_id')->all())->toBe(['LAP-06', 'LAP-09'])
+        ->and($catatan[1]->actor_id)->toBe($d['u']['admin']->id)
+        ->and((string) $catatan[1]->after)->not->toContain('Pasien');
+});

@@ -10,6 +10,8 @@ use Src\Reporting\Domain\InvalidReportRequest;
 use Src\Reporting\Domain\ReportKey;
 use Src\Reporting\Domain\ReportResult;
 use Src\Reporting\Domain\ReportScope;
+use Src\Shared\Application\AuditEntry;
+use Src\Shared\Application\AuditLogger;
 
 /**
  * LAP-01 sampai LAP-10: daftar laporan yang boleh dilihat, penyaring bawaan, dan penjalanan laporan setelah pemeriksaan
@@ -23,7 +25,7 @@ final class ReportService
     /**
      * @param  iterable<Report>  $reports
      */
-    public function __construct(iterable $reports, private readonly ReportLookups $lookups)
+    public function __construct(iterable $reports, private readonly ReportLookups $lookups, private readonly AuditLogger $audit)
     {
         foreach ($reports as $report) {
             $this->reports[$report->key()->value] = $report;
@@ -88,7 +90,15 @@ final class ReportService
 
     public function run(ReportViewer $viewer, ReportKey $key, ReportFilters $filters): ReportResult
     {
-        return $this->runQuery($key, $this->query($viewer, $key, $filters));
+        $query = $this->query($viewer, $key, $filters);
+        if ($key->containsPatientNames()) {
+            // Laporan yang menampilkan nama pasien: pembukaannya tercatat (siapa, kapan, rentang), tanpa nama pasien.
+            $this->audit->record(new AuditEntry($viewer->userId, 'report.opened', 'report', $key->code(), null, [
+                'from' => $filters->range->from, 'to' => $filters->range->to,
+            ]));
+        }
+
+        return $this->runQuery($key, $query);
     }
 
     /**
