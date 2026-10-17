@@ -13,6 +13,7 @@ const VALID = {
   medical_record_pattern: 'RM-{seq:6}',
   invoice_pattern: 'INV-{yyyy}-{seq:5}',
   discount_limits: { pemilik: 100, admin: 100, kasir: 10 },
+  tax_percent: 0,
   operating_hours: { '1': { open: '08:00', close: '17:00' }, '7': null },
 };
 
@@ -29,6 +30,12 @@ describe('SYS-04 skema pengaturan klinik', () => {
     expect(clinicSettingsSchema.safeParse(limits(0)).success).toBe(true);
     expect(clinicSettingsSchema.safeParse(limits(101)).success).toBe(false);
     expect(clinicSettingsSchema.safeParse(limits(10.5)).success).toBe(false);
+  });
+
+  it('KSR-09 tarif pajak bilangan bulat 0 sampai 100', () => {
+    expect(clinicSettingsSchema.safeParse({ ...VALID, tax_percent: 11 }).success).toBe(true);
+    expect(clinicSettingsSchema.safeParse({ ...VALID, tax_percent: 101 }).success).toBe(false);
+    expect(clinicSettingsSchema.safeParse({ ...VALID, tax_percent: 1.5 }).success).toBe(false);
   });
 
   it('menolak batas sesi di bawah 5 menit dengan pesan Indonesia', () => {

@@ -25,6 +25,7 @@ interface Row {
   total_amount: number;
   paid_amount: number;
   balance_amount: number;
+  overdue: boolean;
   created_at: string;
 }
 
@@ -127,6 +128,11 @@ export default function Index({ rows, total, page, per_page: perPage, filters, s
                   <td>{formatDate(row.created_at, timezone)}</td>
                   <td>
                     <Badge tone={STATUS_TONE[row.status]}>{row.status_label}</Badge>
+                    {row.overdue ? (
+                      <span className="block">
+                        <Badge tone="danger">Cicilan jatuh tempo</Badge>
+                      </span>
+                    ) : null}
                   </td>
                   <td className="text-right">{formatRupiah(row.total_amount)}</td>
                   <td className="text-right">{formatRupiah(row.paid_amount)}</td>

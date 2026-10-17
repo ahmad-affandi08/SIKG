@@ -45,11 +45,15 @@ final class Invoice
         private ?string $voidedBy,
         private array $items,
         private array $payments,
+        public readonly int $taxBasisPoints = 0,
     ) {}
 
-    public static function draft(string $id, string $patientId, string $encounterId): self
+    /**
+     * @param  int  $taxBasisPoints  tarif pajak yang berlaku saat tagihan dibuat (KSR-09); disalin, tidak ikut berubah bila pengaturan berubah
+     */
+    public static function draft(string $id, string $patientId, string $encounterId, int $taxBasisPoints = 0): self
     {
-        return new self($id, $patientId, $encounterId, self::DRAFT, null, null, null, null, null, null, [], []);
+        return new self($id, $patientId, $encounterId, self::DRAFT, null, null, null, null, null, null, [], [], $taxBasisPoints);
     }
 
     /**
@@ -69,8 +73,9 @@ final class Invoice
         ?string $voidedBy,
         array $items,
         array $payments,
+        int $taxBasisPoints = 0,
     ): self {
-        return new self($id, $patientId, $encounterId, $lifecycle, $number, $issuedAt, $discount, $voidedAt, $voidReason, $voidedBy, $items, $payments);
+        return new self($id, $patientId, $encounterId, $lifecycle, $number, $issuedAt, $discount, $voidedAt, $voidReason, $voidedBy, $items, $payments, $taxBasisPoints);
     }
 
     // --- Keadaan turunan ---
@@ -168,9 +173,22 @@ final class Invoice
         return $this->discount?->amountOn($this->subtotal()) ?? Money::zero();
     }
 
-    public function total(): Money
+    /**
+     * Dasar pengenaan pajak: subtotal dikurangi diskon.
+     */
+    public function taxableAmount(): Money
     {
         return $this->subtotal()->subtract($this->discountAmount());
+    }
+
+    public function taxAmount(): Money
+    {
+        return $this->taxableAmount()->percent($this->taxBasisPoints);
+    }
+
+    public function total(): Money
+    {
+        return $this->taxableAmount()->add($this->taxAmount());
     }
 
     public function paid(): Money

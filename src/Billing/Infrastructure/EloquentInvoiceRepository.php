@@ -60,6 +60,8 @@ final class EloquentInvoiceRepository implements InvoiceRepository
             'status' => $invoice->status()->value,
             'subtotal_amount' => $invoice->subtotal()->amount,
             'discount_amount' => $invoice->discountAmount()->amount,
+            'tax_basis_points' => $invoice->taxBasisPoints,
+            'tax_amount' => $invoice->taxAmount()->amount,
             'total_amount' => $invoice->total()->amount,
             'paid_amount' => $invoice->paid()->amount,
             'discount_type' => $discount?->kind->value,
@@ -161,6 +163,7 @@ final class EloquentInvoiceRepository implements InvoiceRepository
             $row->voided_by,
             array_values($items),
             array_values($payments),
+            $row->tax_basis_points,
         );
     }
 

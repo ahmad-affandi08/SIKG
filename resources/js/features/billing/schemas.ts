@@ -72,6 +72,17 @@ export const voidSchema = z.object({
   reason: z.string().trim().min(1, 'Alasan pembatalan wajib diisi.').max(255, 'Terlalu panjang.'),
 });
 
+export const installmentSchema = z.object({
+  count: z
+    .string()
+    .trim()
+    .regex(/^\d{1,2}$/, 'Jumlah cicilan berupa bilangan bulat 2 sampai 36.')
+    .refine((v) => Number(v) >= 2 && Number(v) <= 36, 'Jumlah cicilan harus antara 2 dan 36.'),
+  first_due_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Tanggal jatuh tempo pertama wajib diisi.'),
+});
+
 export const cashClosingSchema = z.object({
   counted_amount: rupiah('Uang fisik', { min: 0 }),
   note: z.string().trim().max(255, 'Terlalu panjang.'),

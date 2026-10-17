@@ -14,7 +14,7 @@ final class InvalidBillingData extends DomainException
 {
     private const CONFLICTS = [
         'invoice.already_paid', 'invoice.already_issued', 'invoice.not_editable', 'invoice.void', 'invoice.not_issued',
-        'invoice.overpayment', 'payment.idempotency_conflict', 'invoice.already_void',
+        'invoice.overpayment', 'payment.idempotency_conflict', 'invoice.already_void', 'installment.already_exists', 'installment.not_issued',
     ];
 
     /**

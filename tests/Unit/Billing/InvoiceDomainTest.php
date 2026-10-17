@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Src\Billing\Domain\Discount;
 use Src\Billing\Domain\DiscountKind;
+use Src\Billing\Domain\InstallmentPlan;
 use Src\Billing\Domain\InvalidBillingData;
 use Src\Billing\Domain\Invoice;
 use Src\Billing\Domain\InvoiceItem;
@@ -212,4 +213,32 @@ it('KSR-01 tagihan tanpa item tidak dapat diterbitkan dan nomor hanya dipakai sa
     $invoice->issue('INV-1', new DateTimeImmutable('2025-06-16'));
     expect(fn () => $invoice->issue('INV-2', new DateTimeImmutable('2025-06-16')))->toThrow(InvalidBillingData::class)
         ->and($invoice->number())->toBe('INV-1');
+});
+
+it('KSR-09 pajak dikenakan pada subtotal setelah diskon dengan satu aturan pembulatan dan tarif tersalin', function () {
+    $invoice = Invoice::draft('I9', 'PAS', 'ENC9', 1100);
+    $invoice->addClinicalItem(item('T0', 1, 100001, InvoiceItem::SOURCE_PROCEDURE, 'S0'));
+    expect($invoice->taxAmount()->amount)->toBe(11000)->and($invoice->total()->amount)->toBe(111001);
+
+    $invoice->applyInvoiceDiscount(new Discount(DiscountKind::Amount, 1, 'Pembulatan'));
+    expect($invoice->taxableAmount()->amount)->toBe(100000)->and($invoice->taxAmount()->amount)->toBe(11000)->and($invoice->total()->amount)->toBe(111000);
+
+    expect(tagihan(1000)->taxAmount()->amount)->toBe(0);
+});
+
+it('KSR-05 cicilan: pembagian rata dengan sisa di cicilan pertama dan status menurut pembayaran setelah jadwal', function () {
+    $plan = InstallmentPlan::create('I1', Money::rupiah(100000), Money::rupiah(20000), 3, '2025-01-31', idGen());
+    expect(array_map(fn ($r) => $r['amount']->amount, $plan->installments))->toBe([33334, 33333, 33333])
+        ->and(array_column($plan->installments, 'due_date'))->toBe(['2025-01-31', '2025-02-28', '2025-03-31']);
+
+    $status = fn (int $paid, string $today) => array_column($plan->statuses(Money::rupiah($paid), $today), 'status');
+    expect($status(20000, '2025-01-01'))->toBe(['upcoming', 'upcoming', 'upcoming'])
+        ->and($status(20000 + 33334, '2025-02-01'))->toBe(['paid', 'upcoming', 'upcoming'])
+        ->and($status(20000 + 33334 + 100, '2025-03-01'))->toBe(['paid', 'overdue', 'upcoming'])
+        ->and($status(20000 + 100000, '2025-12-31'))->toBe(['paid', 'paid', 'paid'])
+        ->and($plan->hasOverdue(Money::rupiah(20000), '2025-02-01'))->toBeTrue();
+
+    expect(fn () => InstallmentPlan::create('I1', Money::rupiah(1000), Money::zero(), 1, '2025-01-01', idGen()))->toThrow(InvalidBillingData::class)
+        ->and(fn () => InstallmentPlan::create('I1', Money::zero(), Money::zero(), 3, '2025-01-01', idGen()))->toThrow(InvalidBillingData::class)
+        ->and(fn () => InstallmentPlan::create('I1', Money::rupiah(1000), Money::zero(), 3, '2025-13-01', idGen()))->toThrow(InvalidBillingData::class);
 });

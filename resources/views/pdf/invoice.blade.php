@@ -77,6 +77,9 @@
                 @if ($i['discount_amount'] > 0)
                     <tr><td colspan="4" class="r">Diskon tagihan{{ $i['discount_reason'] ? ' ('.$i['discount_reason'].')' : '' }}</td><td class="r">-{{ $rp($i['discount_amount']) }}</td></tr>
                 @endif
+                @if ($i['tax_amount'] > 0)
+                    <tr><td colspan="4" class="r">Pajak ({{ rtrim(rtrim(number_format($i['tax_basis_points'] / 100, 2, ',', '.'), '0'), ',') }}%)</td><td class="r">{{ $rp($i['tax_amount']) }}</td></tr>
+                @endif
                 <tr class="total"><td colspan="4" class="r">TOTAL</td><td class="r">{{ $rp($i['total_amount']) }}</td></tr>
                 <tr><td colspan="4" class="r">Dibayar</td><td class="r">{{ $rp($i['paid_amount']) }}</td></tr>
                 <tr class="total"><td colspan="4" class="r">Sisa</td><td class="r">{{ $rp($i['balance_amount']) }}</td></tr>

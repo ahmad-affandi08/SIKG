@@ -9,7 +9,7 @@ use Src\Shared\Domain\NumberPattern;
 
 /**
  * Pengaturan klinik (SYS-04, AUTH-04, KSR-02): format nomor RM dan invoice, jam operasional per hari, batas sesi tidak aktif,
- * dan batas diskon per peran (persen bulat).
+ * batas diskon per peran (persen bulat), dan tarif pajak tagihan (KSR-09, persen bulat, bawaan 0).
  * Zona waktu disimpan di kolom `clinics.timezone`. Hari: 1 = Senin sampai 7 = Minggu.
  */
 final readonly class ClinicSettings
@@ -31,7 +31,11 @@ final readonly class ClinicSettings
         public NumberPattern $invoicePattern,
         public array $operatingHours,
         public array $discountLimits = self::DEFAULT_DISCOUNT_LIMITS,
+        public int $taxPercent = 0,
     ) {
+        if ($taxPercent < 0 || $taxPercent > 100) {
+            throw new InvalidArgumentException('Tarif pajak harus antara 0 dan 100 persen.');
+        }
         if ($sessionTimeoutMinutes < self::MIN_SESSION_MINUTES) {
             throw new InvalidArgumentException('Batas sesi minimal '.self::MIN_SESSION_MINUTES.' menit.');
         }
@@ -94,6 +98,7 @@ final readonly class ClinicSettings
             invoicePattern: isset($data['invoice_pattern']) ? new NumberPattern((string) $data['invoice_pattern']) : $defaults->invoicePattern,
             operatingHours: $hours,
             discountLimits: $limits,
+            taxPercent: isset($data['tax_percent']) ? (int) $data['tax_percent'] : $defaults->taxPercent,
         );
     }
 
@@ -108,6 +113,7 @@ final readonly class ClinicSettings
             'invoice_pattern' => $this->invoicePattern->pattern,
             'operating_hours' => $this->operatingHours,
             'discount_limits' => $this->discountLimits,
+            'tax_percent' => $this->taxPercent,
         ];
     }
 

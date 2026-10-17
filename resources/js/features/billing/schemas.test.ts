@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   cashClosingSchema,
   discountSchema,
+  installmentSchema,
   invoiceItemSchema,
   paymentSchema,
   percentText,
@@ -50,6 +51,21 @@ describe('KSR uang bilangan bulat rupiah (M4)', () => {
   it('KSR-08 uang fisik boleh nol tetapi tidak desimal', () => {
     expect(cashClosingSchema.safeParse({ counted_amount: '0', note: '' }).success).toBe(true);
     expect(cashClosingSchema.safeParse({ counted_amount: '10.5', note: '' }).success).toBe(false);
+  });
+});
+
+describe('KSR-05 jadwal cicilan', () => {
+  it('jumlah cicilan 2 sampai 36 dan tanggal wajib', () => {
+    expect(installmentSchema.safeParse({ count: '3', first_due_date: '2025-07-01' }).success).toBe(
+      true,
+    );
+    expect(installmentSchema.safeParse({ count: '1', first_due_date: '2025-07-01' }).success).toBe(
+      false,
+    );
+    expect(installmentSchema.safeParse({ count: '37', first_due_date: '2025-07-01' }).success).toBe(
+      false,
+    );
+    expect(installmentSchema.safeParse({ count: '3', first_due_date: '' }).success).toBe(false);
   });
 });
 

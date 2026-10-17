@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Src\Billing\Application;
 
+use DateTimeZone;
+use Src\Billing\Domain\InstallmentRepository;
 use Src\Billing\Domain\InvalidBillingData;
 use Src\Billing\Domain\Invoice;
 use Src\Billing\Domain\InvoiceRepository;
+use Src\Billing\Domain\InvoiceStatus;
+use Src\Clinic\Contracts\ClinicCalendar;
 use Src\Clinic\Contracts\PaymentMethodCatalog;
 use Src\IdentityAccess\Contracts\UserLookup;
 use Src\Patient\Contracts\PatientLookup;
 use Src\Shared\Application\AccessLogger;
+use Src\Shared\Application\Clock;
 
 /**
  * Detail tagihan untuk layar kasir dan cetakan. Membuka tagihan (memuat nama pasien) tercatat di access log (M10).
@@ -23,10 +28,13 @@ final readonly class InvoiceReader
         private PaymentMethodCatalog $methods,
         private UserLookup $users,
         private AccessLogger $access,
+        private InstallmentRepository $installments,
+        private ClinicCalendar $calendar,
+        private Clock $clock,
     ) {}
 
     /**
-     * @return array{invoice: array<string, mixed>, items: list<array<string, mixed>>, payments: list<array<string, mixed>>}
+     * @return array{invoice: array<string, mixed>, items: list<array<string, mixed>>, payments: list<array<string, mixed>>, installments: array<string, mixed>|null}
      */
     public function detail(string $invoiceId, string $route = 'invoices.show'): array
     {
@@ -37,7 +45,7 @@ final readonly class InvoiceReader
     }
 
     /**
-     * @return array{invoice: array<string, mixed>, items: list<array<string, mixed>>, payments: list<array<string, mixed>>}
+     * @return array{invoice: array<string, mixed>, items: list<array<string, mixed>>, payments: list<array<string, mixed>>, installments: array<string, mixed>|null}
      */
     public function present(Invoice $invoice): array
     {
@@ -46,6 +54,9 @@ final readonly class InvoiceReader
         $methods = $this->methods->byIds($methodIds);
         $users = $this->users->names(array_values(array_unique(array_filter([...array_map(fn ($p) => $p->receivedBy, $invoice->payments()), $invoice->voidedBy()]))));
         $discount = $invoice->discount();
+        $plan = $this->installments->forInvoice($invoice->id);
+        $today = $this->clock->now()->setTimezone(new DateTimeZone($this->calendar->timezone()))->format('Y-m-d');
+        $schedule = $plan?->statuses($invoice->paid(), $today);
 
         return [
             'invoice' => [
@@ -63,6 +74,8 @@ final readonly class InvoiceReader
                 'discount_type' => $discount?->kind->value,
                 'discount_value' => $discount?->value,
                 'discount_reason' => $discount?->reason,
+                'tax_basis_points' => $invoice->taxBasisPoints,
+                'tax_amount' => $invoice->taxAmount()->amount,
                 'total_amount' => $invoice->total()->amount,
                 'paid_amount' => $invoice->paid()->amount,
                 'balance_amount' => $invoice->balance()->amount,
@@ -99,6 +112,10 @@ final readonly class InvoiceReader
                 'receipt_no' => $payment->receiptNo,
                 'reason' => $payment->reason,
             ], $invoice->payments()),
+            'installments' => $schedule === null ? null : [
+                'rows' => $schedule,
+                'overdue' => in_array('overdue', array_column($schedule, 'status'), true) && $invoice->status() !== InvoiceStatus::Void,
+            ],
         ];
     }
 }

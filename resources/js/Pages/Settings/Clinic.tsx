@@ -20,6 +20,7 @@ interface Props {
     medical_record_pattern: string;
     invoice_pattern: string;
     discount_limits: { pemilik: number; admin: number; kasir: number };
+    tax_percent: number;
     operating_hours: Record<string, { open: string; close: string } | null>;
   };
   sessionMaxMinutes: number;
@@ -46,6 +47,7 @@ export default function Clinic({
     medical_record_pattern: settings.medical_record_pattern,
     invoice_pattern: settings.invoice_pattern,
     discount_limits: settings.discount_limits,
+    tax_percent: settings.tax_percent,
     operating_hours: settings.operating_hours,
   });
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
@@ -154,7 +156,7 @@ export default function Clinic({
 
           <section aria-labelledby="diskon" className="grid gap-4 sm:grid-cols-3">
             <h2 id="diskon" className="sm:col-span-3">
-              Batas diskon per peran
+              Batas diskon per peran dan pajak
             </h2>
             {(
               [
@@ -182,6 +184,23 @@ export default function Clinic({
             ))}
             <p className="text-muted text-sm sm:col-span-3">
               Diskon tagihan atau item di atas batas ini ditolak untuk peran tersebut (KSR-02).
+            </p>
+            <TextField
+              field="tax_percent"
+              label="Pajak tagihan (persen, 0 sampai 100)"
+              type="number"
+              min={0}
+              max={100}
+              value={form.data.tax_percent}
+              onChange={(event) => {
+                form.setData('tax_percent', Number(event.target.value));
+              }}
+              error={error('tax_percent')}
+            />
+            <p className="text-muted text-sm sm:col-span-2">
+              Bawaan 0. Layanan kesehatan umumnya dibebaskan PPN; pastikan dengan konsultan pajak
+              klinik. Tarif disalin ke tagihan saat dibuat, jadi perubahan di sini tidak mengubah
+              tagihan yang sudah ada (KSR-09).
             </p>
           </section>
 

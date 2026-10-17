@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import { percentText, STATUS_TONE } from '@/features/billing/schemas';
 import type { InvoiceItemRow, InvoiceStatus, PaymentRow } from '@/features/billing/schemas';
-import { formatDateTime, formatRupiah } from '@/lib/format';
+import { formatDate, formatDateTime, formatRupiah } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
 
 interface Props {
@@ -27,6 +27,8 @@ interface Props {
     discount_type: 'percent' | 'amount' | null;
     discount_value: number | null;
     discount_reason: string | null;
+    tax_basis_points: number;
+    tax_amount: number;
     total_amount: number;
     paid_amount: number;
     balance_amount: number;
@@ -38,6 +40,17 @@ interface Props {
   };
   items: InvoiceItemRow[];
   payments: PaymentRow[];
+  installments: {
+    rows: {
+      id: string;
+      sequence: number;
+      due_date: string;
+      amount: number;
+      covered: number;
+      status: 'paid' | 'partial' | 'overdue' | 'upcoming';
+    }[];
+    overdue: boolean;
+  } | null;
   can: { edit: boolean; discount: boolean; pay: boolean; refund: boolean; void: boolean };
 }
 
@@ -48,7 +61,21 @@ function discountLabel(type: 'percent' | 'amount' | null, value: number | null):
   return type === 'percent' ? ` (${percentText(value)})` : '';
 }
 
-export default function Show({ invoice, items, payments, can }: Props) {
+const INSTALLMENT_LABEL = {
+  paid: 'Lunas',
+  partial: 'Terbayar sebagian',
+  overdue: 'Jatuh tempo',
+  upcoming: 'Belum jatuh tempo',
+} as const;
+
+const INSTALLMENT_TONE = {
+  paid: 'success',
+  partial: 'warning',
+  overdue: 'danger',
+  upcoming: 'neutral',
+} as const;
+
+export default function Show({ invoice, items, payments, installments, can }: Props) {
   const timezone = useClinicTimezone();
   const voided = invoice.status === 'void';
   const canPay = can.pay && !voided && invoice.status !== 'paid';
@@ -269,6 +296,61 @@ export default function Show({ invoice, items, payments, can }: Props) {
             </tfoot>
           </table>
         </section>
+
+        {installments !== null ||
+        (can.pay && invoice.lifecycle === 'issued' && invoice.balance_amount > 0) ? (
+          <section aria-labelledby="cicilan-judul" className="flex flex-col gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 id="cicilan-judul" className="flex-1">
+                Cicilan
+              </h2>
+              {installments === null ? (
+                <Link
+                  href={`/invoices/${invoice.id}/payment-plan/create`}
+                  className="btn btn-secondary"
+                >
+                  Buat jadwal cicilan
+                </Link>
+              ) : null}
+              {installments?.overdue ? <Badge tone="danger">Ada cicilan jatuh tempo</Badge> : null}
+            </div>
+            {installments === null ? (
+              <p className="text-muted">Belum ada jadwal cicilan.</p>
+            ) : (
+              <table>
+                <caption className="sr-only">Jadwal cicilan</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Cicilan</th>
+                    <th scope="col">Jatuh tempo</th>
+                    <th scope="col" className="text-right">
+                      Jumlah
+                    </th>
+                    <th scope="col" className="text-right">
+                      Terbayar
+                    </th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {installments.rows.map((row) => (
+                    <tr key={row.id}>
+                      <td>{row.sequence}</td>
+                      <td>{formatDate(row.due_date)}</td>
+                      <td className="text-right">{formatRupiah(row.amount)}</td>
+                      <td className="text-right">{formatRupiah(row.covered)}</td>
+                      <td>
+                        <Badge tone={INSTALLMENT_TONE[row.status]}>
+                          {INSTALLMENT_LABEL[row.status]}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+        ) : null}
 
         <section aria-labelledby="bayar-judul" className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center justify-between gap-2">

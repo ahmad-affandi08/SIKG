@@ -76,12 +76,12 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [ ] ODO-06 | S | Cetak odontogram ke PDF
 - [x] OBT-02 | S | Peringatan alergi
 - [ ] OBT-06 | S | Peringatan stok di bawah minimum dan obat yang kedaluwarsa dalam 30 hari
-- [ ] KSR-05 | S | Paket cicilan (contoh
+- [x] KSR-05 | S | Paket cicilan (contoh
 
 ### Could
 
 - [ ] ODO-07 | C | Bandingkan odontogram antar kunjungan berdampingan
-- [ ] KSR-09 | C | Pengaturan pajak opsional (default 0%)
+- [x] KSR-09 | C | Pengaturan pajak opsional (default 0%)
 - [ ] SYS-05 | C | Notifikasi dalam aplikasi (janji baru, stok menipis)
 
 ## Fase 2 (dimulai setelah Gerbang 2; P2-01 lebih dulu)

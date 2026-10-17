@@ -12,9 +12,11 @@ use Src\Billing\Application\CashRegister;
 use Src\Billing\Application\InvoiceDrafting;
 use Src\Billing\Application\InvoiceListing;
 use Src\Billing\Contracts\InvoiceLookup;
+use Src\Billing\Domain\InstallmentRepository;
 use Src\Billing\Domain\InvoiceRepository;
 use Src\Billing\Infrastructure\ClinicBillingNumbering;
 use Src\Billing\Infrastructure\EloquentCashRegister;
+use Src\Billing\Infrastructure\EloquentInstallmentRepository;
 use Src\Billing\Infrastructure\EloquentInvoiceListing;
 use Src\Billing\Infrastructure\EloquentInvoiceRepository;
 use Src\Clinical\Domain\Events\EncounterClosed;
@@ -28,6 +30,7 @@ final class BillingServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(InvoiceRepository::class, EloquentInvoiceRepository::class);
+        $this->app->singleton(InstallmentRepository::class, EloquentInstallmentRepository::class);
         $this->app->singleton(BillingNumbering::class, ClinicBillingNumbering::class);
         $this->app->singleton(CashRegister::class, EloquentCashRegister::class);
         $this->app->singleton(InvoiceListing::class, EloquentInvoiceListing::class);

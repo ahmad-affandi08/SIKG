@@ -9,14 +9,17 @@ use DateTimeZone;
 use Src\Billing\Application\InvoiceListing;
 use Src\Billing\Contracts\InvoiceLookup;
 use Src\Billing\Contracts\InvoiceSummary;
+use Src\Billing\Domain\InstallmentRepository;
 use Src\Billing\Domain\InvoiceStatus;
 use Src\Billing\Infrastructure\Eloquent\InvoiceModel;
 use Src\Clinic\Contracts\ClinicCalendar;
 use Src\Patient\Contracts\PatientLookup;
+use Src\Shared\Application\Clock;
+use Src\Shared\Domain\Money;
 
 final readonly class EloquentInvoiceListing implements InvoiceListing, InvoiceLookup
 {
-    public function __construct(private PatientLookup $patients, private ClinicCalendar $calendar) {}
+    public function __construct(private PatientLookup $patients, private ClinicCalendar $calendar, private InstallmentRepository $installments, private Clock $clock) {}
 
     public function list(array $filters, int $page, int $perPage): array
     {
@@ -45,9 +48,15 @@ final readonly class EloquentInvoiceListing implements InvoiceListing, InvoiceLo
             $ids[$row->patient_id] = $row->patient_id;
         }
         $patients = $this->patients->summaries(array_values($ids));
+        $invoiceIds = [];
+        foreach ($rows as $row) {
+            $invoiceIds[] = $row->id;
+        }
+        $plans = $this->installments->forInvoices($invoiceIds);
+        $today = $this->clock->now()->setTimezone($timezone)->format('Y-m-d');
 
         return [
-            'rows' => array_values($rows->map(function (InvoiceModel $i) use ($patients): array {
+            'rows' => array_values($rows->map(function (InvoiceModel $i) use ($patients, $plans, $today): array {
                 $status = InvoiceStatus::from($i->status);
 
                 return [
@@ -61,6 +70,7 @@ final readonly class EloquentInvoiceListing implements InvoiceListing, InvoiceLo
                     'total_amount' => $i->total_amount,
                     'paid_amount' => $i->paid_amount,
                     'balance_amount' => max(0, $i->total_amount - $i->paid_amount),
+                    'overdue' => $i->status !== 'void' && isset($plans[$i->id]) && $plans[$i->id]->hasOverdue(Money::rupiah($i->paid_amount), $today),
                     'created_at' => $i->created_at->format('c'),
                     'issued_at' => $i->issued_at?->format('c'),
                 ];

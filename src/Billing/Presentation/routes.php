@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Src\Billing\Presentation\Http\Controllers\CashClosingController;
+use Src\Billing\Presentation\Http\Controllers\InstallmentController;
 use Src\Billing\Presentation\Http\Controllers\InvoiceController;
 use Src\Billing\Presentation\Http\Controllers\InvoicePrintController;
 use Src\Billing\Presentation\Http\Controllers\PaymentController;
@@ -42,6 +43,8 @@ Route::middleware('can:invoice.discount')->group(function () use ($id): void {
 Route::middleware('can:payment.create')->group(function () use ($id): void {
     Route::get('/invoices/{invoice}/payments/create', [PaymentController::class, 'createForm'])->name('invoices.payments.create')->where('invoice', $id);
     Route::post('/invoices/{invoice}/payments', [PaymentController::class, 'store'])->where('invoice', $id);
+    Route::get('/invoices/{invoice}/payment-plan/create', [InstallmentController::class, 'create'])->name('invoices.payment-plan.create')->where('invoice', $id);
+    Route::post('/invoices/{invoice}/payment-plan', [InstallmentController::class, 'store'])->where('invoice', $id);
 });
 
 Route::middleware('can:payment.refund')->group(function () use ($id): void {

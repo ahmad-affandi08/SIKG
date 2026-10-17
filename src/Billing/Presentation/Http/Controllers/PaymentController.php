@@ -178,7 +178,7 @@ final class PaymentController
     }
 
     /**
-     * @param  array{invoice: array<string, mixed>, items: list<array<string, mixed>>, payments: list<array<string, mixed>>}  $detail
+     * @param  array{invoice: array<string, mixed>, items: list<array<string, mixed>>, payments: list<array<string, mixed>>, installments: array<string, mixed>|null}  $detail
      * @return array<string, mixed>
      */
     private function head(array $detail): array

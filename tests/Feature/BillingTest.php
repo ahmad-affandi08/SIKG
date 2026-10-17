@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Src\Billing\Infrastructure\Eloquent\CashClosingModel;
+use Src\Billing\Infrastructure\Eloquent\InstallmentModel;
+use Src\Billing\Infrastructure\Eloquent\InstallmentPlanModel;
 use Src\Billing\Infrastructure\Eloquent\InvoiceItemModel;
 use Src\Billing\Infrastructure\Eloquent\InvoiceModel;
 use Src\Billing\Infrastructure\Eloquent\PaymentModel;
@@ -223,7 +225,7 @@ it('KSR-02 diskon di atas batas peran ditolak; batas dapat diatur Admin per pera
     $jam = ['open' => '08:00', 'close' => '17:00'];
     test()->actingAs($s['admin'])->put('/settings/clinic', [
         'timezone' => 'Asia/Jakarta', 'session_timeout_minutes' => 30, 'medical_record_pattern' => 'RM-{seq:6}', 'invoice_pattern' => 'INV-{yyyy}-{seq:5}',
-        'discount_limits' => ['pemilik' => 100, 'admin' => 100, 'kasir' => 25],
+        'discount_limits' => ['pemilik' => 100, 'admin' => 100, 'kasir' => 25], 'tax_percent' => 0,
         'operating_hours' => [1 => $jam, 2 => $jam, 3 => $jam, 4 => $jam, 5 => $jam, 6 => $jam, 7 => null],
     ])->assertSessionHasNoErrors();
     $diskon('25')->assertRedirect();
@@ -501,4 +503,119 @@ it('KSR-08 kas milik kasir lain tidak ikut dan hanya yang berizin yang dapat men
     test()->actingAs($s['admin'])->get('/cash-closings')->assertForbidden();
     test()->actingAs($s['dokter_user'])->post('/cash-closings', ['counted_amount' => 0])->assertForbidden();
     test()->actingAs($s['kasir'])->postJson('/cash-closings', ['counted_amount' => -5])->assertStatus(422);
+});
+
+// --- KSR-09: pajak opsional ---
+
+function setelPajak(array $s, int $persen): void
+{
+    $jam = ['open' => '08:00', 'close' => '17:00'];
+    test()->actingAs($s['admin'])->put('/settings/clinic', [
+        'timezone' => 'Asia/Jakarta', 'session_timeout_minutes' => 30, 'medical_record_pattern' => 'RM-{seq:6}', 'invoice_pattern' => 'INV-{yyyy}-{seq:5}',
+        'discount_limits' => ['pemilik' => 100, 'admin' => 100, 'kasir' => 10], 'tax_percent' => $persen,
+        'operating_hours' => [1 => $jam, 2 => $jam, 3 => $jam, 4 => $jam, 5 => $jam, 6 => $jam, 7 => null],
+    ])->assertSessionHasNoErrors();
+}
+
+it('KSR-09 pajak bawaan 0 persen sehingga total sama dengan jumlah item', function () {
+    $s = siapTagihan();
+
+    $invoice = tagihanModel($s);
+    expect($invoice->tax_basis_points)->toBe(0)->and($invoice->tax_amount)->toBe(0)->and($invoice->total_amount)->toBe(500000);
+});
+
+it('KSR-09 tarif pajak diatur klinik, dikenakan setelah diskon, dan disalin ke tagihan sehingga tidak berubah bila pengaturan berubah', function () {
+    $s = siapKunjungan();
+    $s['kasir'] = makeUser(Role::Kasir, $s['klinik']);
+    $s['admin'] = makeUser(Role::Admin, $s['klinik']);
+    $s['tunai'] = metodeBayar($s);
+    setelPajak($s, 11);
+    $tindakan = tindakan($s, ['default_price_amount' => 100001]);
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$s['kunjungan']}/procedures", ['procedure_id' => $tindakan->id, 'tooth_fdi' => 46, 'quantity' => 1])->assertSessionHasNoErrors();
+    tenant()->set($s['klinik']->id);
+    $s['invoice'] = InvoiceModel::query()->firstOrFail()->id;
+
+    $invoice = tagihanModel($s);
+    expect($invoice->tax_basis_points)->toBe(1100)->and($invoice->tax_amount)->toBe(11000)->and($invoice->total_amount)->toBe(111001); // 11% dari 100.001 dibulatkan satu kali
+
+    test()->actingAs($s['kasir'])->post("/invoices/{$s['invoice']}/discount", ['kind' => 'amount', 'value' => '1', 'reason' => 'Pembulatan'])->assertSessionHasNoErrors();
+    $invoice = tagihanModel($s);
+    expect($invoice->tax_amount)->toBe(11000)->and($invoice->total_amount)->toBe(111000);
+
+    setelPajak($s, 0);
+    expect(tagihanModel($s)->tax_basis_points)->toBe(1100)->and(tagihanModel($s)->total_amount)->toBe(111000);
+
+    tutupKunjungan($s);
+    test()->actingAs($s['kasir'])->get("/invoices/{$s['invoice']}")->assertInertia(fn ($p) => $p->where('invoice.tax_amount', 11000)->where('invoice.tax_basis_points', 1100)->where('invoice.total_amount', 111000));
+    test()->actingAs($s['kasir'])->get("/invoices/{$s['invoice']}/print")->assertOk();
+});
+
+it('KSR-09 tarif pajak di luar 0 sampai 100 ditolak', function () {
+    $klinik = makeClinic();
+    $admin = makeUser(Role::Admin, $klinik);
+    $jam = ['open' => '08:00', 'close' => '17:00'];
+
+    test()->actingAs($admin)->put('/settings/clinic', [
+        'timezone' => 'Asia/Jakarta', 'session_timeout_minutes' => 30, 'medical_record_pattern' => 'RM-{seq:6}', 'invoice_pattern' => 'INV-{yyyy}-{seq:5}',
+        'discount_limits' => ['pemilik' => 100, 'admin' => 100, 'kasir' => 10], 'tax_percent' => 101,
+        'operating_hours' => [1 => $jam, 2 => $jam, 3 => $jam, 4 => $jam, 5 => $jam, 6 => $jam, 7 => null],
+    ])->assertSessionHasErrors('tax_percent');
+});
+
+// --- KSR-05: cicilan ---
+
+it('KSR-05 kasir membuat jadwal cicilan sisa tagihan; status tiap cicilan diturunkan dari pembayaran', function () {
+    $s = tagihanTerbit();
+    bayarTagihan($s, 100000, $s['tunai'])->assertSessionHasNoErrors();
+
+    test()->actingAs($s['kasir'])->post("/invoices/{$s['invoice']}/payment-plan", ['count' => 4, 'first_due_date' => '2025-07-01'])->assertSessionHasNoErrors();
+
+    tenant()->set($s['klinik']->id);
+    $rows = InstallmentModel::query()->orderBy('sequence')->get();
+    expect($rows->pluck('amount')->all())->toBe([100000, 100000, 100000, 100000])->and($rows->map(fn ($r) => $r->due_date->toDateString())->all())->toBe(['2025-07-01', '2025-08-01', '2025-09-01', '2025-10-01']);
+
+    $lihat = fn () => test()->actingAs($s['kasir'])->get("/invoices/{$s['invoice']}")->inertiaProps('installments.rows');
+    expect(array_column($lihat(), 'status'))->toBe(['upcoming', 'upcoming', 'upcoming', 'upcoming']);
+
+    bayarTagihan($s, 150000, $s['qris']);
+    $status = $lihat();
+    expect(array_column($status, 'status'))->toBe(['paid', 'partial', 'upcoming', 'upcoming'])->and($status[1]['covered'])->toBe(50000);
+
+    majuKe('2025-08-05 09:00:00');
+    expect(array_column($lihat(), 'status'))->toBe(['paid', 'overdue', 'upcoming', 'upcoming']);
+    test()->actingAs($s['kasir'])->get('/invoices')->assertInertia(fn ($p) => $p->where('rows.0.overdue', true));
+
+    bayarTagihan($s, 50000, $s['tunai']);
+    expect(array_column($lihat(), 'status'))->toBe(['paid', 'paid', 'upcoming', 'upcoming']);
+    test()->actingAs($s['kasir'])->get('/invoices')->assertInertia(fn ($p) => $p->where('rows.0.overdue', false));
+});
+
+it('KSR-05 sisa pembulatan masuk cicilan pertama, satu jadwal per tagihan, dan hanya untuk tagihan terbit yang belum lunas', function () {
+    $s = tagihanTerbit();
+
+    test()->actingAs($s['kasir'])->postJson("/invoices/{$s['invoice']}/payment-plan", ['count' => 1, 'first_due_date' => '2025-07-01'])->assertStatus(422);
+    test()->actingAs($s['kasir'])->postJson("/invoices/{$s['invoice']}/payment-plan", ['count' => 3, 'first_due_date' => '2025-02-30'])->assertStatus(422);
+    test()->actingAs($s['kasir'])->post("/invoices/{$s['invoice']}/payment-plan", ['count' => 3, 'first_due_date' => '2025-01-31'])->assertSessionHasNoErrors();
+
+    tenant()->set($s['klinik']->id);
+    $rows = InstallmentModel::query()->orderBy('sequence')->get();
+    expect($rows->pluck('amount')->all())->toBe([166668, 166666, 166666])->and($rows->sum('amount'))->toBe(500000)
+        ->and($rows->map(fn ($r) => $r->due_date->toDateString())->all())->toBe(['2025-01-31', '2025-02-28', '2025-03-31']);
+
+    test()->actingAs($s['kasir'])->postJson("/invoices/{$s['invoice']}/payment-plan", ['count' => 2, 'first_due_date' => '2025-07-01'])->assertStatus(409)->assertJsonPath('code', 'installment.already_exists');
+
+    $draft = siapTagihan();
+    test()->actingAs($draft['kasir'])->postJson("/invoices/{$draft['invoice']}/payment-plan", ['count' => 2, 'first_due_date' => '2025-07-01'])->assertStatus(409)->assertJsonPath('code', 'installment.not_issued');
+    test()->actingAs($s['admin'])->post("/invoices/{$s['invoice']}/payment-plan", ['count' => 2, 'first_due_date' => '2025-07-01'])->assertForbidden();
+});
+
+it('KSR-05 jadwal cicilan tidak dapat diubah atau dihapus lewat model dan tercatat di audit', function () {
+    $s = tagihanTerbit();
+    test()->actingAs($s['kasir'])->post("/invoices/{$s['invoice']}/payment-plan", ['count' => 2, 'first_due_date' => '2025-07-01'])->assertSessionHasNoErrors();
+
+    tenant()->set($s['klinik']->id);
+    $plan = InstallmentPlanModel::query()->firstOrFail();
+    expect(fn () => $plan->forceFill(['installment_count' => 9])->save())->toThrow(LogicException::class)
+        ->and(fn () => $plan->delete())->toThrow(LogicException::class)
+        ->and(AuditLogModel::query()->where('action', 'installment.plan_created')->exists())->toBeTrue();
 });

@@ -9,6 +9,7 @@ use Src\Billing\Domain\InvalidBillingData;
 use Src\Billing\Domain\Invoice;
 use Src\Billing\Domain\InvoiceItem;
 use Src\Billing\Domain\InvoiceRepository;
+use Src\Clinic\Contracts\TaxRate;
 use Src\Clinical\Domain\Events\EncounterClosed;
 use Src\Clinical\Domain\Events\ProcedurePerformed;
 use Src\Clinical\Domain\Events\ProcedureRetracted;
@@ -39,6 +40,7 @@ final readonly class InvoiceDrafting
         private EventDispatcher $events,
         private IdGenerator $ids,
         private Clock $clock,
+        private TaxRate $tax,
     ) {}
 
     public function procedurePerformed(ProcedurePerformed $event): void
@@ -112,7 +114,7 @@ final readonly class InvoiceDrafting
     private function addItem(string $encounterId, string $patientId, string $sourceType, string $sourceId, string $description, int $quantity, int $unitPriceAmount): void
     {
         $this->tx->run(function () use ($encounterId, $patientId, $sourceType, $sourceId, $description, $quantity, $unitPriceAmount): void {
-            $invoice = $this->invoices->lockByEncounter($encounterId) ?? Invoice::draft($this->ids->generate(), $patientId, $encounterId);
+            $invoice = $this->invoices->lockByEncounter($encounterId) ?? Invoice::draft($this->ids->generate(), $patientId, $encounterId, $this->tax->basisPoints());
             if ($invoice->lifecycle() !== Invoice::DRAFT || $invoice->hasSource($sourceType, $sourceId)) {
                 return;
             }

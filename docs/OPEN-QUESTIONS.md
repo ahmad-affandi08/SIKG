@@ -133,6 +133,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan menubar; (b) tambahkan kembali sidebar sebagai opsi tampilan
 - Rekomendasi: (a)
 
+### Q-21: Keputusan asumsi Billing (KSR-01 sampai KSR-08)
+- Kebutuhan terkait: KSR-01, KSR-02, KSR-04, KSR-06, KSR-07, KSR-08, M7, M10
+- Butir: (1) Satu tagihan per kunjungan; draft dibuat otomatis oleh event tindakan dan obat dan terbit (bernomor) saat kunjungan ditutup; kunjungan tanpa item tidak menghasilkan tagihan. (2) Uang muka boleh dicatat pada draft (jenis dp); pembayaran biasa hanya setelah terbit; kelebihan uang muka dibanding total menahan penerbitan otomatis sampai diselesaikan kasir. (3) Item klinis tidak dapat diubah kasir (hanya diskon); kasir hanya menambah, mengubah jumlah, dan menghapus item manual, dan hanya sebelum ada pembayaran. (4) Batas diskon per peran disimpan di pengaturan klinik (bawaan Pemilik 100%, Admin 100%, Kasir 10%); peran yang tidak tercantum 0%. (5) Format nomor kwitansi tetap KW-{yyyy}-{seq:5} (belum menjadi pengaturan). (6) Tutup kas menghitung tunai bersih milik kasir yang menutup (pembayaran dan uang muka dikurangi refund yang dicatat kasir itu sendiri); refund tunai yang dicatat Admin atau Pemilik tidak masuk hitungan kasir mana pun, sehingga uang yang keluar dari laci karena refund Admin tampil sebagai selisih yang dijelaskan di catatan. (7) Item draft yang dibuat dari event tidak punya pelaku sendiri; auditnya bertanda pelaku kosong, sedangkan pelakunya tercatat di catatan klinis asalnya. (8) Event datang setelah commit transaksi klinis; bila penanganannya gagal, tindakan tercatat tanpa item tagihan. Pemeriksaan rekonsiliasi (tindakan tanpa tagihan = 0) menjadi bagian laporan LAP.
+- Opsi: (a) pertahankan asumsi di atas; (b) ubah per butir
+- Rekomendasi: (a)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

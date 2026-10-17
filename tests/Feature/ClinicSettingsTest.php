@@ -18,6 +18,7 @@ function payloadPengaturan(array $override = []): array
         'medical_record_pattern' => 'RM-{seq:7}',
         'invoice_pattern' => 'FKT/{yyyy}/{seq:4}',
         'discount_limits' => ['pemilik' => 100, 'admin' => 50, 'kasir' => 15],
+        'tax_percent' => 0,
         'operating_hours' => [1 => $jam, 2 => $jam, 3 => $jam, 4 => $jam, 5 => $jam, 6 => ['open' => '08:00', 'close' => '12:00'], 7 => null],
         ...$override,
     ];

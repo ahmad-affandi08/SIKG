@@ -19,6 +19,8 @@ use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
  * @property string $status
  * @property int $subtotal_amount
  * @property int $discount_amount
+ * @property int $tax_basis_points
+ * @property int $tax_amount
  * @property int $total_amount
  * @property int $paid_amount
  * @property string|null $discount_type

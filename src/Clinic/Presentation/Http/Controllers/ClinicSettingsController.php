@@ -42,6 +42,7 @@ final class ClinicSettingsController
                 invoicePattern: new NumberPattern((string) $data['invoice_pattern']),
                 operatingHours: $this->hours((array) $data['operating_hours']),
                 discountLimits: array_map('intval', (array) $data['discount_limits']),
+                taxPercent: (int) $data['tax_percent'],
             );
         } catch (InvalidArgumentException $e) {
             return back()->withErrors(['settings' => $e->getMessage()]);
