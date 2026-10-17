@@ -6,6 +6,7 @@ namespace Src\Shared\Infrastructure\Tenancy;
 
 use LogicException;
 use Src\Shared\Application\TenantContext;
+use Src\Shared\Infrastructure\Eloquent\RefusesHardDelete;
 
 /**
  * Untuk model bertabel `clinic_id` (dan `branch_id`): global scope otomatis dan pengisian saat dibuat.
@@ -13,6 +14,8 @@ use Src\Shared\Application\TenantContext;
  */
 trait BelongsToClinic
 {
+    use RefusesHardDelete;
+
     public static function bootBelongsToClinic(): void
     {
         static::addGlobalScope(new ClinicScope(branchScoped: static::branchScoped()));

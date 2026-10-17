@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Src\Clinical\Infrastructure\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
+use Src\Shared\Infrastructure\Eloquent\RefusesHardDelete;
 use Src\Shared\Infrastructure\Eloquent\UsesUlid;
 
 /**
@@ -17,6 +18,7 @@ use Src\Shared\Infrastructure\Eloquent\UsesUlid;
  */
 final class DiagnosisModel extends Model
 {
+    use RefusesHardDelete;
     use UsesUlid;
 
     protected $table = 'diagnoses';

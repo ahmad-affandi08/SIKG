@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Src\Clinic\Domain\ClinicSettings;
 use Src\Clinic\Infrastructure\ToothConditionDefaults;
 use Src\Shared\Application\TenantContext;
+use Src\Shared\Infrastructure\Eloquent\RefusesHardDelete;
 use Src\Shared\Infrastructure\Eloquent\UsesUlid;
 
 /**
@@ -25,6 +26,7 @@ use Src\Shared\Infrastructure\Eloquent\UsesUlid;
  */
 final class ClinicModel extends Model
 {
+    use RefusesHardDelete;
     use SoftDeletes;
     use UsesUlid;
 

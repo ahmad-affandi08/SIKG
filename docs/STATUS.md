@@ -58,7 +58,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] KSR-08 | M | Tutup kas harian
 - [x] SYS-01 | M | Audit log
 - [x] SYS-02 | M | Cadangan basis data dan berkas unggahan otomatis harian, dengan uji pemulihan ...
-- [ ] SYS-03 | M | Soft delete untuk data klinis dan keuangan
+- [x] SYS-03 | M | Soft delete untuk data klinis dan keuangan
 - [x] SYS-04 | M | Pengaturan
 - [x] SYS-06 | M | Pemeriksaan kesiapan lingkungan (perintah dan halaman Admin)
 - [x] SYS-07 | M | Denyut cron dan antrean, status `/health`
