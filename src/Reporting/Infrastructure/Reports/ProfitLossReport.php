@@ -18,6 +18,7 @@ use Src\Reporting\Domain\ReportTable;
 use Src\Reporting\Infrastructure\Queries\FinanceQueries;
 use Src\Reporting\Infrastructure\Queries\LocalTime;
 use Src\Reporting\Infrastructure\Queries\ReportSource;
+use stdClass;
 
 /**
  * LAP-11 (P2-08): laba rugi sederhana per bulan. Pendapatan = tagihan final menurut tanggal terbit (sama dengan LAP-02). Pengurang:
@@ -130,7 +131,7 @@ final readonly class ProfitLossReport extends AbstractReport
     }
 
     /**
-     * @param  iterable<object>  $rows
+     * @param  iterable<stdClass>  $rows
      * @return array<string, int>
      */
     private function byMonth(iterable $rows): array

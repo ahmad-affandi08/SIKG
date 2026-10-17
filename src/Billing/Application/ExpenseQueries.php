@@ -27,7 +27,7 @@ final readonly class ExpenseQueries
     ) {}
 
     /**
-     * @return array{expenses: list<array<string, mixed>>, total_amount: int, categories: list<array{value: string, label: string}>, today: string}
+     * @return array{expenses: list<array<string, mixed>>, total_amount: int, categories: list<array{value: string, label: string}>, today: string, range: array{from: string, to: string}}
      */
     public function list(?string $from, ?string $to, ?string $categoryId): array
     {

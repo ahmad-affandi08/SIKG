@@ -51,8 +51,10 @@ final class EloquentPurchaseOrderRepository implements PurchaseOrderRepository
 
     public function recent(?PurchaseOrderStatus $status, int $limit): array
     {
+        $statusValue = $status?->value;
+
         return array_values(PurchaseOrderModel::query()
-            ->when($status instanceof PurchaseOrderStatus, fn ($q) => $q->where('status', $status->value))
+            ->when($statusValue !== null, fn ($q) => $q->where('status', $statusValue))
             ->orderByDesc('created_at')->orderByDesc('id')->limit($limit)->get()
             ->map(fn (PurchaseOrderModel $m) => $this->order($m, false))->all());
     }
