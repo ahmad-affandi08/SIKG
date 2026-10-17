@@ -17,7 +17,7 @@ final class OdontogramController
     {
         $data = $request->validate(['encounter' => ['nullable', 'string', 'size:26']]);
 
-        return response()->json(['data' => $odontogram->current($patient, 'odontogram.show', $data['encounter'] ?? null), 'meta' => []]);
+        return response()->json(['data' => $odontogram->current($patient, 'odontogram.show', $data['encounter'] ?? null), 'meta' => (object) []]);
     }
 
     public function update(Request $request, string $encounter, int $fdi, OdontogramService $odontogram): JsonResponse
@@ -32,6 +32,6 @@ final class OdontogramController
 
         $odontogram->setCondition($actor, $encounter, $fdi, $data['surface'], $data['condition_code']);
 
-        return response()->json(['data' => ['tooth_fdi' => $fdi, 'surface' => $data['surface'], 'condition_code' => $data['condition_code']], 'meta' => []]);
+        return response()->json(['data' => ['tooth_fdi' => $fdi, 'surface' => $data['surface'], 'condition_code' => $data['condition_code']], 'meta' => (object) []]);
     }
 }

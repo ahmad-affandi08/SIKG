@@ -53,7 +53,11 @@ const errorBodySchema = z.object({
   errors: z.record(z.string(), z.array(z.string())).optional(),
 });
 
-const metaSchema = z.record(z.string(), z.unknown());
+// PHP mengirim peta kosong sebagai `[]`; diperlakukan sebagai objek kosong.
+const metaSchema = z.preprocess(
+  (value) => (Array.isArray(value) && value.length === 0 ? {} : value),
+  z.record(z.string(), z.unknown()),
+);
 
 let onUnauthorized: () => void = () => {
   window.location.assign('/login');

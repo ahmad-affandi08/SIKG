@@ -40,6 +40,16 @@ describe('lib/http (kontrak /internal-api)', () => {
     expect(result.meta).toEqual({ total: 1 });
   });
 
+  it('menerima meta kosong yang dikirim PHP sebagai array kosong', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ data: { id: '01J', name: 'Pasien Uji' }, meta: [] }),
+    );
+
+    const result = await api.get('/internal-api/patients/01J', patientSchema);
+
+    expect(result.meta).toEqual({});
+  });
+
   it('mengirim cookie sesi, CSRF, dan Idempotency-Key tanpa PHI di URL', async () => {
     fetchMock.mockResolvedValue(jsonResponse({ data: { id: '1', name: 'x' } }));
 

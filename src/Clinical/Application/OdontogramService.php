@@ -39,7 +39,7 @@ final readonly class OdontogramService
     /**
      * Odontogram terkini pasien. `$encounterId` menandai entri yang dicatat pada kunjungan itu.
      *
-     * @return array{teeth: array<int, array{whole: ?array<string, mixed>, surfaces: array<string, array<string, mixed>>}>, conditions: list<array<string, mixed>>}
+     * @return array{teeth: array<int, array{whole: ?array<string, mixed>, surfaces: object}>, conditions: list<array<string, mixed>>}
      */
     public function current(string $patientId, string $route, ?string $encounterId = null): array
     {
@@ -59,7 +59,8 @@ final readonly class OdontogramService
         foreach (Odontogram::current($this->odontogram->entriesForPatient($patientId)) as $fdi => $state) {
             $teeth[$fdi] = [
                 'whole' => $state['whole'] === null ? null : $present($state['whole']),
-                'surfaces' => array_map($present, $state['surfaces']),
+                // Objek (bukan array) agar JSON tetap `{}` saat gigi hanya punya kondisi seluruh gigi.
+                'surfaces' => (object) array_map($present, $state['surfaces']),
             ];
         }
 

@@ -23,7 +23,11 @@ export type ToothEntry = z.infer<typeof entrySchema>;
 
 const toothSchema = z.object({
   whole: entrySchema.nullable(),
-  surfaces: z.record(z.string(), entrySchema),
+  // Jaring pengaman: PHP mengirim `[]` untuk peta kosong bila tidak dilemparkan menjadi objek.
+  surfaces: z.preprocess(
+    (value) => (Array.isArray(value) && value.length === 0 ? {} : value),
+    z.record(z.string(), entrySchema),
+  ),
 });
 
 export type ToothState = z.infer<typeof toothSchema>;

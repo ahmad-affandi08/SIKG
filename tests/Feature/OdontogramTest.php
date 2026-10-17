@@ -97,6 +97,15 @@ it('ODO-03 kondisi menentukan permukaan: seluruh gigi atau per permukaan', funct
     ubahGigi($s, 17, 'W', 'SEH')->assertOk();
 });
 
+it('ODO-01 gigi dengan kondisi seluruh gigi tanpa permukaan tetap dikirim sebagai objek JSON', function () {
+    $s = siapKunjungan();
+    ubahGigi($s, 16, 'W', 'HLG')->assertOk();
+
+    $isi = test()->actingAs($s['dokter_user'])->get("/internal-api/patients/{$s['pasien']}/odontogram")->assertOk()->getContent();
+
+    expect($isi)->toContain('"surfaces":{}')->and($isi)->not->toContain('"surfaces":[]')->and($isi)->toContain('"meta":{}');
+});
+
 it('ODO-01 nomor gigi, permukaan, dan kondisi yang tidak sah ditolak', function () {
     $s = siapKunjungan();
 
