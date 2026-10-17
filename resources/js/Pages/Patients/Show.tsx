@@ -90,11 +90,6 @@ export default function Show({
                 Ubah data
               </Link>
             ) : null}
-            {can.update ? (
-              <Link href={`/patients/${patient.id}/contact`} className="btn btn-secondary">
-                Kontak pengingat
-              </Link>
-            ) : null}
             {can.timeline ? (
               <Link href={`/patients/${patient.id}/treatment-plans`} className="btn btn-secondary">
                 Rencana perawatan

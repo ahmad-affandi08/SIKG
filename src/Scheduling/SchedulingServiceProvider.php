@@ -13,12 +13,10 @@ use Src\Scheduling\Contracts\AppointmentLookup;
 use Src\Scheduling\Contracts\AppointmentProgress;
 use Src\Scheduling\Domain\AppointmentRepository;
 use Src\Scheduling\Domain\Events\AppointmentBooked;
-use Src\Scheduling\Domain\ReminderLog;
-use Src\Scheduling\Infrastructure\Console\SendRemindersCommand;
+use Src\Scheduling\Infrastructure\Console\AppointmentDigestCommand;
 use Src\Scheduling\Infrastructure\Eloquent\AppointmentModel;
 use Src\Scheduling\Infrastructure\EloquentAppointmentLookup;
 use Src\Scheduling\Infrastructure\EloquentAppointmentRepository;
-use Src\Scheduling\Infrastructure\EloquentReminderLog;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Infrastructure\ModelPatientMover;
 
@@ -29,7 +27,6 @@ final class SchedulingServiceProvider extends ServiceProvider
         $this->app->bind('sikg.patient-mover.appointments', fn ($app) => new ModelPatientMover('Janji temu', AppointmentModel::class, $app->make(TenantContext::class)));
         $this->app->tag(['sikg.patient-mover.appointments'], 'sikg.patient-movers');
         $this->app->singleton(AppointmentRepository::class, EloquentAppointmentRepository::class);
-        $this->app->singleton(ReminderLog::class, EloquentReminderLog::class);
         $this->app->singleton(AppointmentLookup::class, EloquentAppointmentLookup::class);
         $this->app->bind(AppointmentProgress::class, AppointmentWorkflow::class);
     }
@@ -39,7 +36,7 @@ final class SchedulingServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/Infrastructure/Migrations');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([SendRemindersCommand::class]);
+            $this->commands([AppointmentDigestCommand::class]);
         }
 
         // SYS-05: janji baru menjadi pemberitahuan staf (dispatch setelah commit).

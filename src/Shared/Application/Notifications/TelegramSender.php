@@ -12,8 +12,5 @@ interface TelegramSender
 {
     public function configured(): bool;
 
-    /** Nama pengguna bot tanpa tanda @ (untuk tautan t.me), atau null bila belum diatur. */
-    public function botUsername(): ?string;
-
     public function send(string $chatId, string $text): bool;
 }

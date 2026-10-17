@@ -17,12 +17,10 @@ use Src\Clinical\Infrastructure\Eloquent\EncounterModel;
 use Src\IdentityAccess\Domain\Role;
 use Src\IdentityAccess\Infrastructure\Eloquent\User;
 use Src\IdentityAccess\Infrastructure\Seeders\RolePermissionSeeder;
-use Src\Patient\Domain\PatientContactRepository;
 use Src\Pharmacy\Application\StockService;
 use Src\Pharmacy\Infrastructure\Eloquent\MedicineModel;
 use Src\Scheduling\Infrastructure\Eloquent\AppointmentModel;
 use Src\Shared\Application\Notifications\EmailSender;
-use Src\Shared\Application\Notifications\TelegramInbox;
 use Src\Shared\Application\Notifications\TelegramSender;
 use Src\Shared\Application\PdfRenderer;
 use Src\Shared\Application\PdfRequest;
@@ -355,11 +353,6 @@ final class TelegramPerekam implements TelegramSender
         return KirimPerekam::$telegramOn;
     }
 
-    public function botUsername(): ?string
-    {
-        return 'klinik_bot';
-    }
-
     public function send(string $chatId, string $text): bool
     {
         if (KirimPerekam::$gagal) {
@@ -368,33 +361,6 @@ final class TelegramPerekam implements TelegramSender
         KirimPerekam::$telegram[] = ['chat' => $chatId, 'text' => $text];
 
         return true;
-    }
-}
-
-/** Pesan masuk bot yang disiapkan tes; `offsetDiminta` merekam offset getUpdates terakhir. */
-final class MasukPerekam implements TelegramInbox
-{
-    /** @var list<array{update_id: int, chat_id: string, text: string}> */
-    public static array $pesan = [];
-
-    public static ?int $offsetDiminta = null;
-
-    public function updates(int $offset): array
-    {
-        self::$offsetDiminta = $offset;
-
-        return array_values(array_filter(self::$pesan, fn (array $p) => $p['update_id'] >= $offset));
-    }
-}
-
-/** Pasien menyetujui pengingat dengan email dan Telegram tertaut. */
-function setujuiPengingat(array $s, ?string $email = 'budi@contoh.test', ?string $chat = '5550001', bool $optIn = true): void
-{
-    tenant()->set($s['klinik']->id);
-    $kontak = app(PatientContactRepository::class);
-    $kontak->saveContact($s['user']->id, $s['pasien'], $email, $optIn, now()->toDateTimeImmutable());
-    if ($chat !== null) {
-        $kontak->attachTelegram($s['pasien'], $chat);
     }
 }
 
@@ -407,7 +373,4 @@ function rekamKirim(bool $email = true, bool $telegram = true): void
     KirimPerekam::$gagal = false;
     app()->instance(EmailSender::class, new EmailPerekam);
     app()->instance(TelegramSender::class, new TelegramPerekam);
-    MasukPerekam::$pesan = [];
-    MasukPerekam::$offsetDiminta = null;
-    app()->instance(TelegramInbox::class, new MasukPerekam);
 }

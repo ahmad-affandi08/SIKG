@@ -17,27 +17,20 @@ use Src\Patient\Application\Import\SpreadsheetReader;
 use Src\Patient\Application\Import\StartPatientImport;
 use Src\Patient\Application\Merge\MergePatients;
 use Src\Patient\Contracts\PatientAlerts;
-use Src\Patient\Contracts\PatientContactLookup;
 use Src\Patient\Contracts\PatientLookup;
 use Src\Patient\Domain\Import\ImportBatchRepository;
-use Src\Patient\Domain\PatientContactRepository;
 use Src\Patient\Domain\PatientRepository;
-use Src\Patient\Infrastructure\Console\TelegramPollCommand;
 use Src\Patient\Infrastructure\EloquentImportBatchRepository;
 use Src\Patient\Infrastructure\EloquentPatientAlerts;
-use Src\Patient\Infrastructure\EloquentPatientContactLookup;
-use Src\Patient\Infrastructure\EloquentPatientContactRepository;
 use Src\Patient\Infrastructure\EloquentPatientLookup;
 use Src\Patient\Infrastructure\EloquentPatientRepository;
 use Src\Patient\Infrastructure\Import\PrivateImportFileStore;
 use Src\Patient\Infrastructure\Import\QueueImportChunkScheduler;
 use Src\Patient\Infrastructure\Import\XlsxSpreadsheetReader;
-use Src\Patient\Infrastructure\PatientContactMover;
 use Src\Shared\Application\AccessLogger;
 use Src\Shared\Application\AuditLogger;
 use Src\Shared\Application\Clock;
 use Src\Shared\Application\PiiProtector;
-use Src\Shared\Application\TenantContext;
 use Src\Shared\Application\Transaction;
 use Src\Shared\Domain\IdGenerator;
 
@@ -48,10 +41,6 @@ final class PatientServiceProvider extends ServiceProvider
         $this->app->singleton(PatientRepository::class, EloquentPatientRepository::class);
         $this->app->singleton(PatientAlerts::class, EloquentPatientAlerts::class);
         $this->app->singleton(PatientLookup::class, EloquentPatientLookup::class);
-        $this->app->singleton(PatientContactRepository::class, EloquentPatientContactRepository::class);
-        $this->app->singleton(PatientContactLookup::class, EloquentPatientContactLookup::class);
-        $this->app->bind('sikg.patient-mover.contacts', fn ($app) => new PatientContactMover($app->make(TenantContext::class)));
-        $this->app->tag(['sikg.patient-mover.contacts'], 'sikg.patient-movers');
         $this->app->singleton(ImportBatchRepository::class, EloquentImportBatchRepository::class);
         $this->app->singleton(SpreadsheetReader::class, XlsxSpreadsheetReader::class);
         $this->app->singleton(ImportChunkScheduler::class, QueueImportChunkScheduler::class);
@@ -75,10 +64,6 @@ final class PatientServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/Infrastructure/Migrations');
-
-        if ($this->app->runningInConsole()) {
-            $this->commands([TelegramPollCommand::class]);
-        }
 
         // Riwayat medis (PAS-04) diperbarui perawat saat anamnesis (encounter.write) dan petugas pendaftaran (patient.update).
         Gate::define('patient.history.manage', fn (Authenticatable $user): bool => Gate::forUser($user)->any(['patient.update', 'encounter.write']));
