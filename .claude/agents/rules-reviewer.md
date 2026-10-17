@@ -17,6 +17,7 @@ Periksa, dan laporkan hanya pelanggaran nyata dengan lokasi file:baris:
 5. Database (docs/rules/database.md): ULID, FK RESTRICT, kolom `*_amount` BIGINT, nomor dari `sequences`, migrasi lama tidak diedit, indeks sesuai.
 6. Frontend (frontend.md): pembagian Inertia dan TanStack Query, Zod untuk form dan respons, tanpa `any`, tanpa fetch di komponen, teks Indonesia, aksesibilitas, konfirmasi aksi merusak.
 7. Tes (testing-dod.md): nama tes memuat ID; ada tes otorisasi, audit, jalur galat; tidak ada skip atau pelemahan; setiap `ALASAN:` ditinjau apakah sah.
-8. Proses (M14, M15): tidak ada fitur di luar PRD, tidak ada tanggal atau estimasi waktu di dokumen, komentar, atau commit.
+8. Hosting (M21, hosting.md): tidak ada pemanggilan Redis langsung, `exec`/`shell_exec`/`proc_open`/`system`/`passthru`/`popen`/backtick, `storage:link` atau symlink, trigger atau stored procedure, WebSocket/SSE; job pendek, idempoten, berpotongan; PDF lewat dompdf; kode bekerja dengan driver `database`.
+9. Proses (M14, M15): tidak ada fitur di luar PRD, tidak ada tanggal atau estimasi waktu di dokumen, komentar, atau commit.
 
 Keluaran: daftar temuan berurutan dari terberat. Format tiap temuan: `[Mxx / dokumen bagian] file:baris - masalah - perbaikan`. Jika bersih, tulis "Tidak ada pelanggaran" dan sebutkan apa yang Anda periksa. Jangan memuji dan jangan menulis estimasi.

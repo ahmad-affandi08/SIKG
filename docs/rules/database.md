@@ -40,6 +40,8 @@
 | Billing | installment_plans, installments, cash_closings | invoice_id, due_date, amount, paid_at; date, cashier_id, system_amount, counted_amount, difference_amount |
 | Platform | audit_logs | actor_id, action, subject_type, subject_id, before (JSON), after (JSON), ip, user_agent, created_at |
 | Platform | access_logs, import_batches, sequences, jobs | actor_id, patient_id, route, at; type, file, status, errors; name, scope, next_value |
+| Platform | system_heartbeats | name (unik: `scheduler`, `queue`), beat_at, meta (JSON tanpa PHI); ditulis scheduler dan worker (SYS-07) |
+| Platform (bawaan framework) | sessions, cache, cache_locks, job_batches, failed_jobs, password_reset_tokens | Dibutuhkan karena sesi, cache, dan antrean memakai driver `database` (`docs/rules/hosting.md`); tidak memakai kolom standar atau `clinic_id` |
 
 Tabel di luar daftar ini membutuhkan persetujuan pengguna (tulis ADR singkat).
 
@@ -72,3 +74,5 @@ Tabel di luar daftar ini membutuhkan persetujuan pengguna (tulis ADR singkat).
 - Dilarang `migrate:fresh`, `migrate:reset`, `db:wipe` di luar lingkungan lokal dan uji.
 - Seeder hanya berisi data master dan data sintetis. Tidak ada data pasien nyata.
 - Tes fitur memakai MySQL asli (bukan SQLite) agar perilaku kunci dan tipe data sama dengan produksi.
+- Kompatibel hosting bersama (M21): tanpa trigger, stored procedure/function, event MySQL, dan `GRANT` per tabel; hanya hak `SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES, LOCK TABLES`. Indeks FULLTEXT dan kunci baris (`SELECT ... FOR UPDATE`) dipakai sesuai MySQL 8; jangan memakai fitur yang hanya ada di versi server khusus.
+- Migrasi besar dipecah (satu perubahan tabel per migrasi) dan selesai dalam batas waktu hosting; pengisian data ulang yang berat dilakukan lewat job berpotongan, bukan di dalam migrasi.

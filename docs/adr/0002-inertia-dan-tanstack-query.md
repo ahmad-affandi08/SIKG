@@ -11,6 +11,7 @@ Inertia menyediakan data halaman dan form dengan server sebagai sumber kebenaran
 
 - Data halaman, daftar, detail, dan form memakai props dan form Inertia.
 - TanStack Query hanya untuk autocomplete, polling antrean, odontogram (mutation optimistis), dan status pekerjaan laporan.
+- Pembaruan layar memakai polling, bukan WebSocket, sehingga berjalan di shared hosting (ADR-0006).
 - Endpoint JSON berada di `/internal-api` dengan sesi dan CSRF. Tidak ada token publik.
 - Zod untuk skema form dan respons; server tetap otoritatif.
 - Pembayaran dan penutupan kunjungan tidak optimistis.

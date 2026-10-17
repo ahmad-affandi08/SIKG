@@ -17,7 +17,8 @@ Pengujian dipusatkan pada tiga hal yang paling mahal bila salah: uang, hak akses
 | Konkurensi | Pest dengan proses paralel | Dua resepsionis memesan slot yang sama; dua kasir membayar tagihan yang sama | Tidak ada data ganda |
 | Otorisasi | Pest | Matriks hak akses bagian 4 diuji otomatis per peran; uji akses antar-klinik (IDOR) | 100% sel matriks |
 | Keamanan | Larastan, audit dependensi, uji manual | Unggah berkas berbahaya, rate limit, injeksi | Tanpa temuan kritis |
-| Performa | k6 | NFR-01 pada data sintetis 50.000 pasien dan 500.000 kunjungan | Memenuhi NFR |
+| Performa | k6 | NFR-01 pada data sintetis 50.000 pasien dan 500.000 kunjungan, dijalankan pada hosting sasaran | Memenuhi NFR |
+| Kompatibilitas hosting | Pest, job CI | Suite fitur dengan driver `database`, tanpa Redis, dan fungsi eksekusi perintah dinonaktifkan; arch test | Selalu hijau (NFR-16) |
 | Aksesibilitas | axe di Playwright | Halaman utama | Tanpa pelanggaran serius |
 | Pemulihan | Skrip restore | Pulihkan cadangan ke server uji | Sukses pada setiap uji berkala |
 | Penerimaan pengguna (UAT) | Skenario tertulis | Staf klinik memakai data sintetis | Disetujui pemilik |
@@ -37,6 +38,7 @@ Pengujian dipusatkan pada tiga hal yang paling mahal bila salah: uang, hak akses
 - [ ] Semua kebutuhan Must selesai dan lulus UAT dengan staf klinik
 - [ ] Selisih kas harian nol pada setiap hari uji berturut-turut selama UAT
 - [ ] Uji pemulihan cadangan berhasil dan terdokumentasi
+- [ ] Pada shared hosting: halaman Kesiapan Lingkungan (SYS-06) lulus, denyut cron dan antrean (SYS-07) terpantau, dan batas Profil B disetujui pemilik
 - [ ] Sampel 100 pasien hasil migrasi diverifikasi terhadap data sumber
 - [ ] Pelatihan tiap peran selesai dan panduan satu halaman dibagikan
 - [ ] Rencana kembali ke prosedur manual (rollback) tertulis dan disetujui pemilik

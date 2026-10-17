@@ -80,9 +80,9 @@ Fase 1 mencakup modul inti untuk satu klinik dengan pasien umum; BPJS, integrasi
 | A5 | Internet di klinik stabil | Perlu mode offline (PWA dan sinkronisasi), pekerjaan besar |
 | A6 | Ada data lama di buku atau Excel; yang dimigrasi hanya data pasien | Migrasi riwayat kunjungan menambah pekerjaan |
 | A7 | Bahasa Indonesia, Rupiah, zona waktu WIB (dapat diubah ke WITA/WIT) | Kecil |
-| A8 | Hosting di satu server atau VPS dengan pusat data di Indonesia | Mempengaruhi biaya dan kepatuhan data |
+| A8 | Hosting di satu server, VPS, atau shared hosting dengan pusat data di Indonesia (dua profil, ADR-0006) | Mempengaruhi biaya, kepatuhan data, RPO, dan performa |
 
-**Batasan teknis:** stack sudah ditetapkan (Laravel 13 dengan DDD, Inertia React, MySQL, Tailwind 4, Zod, TanStack Query). Sistem berupa satu codebase (modular monolith), bukan microservice.
+**Batasan teknis:** stack sudah ditetapkan (Laravel 13 dengan DDD, Inertia React, MySQL, Tailwind 4, Zod, TanStack Query). Sistem berupa satu codebase (modular monolith), bukan microservice, dan harus dapat dijalankan di VPS maupun shared hosting tanpa perubahan kode (NFR-16).
 
 ## 4. Persona dan hak akses
 

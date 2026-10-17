@@ -8,19 +8,21 @@ SIKG dibangun sebagai modular monolith: satu aplikasi Laravel 13, satu database 
 
 | Lapisan | Pilihan | Catatan |
 | --- | --- | --- |
-| Runtime | PHP 8.3 sampai 8.5 | Laravel 13 mensyaratkan PHP 8.3 atau lebih baru ([Laravel News](https://laravel-news.com/laravel-13-released)) |
+| Runtime | PHP 8.3 sampai 8.5 | Laravel 13 mensyaratkan PHP 8.3 atau lebih baru ([Laravel News](https://laravel-news.com/laravel-13-released)). Pada shared hosting versi dipilih dari panel |
 | Backend | Laravel 13 | Routing, auth, queue, scheduler; Eloquent sebagai lapisan persistensi |
 | Database | MySQL 8.0 atau lebih baru, InnoDB, utf8mb4 | Semua tabel bertransaksi, foreign key aktif |
-| Cache, sesi, antrean | Redis (usulan); driver database cukup untuk Fase 1 | Satu server dapat menjalankan semuanya |
+| Cache, sesi, antrean | Driver `database` sebagai bawaan; Redis opsional pada server | Berjalan di shared hosting; antrean digerakkan cron (`queue:work --stop-when-empty`), tanpa daemon |
 | Frontend | React + TypeScript strict lewat Inertia.js (seri 3.x), build dengan Vite | Cek kompatibilitas versi Inertia dengan starter kit Laravel 13 saat inisialisasi |
 | Styling | Tailwind CSS 4 | Token desain di blok @theme; pustaka komponen dasar usulan: shadcn/ui |
 | Validasi klien | Zod | Skema form dan skema respons API |
 | Data asinkron | TanStack Query | Pencarian, polling antrean, simpan otomatis odontogram |
 | Form | React Hook Form dengan zodResolver (usulan) | Satu skema Zod per form |
 | Hak akses | spatie/laravel-permission (usulan) | Izin granular, peran dapat diubah pemilik |
-| PDF dan Excel | spatie/laravel-pdf atau dompdf; maatwebsite/excel (usulan) | Kwitansi, resep, laporan |
+| PDF dan Excel | barryvdh/laravel-dompdf; maatwebsite/excel (usulan) | Kwitansi, resep, laporan. Dompdf (PHP murni) agar jalan di shared hosting; Excel dibaca dan ditulis berpotongan |
 | Pengujian | Pest, Vitest, Playwright | Unit, komponen, uji alur end-to-end |
 | Mutu kode | Larastan, Laravel Pint, ESLint, Deptrac | Deptrac menjaga batas antar-konteks |
+
+**Kompatibilitas hosting.** Kode yang sama berjalan di VPS dan shared hosting (ADR-0006, `docs/rules/hosting.md`): tanpa Redis, Supervisor, WebSocket, Node di server, eksekusi perintah sistem, symlink, atau trigger MySQL. Pembaruan layar memakai polling; pekerjaan latar pendek, idempoten, dan berpotongan; build aset terjadi di CI. Kemampuan memisahkan queue, cache, dan storage (NFR-10) tetap utuh karena semuanya lewat konfigurasi.
 
 **Pembagian peran Inertia dan TanStack Query**
 

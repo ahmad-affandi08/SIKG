@@ -21,7 +21,8 @@ Dokumen di atas **tidak boleh diubah oleh Claude Code** kecuali pengguna meminta
 | `resources/js/**` (frontend) | `docs/rules/frontend.md` |
 | Data pasien, login, izin, berkas, log | `docs/rules/security-privacy.md` |
 | Kebutuhan fitur | `docs/PRD/` file yang memuat ID-nya (lihat `docs/STATUS.md`) |
-| Server, cadangan, rilis | `docs/operations.md` |
+| Server, hosting, cadangan, rilis | `docs/operations.md`, `docs/rules/hosting.md` |
+| Antrean, scheduler, cache, sesi, berkas unggahan, PDF, Excel, polling | `docs/rules/hosting.md` |
 | Fondasi proyek (Fase 0) | `docs/BOOTSTRAP.md` |
 | Menulis tes | `docs/rules/testing-dod.md`, templat di `tests-templates/` |
 
@@ -31,7 +32,7 @@ Pelanggaran aturan ini adalah cacat, bukan gaya. Skrip `scripts/guard.sh` dan ho
 
 **Stack dan arsitektur**
 
-- **M1. Stack tetap:** PHP 8.3 atau lebih baru, Laravel 13, MySQL 8, Inertia.js + React + TypeScript strict, Tailwind CSS 4, Zod, TanStack Query. Dilarang menambah framework, ORM, pustaka UI besar, atau state manager global (Redux, Zustand, dsb.) tanpa ADR yang disetujui pengguna. Dependensi baru apa pun: tulis alasan singkat dan minta persetujuan.
+- **M1. Stack tetap:** PHP 8.3 atau lebih baru, Laravel 13, MySQL 8, Inertia.js + React + TypeScript strict, Tailwind CSS 4, Zod, TanStack Query. Dilarang menambah framework, ORM, pustaka UI besar, atau state manager global (Redux, Zustand, dsb.) tanpa ADR yang disetujui pengguna. Dependensi baru apa pun: tulis alasan singkat dan minta persetujuan. Redis, Supervisor, dan Node di server bukan bagian stack wajib (lihat M21).
 - **M2. DDD modular monolith:** kode backend hidup di `src/<Context>/{Domain,Application,Infrastructure,Presentation}`. Domain tidak boleh memakai `Illuminate\*`, Eloquent, request, atau facade. Controller hanya memanggil satu use case. Antar-konteks hanya lewat ID, `Contracts`, dan domain event.
 - **M3. Struktur data:** MySQL, kunci primer ULID, foreign key `ON DELETE RESTRICT`, semua tabel transaksional memiliki `clinic_id` dan `branch_id` dan setiap query ter-scope.
 
@@ -60,6 +61,7 @@ Pelanggaran aturan ini adalah cacat, bukan gaya. Skrip `scripts/guard.sh` dan ho
 - **M18. Bahasa:** antarmuka dan pesan galat berbahasa Indonesia; format tanggal DD/MM/YYYY; uang `Rp 1.250.000`. Nama kelas, variabel, tabel, dan route berbahasa Inggris. Dokumen berbahasa Indonesia.
 - **M19. Selesai berarti terverifikasi:** pekerjaan baru dianggap selesai bila `scripts/verify.sh` lulus dan Definition of Done di `docs/rules/testing-dod.md` terpenuhi. Jangan melaporkan "selesai" bila ada tes gagal, dilewati, atau belum dijalankan.
 - **M20. Integrasi SATUSEHAT** dikerjakan di Fase 2 (P2-01), tetapi model data dan kode standar harus siap sejak Fase 1. Jangan membuat integrasi eksternal ad hoc sebelum itu.
+- **M21. Satu kode, dua profil hosting (server dan shared hosting).** Kode harus berjalan di shared hosting tanpa perubahan, hanya konfigurasi (`docs/rules/hosting.md`, ADR-0006). Dilarang bergantung pada Redis (hanya opsi konfigurasi), proses daemon (Supervisor, Horizon, Octane, Reverb, WebSocket), Node/npm di server, `exec`/`shell_exec`/`proc_open`/`system`/`passthru`/`popen`, symlink (`storage:link`), trigger atau stored procedure MySQL, dan akses root. Bawaan: driver `database` untuk cache, sesi, antrean; antrean dan scheduler digerakkan cron; pembaruan layar lewat polling; PDF lewat dompdf; job pendek, idempoten, dan berpotongan.
 
 ## Alur kerja ringkas
 

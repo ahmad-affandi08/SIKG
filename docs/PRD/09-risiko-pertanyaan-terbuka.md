@@ -20,6 +20,7 @@ Risiko terbesar bukan teknis: kewajiban SATUSEHAT yang belum jelas statusnya, ca
 | R10 | Ketergantungan pada satu pengembang | Kesinambungan terancam | Sedang | Dokumentasi, ADR, tes otomatis, struktur DDD yang jelas, repositori dan akun milik klinik |
 | R11 | Pembaruan versi Laravel, Inertia, atau React | Pekerjaan upgrade tak terduga | Rendah | Kunci versi, jadwal dukungan resmi Laravel 13, CI yang menangkap regresi |
 | R12 | Biaya meleset dari perkiraan | Anggaran | Sedang | Cakupan Must dikunci lebih dulu; biaya ditinjau di akhir tiap tahap |
+| R13 | Shared hosting: lingkungan bersama dengan pengguna lain, tanpa enkripsi disk dan binlog, batas sumber daya dan kuota, cron dan versi PHP diatur penyedia | Kebocoran atau kehilangan data pasien, performa tidak stabil, layanan berhenti saat cron mati | Sedang | Pilih penyedia dalam negeri yang memenuhi syarat di `docs/rules/hosting.md`; enkripsi berkas dan kolom sensitif di aplikasi; cadangan dienkripsi dan dikirim keluar server; pemantauan eksternal; uji beban dan uji pemulihan pada hosting sasaran; jalur naik ke VPS tanpa ubah kode |
 
 ## 20. Pertanyaan terbuka untuk pemilik klinik
 
@@ -40,5 +41,5 @@ Satu pertanyaan harus dijawab sebelum desain dibekukan: apakah klinik sudah terd
 | 11 | Apakah pengingat WhatsApp memakai nomor klinik, dan bersedia membayar penyedia WhatsApp API? | Biaya berjalan dan syarat Fase 2 | 6.4, 7 |
 | 12 | Bagaimana format cetak yang diinginkan (logo, header, ukuran kertas A4 atau termal)? | Template invoice, resep, surat keterangan | 6.8, 12 |
 | 13 | Apakah ada kebutuhan ekspor untuk akuntan atau konsultan pajak? | Format laporan keuangan | 15 |
-| 14 | Hosting: server sendiri, VPS, atau cloud, dan apakah ada preferensi penyedia? | Biaya, lokasi data, dan kepatuhan | 17 |
+| 14 | Hosting: server sendiri, VPS, cloud, atau shared hosting, dan apakah ada preferensi penyedia? Bila shared hosting, apakah klinik menerima batas Profil B (RPO sesuai interval dump, tanpa jaminan waktu nyata, performa bergantung penyedia)? | Biaya, lokasi data, RPO, dan kepatuhan | 17 |
 | 15 | Anggaran dan siapa pemegang keputusan persetujuan PRD? | Gerbang fase | 18 |

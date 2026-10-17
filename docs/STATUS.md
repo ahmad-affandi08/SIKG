@@ -60,6 +60,8 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [ ] SYS-02 | M | Cadangan basis data dan berkas unggahan otomatis harian, dengan uji pemulihan ...
 - [ ] SYS-03 | M | Soft delete untuk data klinis dan keuangan
 - [ ] SYS-04 | M | Pengaturan
+- [ ] SYS-06 | M | Pemeriksaan kesiapan lingkungan (perintah dan halaman Admin)
+- [ ] SYS-07 | M | Denyut cron dan antrean, status `/health`
 
 ### Should
 

@@ -121,3 +121,5 @@ Rincian laporan ada di bagian 15.
 | SYS-03 | Soft delete untuk data klinis dan keuangan; tidak ada hapus permanen lewat antarmuka. | M |
 | SYS-04 | Pengaturan: zona waktu, format nomor RM dan invoice, jam operasional, hari libur. | M |
 | SYS-05 | Notifikasi dalam aplikasi (janji baru, stok menipis). | C |
+| SYS-06 | Pemeriksaan kesiapan lingkungan: perintah `php artisan sikg:preflight` dan halaman Admin baca-saja yang menampilkan versi PHP, ekstensi wajib, izin tulis `storage/` dan `bootstrap/cache/`, batas unggah dan memori, driver cache/sesi/antrean, `APP_DEBUG` mati, `.env` dan `storage/` tidak terjangkau web, profil hosting aktif, dan hasil lulus atau gagal per butir tanpa membuka isi rahasia. | M |
+| SYS-07 | Denyut cron dan antrean: scheduler dan worker mencatat waktu jalan terakhir; halaman Admin dan endpoint `/health` (dilindungi token, tanpa PHI) menampilkan umur denyut dan jumlah job tertunda atau gagal; peringatan bila terlambat dari batas yang diatur, dan laporan berat menampilkan status "menunggu" yang jujur. | M |

@@ -28,7 +28,8 @@ Sebelum go-live, konfirmasikan ke dinas kesehatan atau konsultan hukum: kewajiba
 - **Autentikasi:** hash kata sandi modern, pembatasan percobaan login, kata sandi minimal 10 karakter, 2FA opsional, sesi berakhir saat tidak aktif.
 - **Otorisasi:** Policy per aksi di server; menu yang disembunyikan di UI bukan satu-satunya penjaga. Semua query dibatasi per klinik atau cabang lewat global scope yang diuji.
 - **Identifikasi aman:** ID di URL memakai ULID atau UUID, bukan angka berurutan.
-- **Enkripsi:** HTTPS wajib dengan HSTS; kolom sensitif (NIK, nomor HP) dienkripsi di aplikasi, dengan kolom hash terpisah (blind index) agar tetap bisa dicari; disk server dan cadangan dienkripsi.
+- **Enkripsi:** HTTPS wajib dengan HSTS; kolom sensitif (NIK, nomor HP) dienkripsi di aplikasi, dengan kolom hash terpisah (blind index) agar tetap bisa dicari; disk server dan cadangan dienkripsi. Pada shared hosting, disk tidak dapat dienkripsi pengguna: berkas klinis dienkripsi di aplikasi dan cadangan dienkripsi sebelum keluar dari server.
+- **Hosting bersama:** `.env`, `vendor/`, dan `storage/` berada di luar akar dokumen web (atau ditolak server), `APP_DEBUG` mati, izin berkas ketat, tidak ada route web untuk migrasi atau Artisan, dan penyedia dipilih dengan lokasi data dan isolasi akun yang jelas (`docs/rules/hosting.md`).
 - **Berkas unggahan:** disimpan di luar folder publik, diakses lewat URL bertanda tangan yang kedaluwarsa, tipe dan ukuran divalidasi, nama berkas diacak.
 - **Jejak akses:** selain perubahan, pembukaan rekam medis pasien (siapa, kapan) juga dicatat dan dapat diaudit Pemilik.
 - **Header dan CSRF:** CSRF bawaan Laravel, Content-Security-Policy, X-Frame-Options, dan header keamanan lain.

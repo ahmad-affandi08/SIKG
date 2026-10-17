@@ -20,7 +20,8 @@
 | Komponen | Vitest + Testing Library | Form, odontogram, tabel, autocomplete | Komponen kritis |
 | Skema Zod | Vitest | Kasus sah dan tidak sah | Semua skema form |
 | E2E | Playwright | Alur utama (bagian 4) | Lulus di CI sebelum rilis |
-| Beban | k6 | Pencarian pasien, antrean, kasir | Memenuhi NFR sebelum go-live |
+| Beban | k6 | Pencarian pasien, antrean, kasir | Memenuhi NFR sebelum go-live, diuji pada hosting sasaran |
+| Kompatibilitas hosting | Pest + job CI | Seluruh suite fitur dengan driver `database`, tanpa Redis, dan `disable_functions=exec,shell_exec,system,passthru,proc_open,popen`; arch test larangan fungsi dan facade Redis | Selalu hijau (M21) |
 
 ## 3. Tes wajib per area
 
@@ -57,6 +58,7 @@
 - [ ] ESLint dan `tsc --noEmit` bersih
 - [ ] Pint dan Prettier bersih
 - [ ] Tidak ada PHI di log, data uji, atau URL
+- [ ] Bila menambah job, tugas terjadwal, berkas, PDF, atau Excel: memenuhi `docs/rules/hosting.md` (job pendek dan idempoten, tanpa Redis/daemon/exec/symlink) dan lulus job kompatibilitas hosting
 - [ ] Aksi sensitif menulis audit; pembukaan rekam medis menulis akses
 - [ ] Migrasi dapat naik dan turun
 - [ ] Pesan antarmuka berbahasa Indonesia; format tanggal dan uang benar
@@ -70,7 +72,9 @@ Go-live hanya setelah semua poin ini terpenuhi dan dinyatakan pengguna:
 
 - [ ] Semua kebutuhan Must Fase 1 selesai dan lulus DoD
 - [ ] Seluruh tes otomatis hijau di CI, termasuk E2E dan konkurensi
-- [ ] Uji beban memenuhi NFR (halaman p95 di bawah 1,5 detik, pencarian pasien di bawah 300 ms)
+- [ ] Uji beban memenuhi NFR (halaman p95 di bawah 1,5 detik, pencarian pasien di bawah 300 ms) pada hosting sasaran
+- [ ] Halaman Kesiapan Lingkungan (SYS-06) tanpa butir gagal pada hosting sasaran, dan denyut cron dan antrean (SYS-07) hidup
+- [ ] Bila Profil B: batas di `docs/rules/hosting.md` bagian 4 disetujui pemilik secara tertulis
 - [ ] Tes pemulihan cadangan berhasil dan didokumentasikan
 - [ ] Pemeriksaan keamanan (`composer audit`, `npm audit`, tinjauan header, tinjauan izin) bersih
 - [ ] Migrasi data lama sudah dicoba pada salinan, rekonsiliasi cocok

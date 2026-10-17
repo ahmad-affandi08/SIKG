@@ -34,8 +34,10 @@ Dasar: Permenkes 24/2022 tentang Rekam Medis dan UU 27/2022 tentang Pelindungan 
 
 - Enkripsi dalam perjalanan: HTTPS dan HSTS di produksi.
 - Enkripsi di aplikasi untuk NIK dan nomor HP (kolom `*_encrypted`), blind index HMAC untuk pencarian. Kunci di variabel lingkungan atau secret manager, bukan di repositori. Rencana rotasi kunci didokumentasikan di `docs/operations.md`.
-- Enkripsi cadangan. Cadangan diuji dipulihkan secara berkala.
+- Enkripsi cadangan. Cadangan diuji dipulihkan secara berkala. Pada shared hosting, cadangan dienkripsi **sebelum** meninggalkan server dan kuncinya tidak disimpan bersama cadangan.
+- Enkripsi berkas klinis di aplikasi bila disk tidak dienkripsi (Profil B, `SIKG_HOSTING_PROFILE=shared`): berkas dienkripsi sebelum ditulis ke disk privat dan didekripsi saat disajikan lewat controller. Implementasinya satu dekorator penyimpanan di Infrastructure yang dipilih konfigurasi; domain tidak tahu. Pada Profil A mengandalkan enkripsi disk. Berkas yang sudah terenkripsi tetap terbaca setelah pindah profil.
 - Berkas unggahan (rontgen, foto): disk privat, bukan `public`; diakses lewat URL bertanda tangan berkedaluwarsa singkat; validasi MIME dan ukuran; nama berkas diacak; tidak ada eksekusi dari folder unggahan.
+- Pada hosting bersama: `.env`, `vendor/`, `storage/`, dan `bootstrap/` berada di luar akar dokumen web atau ditolak `.htaccess`; `APP_DEBUG=false`; izin berkas 640 dan folder 750 (sesuai kemampuan penyedia); tidak ada route web untuk migrasi, Artisan, atau info PHP; HSTS dikirim aplikasi, tidak bergantung pada konfigurasi server; kunci `APP_KEY` dan kunci blind index dicadangkan terpisah dari dump database (tanpa keduanya NIK dan HP tidak dapat dibaca setelah pemulihan).
 - Header: CSP ketat, `X-Content-Type-Options`, `Referrer-Policy: same-origin`, `X-Frame-Options: DENY`.
 - Cookie sesi: `Secure`, `HttpOnly`, `SameSite=Lax`. CSRF aktif di semua route web dan `/internal-api`.
 - Endpoint JSON hanya di `/internal-api` dengan cookie sesi dan CSRF. Jangan membuat token publik atau API terbuka tanpa ADR.

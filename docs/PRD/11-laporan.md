@@ -25,5 +25,5 @@ Pemilik klinik harus bisa melihat kondisi bisnis hari ini dalam satu layar, dan 
 
 - Semua laporan memiliki filter rentang tanggal; laporan keuangan juga bisa difilter per dokter dan per metode bayar.
 - Ekspor ke PDF dan Excel (XLSX).
-- Angka dihitung di server dengan query agregasi, bukan di peramban. Laporan yang melebihi 5 detik dijalankan lewat antrean dan hasilnya diberi notifikasi.
+- Angka dihitung di server dengan query agregasi, bukan di peramban. Laporan yang melebihi 5 detik dijalankan lewat antrean dan hasilnya diberi notifikasi. Pada shared hosting antrean digerakkan cron sehingga laporan berat dapat menunggu satu interval cron; layar menampilkan status "menunggu" lalu "berjalan" (SYS-07), dan laporan dipecah berpotongan agar muat dalam batas waktu hosting.
 - Laporan keuangan hanya memakai tagihan berstatus final; tagihan yang di-void tampil terpisah.
