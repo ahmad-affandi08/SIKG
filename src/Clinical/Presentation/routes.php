@@ -10,6 +10,7 @@ use Src\Clinical\Presentation\Http\Controllers\ClinicalFileController;
 use Src\Clinical\Presentation\Http\Controllers\DiagnosisSearchController;
 use Src\Clinical\Presentation\Http\Controllers\DocumentController;
 use Src\Clinical\Presentation\Http\Controllers\EncounterController;
+use Src\Clinical\Presentation\Http\Controllers\OdontogramCompareController;
 use Src\Clinical\Presentation\Http\Controllers\OdontogramController;
 use Src\Clinical\Presentation\Http\Controllers\OdontogramPrintController;
 use Src\Clinical\Presentation\Http\Controllers\TimelineController;
@@ -75,6 +76,7 @@ Route::middleware('can:encounter.addendum')->group(function () use ($id): void {
 });
 
 Route::middleware('can:odontogram.view')->group(function () use ($id): void {
+    Route::get('/patients/{patient}/odontogram/compare', OdontogramCompareController::class)->name('odontogram.compare')->where('patient', $id);
     Route::get('/patients/{patient}/odontogram/print', OdontogramPrintController::class)->name('odontogram.print')->where('patient', $id);
 });
 

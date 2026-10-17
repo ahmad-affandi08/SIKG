@@ -231,3 +231,85 @@ it('ADR-0008 kop odontogram sama dengan kop semua cetakan klinik', function () {
 
     expect(PdfPerekam::$permintaan[0]->data['letterhead'])->toBe($kop);
 });
+
+/** Dua kunjungan: pertama mencatat 16 O/M karies, kedua mengganti 16 O menjadi tambalan dan memasang implan di 26. */
+function siapDuaKunjungan(): array
+{
+    $s = siapKunjungan();
+    ubahGigi($s, 16, 'O', 'KAR');
+    ubahGigi($s, 16, 'M', 'KAR');
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$s['kunjungan']}/diagnoses", ['diagnosis_id' => icd()]);
+    test()->actingAs($s['dokter_user'])->post("/encounters/{$s['kunjungan']}/close")->assertSessionHasNoErrors();
+
+    majuKe('2025-06-23 09:00:00');
+    $janji2 = bukaJanji($s, ['date' => '2025-06-23', 'time' => '10:00']);
+    majuKe('2025-06-23 10:00:00');
+    test()->actingAs($s['user'])->post("/appointments/{$janji2}/check-in")->assertSessionHasNoErrors();
+    tenant()->set($s['klinik']->id);
+    $kunjungan2 = EncounterModel::query()->where('appointment_id', $janji2)->firstOrFail()->id;
+    ubahGigi($s, 16, 'O', 'TAM', $kunjungan2)->assertOk();
+    ubahGigi($s, 26, 'W', 'IMP', $kunjungan2)->assertOk();
+
+    return $s + ['kunjungan2' => $kunjungan2];
+}
+
+it('ODO-07 membandingkan odontogram dua kunjungan berdampingan dan menyebut perbedaannya', function () {
+    $s = siapDuaKunjungan();
+
+    $this->actingAs($s['dokter_user'])->get("/patients/{$s['pasien']}/odontogram/compare")->assertOk()->assertInertia(fn ($p) => $p
+        ->component('Patients/OdontogramCompare')
+        ->where('left_id', $s['kunjungan'])->where('right_id', $s['kunjungan2'])
+        ->has('encounters', 2)
+        ->where('left.teeth.16.surfaces.O.condition_code', 'KAR')
+        ->where('right.teeth.16.surfaces.O.condition_code', 'TAM')
+        ->where('right.teeth.16.surfaces.M.condition_code', 'KAR')
+        ->where('right.teeth.26.whole.condition_code', 'IMP')
+        ->missing('left.teeth.26')
+        ->where('changes', [
+            ['fdi' => 16, 'surface' => 'O', 'from' => 'KAR', 'to' => 'TAM'],
+            ['fdi' => 26, 'surface' => 'W', 'from' => null, 'to' => 'IMP'],
+        ]));
+});
+
+it('ODO-07 kunjungan yang dipilih menentukan sisi kiri dan kanan dan sama berarti tidak ada perbedaan', function () {
+    $s = siapDuaKunjungan();
+
+    $this->actingAs($s['dokter_user'])->get("/patients/{$s['pasien']}/odontogram/compare?left={$s['kunjungan2']}&right={$s['kunjungan']}")
+        ->assertInertia(fn ($p) => $p->where('left_id', $s['kunjungan2'])->where('right_id', $s['kunjungan'])->where('changes', [
+            ['fdi' => 16, 'surface' => 'O', 'from' => 'TAM', 'to' => 'KAR'],
+            ['fdi' => 26, 'surface' => 'W', 'from' => 'IMP', 'to' => null],
+        ]));
+    $this->actingAs($s['dokter_user'])->get("/patients/{$s['pasien']}/odontogram/compare?left={$s['kunjungan']}&right={$s['kunjungan']}")
+        ->assertInertia(fn ($p) => $p->where('changes', []));
+});
+
+it('ODO-07 pasien dengan satu kunjungan membandingkan kunjungan itu dengan dirinya dan tanpa kunjungan halaman kosong', function () {
+    $s = siapKunjungan();
+
+    $this->actingAs($s['dokter_user'])->get("/patients/{$s['pasien']}/odontogram/compare")->assertInertia(fn ($p) => $p
+        ->where('left_id', $s['kunjungan'])->where('right_id', $s['kunjungan'])->where('changes', []));
+
+    $kosong = makePatient($s['klinik'], 'Pasien Baru');
+    $this->actingAs($s['dokter_user'])->get("/patients/{$kosong}/odontogram/compare")->assertOk()
+        ->assertInertia(fn ($p) => $p->has('encounters', 0)->where('left', null)->where('right', null));
+});
+
+it('ODO-07 kunjungan pasien lain, pasien klinik lain, dan izin yang kurang ditolak', function () {
+    $s = siapDuaKunjungan();
+    $lain = makePatient($s['klinik'], 'Pasien Lain');
+    $klinikLain = makeClinic('Klinik Lain');
+    $dokterLain = makeUser(Role::Dokter, $klinikLain);
+
+    $this->actingAs($s['dokter_user'])->get("/patients/{$lain}/odontogram/compare?left={$s['kunjungan']}")->assertNotFound();
+    $this->actingAs($dokterLain)->get("/patients/{$s['pasien']}/odontogram/compare")->assertNotFound();
+    $this->actingAs(makeUser(Role::Kasir, $s['klinik']))->get("/patients/{$s['pasien']}/odontogram/compare")->assertForbidden();
+    $this->actingAs($s['perawat'])->get("/patients/{$s['pasien']}/odontogram/compare")->assertOk();
+});
+
+it('ODO-07 membuka perbandingan odontogram tercatat di access log', function () {
+    $s = siapDuaKunjungan();
+
+    $this->actingAs($s['dokter_user'])->get("/patients/{$s['pasien']}/odontogram/compare")->assertOk();
+
+    expect(DB::table('access_logs')->where('patient_id', $s['pasien'])->where('route', 'odontogram.compare')->exists())->toBeTrue();
+});
