@@ -112,6 +112,7 @@ final readonly class ReportSource
      */
     public function names(string $table, array $ids, string $column = 'name'): array
     {
+        $this->identifier('t.'.$column);
         $ids = array_values(array_unique(array_filter($ids, fn ($id) => is_string($id) && $id !== '')));
         if ($ids === []) {
             return [];

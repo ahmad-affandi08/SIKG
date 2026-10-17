@@ -7,6 +7,7 @@ namespace Src\Reporting\Infrastructure\Export;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
@@ -19,8 +20,10 @@ use Src\Reporting\Domain\ReportTable;
  * Satu lembar Excel untuk satu tabel laporan. Uang tetap bilangan bulat rupiah dengan format sel; persen disimpan
  * sebagai pecahan agar format persen Excel benar; tanggal sebagai tanggal Excel.
  */
-final class ReportSheet implements FromArray, ShouldAutoSize, WithColumnFormatting, WithStyles, WithTitle
+final class ReportSheet implements FromArray, ShouldAutoSize, WithColumnFormatting, WithCustomValueBinder, WithStyles, WithTitle
 {
+    use WritesTextAsStrings;
+
     /** Baris judul tabel + baris kosong sebelum tajuk kolom. */
     private const HEADER_ROW = 3;
 

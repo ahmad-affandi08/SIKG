@@ -14,7 +14,9 @@ export async function requestExport(
       body[key] = value;
     }
   }
-  const result = await api.post(`/reports/${reportKey}/export`, reportJobSchema, { body });
+  const result = await api.post(`/internal-api/reports/${reportKey}/export`, reportJobSchema, {
+    body,
+  });
   return result.data;
 }
 

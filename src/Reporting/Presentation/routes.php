@@ -16,11 +16,11 @@ $key = '[a-z-]+';
 
 Route::middleware('can:reports.open')->group(function () use ($job, $key): void {
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/{key}', [ReportController::class, 'show'])->name('reports.show')->where('key', $key);
-    Route::post('/reports/{key}/export', [ReportController::class, 'export'])->middleware('throttle:20,1')->name('reports.export')->where('key', $key);
+    Route::get('/reports/{key}', [ReportController::class, 'show'])->middleware('throttle:60,1')->name('reports.show')->where('key', $key);
     Route::get('/report-jobs/{job}/download', [ReportJobController::class, 'download'])->name('report-jobs.download')->where('job', $job);
 });
 
-Route::middleware(['can:reports.open', 'throttle:120,1'])->prefix('internal-api')->group(function () use ($job): void {
+Route::middleware(['can:reports.open', 'throttle:120,1'])->prefix('internal-api')->group(function () use ($job, $key): void {
+    Route::post('/reports/{key}/export', [ReportController::class, 'export'])->middleware('throttle:20,1')->name('reports.export')->where('key', $key);
     Route::get('/report-jobs/{job}', [ReportJobController::class, 'status'])->name('report-jobs.status')->where('job', $job);
 });

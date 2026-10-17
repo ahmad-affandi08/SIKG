@@ -43,18 +43,21 @@ final class EloquentReportJobStore implements ReportJobStore
 
     public function claim(string $id, DateTimeImmutable $at): ?array
     {
-        $job = ReportJobModel::query()->find($id);
-        if (! $job instanceof ReportJobModel || ! in_array($job->status, [JobStatus::Queued->value, JobStatus::Running->value], true)) {
+        // Pembaruan bersyarat: hanya job yang masih menunggu atau berjalan yang diambil, dan job selesai atau gagal tidak
+        // pernah dihidupkan lagi oleh pekerja yang terlambat.
+        $taken = ReportJobModel::query()->whereKey($id)
+            ->whereIn('status', [JobStatus::Queued->value, JobStatus::Running->value])
+            ->update(['status' => JobStatus::Running->value, 'started_at' => $at, 'updated_at' => $at]);
+        if ($taken === 0) {
             return null;
         }
-        $job->forceFill(['status' => JobStatus::Running->value, 'started_at' => $at, 'updated_at' => $at])->save();
 
-        return $this->row($job);
+        return $this->find($id);
     }
 
     public function finish(string $id, string $path, int $size, DateTimeImmutable $at, DateTimeImmutable $expiresAt): void
     {
-        ReportJobModel::query()->whereKey($id)->update([
+        ReportJobModel::query()->whereKey($id)->whereIn('status', [JobStatus::Queued->value, JobStatus::Running->value])->update([
             'status' => JobStatus::Done->value, 'file_path' => $path, 'file_size' => $size, 'error_message' => null,
             'finished_at' => $at, 'expires_at' => $expiresAt, 'updated_at' => $at,
         ]);
@@ -62,7 +65,7 @@ final class EloquentReportJobStore implements ReportJobStore
 
     public function fail(string $id, string $message, DateTimeImmutable $at): void
     {
-        ReportJobModel::query()->whereKey($id)->update([
+        ReportJobModel::query()->whereKey($id)->whereIn('status', [JobStatus::Queued->value, JobStatus::Running->value])->update([
             'status' => JobStatus::Failed->value, 'error_message' => mb_substr($message, 0, 255), 'finished_at' => $at, 'updated_at' => $at,
         ]);
     }

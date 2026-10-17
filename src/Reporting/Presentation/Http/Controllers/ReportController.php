@@ -62,6 +62,6 @@ final class ReportController
         $filters = $reports->filters($reportKey, $validated);
         $job = $exports->request($viewer, $reportKey, $filters, ExportFormat::from((string) $validated['format']));
 
-        return response()->json(['data' => $job], 202);
+        return response()->json(['data' => $job, 'meta' => (object) []], 202);
     }
 }

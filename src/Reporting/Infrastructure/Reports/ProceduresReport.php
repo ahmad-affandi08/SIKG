@@ -14,6 +14,7 @@ use Src\Reporting\Domain\ReportResult;
 use Src\Reporting\Domain\ReportTable;
 use Src\Reporting\Infrastructure\Queries\ClinicalQueries;
 use Src\Reporting\Infrastructure\Queries\ReportSource;
+use Src\Shared\Domain\Money;
 
 /**
  * LAP-05: frekuensi dan nilai per jenis tindakan. Dokter hanya melihat tindakan dari kunjungan yang ia tangani.
@@ -47,7 +48,7 @@ final readonly class ProceduresReport extends AbstractReport
             $value = (int) $r->value;
             $list[] = [
                 'code' => (string) $r->code, 'name' => (string) $r->name, 'category' => $r->category === null || $r->category === '' ? 'Tanpa kategori' : (string) $r->category,
-                'qty' => $qty, 'visits' => (int) $r->visits, 'value' => $value, 'average' => $qty === 0 ? 0 : intdiv($value + intdiv($qty, 2), $qty),
+                'qty' => $qty, 'visits' => (int) $r->visits, 'value' => $value, 'average' => $qty === 0 ? 0 : Money::rupiah($value)->averageOver($qty)->amount,
             ];
             $sum['qty'] += $qty;
             $sum['value'] += $value;

@@ -24,7 +24,7 @@ final class ReportJobController
             ...$row,
             'status_label' => JobStatus::from($row['status'])->label(),
             'download_url' => $row['status'] === JobStatus::Done->value && $row['has_file'] ? "/report-jobs/{$job}/download" : null,
-        ]])->header('Cache-Control', 'private, no-store');
+        ], 'meta' => (object) []])->header('Cache-Control', 'private, no-store');
     }
 
     public function download(Request $request, ReportExportService $exports, string $job): Response

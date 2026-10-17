@@ -33,18 +33,19 @@ final readonly class VisitsReport extends AbstractReport
         $f = $query->filters;
         $visits = $this->clinical->visitCount($f->range, $f->doctorId);
         $new = $this->clinical->newPatientCount($f->range, $f->doctorId);
+        $patients = $this->clinical->encounters($f->range, $f->doctorId)->distinct()->count('e.patient_id');
         $attendance = $this->clinical->attendance($f->range, $f->doctorId);
         $wait = $this->waitSummary($query);
 
         return new ReportResult($this->key(), $f->range, [
             new ReportMetric('Jumlah kunjungan', $visits),
             new ReportMetric('Pasien baru', $new),
-            new ReportMetric('Pasien lama', max(0, $visits - $new)),
+            new ReportMetric('Pasien lama', max(0, $patients - $new)),
             new ReportMetric('Janji tidak datang', $attendance['no_show']),
             new ReportMetric('Tingkat tidak datang', $this->basisPoints($attendance['no_show'], $attendance['due']), ColumnKind::Percent),
             new ReportMetric('Rata-rata waktu tunggu', $wait['count'] === 0 ? null : intdiv($wait['total'] + intdiv($wait['count'], 2), $wait['count']), ColumnKind::Minutes),
         ], [$this->periodTable($query), $this->doctorTable($query)], [
-            'Kunjungan = pemeriksaan yang dimulai dalam rentang. Pasien baru = pasien yang kunjungan pertamanya (pada dokter yang dipilih, bila ada) jatuh dalam rentang; sisanya pasien lama.',
+            'Kunjungan = pemeriksaan yang dimulai dalam rentang. Pasien baru = pasien yang kunjungan pertamanya (pada dokter yang dipilih, bila ada) jatuh dalam rentang; pasien lama = pasien berbeda yang berkunjung dalam rentang dan bukan pasien baru. Tabel per hari menghitung kunjungan: kunjungan pasien lama = kunjungan dikurangi kunjungan pertama.',
             'Tingkat tidak datang = janji Tidak datang dibagi janji yang seharusnya hadir (sudah check-in, sedang diperiksa, selesai, atau tidak datang). Janji batal tidak dihitung.',
             'Waktu tunggu = menit dari check-in sampai anamnesis atau catatan pertama, mana yang lebih dulu; hanya kunjungan ber-janji yang sudah dimulai.',
         ]);
@@ -98,7 +99,7 @@ final readonly class VisitsReport extends AbstractReport
                 new ReportColumn('period', $monthly ? 'Bulan' : 'Tanggal', $monthly ? ColumnKind::Text : ColumnKind::Date),
                 new ReportColumn('visits', 'Kunjungan', ColumnKind::Integer),
                 new ReportColumn('new', 'Pasien baru', ColumnKind::Integer),
-                new ReportColumn('returning', 'Pasien lama', ColumnKind::Integer),
+                new ReportColumn('returning', 'Kunjungan pasien lama', ColumnKind::Integer),
                 new ReportColumn('no_show', 'Tidak datang', ColumnKind::Integer),
             ],
             $list,

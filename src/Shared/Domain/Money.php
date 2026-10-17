@@ -59,6 +59,18 @@ final readonly class Money
         return new self(intdiv(self::exact($this->amount * $basisPoints + 5000), 10000));
     }
 
+    /**
+     * Rata-rata per satuan (jumlah dibagi banyaknya), setengah ke atas. Satu-satunya pembulatan pembagian uang.
+     */
+    public function averageOver(int $count): self
+    {
+        if ($count < 1) {
+            throw new InvalidArgumentException('Pembagi harus positif');
+        }
+
+        return new self(intdiv(self::exact($this->amount * 2 + $count), $count * 2));
+    }
+
     public function equals(self $other): bool
     {
         return $this->amount === $other->amount;

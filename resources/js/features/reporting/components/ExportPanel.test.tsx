@@ -59,7 +59,7 @@ describe('LAP ekspor PDF dan Excel lewat antrean', () => {
     const link = await screen.findByRole('link', { name: 'Unduh PDF' });
     expect(link).toHaveAttribute('href', '/report-jobs/01JOB/download');
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe('/reports/revenue/export');
+    expect(url).toBe('/internal-api/reports/revenue/export');
     expect(JSON.parse(init.body as string)).toEqual({
       format: 'pdf',
       from: '2025-06-16',

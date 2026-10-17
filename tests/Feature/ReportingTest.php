@@ -6,9 +6,12 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Spatie\Permission\PermissionRegistrar;
 use Src\IdentityAccess\Domain\Role;
 use Src\Reporting\Application\ReportExportService;
+use Src\Reporting\Application\ReportJobStore;
 use Src\Reporting\Application\ReportRenderer;
 use Src\Reporting\Domain\ExportFormat;
 use Src\Reporting\Domain\ReportResult;
@@ -548,7 +551,7 @@ it('LAP matriks hak akses: laporan yang boleh dibuka tiap peran', function () {
 
 it('LAP laporan menuntut login', function () {
     test()->get('/reports')->assertRedirect('/login');
-    test()->postJson('/reports/revenue/export', ['format' => 'pdf'])->assertUnauthorized();
+    test()->postJson('/internal-api/reports/revenue/export', ['format' => 'pdf'])->assertUnauthorized();
     test()->getJson('/internal-api/report-jobs/01JOBJOBJOBJOBJOBJOBJOBJOB')->assertUnauthorized();
 });
 
@@ -632,7 +635,7 @@ it('LAP ekspor XLSX dan PDF lewat antrean: status selesai dan berkas dapat diund
 
     foreach (['xlsx' => 'PK', 'pdf' => '%PDF'] as $format => $awal) {
         tenant()->set($d['k']->id);
-        $minta = test()->actingAs($d['u']['pemilik'])->postJson('/reports/revenue/export', ['format' => $format, 'from' => SENIN, 'to' => SENIN]);
+        $minta = test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/revenue/export', ['format' => $format, 'from' => SENIN, 'to' => SENIN]);
         $minta->assertStatus(202)->assertJsonPath('data.format', $format)->assertJsonPath('data.report_key', 'revenue');
         $id = $minta->json('data.id');
 
@@ -652,7 +655,7 @@ it('LAP ekspor XLSX dan PDF lewat antrean: status selesai dan berkas dapat diund
 it('LAP berkas ekspor terenkripsi di disk dan isi XLSX memuat angka laporan', function () {
     $d = lapData();
     tenant()->set($d['k']->id);
-    $id = test()->actingAs($d['u']['pemilik'])->postJson('/reports/daily-summary/export', ['format' => 'xlsx', 'from' => SENIN, 'to' => SENIN])->json('data.id');
+    $id = test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/daily-summary/export', ['format' => 'xlsx', 'from' => SENIN, 'to' => SENIN])->json('data.id');
     tenant()->set($d['k']->id);
     $isi = test()->actingAs($d['u']['pemilik'])->get("/report-jobs/{$id}/download")->getContent();
 
@@ -679,7 +682,7 @@ it('LAP berkas ekspor terenkripsi di disk dan isi XLSX memuat angka laporan', fu
 it('LAP berkas ekspor hanya dapat dilihat dan diunduh pemintanya', function () {
     $d = lapData();
     tenant()->set($d['k']->id);
-    $id = test()->actingAs($d['u']['pemilik'])->postJson('/reports/revenue/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->json('data.id');
+    $id = test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/revenue/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->json('data.id');
 
     tenant()->set($d['k']->id);
     test()->actingAs($d['u']['admin'])->getJson("/internal-api/report-jobs/{$id}")->assertNotFound()->assertJsonPath('code', 'report.job_not_found');
@@ -693,12 +696,12 @@ it('LAP berkas ekspor hanya dapat dilihat dan diunduh pemintanya', function () {
 it('LAP ekspor mengikuti hak akses laporan dan format yang sah', function () {
     $d = lapData();
     tenant()->set($d['k']->id);
-    test()->actingAs($d['u']['kasir'])->postJson('/reports/revenue/export', ['format' => 'pdf'])->assertForbidden();
-    test()->actingAs($d['u']['resepsionis'])->postJson('/reports/stock/export', ['format' => 'pdf'])->assertForbidden();
-    test()->actingAs($d['u']['pemilik'])->postJson('/reports/revenue/export', ['format' => 'docx'])->assertStatus(422)->assertJsonValidationErrors('format');
-    test()->actingAs($d['u']['pemilik'])->postJson('/reports/revenue/export', [])->assertStatus(422)->assertJsonValidationErrors('format');
-    test()->actingAs($d['u']['pemilik'])->postJson('/reports/revenue/export', ['format' => 'pdf', 'from' => '2025-06-30', 'to' => '2025-06-01'])->assertStatus(422)->assertJsonPath('code', 'report.range_invalid');
-    test()->actingAs($d['u']['kasir'])->postJson('/reports/cash-closing/export', ['format' => 'xlsx', 'from' => SENIN, 'to' => SENIN])->assertStatus(202);
+    test()->actingAs($d['u']['kasir'])->postJson('/internal-api/reports/revenue/export', ['format' => 'pdf'])->assertForbidden();
+    test()->actingAs($d['u']['resepsionis'])->postJson('/internal-api/reports/stock/export', ['format' => 'pdf'])->assertForbidden();
+    test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/revenue/export', ['format' => 'docx'])->assertStatus(422)->assertJsonValidationErrors('format');
+    test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/revenue/export', [])->assertStatus(422)->assertJsonValidationErrors('format');
+    test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/revenue/export', ['format' => 'pdf', 'from' => '2025-06-30', 'to' => '2025-06-01'])->assertStatus(422)->assertJsonPath('code', 'report.range_invalid');
+    test()->actingAs($d['u']['kasir'])->postJson('/internal-api/reports/cash-closing/export', ['format' => 'xlsx', 'from' => SENIN, 'to' => SENIN])->assertStatus(202);
 });
 
 it('LAP ekspor kasir tetap dibatasi ke kas miliknya meski diproses antrean', function () {
@@ -707,7 +710,7 @@ it('LAP ekspor kasir tetap dibatasi ke kas miliknya meski diproses antrean', fun
     DB::table('cash_closings')->insert(['id' => lapId(), 'clinic_id' => $d['k']->id, 'closing_date' => SENIN, 'cashier_id' => $lain->id, 'system_amount' => 99000, 'counted_amount' => 99000, 'difference_amount' => 0, 'closed_at' => now(), 'created_at' => now()]);
     tenant()->set($d['k']->id);
 
-    $id = test()->actingAs($d['u']['kasir'])->postJson('/reports/cash-closing/export', ['format' => 'xlsx', 'from' => SENIN, 'to' => SENIN])->json('data.id');
+    $id = test()->actingAs($d['u']['kasir'])->postJson('/internal-api/reports/cash-closing/export', ['format' => 'xlsx', 'from' => SENIN, 'to' => SENIN])->json('data.id');
     tenant()->set($d['k']->id);
     $isi = test()->actingAs($d['u']['kasir'])->get("/report-jobs/{$id}/download")->getContent();
     $tmp = tempnam(sys_get_temp_dir(), 'lap');
@@ -725,7 +728,7 @@ it('LAP ekspor kasir tetap dibatasi ke kas miliknya meski diproses antrean', fun
 it('LAP job ekspor idempoten: dijalankan dua kali tidak menggandakan berkas', function () {
     $d = lapData();
     tenant()->set($d['k']->id);
-    $id = test()->actingAs($d['u']['pemilik'])->postJson('/reports/visits/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->json('data.id');
+    $id = test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/visits/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->json('data.id');
     $sebelum = Storage::disk('private')->allFiles('reports');
 
     tenant()->set($d['k']->id);
@@ -747,7 +750,7 @@ it('LAP ekspor yang gagal ditandai gagal dengan pesan aman tanpa memutus permint
     });
     tenant()->set($d['k']->id);
 
-    $minta = test()->actingAs($d['u']['pemilik'])->postJson('/reports/revenue/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN]);
+    $minta = test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/revenue/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN]);
     $minta->assertStatus(202)->assertJsonPath('data.status', 'failed');
     expect(json_encode($minta->json()))->not->toContain('rahasia');
     tenant()->set($d['k']->id);
@@ -758,7 +761,7 @@ it('LAP ekspor yang gagal ditandai gagal dengan pesan aman tanpa memutus permint
 it('LAP berkas ekspor kedaluwarsa dilepas oleh perintah pemangkasan', function () {
     $d = lapData();
     tenant()->set($d['k']->id);
-    $id = test()->actingAs($d['u']['pemilik'])->postJson('/reports/revenue/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->json('data.id');
+    $id = test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/revenue/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->json('data.id');
     expect(Storage::disk('private')->allFiles('reports'))->toHaveCount(1);
 
     majuKe('2025-06-30 08:00:00');
@@ -782,7 +785,7 @@ it('LAP berkas yang menggantung berjalan terlalu lama dinyatakan gagal agar laya
 it('LAP ekspor dan unduhan tercatat di audit log', function () {
     $d = lapData();
     tenant()->set($d['k']->id);
-    $id = test()->actingAs($d['u']['pemilik'])->postJson('/reports/revenue/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->json('data.id');
+    $id = test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/revenue/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->json('data.id');
     tenant()->set($d['k']->id);
     test()->actingAs($d['u']['pemilik'])->get("/report-jobs/{$id}/download")->assertOk();
 
@@ -823,4 +826,57 @@ it('NFR-01 laporan harian dimuat kurang dari 3 detik pada data satu tahun', func
     $detik = microtime(true) - $mulai;
 
     expect(lapMetrik($r, 'Tagihan terbit'))->toBe(1502)->and($detik)->toBeLessThan(3.0);
+});
+
+it('LAP ekspor XLSX menulis teks berawalan = sebagai string, bukan rumus (formula injection)', function () {
+    $d = lapData();
+    DB::table('patients')->where('id', $d['pasien']['b'])->update(['name' => '=1+1', 'name_search' => '=1+1']);
+    tenant()->set($d['k']->id);
+
+    $id = test()->actingAs($d['u']['admin'])->postJson('/internal-api/reports/record-completeness/export', ['format' => 'xlsx', 'from' => SENIN, 'to' => SENIN])->json('data.id');
+    tenant()->set($d['k']->id);
+    $isi = test()->actingAs($d['u']['admin'])->get("/report-jobs/{$id}/download")->getContent();
+    $tmp = tempnam(sys_get_temp_dir(), 'lap');
+    file_put_contents($tmp, $isi);
+    $buku = IOFactory::load($tmp);
+    unlink($tmp);
+
+    $lembar = $buku->getSheet(2);
+    $ditemukan = false;
+    foreach ($lembar?->getRowIterator() ?? [] as $baris) {
+        foreach ($baris->getCellIterator() as $sel) {
+            if ($sel->getValue() === '=1+1') {
+                $ditemukan = true;
+                expect($sel->getDataType())->toBe(DataType::TYPE_STRING);
+            }
+        }
+    }
+    expect($ditemukan)->toBeTrue();
+});
+
+it('LAP berkas yang sudah dibuat tidak dapat diunduh lagi setelah izin laporan pemintanya dicabut', function () {
+    $d = lapData();
+    tenant()->set($d['k']->id);
+    $id = test()->actingAs($d['u']['kasir'])->postJson('/internal-api/reports/receivables/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->json('data.id');
+
+    tenant()->set($d['k']->id);
+    test()->actingAs($d['u']['kasir'])->get("/report-jobs/{$id}/download")->assertOk();
+
+    $d['u']['kasir']->revokePermissionTo('report.financial.own');
+    $d['u']['kasir']->syncRoles([]);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+    tenant()->set($d['k']->id);
+    test()->actingAs($d['u']['kasir']->fresh())->getJson("/report-jobs/{$id}/download")->assertForbidden();
+});
+
+it('LAP job yang sudah selesai tidak diambil ulang oleh pekerja yang terlambat', function () {
+    $d = lapData();
+    tenant()->set($d['k']->id);
+    $id = test()->actingAs($d['u']['pemilik'])->postJson('/internal-api/reports/visits/export', ['format' => 'pdf', 'from' => SENIN, 'to' => SENIN])->json('data.id');
+    tenant()->set($d['k']->id);
+
+    $store = app(ReportJobStore::class);
+    expect($store->claim($id, now()->toDateTimeImmutable()))->toBeNull();
+    $store->fail($id, 'terlambat', now()->toDateTimeImmutable());
+    expect(DB::table('report_jobs')->where('id', $id)->value('status'))->toBe('done');
 });

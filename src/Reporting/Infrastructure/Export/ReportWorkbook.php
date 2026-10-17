@@ -7,6 +7,7 @@ namespace Src\Reporting\Infrastructure\Export;
 use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Src\Reporting\Domain\ColumnKind;
@@ -57,8 +58,10 @@ final class ReportWorkbook implements Export, WithMultipleSheets
             }
         }
 
-        return new class($rows) implements FromArray, ShouldAutoSize, WithTitle
+        return new class($rows) implements FromArray, ShouldAutoSize, WithCustomValueBinder, WithTitle
         {
+            use WritesTextAsStrings;
+
             /** @param array<int, array<array-key, mixed>> $rows */
             public function __construct(private readonly array $rows) {}
 

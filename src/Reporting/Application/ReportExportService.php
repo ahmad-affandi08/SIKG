@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Src\Reporting\Application;
 
 use DateTimeImmutable;
+use Illuminate\Support\Facades\Log;
 use Src\Reporting\Domain\ExportFormat;
 use Src\Reporting\Domain\InvalidReportRequest;
 use Src\Reporting\Domain\JobStatus;
@@ -13,6 +14,7 @@ use Src\Reporting\Domain\ReportScope;
 use Src\Shared\Application\AuditEntry;
 use Src\Shared\Application\AuditLogger;
 use Src\Shared\Application\Clock;
+use Src\Shared\Application\Transaction;
 use Throwable;
 
 /**
@@ -37,6 +39,7 @@ final readonly class ReportExportService
         private ReportJobDispatcher $dispatcher,
         private AuditLogger $audit,
         private Clock $clock,
+        private Transaction $tx,
     ) {}
 
     /**
@@ -45,10 +48,15 @@ final readonly class ReportExportService
     public function request(ReportViewer $viewer, ReportKey $key, ReportFilters $filters, ExportFormat $format): array
     {
         $query = $this->reports->query($viewer, $key, $filters);
-        $job = $this->jobs->create($key, $format, $query->scope, $filters->toArray(), $viewer->userId, $this->clock->now());
-        $this->audit->record(new AuditEntry($viewer->userId, 'report.export_requested', 'report_job', $job['id'], null, [
-            'report' => $key->code(), 'format' => $format->value, 'from' => $filters->range->from, 'to' => $filters->range->to,
-        ]));
+        // Catatan berkas dan jejak audit dalam satu transaksi; pekerjaan antrean baru dikirim setelah commit.
+        $job = $this->tx->run(function () use ($viewer, $key, $format, $filters, $query): array {
+            $job = $this->jobs->create($key, $format, $query->scope, $filters->toArray(), $viewer->userId, $this->clock->now());
+            $this->audit->record(new AuditEntry($viewer->userId, 'report.export_requested', 'report_job', $job['id'], null, [
+                'report' => $key->code(), 'format' => $format->value, 'from' => $filters->range->from, 'to' => $filters->range->to,
+            ]));
+
+            return $job;
+        });
         $this->dispatcher->dispatch($job['id']);
 
         return $this->status($viewer, $job['id']);
@@ -62,6 +70,7 @@ final readonly class ReportExportService
     public function status(ReportViewer $viewer, string $jobId): array
     {
         $job = $this->owned($viewer, $jobId);
+        $this->assertStillAllowed($viewer, $job);
         $now = $this->clock->now();
         if ($job['status'] === JobStatus::Running->value && $job['started_at'] !== null
             && $now->getTimestamp() - (new DateTimeImmutable($job['started_at']))->getTimestamp() > self::STALE_RUNNING_SECONDS) {
@@ -80,6 +89,7 @@ final readonly class ReportExportService
     public function download(ReportViewer $viewer, string $jobId): array
     {
         $job = $this->owned($viewer, $jobId);
+        $this->assertStillAllowed($viewer, $job);
         if ($job['status'] !== JobStatus::Done->value) {
             throw new InvalidReportRequest('report.job_not_ready', 'Berkas laporan belum siap.');
         }
@@ -118,7 +128,8 @@ final readonly class ReportExportService
             $now = $this->clock->now();
             $this->jobs->finish($jobId, $path, strlen($contents), $now, $now->modify('+'.self::RETENTION_DAYS.' days'));
         } catch (Throwable $e) {
-            report($e);
+            // Hanya kelas galat dan id berkas yang dicatat: pesan galat basis data dapat memuat nilai baris (PHI).
+            Log::error('report.export_failed', ['job' => $jobId, 'exception' => $e::class]);
             $this->jobs->fail($jobId, 'Berkas laporan gagal dibuat. Coba minta ulang; hubungi pengelola teknis bila berulang.', $this->clock->now());
         }
     }
@@ -136,6 +147,19 @@ final readonly class ReportExportService
         }
 
         return $count;
+    }
+
+    /**
+     * Izin dapat dicabut atau dipersempit setelah berkas diminta; berkas lama tidak boleh melampaui izin sekarang.
+     *
+     * @param  JobRow  $job
+     */
+    private function assertStillAllowed(ReportViewer $viewer, array $job): void
+    {
+        $current = $viewer->scopeFor(ReportKey::from($job['report_key']));
+        if ($current === null || ($current === ReportScope::Own && $job['scope'] === ReportScope::Full->value)) {
+            throw new InvalidReportRequest('report.forbidden', 'Anda tidak lagi berhak atas laporan ini.');
+        }
     }
 
     /**
