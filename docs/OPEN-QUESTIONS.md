@@ -115,6 +115,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan; (b) pengguna menetapkan pelacakan stok per batch lebih awal dari P2-05
 - Rekomendasi: (a)
 
+### Q-18: scripts/verify.sh gagal pada Pint dan Deptrac karena berkas terlindungi
+- Kebutuhan terkait: M16, M19
+- Butir: (1) Pint gagal hanya pada `tests-templates/` (CronJobsTest, IdempotentPaymentTest, AuthorizationMatrixTest), berkas terlindungi yang tidak boleh diedit Claude Code; Pint pada `app src tests database routes config` lulus. (2) Deptrac gagal sebelum menganalisis: jalur `./src` di konfigurasi Deptrac dibaca relatif terhadap folder konfigurasi (`tooling/src`), dan collector `className` dengan `regex` tidak dikenal oleh deptrac terpasang (perlu `classNameRegex` dengan `value` berpembatas `#...#`). Dengan salinan konfigurasi sementara di luar repositori yang menyesuaikan kedua hal itu, Deptrac melaporkan 0 pelanggaran (satu pelanggaran nyata pada `Pharmacy\Contracts\StockLedger` sudah diperbaiki).
+- Opsi: (a) pengguna memperbaiki konfigurasi Deptrac (jalur dan sintaks collector) dan merapikan `tests-templates/` dengan Pint; (b) pengecualian jalur `tests-templates` pada konfigurasi Pint
+- Rekomendasi: (a)
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

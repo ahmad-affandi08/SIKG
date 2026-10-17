@@ -45,10 +45,10 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] ODO-02 | M | Setiap gigi memiliki lima permukaan (oklusal atau insisal, mesial, distal, ...
 - [x] ODO-03 | M | Kondisi gigi
 - [x] ODO-04 | M | Odontogram tiap kunjungan disimpan sebagai snapshot
-- [ ] OBT-01 | M | Resep dari kunjungan
-- [ ] OBT-03 | M | Cetak resep dengan kop klinik dan nama dokter
-- [ ] OBT-04 | M | Obat yang dijual di klinik masuk tagihan dan mengurangi stok otomatis
-- [ ] OBT-05 | M | Stok masuk, stok keluar (penjualan dan pemakaian), dan penyesuaian stok ...
+- [x] OBT-01 | M | Resep dari kunjungan
+- [x] OBT-03 | M | Cetak resep dengan kop klinik dan nama dokter
+- [x] OBT-04 | M | Obat yang dijual di klinik masuk tagihan dan mengurangi stok otomatis
+- [x] OBT-05 | M | Stok masuk, stok keluar (penjualan dan pemakaian), dan penyesuaian stok ...
 - [ ] KSR-01 | M | Tagihan dibuat otomatis dari tindakan dan obat pada kunjungan
 - [ ] KSR-02 | M | Diskon per item atau per tagihan (persen atau nominal) dengan alasan wajib
 - [ ] KSR-03 | M | Pembayaran tunai, transfer, QRIS, debit, kredit, termasuk pembayaran campuran ...
@@ -74,7 +74,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [ ] RM-10 | S | Surat keterangan dan rujukan dicetak dari template
 - [ ] ODO-05 | S | Tindakan pada gigi dapat memperbarui kondisi gigi (contoh
 - [ ] ODO-06 | S | Cetak odontogram ke PDF
-- [ ] OBT-02 | S | Peringatan alergi
+- [x] OBT-02 | S | Peringatan alergi
 - [ ] OBT-06 | S | Peringatan stok di bawah minimum dan obat yang kedaluwarsa dalam 30 hari
 - [ ] KSR-05 | S | Paket cicilan (contoh
 
