@@ -13,15 +13,18 @@ use Src\Clinic\Application\Settings\ClinicSettingsService;
 use Src\Clinic\Domain\ClinicSettings;
 use Src\Clinic\Presentation\Http\Requests\HolidayRequest;
 use Src\Clinic\Presentation\Http\Requests\UpdateClinicSettingsRequest;
+use Src\Shared\Application\RequiredFields;
 use Src\Shared\Domain\NumberPattern;
 
 final class ClinicSettingsController
 {
     public function __construct(private readonly ClinicSettingsService $settings) {}
 
-    public function show(): Response
+    public function show(Request $request): Response
     {
         return Inertia::render('Settings/Clinic', [
+            // Jam buka dan tutup wajib selama harinya buka (aturan server bersyarat `required_with`).
+            'required' => [...RequiredFields::from(UpdateClinicSettingsRequest::createFrom($request)->rules()), 'operating_hours.*.open', 'operating_hours.*.close'],
             ...$this->settings->overview(),
             'sessionMaxMinutes' => (int) config('sikg.session_max_minutes'),
         ]);
@@ -48,9 +51,9 @@ final class ClinicSettingsController
         return back()->with('success', 'Pengaturan klinik disimpan.');
     }
 
-    public function holidayForm(): Response
+    public function holidayForm(Request $request): Response
     {
-        return Inertia::render('Settings/HolidayForm');
+        return Inertia::render('Settings/HolidayForm', ['required' => RequiredFields::from(HolidayRequest::createFrom($request)->rules())]);
     }
 
     public function storeHoliday(HolidayRequest $request): RedirectResponse

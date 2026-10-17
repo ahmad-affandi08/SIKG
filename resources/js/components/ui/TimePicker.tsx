@@ -4,6 +4,7 @@ import { FieldLabel } from '@/components/ui/FieldLabel';
 import { PickerToggle } from '@/components/ui/PickerToggle';
 import { useDismiss } from '@/components/ui/useDismiss';
 import { maskTime, parseTime, toTime } from '@/lib/date';
+import { useRequired } from '@/lib/useRequired';
 
 interface TimePickerProps {
   label: string;
@@ -13,6 +14,9 @@ interface TimePickerProps {
   error?: string | undefined;
   /** Selang menit pada pilihan di panel (mengetik tetap boleh menit berapa pun). */
   step?: number;
+  /** Nama isian di server; dipakai mencari tanda wajib dari prop `required` halaman. */
+  field?: string;
+  /** Menimpa tanda wajib dari server. */
   required?: boolean;
   disabled?: boolean;
   hint?: string;
@@ -27,11 +31,14 @@ export function TimePicker({
   onChange,
   error,
   step = 5,
-  required = false,
+  field,
+  required,
   disabled = false,
   hint,
 }: TimePickerProps) {
   const id = useId();
+  const fromServer = useRequired(field);
+  const isRequired = required ?? fromServer;
   const messageId = `${id}-message`;
   const [text, setText] = useState(value);
   const [localError, setLocalError] = useState<string | undefined>(undefined);
@@ -90,7 +97,7 @@ export function TimePicker({
 
   return (
     <div ref={wrapRef} className="relative flex flex-col gap-1">
-      <FieldLabel htmlFor={id} required={required}>
+      <FieldLabel htmlFor={id} required={isRequired}>
         {label}
       </FieldLabel>
       <div className="relative">
@@ -103,7 +110,7 @@ export function TimePicker({
           placeholder="JJ:MM"
           value={text}
           disabled={disabled}
-          aria-required={required ? true : undefined}
+          aria-required={isRequired ? true : undefined}
           aria-invalid={message ? true : undefined}
           aria-describedby={message || hint ? messageId : undefined}
           onChange={(event) => {

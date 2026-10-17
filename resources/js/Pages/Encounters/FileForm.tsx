@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { FieldLabel } from '@/components/ui/FieldLabel';
 import { Select } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
 import { EncounterFormShell } from '@/features/clinical/components/EncounterFormShell';
@@ -10,6 +11,7 @@ import type { EncounterRef } from '@/features/clinical/components/EncounterFormS
 import { collect } from '@/features/clinical/components/EncounterPanels';
 import { FILE_KINDS, fileIssue, fileMetaSchema } from '@/features/clinical/files';
 import { isValidFdi } from '@/features/clinical/tooth';
+import { usePageRequired } from '@/lib/useRequired';
 
 export default function FileForm({ encounter }: { encounter: EncounterRef }) {
   const [file, setFile] = useState<File | null>(null);
@@ -18,6 +20,7 @@ export default function FileForm({ encounter }: { encounter: EncounterRef }) {
   const [caption, setCaption] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const fileRequired = usePageRequired('file');
   const back = `/encounters/${encounter.id}?tab=files`;
 
   function submit(event: SyntheticEvent<HTMLFormElement>) {
@@ -56,11 +59,12 @@ export default function FileForm({ encounter }: { encounter: EncounterRef }) {
     <EncounterFormShell title="Unggah berkas" encounter={encounter} tab="files">
       <form onSubmit={submit} noValidate aria-label="Unggah berkas" className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
-          <label htmlFor="clinical-file" className="text-sm font-semibold">
+          <FieldLabel htmlFor="clinical-file" required={fileRequired}>
             Berkas (JPG, PNG, atau PDF, maksimal 10 MB)
-          </label>
+          </FieldLabel>
           <input
             id="clinical-file"
+            aria-required={fileRequired ? true : undefined}
             type="file"
             accept="image/jpeg,image/png,application/pdf"
             className="min-h-touch py-2 text-sm"
@@ -75,6 +79,7 @@ export default function FileForm({ encounter }: { encounter: EncounterRef }) {
           ) : null}
         </div>
         <Select
+          field="kind"
           label="Jenis"
           options={FILE_KINDS.map((k) => ({ value: k.value, label: k.label }))}
           value={kind}
@@ -84,6 +89,7 @@ export default function FileForm({ encounter }: { encounter: EncounterRef }) {
           error={errors.kind}
         />
         <TextField
+          field="tooth_fdi"
           label="Nomor gigi (opsional, FDI)"
           inputMode="numeric"
           value={tooth}
@@ -93,6 +99,7 @@ export default function FileForm({ encounter }: { encounter: EncounterRef }) {
           error={errors.tooth_fdi}
         />
         <TextField
+          field="caption"
           label="Keterangan"
           value={caption}
           onChange={(e) => {

@@ -70,6 +70,7 @@ export default function Form({ user, roles, branches, canManage = true }: Props)
         <form onSubmit={submit} noValidate className="flex flex-col gap-4">
           <fieldset disabled={!canManage} className="flex flex-col gap-4">
             <TextField
+              field="name"
               label="Nama lengkap"
               value={form.data.name}
               onChange={(event) => {
@@ -78,6 +79,7 @@ export default function Form({ user, roles, branches, canManage = true }: Props)
               error={error('name')}
             />
             <TextField
+              field="email"
               label="Email"
               type="email"
               autoComplete="off"
@@ -88,6 +90,7 @@ export default function Form({ user, roles, branches, canManage = true }: Props)
               error={error('email')}
             />
             <TextField
+              field="username"
               label="Nama pengguna"
               autoComplete="off"
               value={form.data.username}
@@ -97,6 +100,7 @@ export default function Form({ user, roles, branches, canManage = true }: Props)
               error={error('username')}
             />
             <Select
+              field="role"
               label="Peran"
               placeholder="Pilih peran"
               options={roles}
@@ -107,6 +111,7 @@ export default function Form({ user, roles, branches, canManage = true }: Props)
               error={error('role')}
             />
             <Select
+              field="branch_id"
               label="Cabang"
               placeholder="Semua cabang"
               options={branches}

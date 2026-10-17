@@ -3,7 +3,9 @@ import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { FieldLabel } from '@/components/ui/FieldLabel';
 import { TextField } from '@/components/ui/TextField';
+import { usePageRequired } from '@/lib/useRequired';
 import { EncounterFormShell } from '@/features/clinical/components/EncounterFormShell';
 import type { EncounterRef } from '@/features/clinical/components/EncounterFormShell';
 import { collect } from '@/features/clinical/components/EncounterPanels';
@@ -13,6 +15,7 @@ export default function AddendumForm({ encounter }: { encounter: EncounterRef })
   const [values, setValues] = useState({ body: '', reason: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const bodyRequired = usePageRequired('body');
   const back = `/encounters/${encounter.id}?tab=addenda`;
 
   function submit(event: SyntheticEvent<HTMLFormElement>) {
@@ -47,9 +50,9 @@ export default function AddendumForm({ encounter }: { encounter: EncounterRef })
           catatan asli tidak berubah.
         </p>
         <div className="flex flex-col gap-1">
-          <label htmlFor="addendum-body" className="text-sm font-semibold">
+          <FieldLabel htmlFor="addendum-body" required={bodyRequired}>
             Isi addendum
-          </label>
+          </FieldLabel>
           <textarea
             id="addendum-body"
             rows={5}
@@ -67,6 +70,7 @@ export default function AddendumForm({ encounter }: { encounter: EncounterRef })
           ) : null}
         </div>
         <TextField
+          field="reason"
           label="Alasan addendum"
           value={values.reason}
           onChange={(e) => {

@@ -23,6 +23,7 @@ use Src\Patient\Domain\Sex;
 use Src\Patient\Presentation\Http\Requests\MedicalHistoryRequest;
 use Src\Patient\Presentation\Http\Requests\PatientRequest;
 use Src\Shared\Application\Clock;
+use Src\Shared\Application\RequiredFields;
 
 /**
  * PAS-01, PAS-04, PAS-05, PAS-06. Izin dipasang per route (can:patient.*).
@@ -36,9 +37,11 @@ final class PatientController
         return Inertia::render('Patients/Index', ['sexes' => $this->sexOptions()]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('Patients/Form', [
+            // Persetujuan data wajib saat pendaftaran (PAS-05); ditegakkan di use case, bukan di aturan validasi.
+            'required' => [...RequiredFields::from(PatientRequest::createFrom($request)->rules()), 'consent'],
             'patient' => null,
             'consent' => ['version' => ConsentText::VERSION, 'text' => ConsentText::BODY],
             ...$this->options(),
@@ -81,11 +84,12 @@ final class PatientController
         ]);
     }
 
-    public function edit(string $patient, ViewPatient $view): Response
+    public function edit(Request $request, string $patient, ViewPatient $view): Response
     {
         $data = $view($patient, 'patients.edit');
 
         return Inertia::render('Patients/Form', [
+            'required' => RequiredFields::from(PatientRequest::createFrom($request)->rules()),
             'patient' => $this->present($data['patient'], mask: false),
             'consent' => null,
             ...$this->options(),
@@ -106,11 +110,12 @@ final class PatientController
         return to_route('patients.index')->with('success', 'Pasien diarsipkan. Riwayat tetap tersimpan.');
     }
 
-    public function historyForm(string $patient, ViewPatient $view): Response
+    public function historyForm(Request $request, string $patient, ViewPatient $view): Response
     {
         $data = $view($patient, 'patients.history.create');
 
         return Inertia::render('Patients/HistoryForm', [
+            'required' => RequiredFields::from(MedicalHistoryRequest::createFrom($request)->rules()),
             'patient' => [
                 'id' => $patient,
                 'name' => $data['patient']->profile->name,

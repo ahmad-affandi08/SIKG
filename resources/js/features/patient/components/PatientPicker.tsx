@@ -1,27 +1,40 @@
 import { useId, useState } from 'react';
 
+import { FieldLabel } from '@/components/ui/FieldLabel';
+import { useRequired } from '@/lib/useRequired';
+
 import { usePatientSearch } from '@/features/patient/queries';
 import type { PatientSummary } from '@/features/patient/api';
 import { useDebouncedValue } from '@/lib/useDebouncedValue';
 
 interface PatientPickerProps {
+  /** Nama isian di server; dipakai mencari tanda wajib dari prop `required` halaman. */
+  field?: string;
   selected: { id: string; name: string } | null;
   onSelect: (patient: PatientSummary | null) => void;
   error?: string | undefined;
 }
 
 /** Memilih pasien lewat pencarian (nama, nomor RM, NIK, atau HP). Kata kunci dikirim lewat POST, bukan URL (M11). */
-export function PatientPicker({ selected, onSelect, error }: PatientPickerProps) {
+export function PatientPicker({ selected, onSelect, error, field }: PatientPickerProps) {
   const [text, setText] = useState('');
   const term = useDebouncedValue(text.trim(), 300);
   const query = usePatientSearch(selected ? '' : term);
   const id = useId();
+  const isRequired = useRequired(field);
   const results = query.data ?? [];
 
   if (selected) {
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-semibold">Pasien</span>
+        <span className="text-sm font-semibold">
+          Pasien
+          {isRequired ? (
+            <span aria-hidden="true" className="text-signal-700 ml-0.5">
+              *
+            </span>
+          ) : null}
+        </span>
         <div className="flex items-center gap-3">
           <span className="text-sm">{selected.name}</span>
           <button
@@ -41,9 +54,9 @@ export function PatientPicker({ selected, onSelect, error }: PatientPickerProps)
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-semibold">
+      <FieldLabel htmlFor={id} required={isRequired}>
         Cari pasien (nama, nomor RM, NIK, atau HP)
-      </label>
+      </FieldLabel>
       <input
         id={id}
         type="search"

@@ -86,6 +86,7 @@ export default function ClinicProfile({ profile }: Props) {
 
         <form onSubmit={submit} noValidate className="flex flex-col gap-4">
           <TextField
+            field="name"
             label="Nama klinik"
             value={form.data.name}
             onChange={(event) => {
@@ -94,6 +95,7 @@ export default function ClinicProfile({ profile }: Props) {
             error={error('name')}
           />
           <TextField
+            field="address"
             label="Alamat"
             value={form.data.address}
             onChange={(event) => {
@@ -102,6 +104,7 @@ export default function ClinicProfile({ profile }: Props) {
             error={error('address')}
           />
           <TextField
+            field="license_no"
             label="Nomor izin klinik"
             value={form.data.license_no}
             onChange={(event) => {
@@ -110,6 +113,7 @@ export default function ClinicProfile({ profile }: Props) {
             error={error('license_no')}
           />
           <TextField
+            field="receipt_header"
             label="Header kwitansi"
             value={form.data.receipt_header}
             onChange={(event) => {
@@ -118,6 +122,7 @@ export default function ClinicProfile({ profile }: Props) {
             error={error('receipt_header')}
           />
           <TextField
+            field="prescription_header"
             label="Header resep"
             value={form.data.prescription_header}
             onChange={(event) => {

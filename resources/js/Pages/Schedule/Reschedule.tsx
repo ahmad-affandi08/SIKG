@@ -89,6 +89,7 @@ export default function Reschedule({ item, doctors, chairs }: Props) {
           className="flex flex-col gap-5"
         >
           <Select
+            field="doctor_id"
             label="Dokter"
             options={doctors}
             value={values.doctor_id}
@@ -98,6 +99,7 @@ export default function Reschedule({ item, doctors, chairs }: Props) {
             error={errors.doctor_id}
           />
           <Select
+            field="chair_id"
             label="Kursi (opsional)"
             placeholder="Belum ditentukan"
             options={chairs}
@@ -107,6 +109,7 @@ export default function Reschedule({ item, doctors, chairs }: Props) {
             }}
           />
           <DatePicker
+            field="date"
             label="Tanggal"
             value={values.date}
             min={today}
@@ -117,6 +120,7 @@ export default function Reschedule({ item, doctors, chairs }: Props) {
             error={errors.date}
           />
           <Select
+            field="minutes"
             label="Durasi"
             options={DURATION_OPTIONS}
             value={values.minutes}
@@ -136,6 +140,7 @@ export default function Reschedule({ item, doctors, chairs }: Props) {
             }}
           />
           <TimePicker
+            field="time"
             label="Jam mulai"
             step={15}
             value={values.time}
@@ -145,6 +150,7 @@ export default function Reschedule({ item, doctors, chairs }: Props) {
             error={errors.time}
           />
           <TextField
+            field="reason"
             label="Alasan jadwal ulang"
             value={values.reason}
             onChange={(event) => {

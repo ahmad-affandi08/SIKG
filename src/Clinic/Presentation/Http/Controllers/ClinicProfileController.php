@@ -13,6 +13,7 @@ use Src\Clinic\Application\Profile\ClinicProfile;
 use Src\Clinic\Application\Profile\ClinicProfileService;
 use Src\Clinic\Presentation\Http\Requests\ClinicLogoRequest;
 use Src\Clinic\Presentation\Http\Requests\ClinicProfileRequest;
+use Src\Shared\Application\RequiredFields;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -22,9 +23,12 @@ final class ClinicProfileController
 {
     public function __construct(private readonly ClinicProfileService $profile) {}
 
-    public function show(): Response
+    public function show(Request $request): Response
     {
-        return Inertia::render('Settings/ClinicProfile', ['profile' => $this->profile->get()->toArray()]);
+        return Inertia::render('Settings/ClinicProfile', [
+            'required' => RequiredFields::from(ClinicProfileRequest::createFrom($request)->rules()),
+            'profile' => $this->profile->get()->toArray(),
+        ]);
     }
 
     public function update(ClinicProfileRequest $request): RedirectResponse

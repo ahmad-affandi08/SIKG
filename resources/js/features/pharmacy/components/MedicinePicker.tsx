@@ -1,11 +1,16 @@
 import { useId, useState } from 'react';
 
+import { FieldLabel } from '@/components/ui/FieldLabel';
+import { useRequired } from '@/lib/useRequired';
+
 import type { MedicineOption } from '@/features/pharmacy/api';
 import { useMedicineSearch } from '@/features/pharmacy/queries';
 import { formatRupiah } from '@/lib/format';
 import { useDebouncedValue } from '@/lib/useDebouncedValue';
 
 interface MedicinePickerProps {
+  /** Nama isian di server; dipakai mencari tanda wajib dari prop `required` halaman. */
+  field?: string;
   label?: string;
   selected: { id: string; name: string } | null;
   onSelect: (medicine: MedicineOption | null) => void;
@@ -14,6 +19,7 @@ interface MedicinePickerProps {
 
 /** Memilih obat dari katalog dengan stok tersedia dan harga jual saat ini. */
 export function MedicinePicker({
+  field,
   label = 'Cari obat di katalog',
   selected,
   onSelect,
@@ -23,12 +29,20 @@ export function MedicinePicker({
   const term = useDebouncedValue(text.trim());
   const query = useMedicineSearch(selected ? '' : term);
   const id = useId();
+  const isRequired = useRequired(field);
   const results = query.data ?? [];
 
   if (selected) {
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-semibold">Obat</span>
+        <span className="text-sm font-semibold">
+          Obat
+          {isRequired ? (
+            <span aria-hidden="true" className="text-signal-700 ml-0.5">
+              *
+            </span>
+          ) : null}
+        </span>
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm">{selected.name}</span>
           <button
@@ -48,9 +62,9 @@ export function MedicinePicker({
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-semibold">
+      <FieldLabel htmlFor={id} required={isRequired}>
         {label}
-      </label>
+      </FieldLabel>
       <input
         id={id}
         autoComplete="off"

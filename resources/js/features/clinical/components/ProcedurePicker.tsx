@@ -1,28 +1,41 @@
 import { useId, useState } from 'react';
 
+import { FieldLabel } from '@/components/ui/FieldLabel';
+import { useRequired } from '@/lib/useRequired';
+
 import type { ProcedureOption } from '@/features/clinical/api';
 import { useProcedureSearch } from '@/features/clinical/queries';
 import { formatRupiah } from '@/lib/format';
 import { useDebouncedValue } from '@/lib/useDebouncedValue';
 
 interface ProcedurePickerProps {
+  /** Nama isian di server; dipakai mencari tanda wajib dari prop `required` halaman. */
+  field?: string;
   selected: ProcedureOption | null;
   onSelect: (procedure: ProcedureOption | null) => void;
   error?: string | undefined;
 }
 
 /** Memilih tindakan dari katalog (kode atau nama) dengan tarif saat ini. */
-export function ProcedurePicker({ selected, onSelect, error }: ProcedurePickerProps) {
+export function ProcedurePicker({ selected, onSelect, error, field }: ProcedurePickerProps) {
   const [text, setText] = useState('');
   const term = useDebouncedValue(text.trim());
   const query = useProcedureSearch(selected ? '' : term);
   const id = useId();
+  const isRequired = useRequired(field);
   const results = query.data ?? [];
 
   if (selected) {
     return (
       <div className="flex flex-col gap-1">
-        <span className="text-sm font-semibold">Tindakan</span>
+        <span className="text-sm font-semibold">
+          Tindakan
+          {isRequired ? (
+            <span aria-hidden="true" className="text-signal-700 ml-0.5">
+              *
+            </span>
+          ) : null}
+        </span>
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm">
             {selected.code} - {selected.name} ({formatRupiah(selected.price_amount)})
@@ -44,9 +57,9 @@ export function ProcedurePicker({ selected, onSelect, error }: ProcedurePickerPr
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={id} className="text-sm font-semibold">
+      <FieldLabel htmlFor={id} required={isRequired}>
         Cari tindakan (kode atau nama)
-      </label>
+      </FieldLabel>
       <input
         id={id}
         autoComplete="off"

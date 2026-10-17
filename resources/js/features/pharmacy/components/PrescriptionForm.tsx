@@ -105,6 +105,7 @@ export function PrescriptionForm({ encounterId, canOverrideStock }: Props) {
           ) : null}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <TextField
+              field={`items.${String(index)}.dose`}
               label="Dosis"
               value={row.dose}
               onChange={(e) => {
@@ -113,6 +114,7 @@ export function PrescriptionForm({ encounterId, canOverrideStock }: Props) {
               error={errors[`${String(index)}.dose`]}
             />
             <TextField
+              field={`items.${String(index)}.frequency`}
               label="Frekuensi"
               value={row.frequency}
               onChange={(e) => {
@@ -121,6 +123,7 @@ export function PrescriptionForm({ encounterId, canOverrideStock }: Props) {
               error={errors[`${String(index)}.frequency`]}
             />
             <TextField
+              field={`items.${String(index)}.duration`}
               label="Durasi"
               value={row.duration}
               onChange={(e) => {
@@ -130,6 +133,7 @@ export function PrescriptionForm({ encounterId, canOverrideStock }: Props) {
             />
           </div>
           <TextField
+            field={`items.${String(index)}.instructions`}
             label="Aturan pakai"
             value={row.instructions}
             onChange={(e) => {
@@ -138,6 +142,7 @@ export function PrescriptionForm({ encounterId, canOverrideStock }: Props) {
             error={errors[`${String(index)}.instructions`]}
           />
           <TextField
+            field={`items.${String(index)}.quantity`}
             label="Jumlah"
             inputMode="numeric"
             value={row.quantity}

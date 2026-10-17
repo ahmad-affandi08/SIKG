@@ -67,6 +67,7 @@ export default function Cancel({ item }: Props) {
         >
           <p className="text-sm">Slot janji dilepas dan alasan pembatalan tersimpan di riwayat.</p>
           <TextField
+            field="reason"
             label="Alasan pembatalan"
             value={reason}
             onChange={(event) => {

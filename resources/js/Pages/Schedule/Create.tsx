@@ -71,8 +71,14 @@ export default function Create({ defaultDate, doctors, chairs }: Props) {
         <Head title="Buat janji" />
         <PageHeader title="Buat janji" back={{ href: back, label: 'jadwal' }} />
         <form onSubmit={submit} noValidate aria-label="Buat janji" className="flex flex-col gap-5">
-          <PatientPicker selected={patient} onSelect={setPatient} error={errors.patient_id} />
+          <PatientPicker
+            field="patient_id"
+            selected={patient}
+            onSelect={setPatient}
+            error={errors.patient_id}
+          />
           <Select
+            field="doctor_id"
             label="Dokter"
             placeholder="Pilih dokter"
             options={doctors}
@@ -83,6 +89,7 @@ export default function Create({ defaultDate, doctors, chairs }: Props) {
             error={errors.doctor_id}
           />
           <Select
+            field="chair_id"
             label="Kursi (opsional)"
             placeholder="Belum ditentukan"
             options={chairs}
@@ -92,6 +99,7 @@ export default function Create({ defaultDate, doctors, chairs }: Props) {
             }}
           />
           <DatePicker
+            field="date"
             label="Tanggal"
             value={values.date}
             min={today}
@@ -102,6 +110,7 @@ export default function Create({ defaultDate, doctors, chairs }: Props) {
             error={errors.date}
           />
           <Select
+            field="minutes"
             label="Durasi"
             options={DURATION_OPTIONS}
             value={values.minutes}
@@ -121,6 +130,7 @@ export default function Create({ defaultDate, doctors, chairs }: Props) {
             }}
           />
           <TimePicker
+            field="time"
             label="Jam mulai"
             step={15}
             value={values.time}
@@ -130,6 +140,7 @@ export default function Create({ defaultDate, doctors, chairs }: Props) {
             error={errors.time}
           />
           <TextField
+            field="complaint"
             label="Keluhan"
             value={values.complaint}
             onChange={(event) => {

@@ -15,14 +15,22 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class ClinicalFileController
 {
-    public function store(Request $request, string $encounter, ClinicalFiles $files): RedirectResponse
+    /**
+     * @return array<string, list<string>>
+     */
+    public static function uploadRules(): array
     {
-        $data = $request->validate([
+        return [
             'file' => ['required', 'file', 'max:'.(ClinicalFiles::MAX_BYTES / 1024), 'mimetypes:'.implode(',', array_keys(ClinicalFiles::TYPES))],
             'kind' => ['required', 'in:'.implode(',', array_map(fn (FileKind $k) => $k->value, FileKind::cases()))],
             'tooth_fdi' => ['nullable', 'integer'],
             'caption' => ['nullable', 'string', 'max:255'],
-        ], [
+        ];
+    }
+
+    public function store(Request $request, string $encounter, ClinicalFiles $files): RedirectResponse
+    {
+        $data = $request->validate(self::uploadRules(), [
             'file.required' => 'Pilih berkas.',
             'file.max' => 'Ukuran berkas maksimal 10 MB.',
             'file.mimetypes' => 'Berkas harus berformat JPG, PNG, atau PDF.',

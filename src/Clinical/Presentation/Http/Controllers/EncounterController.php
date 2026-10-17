@@ -16,6 +16,7 @@ use Src\Clinical\Application\OpenEncounter;
 use Src\Clinical\Domain\Jaw;
 use Src\Clinical\Domain\Surface;
 use Src\Clinical\Domain\Vitals;
+use Src\Shared\Application\RequiredFields;
 
 /**
  * RM-01 sampai RM-07. Izin dipasang per route (can:encounter.*); aturan kunci catatan dijaga di Application.
@@ -51,7 +52,15 @@ final class EncounterController
             return $back->with('error', 'Kunjungan sudah ditutup. Perubahan hanya lewat addendum.');
         }
 
+        $rules = match ($form) {
+            'diagnosis' => self::diagnosisRules(),
+            'procedure' => self::procedureRules(),
+            'file' => ClinicalFileController::uploadRules(),
+            default => self::addendumRules(),
+        };
+
         return Inertia::render($config['page'], [
+            'required' => RequiredFields::from($rules),
             'encounter' => [
                 'id' => $e['id'],
                 'patient_name' => $e['patient_name'],
@@ -138,11 +147,7 @@ final class EncounterController
 
     public function addDiagnosis(Request $request, string $encounter, EncounterEntries $entries): RedirectResponse
     {
-        $data = $request->validate([
-            'diagnosis_id' => ['required', 'string', 'size:26'],
-            'tooth_fdi' => ['nullable', 'integer'],
-            'notes' => ['nullable', 'string', 'max:500'],
-        ], ['diagnosis_id.required' => 'Diagnosa wajib dipilih.']);
+        $data = $request->validate(self::diagnosisRules(), ['diagnosis_id.required' => 'Diagnosa wajib dipilih.']);
 
         $entries->addDiagnosis($this->actorId($request), $encounter, $data['diagnosis_id'], $data['tooth_fdi'] ?? null, $data['notes'] ?? null);
 
@@ -158,15 +163,7 @@ final class EncounterController
 
     public function addProcedure(Request $request, string $encounter, EncounterEntries $entries): RedirectResponse
     {
-        $data = $request->validate([
-            'procedure_id' => ['required', 'string', 'size:26'],
-            'tooth_fdi' => ['nullable', 'integer'],
-            'surfaces' => ['nullable', 'array', 'max:5'],
-            'surfaces.*' => ['string', 'size:1'],
-            'jaw' => ['nullable', 'string', 'max:10'],
-            'quantity' => ['required', 'integer', 'between:1,'.EncounterEntries::MAX_QUANTITY],
-            'notes' => ['nullable', 'string', 'max:500'],
-        ], ['procedure_id.required' => 'Tindakan wajib dipilih.', 'quantity.required' => 'Jumlah wajib diisi.']);
+        $data = $request->validate(self::procedureRules(), ['procedure_id.required' => 'Tindakan wajib dipilih.', 'quantity.required' => 'Jumlah wajib diisi.']);
 
         $entries->addProcedure(
             $this->actorId($request),
@@ -198,14 +195,50 @@ final class EncounterController
 
     public function addendum(Request $request, string $encounter, EncounterNotes $notes): RedirectResponse
     {
-        $data = $request->validate([
-            'body' => ['required', 'string', 'max:8000'],
-            'reason' => ['required', 'string', 'max:255'],
-        ], ['body.required' => 'Isi addendum wajib diisi.', 'reason.required' => 'Alasan addendum wajib diisi.']);
+        $data = $request->validate(self::addendumRules(), ['body.required' => 'Isi addendum wajib diisi.', 'reason.required' => 'Alasan addendum wajib diisi.']);
 
         $notes->addAddendum($this->actorId($request), $encounter, $data['body'], $data['reason']);
 
         return to_route('encounters.show', ['encounter' => $encounter, 'tab' => 'addenda'])->with('success', 'Addendum ditambahkan.');
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private static function diagnosisRules(): array
+    {
+        return [
+            'diagnosis_id' => ['required', 'string', 'size:26'],
+            'tooth_fdi' => ['nullable', 'integer'],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ];
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private static function procedureRules(): array
+    {
+        return [
+            'procedure_id' => ['required', 'string', 'size:26'],
+            'tooth_fdi' => ['nullable', 'integer'],
+            'surfaces' => ['nullable', 'array', 'max:5'],
+            'surfaces.*' => ['string', 'size:1'],
+            'jaw' => ['nullable', 'string', 'max:10'],
+            'quantity' => ['required', 'integer', 'between:1,'.EncounterEntries::MAX_QUANTITY],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ];
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private static function addendumRules(): array
+    {
+        return [
+            'body' => ['required', 'string', 'max:8000'],
+            'reason' => ['required', 'string', 'max:255'],
+        ];
     }
 
     private function actorId(Request $request): string

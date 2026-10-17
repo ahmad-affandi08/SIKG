@@ -74,6 +74,7 @@ export default function AdjustmentForm({ medicines, preset }: Props) {
           className="flex flex-col gap-5"
         >
           <Select
+            field="medicine_id"
             label="Obat"
             placeholder="Pilih obat"
             options={options}
@@ -84,6 +85,7 @@ export default function AdjustmentForm({ medicines, preset }: Props) {
             }}
           />
           <TextField
+            field="counted_quantity"
             label="Jumlah fisik terhitung"
             inputMode="numeric"
             value={adjust.counted_quantity}
@@ -93,6 +95,7 @@ export default function AdjustmentForm({ medicines, preset }: Props) {
             }}
           />
           <TextField
+            field="reason"
             label="Alasan penyesuaian"
             value={adjust.reason}
             error={errors.reason}

@@ -1,5 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 
+import { RequiredProvider } from '@/lib/useRequired';
 import { LoginForm } from '@/features/identityAccess/components/LoginForm';
 import type { LoginValues } from '@/features/identityAccess/schemas';
 
@@ -53,7 +54,9 @@ export default function Login() {
             <h1>Masuk</h1>
             <p className="text-muted mt-1 text-sm">Gunakan email atau nama pengguna Anda.</p>
           </header>
-          <LoginForm serverErrors={serverErrors} processing={form.processing} onSubmit={submit} />
+          <RequiredProvider>
+            <LoginForm serverErrors={serverErrors} processing={form.processing} onSubmit={submit} />
+          </RequiredProvider>
         </div>
       </main>
     </div>

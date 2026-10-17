@@ -68,8 +68,14 @@ export default function WalkIn({ doctors, chairs }: Props) {
           aria-label="Pasien tanpa janji"
           className="flex flex-col gap-5"
         >
-          <PatientPicker selected={patient} onSelect={setPatient} error={errors.patient_id} />
+          <PatientPicker
+            field="patient_id"
+            selected={patient}
+            onSelect={setPatient}
+            error={errors.patient_id}
+          />
           <Select
+            field="doctor_id"
             label="Dokter"
             placeholder="Pilih dokter"
             options={doctors}
@@ -80,6 +86,7 @@ export default function WalkIn({ doctors, chairs }: Props) {
             error={errors.doctor_id}
           />
           <Select
+            field="chair_id"
             label="Kursi (opsional)"
             placeholder="Belum ditentukan"
             options={chairs}
@@ -89,6 +96,7 @@ export default function WalkIn({ doctors, chairs }: Props) {
             }}
           />
           <TextField
+            field="complaint"
             label="Keluhan"
             value={complaint}
             onChange={(event) => {

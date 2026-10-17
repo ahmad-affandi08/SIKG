@@ -13,6 +13,7 @@ use Src\IdentityAccess\Application\Users\UserCredential;
 use Src\IdentityAccess\Application\Users\UserData;
 use Src\IdentityAccess\Domain\Role;
 use Src\IdentityAccess\Presentation\Http\Requests\UserRequest;
+use Src\Shared\Application\RequiredFields;
 
 /**
  * AUTH-03. Izin route (can:user.view/user.manage) ditambah Policy per pengguna sasaran di dalam UserAdministration.
@@ -35,6 +36,7 @@ final class UserController
     public function create(Request $request): Response
     {
         return Inertia::render('Settings/Users/Form', [
+            'required' => RequiredFields::from(UserRequest::createFrom($request)->rules()),
             'user' => null,
             'roles' => $this->users->assignableRoles($this->actorId($request)),
             'branches' => $this->users->branchOptions(),
@@ -52,6 +54,7 @@ final class UserController
         $found = $this->users->find($actor, $user);
 
         return Inertia::render('Settings/Users/Form', [
+            'required' => RequiredFields::from(UserRequest::createFrom($request)->rules()),
             'user' => collect($found)->except('canManage')->all(),
             'roles' => $this->users->assignableRoles($actor),
             'branches' => $this->users->branchOptions(),

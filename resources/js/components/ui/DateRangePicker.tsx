@@ -17,6 +17,7 @@ import {
   todayIso,
 } from '@/lib/date';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
+import { useRequired } from '@/lib/useRequired';
 
 export interface DateRange {
   from: string;
@@ -32,6 +33,9 @@ interface DateRangePickerProps {
   max?: string;
   minYear?: number;
   maxYear?: number;
+  /** Nama isian di server; dipakai mencari tanda wajib dari prop `required` halaman. */
+  field?: string;
+  /** Menimpa tanda wajib dari server. */
   required?: boolean;
   disabled?: boolean;
   /** Tombol pintasan (hari ini, 7 hari terakhir, bulan ini, dan seterusnya) di panel. Bawaan: ya. */
@@ -51,11 +55,14 @@ export function DateRangePicker({
   max,
   minYear,
   maxYear,
-  required = false,
+  field,
+  required,
   disabled = false,
   presets = true,
 }: DateRangePickerProps) {
   const id = useId();
+  const fromServer = useRequired(field);
+  const isRequired = required ?? fromServer;
   const messageId = `${id}-message`;
   const timezone = useClinicTimezone();
   const today = todayIso(timezone);
@@ -183,7 +190,7 @@ export function DateRangePicker({
     <fieldset ref={wrapRef} className="relative flex min-w-0 flex-col gap-1">
       <legend className="mb-1 text-sm font-semibold">
         {label}
-        {required ? (
+        {isRequired ? (
           <span aria-hidden="true" className="text-signal-700 ml-0.5">
             *
           </span>
@@ -203,7 +210,7 @@ export function DateRangePicker({
             placeholder="DD/MM/YYYY"
             value={fromText}
             disabled={disabled}
-            aria-required={required ? true : undefined}
+            aria-required={isRequired ? true : undefined}
             aria-invalid={message ? true : undefined}
             aria-describedby={message ? messageId : undefined}
             onChange={(event) => {
@@ -224,7 +231,7 @@ export function DateRangePicker({
             placeholder="DD/MM/YYYY"
             value={toText}
             disabled={disabled}
-            aria-required={required ? true : undefined}
+            aria-required={isRequired ? true : undefined}
             aria-invalid={message ? true : undefined}
             aria-describedby={message ? messageId : undefined}
             onChange={(event) => {

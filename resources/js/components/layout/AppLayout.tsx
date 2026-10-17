@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { FlashMessages } from '@/components/layout/FlashMessages';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
 import type { NavItem } from '@/components/layout/navigation';
+import { RequiredProvider } from '@/lib/useRequired';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -144,7 +145,9 @@ export function AppLayout({ children, navItems = NAV_ITEMS }: AppLayoutProps) {
       </header>
 
       <FlashMessages />
-      <div>{children}</div>
+      <RequiredProvider>
+        <div>{children}</div>
+      </RequiredProvider>
     </div>
   );
 }

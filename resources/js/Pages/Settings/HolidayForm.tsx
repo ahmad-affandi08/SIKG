@@ -44,6 +44,7 @@ export default function HolidayForm() {
           className="flex flex-col gap-5"
         >
           <DatePicker
+            field="date"
             label="Tanggal"
             value={form.data.date}
             clearable={false}
@@ -53,6 +54,7 @@ export default function HolidayForm() {
             error={errors.date ?? form.errors.date}
           />
           <TextField
+            field="name"
             label="Nama hari libur"
             value={form.data.name}
             onChange={(event) => {

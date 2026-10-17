@@ -13,6 +13,7 @@ use Src\Patient\Contracts\PatientLookup;
 use Src\Pharmacy\Application\PrescriptionPrint;
 use Src\Pharmacy\Application\PrescriptionService;
 use Src\Pharmacy\Domain\PrescriptionItemInput;
+use Src\Shared\Application\RequiredFields;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -33,14 +34,18 @@ final class PrescriptionController
         $patient = $patients->summaries([$info->patientId])[$info->patientId] ?? null;
 
         return Inertia::render('Encounters/PrescriptionForm', [
+            'required' => RequiredFields::from(self::rules()),
             'encounter' => ['id' => $encounter, 'patient_name' => $patient?->name, 'medical_record_no' => $patient?->medicalRecordNo],
             'can' => ['overrideStock' => (bool) $request->user()?->can('stock.override')],
         ]);
     }
 
-    public function store(Request $request, string $encounter, PrescriptionService $prescriptions): RedirectResponse
+    /**
+     * @return array<string, list<string>>
+     */
+    private static function rules(): array
     {
-        $data = $request->validate([
+        return [
             'items' => ['required', 'array', 'min:1', 'max:30'],
             'items.*.medicine_id' => ['nullable', 'string', 'size:26'],
             'items.*.free_text_name' => ['nullable', 'string', 'max:255'],
@@ -52,7 +57,12 @@ final class PrescriptionController
             'items.*.dispense_in_clinic' => ['sometimes', 'boolean'],
             'allergy_acknowledgement' => ['nullable', 'string', 'max:500'],
             'stock_override_reason' => ['nullable', 'string', 'max:255'],
-        ], [
+        ];
+    }
+
+    public function store(Request $request, string $encounter, PrescriptionService $prescriptions): RedirectResponse
+    {
+        $data = $request->validate(self::rules(), [
             'items.required' => 'Resep minimal berisi satu obat.',
             'items.*.dose.required' => 'Dosis wajib diisi.',
             'items.*.frequency.required' => 'Frekuensi wajib diisi.',

@@ -66,7 +66,7 @@ export default function DiagnosisForm({ encounter }: { encounter: EncounterRef }
             </button>
           </div>
         ) : (
-          <DiagnosisPicker onSelect={setPicked} />
+          <DiagnosisPicker field="diagnosis_id" onSelect={setPicked} />
         )}
         {errors.diagnosis_id ? (
           <p role="alert" className="text-danger-600 text-sm">
@@ -74,6 +74,7 @@ export default function DiagnosisForm({ encounter }: { encounter: EncounterRef }
           </p>
         ) : null}
         <TextField
+          field="tooth_fdi"
           label="Nomor gigi (opsional, FDI)"
           inputMode="numeric"
           value={tooth}
@@ -83,6 +84,7 @@ export default function DiagnosisForm({ encounter }: { encounter: EncounterRef }
           error={errors.tooth_fdi}
         />
         <TextField
+          field="notes"
           label="Catatan"
           value={notes}
           onChange={(e) => {

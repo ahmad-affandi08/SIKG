@@ -124,6 +124,7 @@ export function PrescriptionPanel({
               >
                 <TextField
                   label="Alasan pembatalan"
+                  required
                   value={voidReason}
                   onChange={(e) => {
                     setVoidReason(e.target.value);

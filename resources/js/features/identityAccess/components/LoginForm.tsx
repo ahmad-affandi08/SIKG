@@ -41,6 +41,7 @@ export function LoginForm({ serverErrors = {}, processing = false, onSubmit }: L
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
       <TextField
+        field="identifier"
         label="Email atau nama pengguna"
         name="identifier"
         autoComplete="username"
@@ -51,6 +52,7 @@ export function LoginForm({ serverErrors = {}, processing = false, onSubmit }: L
         error={errors.identifier}
       />
       <TextField
+        field="password"
         label="Kata sandi"
         name="password"
         type="password"

@@ -55,6 +55,7 @@ export default function HistoryForm({ patient, historyTypes, severities }: Props
           className="flex flex-col gap-5"
         >
           <Select
+            field="type"
             label="Jenis"
             placeholder="Pilih jenis"
             options={historyTypes}
@@ -65,6 +66,7 @@ export default function HistoryForm({ patient, historyTypes, severities }: Props
             error={err('type')}
           />
           <TextField
+            field="name"
             label="Nama (contoh Penisilin, Diabetes melitus)"
             value={form.data.name}
             onChange={(event) => {
@@ -73,6 +75,7 @@ export default function HistoryForm({ patient, historyTypes, severities }: Props
             error={err('name')}
           />
           <Select
+            field="severity"
             label="Tingkat keparahan"
             placeholder="Tidak ditentukan"
             options={severities}
@@ -83,6 +86,7 @@ export default function HistoryForm({ patient, historyTypes, severities }: Props
             error={err('severity')}
           />
           <TextField
+            field="notes"
             label="Catatan"
             value={form.data.notes}
             onChange={(event) => {

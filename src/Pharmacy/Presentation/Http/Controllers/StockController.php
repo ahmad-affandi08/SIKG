@@ -11,6 +11,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Src\Pharmacy\Application\StockService;
 use Src\Pharmacy\Contracts\MedicineCatalog;
+use Src\Shared\Application\RequiredFields;
 
 /**
  * OBT-05: stok masuk, stok keluar, dan penyesuaian. Membaca: stock.view; mengubah: stock.manage.
@@ -52,6 +53,7 @@ final class StockController
         $data = $request->validate(['medicine' => ['nullable', 'string', 'size:26'], 'type' => ['nullable', 'in:in,out']]);
 
         return Inertia::render('Stock/MovementForm', [
+            'required' => RequiredFields::from(self::movementRules()),
             ...$stock->overview(),
             'preset' => ['medicine' => $data['medicine'] ?? '', 'type' => $data['type'] ?? 'in'],
             'can' => ['override' => (bool) $request->user()?->can('stock.override')],
@@ -63,6 +65,7 @@ final class StockController
         $data = $request->validate(['medicine' => ['nullable', 'string', 'size:26']]);
 
         return Inertia::render('Stock/AdjustmentForm', [
+            'required' => RequiredFields::from(self::adjustmentRules()),
             ...$stock->overview(),
             'preset' => ['medicine' => $data['medicine'] ?? ''],
         ]);
@@ -70,15 +73,7 @@ final class StockController
 
     public function movement(Request $request, StockService $stock): RedirectResponse
     {
-        $data = $request->validate([
-            'medicine_id' => ['required', 'string', 'size:26'],
-            'type' => ['required', 'in:in,out'],
-            'quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
-            'batch_no' => ['nullable', 'string', 'max:50'],
-            'expiry_date' => ['nullable', 'date_format:Y-m-d'],
-            'reason' => ['nullable', 'string', 'max:255'],
-            'override_reason' => ['nullable', 'string', 'max:255'],
-        ], ['medicine_id.required' => 'Obat wajib dipilih.', 'quantity.required' => 'Jumlah wajib diisi.']);
+        $data = $request->validate(self::movementRules(), ['medicine_id.required' => 'Obat wajib dipilih.', 'quantity.required' => 'Jumlah wajib diisi.']);
 
         $actor = $this->actorId($request);
         if ($data['type'] === 'in') {
@@ -93,11 +88,7 @@ final class StockController
 
     public function adjustment(Request $request, StockService $stock): RedirectResponse
     {
-        $data = $request->validate([
-            'medicine_id' => ['required', 'string', 'size:26'],
-            'counted_quantity' => ['required', 'integer', 'min:0', 'max:1000000'],
-            'reason' => ['required', 'string', 'max:255'],
-        ], ['reason.required' => 'Alasan penyesuaian wajib diisi.', 'counted_quantity.required' => 'Jumlah fisik wajib diisi.']);
+        $data = $request->validate(self::adjustmentRules(), ['reason.required' => 'Alasan penyesuaian wajib diisi.', 'counted_quantity.required' => 'Jumlah fisik wajib diisi.']);
 
         $stock->adjust($this->actorId($request), $data['medicine_id'], (int) $data['counted_quantity'], $data['reason']);
 
@@ -110,6 +101,34 @@ final class StockController
         $results = $catalog->search($request->string('q')->toString());
 
         return response()->json(['data' => $results, 'meta' => ['count' => count($results)]]);
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private static function movementRules(): array
+    {
+        return [
+            'medicine_id' => ['required', 'string', 'size:26'],
+            'type' => ['required', 'in:in,out'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'batch_no' => ['nullable', 'string', 'max:50'],
+            'expiry_date' => ['nullable', 'date_format:Y-m-d'],
+            'reason' => ['nullable', 'string', 'max:255'],
+            'override_reason' => ['nullable', 'string', 'max:255'],
+        ];
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private static function adjustmentRules(): array
+    {
+        return [
+            'medicine_id' => ['required', 'string', 'size:26'],
+            'counted_quantity' => ['required', 'integer', 'min:0', 'max:1000000'],
+            'reason' => ['required', 'string', 'max:255'],
+        ];
     }
 
     private function actorId(Request $request): string

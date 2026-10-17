@@ -92,6 +92,7 @@ export default function Clinic({
               Umum
             </h2>
             <Select
+              field="timezone"
               label="Zona waktu klinik"
               options={timezoneOptions}
               value={form.data.timezone}
@@ -101,6 +102,7 @@ export default function Clinic({
               error={error('timezone')}
             />
             <TextField
+              field="session_timeout_minutes"
               label={`Batas sesi tidak aktif (menit, 5 sampai ${sessionMaxMinutes})`}
               type="number"
               min={5}
@@ -119,6 +121,7 @@ export default function Clinic({
             </h2>
             <div>
               <TextField
+                field="medical_record_pattern"
                 label="Format nomor RM"
                 value={form.data.medical_record_pattern}
                 onChange={(event) => {
@@ -130,6 +133,7 @@ export default function Clinic({
             </div>
             <div>
               <TextField
+                field="invoice_pattern"
                 label="Format nomor invoice"
                 value={form.data.invoice_pattern}
                 onChange={(event) => {
@@ -168,6 +172,7 @@ export default function Clinic({
                   {hours !== null ? (
                     <>
                       <TimePicker
+                        field={`operating_hours.${day}.open`}
                         label={`Buka ${label}`}
                         step={15}
                         value={hours.open}
@@ -176,6 +181,7 @@ export default function Clinic({
                         }}
                       />
                       <TimePicker
+                        field={`operating_hours.${day}.close`}
                         label={`Tutup ${label}`}
                         step={15}
                         value={hours.close}

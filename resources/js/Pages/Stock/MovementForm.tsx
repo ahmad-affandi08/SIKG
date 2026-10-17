@@ -84,6 +84,7 @@ export default function MovementForm({ medicines, preset, can }: Props) {
         <form onSubmit={submit} noValidate aria-label="Mutasi stok" className="flex flex-col gap-5">
           {stockShort && flash.error ? <Alert tone="error">{flash.error}</Alert> : null}
           <Select
+            field="medicine_id"
             label="Obat"
             placeholder="Pilih obat"
             options={options}
@@ -94,6 +95,7 @@ export default function MovementForm({ medicines, preset, can }: Props) {
             }}
           />
           <Select
+            field="type"
             label="Jenis mutasi"
             options={TYPE_OPTIONS}
             value={move.type}
@@ -102,6 +104,7 @@ export default function MovementForm({ medicines, preset, can }: Props) {
             }}
           />
           <TextField
+            field="quantity"
             label="Jumlah"
             inputMode="numeric"
             value={move.quantity}
@@ -113,6 +116,7 @@ export default function MovementForm({ medicines, preset, can }: Props) {
           {move.type === 'in' ? (
             <>
               <TextField
+                field="batch_no"
                 label="Nomor batch (opsional)"
                 value={move.batch_no}
                 error={errors.batch_no}
@@ -121,6 +125,7 @@ export default function MovementForm({ medicines, preset, can }: Props) {
                 }}
               />
               <DatePicker
+                field="expiry_date"
                 label="Tanggal kedaluwarsa (opsional)"
                 value={move.expiry_date}
                 error={errors.expiry_date}
@@ -132,7 +137,9 @@ export default function MovementForm({ medicines, preset, can }: Props) {
             </>
           ) : null}
           <TextField
-            label={move.type === 'out' ? 'Alasan (wajib)' : 'Keterangan (opsional)'}
+            label={move.type === 'out' ? 'Alasan' : 'Keterangan (opsional)'}
+            field="reason"
+            required={move.type === 'out'}
             value={move.reason}
             error={errors.reason}
             onChange={(e) => {
@@ -141,6 +148,7 @@ export default function MovementForm({ medicines, preset, can }: Props) {
           />
           {move.type === 'out' && can.override && stockShort ? (
             <TextField
+              field="override_reason"
               label="Alasan melebihi stok (khusus Admin)"
               value={overrideReason}
               onChange={(e) => {

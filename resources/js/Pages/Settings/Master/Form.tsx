@@ -76,6 +76,7 @@ export default function Form({ entity, row }: Props) {
           {entity.fields.map((field) =>
             field.type === 'select' ? (
               <Select
+                field={field.key}
                 key={field.key}
                 label={field.label}
                 options={field.options}

@@ -16,6 +16,7 @@ use Src\Scheduling\Application\AppointmentWorkflow;
 use Src\Scheduling\Application\ClinicTime;
 use Src\Scheduling\Application\ScheduleQueries;
 use Src\Scheduling\Presentation\Http\Requests\AppointmentRequest;
+use Src\Shared\Application\RequiredFields;
 
 /**
  * JDW-01 sampai JDW-08. Izin dipasang per route: appointment.view untuk membaca, appointment.manage untuk mengubah.
@@ -67,15 +68,20 @@ final class AppointmentController
         $data = $request->validate(['date' => ['nullable', 'date_format:Y-m-d']]);
 
         return Inertia::render('Schedule/Create', [
+            'required' => RequiredFields::from(AppointmentRequest::createFrom($request)->rules()),
             'defaultDate' => $data['date'] ?? $this->time->today(),
             'doctors' => array_map(fn ($d) => ['value' => $d->id, 'label' => $d->name], $this->doctors->active()),
             'chairs' => array_map(fn ($c) => ['value' => $c->id, 'label' => $c->name], $this->chairs->active()),
         ]);
     }
 
-    public function edit(string $appointment): Response
+    public function edit(Request $request, string $appointment): Response
     {
+        $rules = AppointmentRequest::createFrom($request);
+        $rules->setMethod('PUT');
+
         return Inertia::render('Schedule/Reschedule', [
+            'required' => RequiredFields::from($rules->rules()),
             'item' => $this->queries->find($appointment),
             'doctors' => array_map(fn ($d) => ['value' => $d->id, 'label' => $d->name], $this->doctors->active()),
             'chairs' => array_map(fn ($c) => ['value' => $c->id, 'label' => $c->name], $this->chairs->active()),
@@ -84,12 +90,16 @@ final class AppointmentController
 
     public function cancelForm(string $appointment): Response
     {
-        return Inertia::render('Schedule/Cancel', ['item' => $this->queries->find($appointment)]);
+        return Inertia::render('Schedule/Cancel', [
+            'required' => RequiredFields::from(self::cancelRules()),
+            'item' => $this->queries->find($appointment),
+        ]);
     }
 
     public function walkInForm(): Response
     {
         return Inertia::render('Queue/WalkIn', [
+            'required' => RequiredFields::from(self::walkInRules()),
             'doctors' => array_map(fn ($d) => ['value' => $d->id, 'label' => $d->name], $this->doctors->active()),
             'chairs' => array_map(fn ($c) => ['value' => $c->id, 'label' => $c->name], $this->chairs->active()),
         ]);
@@ -151,12 +161,7 @@ final class AppointmentController
 
     public function walkIn(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'patient_id' => ['required', 'string', 'size:26'],
-            'doctor_id' => ['required', 'string', 'size:26'],
-            'chair_id' => ['nullable', 'string', 'size:26'],
-            'complaint' => ['nullable', 'string', 'max:500'],
-        ], ['patient_id.required' => 'Pasien wajib dipilih.', 'doctor_id.required' => 'Dokter wajib dipilih.']);
+        $data = $request->validate(self::walkInRules(), ['patient_id.required' => 'Pasien wajib dipilih.', 'doctor_id.required' => 'Dokter wajib dipilih.']);
 
         $this->scheduler->walkIn(
             $this->actorId($request),
@@ -185,7 +190,7 @@ final class AppointmentController
 
     public function cancel(Request $request, string $appointment): RedirectResponse
     {
-        $data = $request->validate(['reason' => ['required', 'string', 'max:255']], ['reason.required' => 'Alasan pembatalan wajib diisi.']);
+        $data = $request->validate(self::cancelRules(), ['reason.required' => 'Alasan pembatalan wajib diisi.']);
         $date = $this->queries->find($appointment)['date'];
         $this->workflow->cancel($this->actorId($request), $appointment, $data['reason']);
 
@@ -197,6 +202,27 @@ final class AppointmentController
         $this->workflow->noShow($this->actorId($request), $appointment);
 
         return back()->with('success', 'Pasien dicatat tidak datang.');
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private static function walkInRules(): array
+    {
+        return [
+            'patient_id' => ['required', 'string', 'size:26'],
+            'doctor_id' => ['required', 'string', 'size:26'],
+            'chair_id' => ['nullable', 'string', 'size:26'],
+            'complaint' => ['nullable', 'string', 'max:500'],
+        ];
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    private static function cancelRules(): array
+    {
+        return ['reason' => ['required', 'string', 'max:255']];
     }
 
     private function actorId(Request $request): string

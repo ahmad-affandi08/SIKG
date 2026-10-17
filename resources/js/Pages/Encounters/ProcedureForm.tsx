@@ -77,9 +77,15 @@ export default function ProcedureForm({ encounter, jaws }: Props) {
         aria-label="Tambah tindakan"
         className="flex flex-col gap-5"
       >
-        <ProcedurePicker selected={procedure} onSelect={setProcedure} error={errors.procedure_id} />
+        <ProcedurePicker
+          field="procedure_id"
+          selected={procedure}
+          onSelect={setProcedure}
+          error={errors.procedure_id}
+        />
         {scope === 'tooth' || scope === 'surface' ? (
           <TextField
+            field="tooth_fdi"
             label="Nomor gigi (FDI)"
             inputMode="numeric"
             value={tooth}
@@ -119,6 +125,7 @@ export default function ProcedureForm({ encounter, jaws }: Props) {
         ) : null}
         {scope === 'jaw' ? (
           <Select
+            field="jaw"
             label="Rahang"
             placeholder="Pilih rahang"
             options={jaws}
@@ -130,6 +137,7 @@ export default function ProcedureForm({ encounter, jaws }: Props) {
           />
         ) : null}
         <TextField
+          field="quantity"
           label="Jumlah"
           inputMode="numeric"
           value={quantity}
@@ -139,6 +147,7 @@ export default function ProcedureForm({ encounter, jaws }: Props) {
           error={errors.quantity}
         />
         <TextField
+          field="notes"
           label="Catatan"
           value={notes}
           onChange={(e) => {

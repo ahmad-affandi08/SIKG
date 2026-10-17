@@ -13,6 +13,7 @@ use Src\Clinic\Contracts\BranchDirectory;
 use Src\Clinic\Domain\FeeMode;
 use Src\Clinic\Presentation\Http\Requests\DoctorRequest;
 use Src\IdentityAccess\Contracts\UserLookup;
+use Src\Shared\Application\RequiredFields;
 
 /**
  * MST-02: dokter, jadwal mingguan, skema jasa. Semua route di balik can:setting.manage.
@@ -30,14 +31,14 @@ final class DoctorController
         return Inertia::render('Settings/Doctors/Index', ['doctors' => $this->doctors->list()]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
-        return Inertia::render('Settings/Doctors/Form', ['doctor' => null, ...$this->options()]);
+        return Inertia::render('Settings/Doctors/Form', ['required' => RequiredFields::from(DoctorRequest::createFrom($request)->rules()), 'doctor' => null, ...$this->options()]);
     }
 
-    public function edit(string $doctor): Response
+    public function edit(Request $request, string $doctor): Response
     {
-        return Inertia::render('Settings/Doctors/Form', ['doctor' => $this->doctors->find($doctor), ...$this->options()]);
+        return Inertia::render('Settings/Doctors/Form', ['required' => RequiredFields::from(DoctorRequest::createFrom($request)->rules()), 'doctor' => $this->doctors->find($doctor), ...$this->options()]);
     }
 
     public function store(DoctorRequest $request): RedirectResponse

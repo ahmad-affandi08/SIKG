@@ -10,6 +10,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Src\Shared\Application\Master\MasterEntity;
 use Src\Shared\Application\Master\MasterEntityRegistry;
+use Src\Shared\Application\RequiredFields;
 
 /**
  * Halaman pengaturan generik untuk master data berbentuk daftar (kursi, tindakan, metode pembayaran, obat).
@@ -53,6 +54,7 @@ final class MasterDataController
                 'fields' => array_map(fn ($f) => $f->toArray(), $master->fields()),
             ],
             'row' => $row,
+            'required' => RequiredFields::from($master->rules(is_string($id) ? $id : null)),
         ]);
     }
 

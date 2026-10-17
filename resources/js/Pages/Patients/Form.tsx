@@ -16,6 +16,7 @@ import type { PatientFormValues } from '@/features/patient/schemas';
 import { formatDate } from '@/lib/format';
 import { HttpError } from '@/lib/http';
 import { todayIso } from '@/lib/date';
+import { usePageRequired } from '@/lib/useRequired';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
 
 interface PatientDto {
@@ -65,6 +66,7 @@ function initial(patient: PatientDto | null): PatientFormValues {
 export default function Form({ patient, consent, sexes }: Props) {
   const editing = patient !== null;
   const timezone = useClinicTimezone();
+  const consentRequired = usePageRequired('consent');
   const form = useForm<PatientFormValues & { acknowledge_duplicates: boolean }>({
     ...initial(patient),
     acknowledge_duplicates: false,
@@ -76,6 +78,7 @@ export default function Form({ patient, consent, sexes }: Props) {
   const schema = buildPatientSchema({ requireConsent: !editing });
 
   const text = (key: keyof PatientFormValues) => ({
+    field: key,
     value: String(form.data[key]),
     onChange: (event: { target: { value: string } }) => {
       form.setData(key, event.target.value as never);
@@ -166,6 +169,7 @@ export default function Form({ patient, consent, sexes }: Props) {
           />
           <DatePicker
             label="Tanggal lahir"
+            field="birth_date"
             value={form.data.birth_date}
             max={todayIso(timezone)}
             clearable={false}
@@ -176,6 +180,7 @@ export default function Form({ patient, consent, sexes }: Props) {
           />
           <Select
             label="Jenis kelamin"
+            field="sex"
             placeholder="Pilih"
             options={sexes}
             value={form.data.sex}
@@ -214,12 +219,20 @@ export default function Form({ patient, consent, sexes }: Props) {
               <label className="min-h-touch flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
+                  aria-required={consentRequired ? true : undefined}
                   checked={form.data.consent}
                   onChange={(event) => {
                     form.setData('consent', event.target.checked);
                   }}
                 />
-                Pasien telah membaca dan menyetujui (teks versi {consent.version})
+                <span>
+                  Pasien telah membaca dan menyetujui (teks versi {consent.version})
+                  {consentRequired ? (
+                    <span aria-hidden="true" className="text-signal-700 ml-0.5">
+                      *
+                    </span>
+                  ) : null}
+                </span>
               </label>
               {clientErrors.consent ? (
                 <p role="alert" className="text-danger-600 text-sm">

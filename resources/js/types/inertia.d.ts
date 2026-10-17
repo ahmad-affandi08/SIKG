@@ -9,6 +9,8 @@ declare module '@inertiajs/core' {
         permissions: string[];
       };
       clinic: { name: string; timezone: string } | null;
+      /** Isian wajib menurut aturan validasi server; dikirim per halaman formulir. */
+      required?: string[];
       flash: { success: string | null; error: string | null; error_code?: string | null };
     };
   }

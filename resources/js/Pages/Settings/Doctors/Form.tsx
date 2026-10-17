@@ -117,6 +117,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
         <form onSubmit={submit} noValidate className="flex flex-col gap-6">
           <section className="flex flex-col gap-4" aria-label="Data dokter">
             <TextField
+              field="name"
               label="Nama dokter"
               value={form.data.name}
               onChange={(event) => {
@@ -125,6 +126,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
               error={error('name')}
             />
             <TextField
+              field="sip_no"
               label="Nomor SIP"
               value={form.data.sip_no}
               onChange={(event) => {
@@ -133,6 +135,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
               error={error('sip_no')}
             />
             <TextField
+              field="specialty"
               label="Spesialisasi"
               value={form.data.specialty}
               onChange={(event) => {
@@ -141,6 +144,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
               error={error('specialty')}
             />
             <Select
+              field="branch_id"
               label="Cabang"
               placeholder="Semua cabang"
               options={branches}
@@ -151,6 +155,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
               error={error('branch_id')}
             />
             <Select
+              field="user_id"
               label="Akun pengguna (opsional)"
               placeholder="Tidak ditautkan"
               options={users}
@@ -165,6 +170,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
           <fieldset className="flex flex-col gap-4">
             <legend className="text-lg font-semibold">Skema jasa dokter</legend>
             <Select
+              field="fee_mode"
               label="Cara hitung bawaan"
               options={feeModes}
               value={form.data.fee_mode}
@@ -174,6 +180,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
               error={error('fee_mode')}
             />
             <TextField
+              field="fee_value"
               label="Nilai jasa bawaan"
               inputMode="decimal"
               value={form.data.fee_value}
@@ -188,6 +195,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
             {form.data.fee_overrides.map((row, index) => (
               <div key={index} className="card flex flex-col gap-3 p-3">
                 <TextField
+                  field={`fee_overrides.${String(index)}.code`}
                   label={`Kode tindakan ${String(index + 1)}`}
                   value={row.code}
                   onChange={(event) => {
@@ -196,6 +204,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
                   error={error(`fee_overrides.${String(index)}.code`)}
                 />
                 <Select
+                  field={`fee_overrides.${String(index)}.mode`}
                   label={`Cara hitung ${String(index + 1)}`}
                   options={feeModes}
                   value={row.mode}
@@ -206,6 +215,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
                   }}
                 />
                 <TextField
+                  field={`fee_overrides.${String(index)}.value`}
                   label={`Nilai jasa ${String(index + 1)}`}
                   inputMode="decimal"
                   value={row.value}
@@ -249,6 +259,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
             {form.data.schedule.map((slot, index) => (
               <div key={index} className="card flex flex-wrap items-end gap-3 p-3">
                 <Select
+                  field={`schedule.${String(index)}.weekday`}
                   label={`Hari ${String(index + 1)}`}
                   options={WEEKDAYS.map((w) => ({ value: w.day, label: w.label }))}
                   value={String(slot.weekday)}
@@ -257,6 +268,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
                   }}
                 />
                 <TimePicker
+                  field={`schedule.${String(index)}.start`}
                   label={`Mulai ${String(index + 1)}`}
                   step={15}
                   value={slot.start}
@@ -266,6 +278,7 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
                   error={error(`schedule.${String(index)}.start`)}
                 />
                 <TimePicker
+                  field={`schedule.${String(index)}.end`}
                   label={`Selesai ${String(index + 1)}`}
                   step={15}
                   value={slot.end}

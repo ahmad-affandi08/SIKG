@@ -1,16 +1,22 @@
 import { useId, useState } from 'react';
 
+import { FieldLabel } from '@/components/ui/FieldLabel';
+import { useRequired } from '@/lib/useRequired';
+
 import { useDiagnosisSearch } from '@/features/clinical/queries';
 import type { Diagnosis } from '@/features/clinical/api';
 import { useDebouncedValue } from '@/lib/useDebouncedValue';
 
 interface DiagnosisPickerProps {
+  /** Nama isian di server; dipakai mencari tanda wajib dari prop `required` halaman. */
+  field?: string;
   onSelect: (diagnosis: Diagnosis) => void;
   label?: string;
 }
 
 /** Pencarian diagnosa ICD-10 dengan autocomplete: ketik kode (K02) atau nama (pulpitis), pilih satu. */
 export function DiagnosisPicker({
+  field,
   onSelect,
   label = 'Cari diagnosa (kode atau nama)',
 }: DiagnosisPickerProps) {
@@ -18,15 +24,16 @@ export function DiagnosisPicker({
   const term = useDebouncedValue(text.trim());
   const query = useDiagnosisSearch(term);
   const inputId = useId();
+  const isRequired = useRequired(field);
   const listId = `${inputId}-list`;
   const results = query.data ?? [];
   const showList = term !== '' && results.length > 0;
 
   return (
     <div className="flex flex-col gap-1">
-      <label htmlFor={inputId} className="text-sm font-semibold">
+      <FieldLabel htmlFor={inputId} required={isRequired}>
         {label}
-      </label>
+      </FieldLabel>
       <input
         id={inputId}
         role="combobox"
