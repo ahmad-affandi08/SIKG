@@ -304,14 +304,24 @@ export function OdontogramBoard({
 
   return (
     <div className="flex flex-col gap-4">
-      <Select
-        label="Jenis gigi"
-        options={DENTITIONS}
-        value={dentition}
-        onChange={(event) => {
-          setDentition(event.target.value as Dentition);
-        }}
-      />
+      <div className="flex flex-wrap items-end gap-3">
+        <Select
+          label="Jenis gigi"
+          options={DENTITIONS}
+          value={dentition}
+          onChange={(event) => {
+            setDentition(event.target.value as Dentition);
+          }}
+        />
+        <a
+          href={`/patients/${patientId}/odontogram/print`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-secondary"
+        >
+          Cetak PDF
+        </a>
+      </div>
 
       <div className="overflow-x-auto" aria-label="Odontogram">
         {sets.map((set) => {

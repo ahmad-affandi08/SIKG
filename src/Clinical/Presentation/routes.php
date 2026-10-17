@@ -10,6 +10,7 @@ use Src\Clinical\Presentation\Http\Controllers\ClinicalFileController;
 use Src\Clinical\Presentation\Http\Controllers\DiagnosisSearchController;
 use Src\Clinical\Presentation\Http\Controllers\EncounterController;
 use Src\Clinical\Presentation\Http\Controllers\OdontogramController;
+use Src\Clinical\Presentation\Http\Controllers\OdontogramPrintController;
 use Src\Clinical\Presentation\Http\Controllers\TimelineController;
 use Src\Clinical\Presentation\Http\Controllers\TreatmentPlanController;
 
@@ -62,6 +63,10 @@ Route::middleware('can:encounter.close')->group(function () use ($id): void {
 Route::middleware('can:encounter.addendum')->group(function () use ($id): void {
     Route::get('/encounters/{encounter}/addenda/create', [EncounterController::class, 'entryForm'])->defaults('form', 'addendum')->where('encounter', $id);
     Route::post('/encounters/{encounter}/addenda', [EncounterController::class, 'addendum'])->where('encounter', $id);
+});
+
+Route::middleware('can:odontogram.view')->group(function () use ($id): void {
+    Route::get('/patients/{patient}/odontogram/print', OdontogramPrintController::class)->name('odontogram.print')->where('patient', $id);
 });
 
 Route::middleware(['can:odontogram.view', 'throttle:120,1'])->prefix('internal-api')->group(function () use ($id): void {

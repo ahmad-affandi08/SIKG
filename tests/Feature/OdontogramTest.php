@@ -190,3 +190,33 @@ it('ODO membuka odontogram pasien tercatat di access log', function () {
 
     expect(DB::table('access_logs')->where('patient_id', $s['pasien'])->where('actor_id', $s['dokter_user']->id)->exists())->toBeTrue();
 });
+
+it('ODO-06 odontogram terkini dicetak ke PDF dan pencetakannya tercatat', function () {
+    $s = siapKunjungan();
+    tenant()->set($s['klinik']->id);
+    test()->actingAs($s['dokter_user'])->putJson("/internal-api/encounters/{$s['kunjungan']}/odontogram/teeth/46", ['surface' => 'O', 'condition_code' => 'KAR'])->assertOk();
+    test()->actingAs($s['dokter_user'])->putJson("/internal-api/encounters/{$s['kunjungan']}/odontogram/teeth/36", ['surface' => 'W', 'condition_code' => 'MHK'])->assertOk();
+    test()->actingAs($s['dokter_user'])->putJson("/internal-api/encounters/{$s['kunjungan']}/odontogram/teeth/54", ['surface' => 'W', 'condition_code' => 'HLG'])->assertOk();
+
+    $respons = test()->actingAs($s['dokter_user'])->get("/patients/{$s['pasien']}/odontogram/print");
+
+    $respons->assertOk()->assertHeader('Content-Type', 'application/pdf');
+    expect(str_starts_with($respons->getContent(), '%PDF'))->toBeTrue()
+        ->and((string) $respons->headers->get('Content-Disposition'))->toContain('inline')
+        ->and(DB::table('access_logs')->where('patient_id', $s['pasien'])->where('route', 'odontogram.print')->exists())->toBeTrue()
+        ->and(DB::table('audit_logs')->where('subject_id', $s['pasien'])->where('action', 'odontogram.printed')->exists())->toBeTrue();
+});
+
+it('ODO-06 cetak odontogram menuntut izin odontogram.view dan hanya untuk pasien klinik sendiri', function () {
+    $s = siapKunjungan();
+    $kasir = makeUser(Role::Kasir, $s['klinik']);
+    $lain = makeClinic('Klinik Lain');
+    $dokterLain = makeUser(Role::Dokter, $lain);
+    tenant()->set($s['klinik']->id);
+
+    test()->actingAs($kasir)->get("/patients/{$s['pasien']}/odontogram/print")->assertForbidden();
+    test()->actingAs($s['user'])->get("/patients/{$s['pasien']}/odontogram/print")->assertForbidden();
+    test()->actingAs($s['perawat'])->get("/patients/{$s['pasien']}/odontogram/print")->assertOk();
+    tenant()->set($lain->id);
+    test()->actingAs($dokterLain)->get("/patients/{$s['pasien']}/odontogram/print")->assertNotFound();
+});
