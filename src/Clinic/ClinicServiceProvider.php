@@ -10,7 +10,9 @@ use Src\Clinic\Application\Doctors\DoctorAdministration;
 use Src\Clinic\Application\Profile\ClinicProfileService;
 use Src\Clinic\Application\Settings\ClinicSettingsService;
 use Src\Clinic\Contracts\BranchDirectory;
+use Src\Clinic\Contracts\MedicalRecordNumbering;
 use Src\Clinic\Contracts\ProcedureCatalog;
+use Src\Clinic\Infrastructure\ClinicMedicalRecordNumbering;
 use Src\Clinic\Infrastructure\EloquentBranchDirectory;
 use Src\Clinic\Infrastructure\EloquentClinicProfileService;
 use Src\Clinic\Infrastructure\EloquentClinicSettingsService;
@@ -27,6 +29,7 @@ final class ClinicServiceProvider extends ServiceProvider
     {
         $this->app->singleton(BranchDirectory::class, EloquentBranchDirectory::class);
         $this->app->singleton(ClinicSettingsService::class, EloquentClinicSettingsService::class);
+        $this->app->singleton(MedicalRecordNumbering::class, ClinicMedicalRecordNumbering::class);
         $this->app->singleton(ProcedureCatalog::class, EloquentProcedureCatalog::class);
         $this->app->singleton(ClinicProfileService::class, EloquentClinicProfileService::class);
         $this->app->singleton(DoctorAdministration::class, EloquentDoctorAdministration::class);

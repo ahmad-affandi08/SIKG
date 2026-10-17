@@ -26,4 +26,13 @@ final class EloquentUserLookup implements UserLookup
     {
         return User::query()->whereKey($userId)->where('is_active', true)->role(Role::Dokter->value)->exists();
     }
+
+    public function names(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        return User::query()->whereKey($ids)->pluck('name', 'id')->all();
+    }
 }

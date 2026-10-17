@@ -36,6 +36,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
   it('daftar menu bawaan aplikasi hanya memuat halaman yang sudah ada', () => {
     expect(NAV_ITEMS.map((item) => item.href)).toEqual([
       '/dashboard',
+      '/patients',
       '/settings/users',
       '/settings/profile',
       '/settings/clinic',

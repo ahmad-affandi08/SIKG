@@ -20,12 +20,12 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] MST-06 | M | Metode pembayaran
 - [x] MST-07 | M | Master diagnosa berbasis ICD-10 (bab K00-K14 penyakit rongga mulut) dengan ...
 - [ ] MST-08 | M | Perubahan tarif tidak mengubah tagihan lama
-- [ ] PAS-01 | M | Pasien baru
-- [ ] PAS-02 | M | Pencarian pasien berdasarkan nama, nomor RM, NIK, atau HP
-- [ ] PAS-03 | M | Deteksi duplikat
-- [ ] PAS-04 | M | Riwayat medis
-- [ ] PAS-05 | M | Persetujuan pemrosesan data pribadi dicatat (tanggal, versi teks, siapa yang ...
-- [ ] PAS-06 | M | Pasien di bawah 18 tahun wajib memiliki data wali atau penanggung jawab
+- [x] PAS-01 | M | Pasien baru
+- [x] PAS-02 | M | Pencarian pasien berdasarkan nama, nomor RM, NIK, atau HP
+- [x] PAS-03 | M | Deteksi duplikat
+- [x] PAS-04 | M | Riwayat medis
+- [x] PAS-05 | M | Persetujuan pemrosesan data pribadi dicatat (tanggal, versi teks, siapa yang ...
+- [x] PAS-06 | M | Pasien di bawah 18 tahun wajib memiliki data wali atau penanggung jawab
 - [ ] PAS-08 | M | Impor pasien dari Excel dengan pratinjau dan laporan kesalahan per baris
 - [ ] JDW-01 | M | Buat janji
 - [ ] JDW-02 | M | Cegah bentrok

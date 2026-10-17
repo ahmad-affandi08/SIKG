@@ -79,6 +79,12 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) pertahankan asumsi ini; (b) pemilik klinik menjawab butir 8 lalu skema diubah lewat migrasi
 - Rekomendasi: (b) sebelum KSR/LAP memakai data ini
 
+### Q-12: Penyimpangan kecil pada modul pasien (dikerjakan dengan asumsi)
+- Kebutuhan terkait: PAS-01, PAS-02, PAS-03, PAS-04
+- Butir: (1) `docs/PRD/08-route-api-kontrak.md` menuliskan pencarian pasien sebagai `GET /internal-api/patients/search?q=`, padahal M11 melarang PHI di query string (kata kunci bisa nama, NIK, atau HP). Dipakai `POST /internal-api/patients/search` dengan badan JSON, throttle 60 per menit sama seperti PRD. (2) `docs/rules/database.md` bagian 3 meminta indeks FULLTEXT pada `name_search`, tetapi indeks FULLTEXT InnoDB tidak melihat baris yang belum di-commit sehingga tes yang dibungkus transaksi tidak dapat memverifikasinya. Dipakai pencarian awalan kata (`LIKE 'kata%'` dan `LIKE '% kata%'`) pada kolom `name_search` yang diindeks bersama `clinic_id`; diukur sekitar 100 milidetik pada 50.000 pasien sintetis (batas PRD 1 detik). Evaluasi mesin pencari terpisah tetap pada batas 200.000 pasien menurut PRD 06. (3) Kolom `nik_missing_reason` ditambahkan pada `patients` untuk alasan NIK belum ada (PAS-01); tabel tidak berubah. (4) Duplikat (PAS-03): NIK sama, atau tanggal lahir sama dengan (nama mirip, selisih maksimal dua karakter, atau HP sama). Pendaftaran ditahan dengan kode `patient.duplicate_suspected` sampai petugas mengonfirmasi. (5) Persetujuan data wajib saat mendaftar; pasien hasil impor (PAS-08) dapat dicatat persetujuannya menyusul. (6) Perawat dan dokter memperbarui riwayat medis lewat izin gabungan `patient.history.manage` (patient.update atau encounter.write) karena matriks PRD tidak memberi mereka `patient.update` padahal alur kerja meminta perawat memperbarui riwayat saat anamnesis. (7) Audit pasien menyimpan NIK dan HP dalam bentuk tersamar, bukan nilai penuh.
+- Opsi: (a) pertahankan asumsi ini; (b) pengguna menetapkan lain, lalu disesuaikan lewat perubahan kecil
+- Rekomendasi: (a); PRD route table sebaiknya diselaraskan oleh pengguna
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

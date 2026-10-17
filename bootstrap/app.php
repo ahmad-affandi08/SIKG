@@ -40,9 +40,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['message' => $e->getMessage(), 'code' => $e->businessCode()], $e->httpStatus());
             }
 
-            // Penolakan izin tetap 403; aturan bisnis lain kembali ke halaman dengan pesan galat.
-            if ($e->httpStatus() === 403) {
-                abort(403, $e->getMessage());
+            // Penolakan izin tetap 403 dan data yang tidak ada tetap 404; aturan bisnis lain kembali ke halaman dengan pesan galat.
+            if (in_array($e->httpStatus(), [403, 404], true)) {
+                abort($e->httpStatus(), $e->getMessage());
             }
 
             return back()->withErrors(['domain' => $e->getMessage()])->with('error', $e->getMessage())->with('error_code', $e->businessCode());

@@ -17,4 +17,12 @@ interface UserLookup
     public function activeDoctors(): array;
 
     public function isActiveDoctor(string $userId): bool;
+
+    /**
+     * Nama tampil untuk beberapa pengguna sekaligus (contoh pencatat persetujuan).
+     *
+     * @param  list<string>  $ids
+     * @return array<string, string> id => nama
+     */
+    public function names(array $ids): array;
 }

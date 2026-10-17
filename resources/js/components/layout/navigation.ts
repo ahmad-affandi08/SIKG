@@ -13,6 +13,7 @@ export interface NavItem {
  */
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Beranda', href: '/dashboard' },
+  { label: 'Pasien', href: '/patients', permission: 'patient.view' },
   { label: 'Pengguna', href: '/settings/users', permission: 'user.view' },
   { label: 'Profil klinik', href: '/settings/profile', permission: 'setting.manage' },
   {
