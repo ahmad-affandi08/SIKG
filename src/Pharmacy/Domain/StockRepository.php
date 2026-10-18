@@ -74,4 +74,29 @@ interface StockRepository
      * @return list<array{medicine_id: string, name: string, unit: string, batch_no: string|null, expiry_date: string, received: int, quantity: int}>
      */
     public function expiringBatches(string $until): array;
+
+    /**
+     * Memindahkan stok antar cabang dalam satu transaksi (P3-04): saldo asal berkurang dan tujuan bertambah di bawah kunci baris,
+     * batch asal dipakai menurut FEFO dan dibuat ulang di tujuan dengan nomor batch, kedaluwarsa, dan harga beli yang sama, serta
+     * dicatat dua mutasi (keluar dan masuk) dan satu baris transfer. `null` berarti gudang pusat (stok tanpa cabang).
+     *
+     * @return array{from_after: int, to_after: int}
+     *
+     * @throws InsufficientStock bila saldo asal kurang
+     */
+    public function transfer(string $actorId, string $transferId, string $medicineId, int $quantity, ?string $fromBranch, ?string $toBranch, ?string $reason, DateTimeImmutable $at): array;
+
+    /**
+     * Saldo tiap obat per cabang dalam cakupan cabang aktif (hanya yang bersaldo atau pernah bermutasi).
+     *
+     * @return list<array{medicine_id: string, name: string, unit: string, branch_id: string|null, quantity: int}>
+     */
+    public function branchBalances(): array;
+
+    /**
+     * Riwayat transfer, terbaru dulu; pengguna terikat cabang melihat yang melibatkan cabangnya.
+     *
+     * @return list<array{id: string, medicine_id: string, name: string, unit: string, from_branch_id: string|null, to_branch_id: string|null, quantity: int, reason: string|null, created_by: string|null, created_at: DateTimeImmutable}>
+     */
+    public function transfers(int $limit): array;
 }

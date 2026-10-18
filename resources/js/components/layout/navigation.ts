@@ -72,6 +72,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Farmasi',
   },
   {
+    label: 'Transfer stok',
+    href: '/stock/transfers',
+    permission: 'stock.view',
+    group: 'Farmasi',
+  },
+  {
     label: 'Opname stok',
     href: '/stock/counts',
     permission: 'stock.view',
@@ -133,6 +139,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
   {
     label: 'Pengaturan klinik',
     href: '/settings/clinic',
+    permission: 'setting.manage',
+    group: 'Pengaturan',
+  },
+  {
+    label: 'Cabang',
+    href: '/settings/master/branches',
     permission: 'setting.manage',
     group: 'Pengaturan',
   },

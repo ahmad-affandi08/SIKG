@@ -74,8 +74,8 @@ final readonly class EloquentOwnerDashboard implements OwnerDashboard
 
     private function lowStock(): int
     {
-        return $this->source->from('medicines', 'm')
-            ->leftJoin('stock_balances as b', 'b.medicine_id', '=', 'm.id')
+        return $this->source->from('medicines', 'm', true, false)
+            ->leftJoinSub($this->source->stockBalances(), 'b', 'b.medicine_id', '=', 'm.id')
             ->where('m.is_active', true)
             ->where('m.min_stock', '>', 0)
             ->whereRaw('COALESCE(b.quantity, 0) < m.min_stock')

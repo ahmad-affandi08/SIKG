@@ -22,6 +22,7 @@ use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
  * @property int|null $unit_cost_amount
  * @property string|null $supplier_id
  * @property string|null $purchase_order_id
+ * @property string|null $transfer_id
  * @property Carbon $received_at
  */
 final class StockBatchModel extends Model
@@ -34,11 +35,6 @@ final class StockBatchModel extends Model
 
     /** @var list<string> */
     protected $fillable = ['branch_id'];
-
-    protected static function branchScoped(): bool
-    {
-        return false;
-    }
 
     /**
      * @return array<string, string>

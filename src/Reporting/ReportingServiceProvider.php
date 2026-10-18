@@ -25,6 +25,7 @@ use Src\Reporting\Infrastructure\Queries\DoctorFeeQueries;
 use Src\Reporting\Infrastructure\Queries\EloquentOwnerDashboard;
 use Src\Reporting\Infrastructure\Queries\QueryReportLookups;
 use Src\Reporting\Infrastructure\QueueReportJobDispatcher;
+use Src\Reporting\Infrastructure\Reports\BranchSummaryReport;
 use Src\Reporting\Infrastructure\Reports\CashClosingReport;
 use Src\Reporting\Infrastructure\Reports\DailySummaryReport;
 use Src\Reporting\Infrastructure\Reports\DoctorFeesReport;
@@ -42,7 +43,7 @@ final class ReportingServiceProvider extends ServiceProvider
 {
     private const REPORTS = [
         DailySummaryReport::class, RevenueReport::class, DoctorFeesReport::class, VisitsReport::class, ProceduresReport::class,
-        ReceivablesReport::class, StockReport::class, CashClosingReport::class, RecordCompletenessReport::class, UserActivityReport::class, ProfitLossReport::class,
+        ReceivablesReport::class, StockReport::class, CashClosingReport::class, RecordCompletenessReport::class, UserActivityReport::class, ProfitLossReport::class, BranchSummaryReport::class,
     ];
 
     public function register(): void

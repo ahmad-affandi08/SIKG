@@ -33,6 +33,7 @@ const ROUTE_PUBLIK = [
 const ROUTE_LOGIN_SAJA = [
     '/dashboard' => ['GET'],
     '/logout' => ['POST'],
+    '/branch/switch' => ['POST'], // P3-04: hanya mengubah cabang aktif di sesi sendiri; use case menolak pengguna terikat cabang
 ];
 
 /**

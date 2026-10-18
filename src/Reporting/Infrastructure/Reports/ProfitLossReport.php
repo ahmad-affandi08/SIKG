@@ -44,7 +44,7 @@ final readonly class ProfitLossReport extends AbstractReport
         $lab = $this->byMonth($this->source->from('lab_orders', 'lo')
             ->where('lo.status', 'received')->whereBetween('lo.received_date', [$range->from, $range->to])->groupBy('period')
             ->selectRaw("DATE_FORMAT(lo.received_date, '%Y-%m') as period, COALESCE(SUM(lo.lab_cost_amount), 0) as total")->get());
-        $purchases = $this->byMonth($this->source->within($this->source->from('stock_batches', 'sb')->whereNotNull('sb.unit_cost_amount'), 'sb.received_at', $range)->groupBy('period')
+        $purchases = $this->byMonth($this->source->within($this->source->from('stock_batches', 'sb')->whereNotNull('sb.unit_cost_amount')->whereNull('sb.transfer_id'), 'sb.received_at', $range)->groupBy('period')
             ->selectRaw(LocalTime::STOCK_BATCH_RECEIVED_MONTH.' as period, COALESCE(SUM(sb.unit_cost_amount * sb.received_quantity), 0) as total', [$offset])->get());
         $operating = $this->byMonth($this->expenses($range)->groupBy('period')
             ->selectRaw("DATE_FORMAT(x.expense_date, '%Y-%m') as period, COALESCE(SUM(x.amount), 0) as total")->get());

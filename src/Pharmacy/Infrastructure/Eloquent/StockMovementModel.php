@@ -38,11 +38,6 @@ final class StockMovementModel extends Model
     /** @var list<string> */
     protected $fillable = ['medicine_id', 'type', 'quantity', 'balance_after', 'reference_type', 'reference_id', 'reason', 'batch_no', 'expiry_date', 'created_by', 'branch_id'];
 
-    protected static function branchScoped(): bool
-    {
-        return false;
-    }
-
     protected static function booted(): void
     {
         $refuse = function (): never {

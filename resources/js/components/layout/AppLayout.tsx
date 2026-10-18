@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 
@@ -83,7 +83,7 @@ function Shell({
   pageTitle: string | null;
   bare: boolean;
 }) {
-  const { auth, clinic } = usePage().props;
+  const { auth, clinic, branch } = usePage().props;
   const { url } = usePage();
   const visible = visibleNavItems(navItems, auth.permissions);
   const entries = toEntries(visible);
@@ -194,6 +194,26 @@ function Shell({
           );
         })}
         <span className="ml-auto flex items-center gap-px">
+          {branch && !branch.locked && branch.options.length > 0 ? (
+            <label className="flex items-center gap-1 px-1 text-xs">
+              <span>Cabang</span>
+              <select
+                aria-label="Cabang aktif"
+                className="field !min-h-0 !py-0.5 text-xs"
+                value={branch.active_id ?? ''}
+                onChange={(event) => {
+                  router.post('/branch/switch', { branch_id: event.target.value || null });
+                }}
+              >
+                <option value="">Semua cabang</option>
+                {branch.options.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           {auth.user ? <NotificationBell onClick={closeMenu} /> : null}
           <Link
             href="/logout"
@@ -253,7 +273,10 @@ function Shell({
       </div>
 
       <footer className="status-bar flex flex-wrap items-center gap-x-4 px-2 py-0.5 text-xs text-white">
-        <span className="truncate">{clinic?.name ?? ''}</span>
+        <span className="truncate">
+          {clinic?.name ?? ''}
+          {branch?.active_name ? ` - ${branch.active_name}` : ''}
+        </span>
         <span aria-hidden="true" className="text-white/50">
           |
         </span>

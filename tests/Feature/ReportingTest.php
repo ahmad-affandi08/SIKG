@@ -531,7 +531,7 @@ it('LAP-10 aktivitas pengguna merangkum audit log dan jejak akses per pengguna d
 it('LAP matriks hak akses: laporan yang boleh dibuka tiap peran', function () {
     $d = lapData();
     tenant()->set($d['k']->id);
-    $semua = ['daily-summary', 'revenue', 'doctor-fees', 'visits', 'procedures', 'receivables', 'stock', 'cash-closing', 'record-completeness', 'user-activity', 'profit-loss'];
+    $semua = ['daily-summary', 'revenue', 'doctor-fees', 'visits', 'procedures', 'receivables', 'stock', 'cash-closing', 'record-completeness', 'user-activity', 'profit-loss', 'branch-summary'];
     $izin = [
         'pemilik' => $semua,
         'admin' => $semua,

@@ -48,6 +48,28 @@ final readonly class ReportSource
         return $query;
     }
 
+    /**
+     * Saldo stok per obat dalam cakupan cabang aktif (satu cabang bila terikat, jumlah seluruh cabang bila tidak), untuk di-join per obat
+     * tanpa menggandakan baris ketika obat punya saldo di beberapa cabang (P3-04).
+     */
+    public function stockBalances(): Builder
+    {
+        $clinicId = $this->tenant->clinicId() ?? throw new RuntimeException('Konteks klinik kosong; laporan tidak dapat dijalankan.');
+        $query = DB::table('stock_balances')->where('clinic_id', $clinicId);
+        $branchId = $this->tenant->branchId();
+        if ($branchId !== null) {
+            $query->where('branch_id', $branchId);
+        }
+
+        return $query->groupBy('medicine_id')->selectRaw('medicine_id, SUM(quantity) as quantity');
+    }
+
+    /** Cabang aktif konteks (null = semua cabang). */
+    public function branchId(): ?string
+    {
+        return $this->tenant->branchId();
+    }
+
     public function timezone(): DateTimeZone
     {
         return new DateTimeZone($this->calendar->timezone());

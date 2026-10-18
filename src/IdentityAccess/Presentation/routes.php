@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Src\IdentityAccess\Presentation\Http\Controllers\AccountController;
 use Src\IdentityAccess\Presentation\Http\Controllers\AuditController;
+use Src\IdentityAccess\Presentation\Http\Controllers\BranchController;
 use Src\IdentityAccess\Presentation\Http\Controllers\DashboardController;
 use Src\IdentityAccess\Presentation\Http\Controllers\LoginController;
 use Src\IdentityAccess\Presentation\Http\Controllers\NotificationController;
@@ -24,6 +25,8 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware('auth')->group(function (): void {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    // P3-04: pilih cabang aktif. Aturan siapa yang boleh ada di use case; hanya mengubah sesi sendiri.
+    Route::post('/branch/switch', [BranchController::class, 'switch'])->middleware('throttle:60,1');
 });
 
 // AUTH-06: ganti kata sandi sendiri. Gate account.password = pengguna aktif; percobaan dibatasi.

@@ -41,6 +41,7 @@ use Src\Clinic\Infrastructure\EloquentLetterheadProvider;
 use Src\Clinic\Infrastructure\EloquentPaymentMethodCatalog;
 use Src\Clinic\Infrastructure\EloquentProcedureCatalog;
 use Src\Clinic\Infrastructure\EloquentToothConditionCatalog;
+use Src\Clinic\Infrastructure\Master\BranchEntity;
 use Src\Clinic\Infrastructure\Master\ChairEntity;
 use Src\Clinic\Infrastructure\Master\DocumentTemplateEntity;
 use Src\Clinic\Infrastructure\Master\PaymentMethodEntity;
@@ -79,6 +80,7 @@ final class ClinicServiceProvider extends ServiceProvider
 
         $registry = $this->app->make(MasterEntityRegistry::class);
         $registry->register($this->app->make(ChairEntity::class));
+        $registry->register($this->app->make(BranchEntity::class));
         $registry->register($this->app->make(ProcedureEntity::class));
         $registry->register($this->app->make(PaymentMethodEntity::class));
         $registry->register($this->app->make(ToothConditionEntity::class));

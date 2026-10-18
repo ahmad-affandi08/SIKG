@@ -83,8 +83,8 @@ final readonly class StockReport extends AbstractReport
      */
     private function balances(): array
     {
-        $rows = $this->source->from('medicines', 'm')
-            ->leftJoin('stock_balances as b', 'b.medicine_id', '=', 'm.id')
+        $rows = $this->source->from('medicines', 'm', true, false)
+            ->leftJoinSub($this->source->stockBalances(), 'b', 'b.medicine_id', '=', 'm.id')
             ->where(function ($q): void {
                 $q->where('m.is_active', true)->orWhere('b.quantity', '>', 0);
             })

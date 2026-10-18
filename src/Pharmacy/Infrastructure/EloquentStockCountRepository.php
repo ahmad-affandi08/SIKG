@@ -41,7 +41,7 @@ final class EloquentStockCountRepository implements StockCountRepository
         $m = new StockCountSessionModel;
         $m->forceFill(['scheduled_for' => $scheduledFor, 'status' => 'open', 'source' => $source, 'note' => $note, 'created_by' => $actorId])->save();
 
-        $balances = StockBalanceModel::query()->pluck('quantity', 'medicine_id');
+        $balances = StockBalanceModel::totals();
         foreach (MedicineModel::query()->where('is_active', true)->orderBy('name')->get() as $medicine) {
             (new StockCountLineModel)->forceFill(['session_id' => $m->id, 'medicine_id' => $medicine->id, 'system_quantity' => (int) ($balances[$medicine->id] ?? 0)])->save();
         }

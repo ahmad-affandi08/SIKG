@@ -114,11 +114,11 @@ describe('LAP hak akses laporan menurut izin (matriks PRD 00)', function () {
         expect((new ReportViewer('U', ['patient.view', 'invoice.view']))->visibleReports())->toBe([]);
     });
 
-    it('LAP kunci laporan unik dan kode berurutan LAP-01 sampai LAP-11', function () {
+    it('LAP kunci laporan unik dan kode berurutan LAP-01 sampai LAP-12', function () {
         $codes = array_map(fn (ReportKey $k) => $k->code(), ReportKey::cases());
 
-        expect($codes)->toBe(['LAP-01', 'LAP-02', 'LAP-03', 'LAP-04', 'LAP-05', 'LAP-06', 'LAP-07', 'LAP-08', 'LAP-09', 'LAP-10', 'LAP-11'])
-            ->and(array_unique(array_map(fn (ReportKey $k) => $k->value, ReportKey::cases())))->toHaveCount(11);
+        expect($codes)->toBe(['LAP-01', 'LAP-02', 'LAP-03', 'LAP-04', 'LAP-05', 'LAP-06', 'LAP-07', 'LAP-08', 'LAP-09', 'LAP-10', 'LAP-11', 'LAP-12'])
+            ->and(array_unique(array_map(fn (ReportKey $k) => $k->value, ReportKey::cases())))->toHaveCount(12);
     });
 
     it('LAP laporan keuangan menyediakan filter dokter dan metode bayar, laporan klinis hanya dokter', function () {

@@ -8,6 +8,7 @@ use Src\Pharmacy\Presentation\Http\Controllers\ProcedureMaterialController;
 use Src\Pharmacy\Presentation\Http\Controllers\PurchaseOrderController;
 use Src\Pharmacy\Presentation\Http\Controllers\StockController;
 use Src\Pharmacy\Presentation\Http\Controllers\StockCountController;
+use Src\Pharmacy\Presentation\Http\Controllers\StockTransferController;
 
 // Semua route di balik 'auth' (dipasang oleh ServiceProvider).
 // Setiap route wajib punya pemeriksaan izin: ->middleware('can:<permission>') atau authorize() di controller.
@@ -24,6 +25,7 @@ Route::middleware('can:stock.view')->prefix('stock')->group(function () use ($id
     Route::get('/purchase-orders', [PurchaseOrderController::class, 'index'])->name('stock.purchase-orders');
     Route::get('/purchase-orders/{order}', [PurchaseOrderController::class, 'show'])->name('stock.purchase-orders.show')->where('order', $id);
     Route::get('/counts', [StockCountController::class, 'index'])->name('stock.counts');
+    Route::get('/transfers', [StockTransferController::class, 'index'])->name('stock.transfers');
     Route::get('/counts/{session}', [StockCountController::class, 'show'])->name('stock.counts.show')->where('session', $id);
 });
 
@@ -34,6 +36,7 @@ Route::middleware('can:stock.manage')->group(function () use ($id): void {
     Route::post('/stock/purchase-orders/{order}/cancel', [PurchaseOrderController::class, 'cancel'])->where('order', $id);
     Route::post('/stock/purchase-orders/{order}/receive', [PurchaseOrderController::class, 'receive'])->where('order', $id);
 
+    Route::post('/stock/transfers', [StockTransferController::class, 'store']);
     Route::post('/stock/counts', [StockCountController::class, 'start']);
     Route::post('/stock/counts/schedule', [StockCountController::class, 'schedule']);
     Route::post('/stock/counts/{session}/save', [StockCountController::class, 'save'])->where('session', $id);

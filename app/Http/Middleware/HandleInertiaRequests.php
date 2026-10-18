@@ -6,11 +6,15 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Src\Clinic\Contracts\BranchDirectory;
 use Src\Clinic\Infrastructure\Eloquent\ClinicModel;
 use Src\IdentityAccess\Infrastructure\Eloquent\User;
+use Src\Shared\Application\TenantContext;
 
 final class HandleInertiaRequests extends Middleware
 {
+    public function __construct(private readonly BranchDirectory $branches, private readonly TenantContext $tenant) {}
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -42,6 +46,7 @@ final class HandleInertiaRequests extends Middleware
                 'permissions' => $user instanceof User ? $user->getAllPermissions()->pluck('name')->values()->all() : [],
             ],
             'clinic' => $user instanceof User ? $this->clinic() : null,
+            'branch' => $user instanceof User ? $this->branch($user) : null,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
@@ -58,5 +63,31 @@ final class HandleInertiaRequests extends Middleware
         $clinic = ClinicModel::query()->first();
 
         return $clinic instanceof ClinicModel ? ['name' => $clinic->name, 'timezone' => $clinic->timezone] : null;
+    }
+
+    /**
+     * Cabang aktif untuk pemilih cabang di header (P3-04). `options` kosong bila klinik hanya punya satu cabang atau tidak ada, sehingga
+     * pemilih tidak tampil. Pengguna terikat cabang melihat nama cabangnya tanpa dapat berpindah.
+     *
+     * @return array{active_id: string|null, active_name: string|null, locked: bool, options: list<array{id: string, name: string}>}
+     */
+    private function branch(User $user): array
+    {
+        $all = $this->branches->all();
+        $active = array_values(array_filter($all, fn ($b) => $b->active));
+        $activeId = $this->tenant->branchId();
+        $name = null;
+        foreach ($all as $branch) {
+            if ($branch->id === $activeId) {
+                $name = $branch->name;
+            }
+        }
+
+        return [
+            'active_id' => $activeId,
+            'active_name' => $name,
+            'locked' => $user->branch_id !== null,
+            'options' => count($active) >= 2 ? array_map(fn ($b) => ['id' => $b->id, 'name' => $b->name], $active) : [],
+        ];
     }
 }

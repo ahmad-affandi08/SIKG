@@ -9,6 +9,13 @@ declare module '@inertiajs/core' {
         permissions: string[];
       };
       clinic: { name: string; timezone: string } | null;
+      /** Cabang aktif dan pilihannya (P3-04); `options` kosong bila klinik hanya punya satu cabang. */
+      branch: {
+        active_id: string | null;
+        active_name: string | null;
+        locked: boolean;
+        options: { id: string; name: string }[];
+      } | null;
       /** Isian wajib menurut aturan validasi server; dikirim per halaman formulir. */
       required?: string[];
       flash: { success: string | null; error: string | null; error_code?: string | null };

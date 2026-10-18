@@ -27,7 +27,7 @@ final class EloquentMedicineCatalog implements MedicineCatalog
         $like = addcslashes($term, '\\%_');
         $medicines = MedicineModel::query()->where('is_active', true)->where('name', 'like', '%'.$like.'%')
             ->orderByRaw('CASE WHEN name LIKE ? THEN 0 ELSE 1 END', [$like.'%'])->orderBy('name')->limit(min($limit, 20))->get();
-        $balances = StockBalanceModel::query()->whereIn('medicine_id', $medicines->pluck('id')->all())->pluck('quantity', 'medicine_id');
+        $balances = StockBalanceModel::totals(array_values($medicines->pluck('id')->map(fn ($id) => (string) $id)->all()));
 
         return array_values($medicines->map(fn (MedicineModel $m) => [
             'id' => $m->id,

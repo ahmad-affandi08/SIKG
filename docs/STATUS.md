@@ -113,6 +113,6 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] P3-01 | Booking online pasien
 - [ ] P3-02 | Mode offline (PWA)
 - [ ] P3-03 | Integrasi rontgen digital
-- [ ] P3-04 | Multi-cabang penuh
+- [x] P3-04 | Multi-cabang penuh
 - [x] P3-05 | Pembayaran online
 - [x] P3-06 | Voucher dan membership
