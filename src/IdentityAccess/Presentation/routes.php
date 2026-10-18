@@ -9,6 +9,7 @@ use Src\IdentityAccess\Presentation\Http\Controllers\BranchController;
 use Src\IdentityAccess\Presentation\Http\Controllers\DashboardController;
 use Src\IdentityAccess\Presentation\Http\Controllers\LoginController;
 use Src\IdentityAccess\Presentation\Http\Controllers\NotificationController;
+use Src\IdentityAccess\Presentation\Http\Controllers\OfflineQueueController;
 use Src\IdentityAccess\Presentation\Http\Controllers\RoleController;
 use Src\IdentityAccess\Presentation\Http\Controllers\TwoFactorController;
 use Src\IdentityAccess\Presentation\Http\Controllers\TwoFactorLoginController;
@@ -27,6 +28,8 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     // P3-04: pilih cabang aktif. Aturan siapa yang boleh ada di use case; hanya mengubah sesi sendiri.
     Route::post('/branch/switch', [BranchController::class, 'switch'])->middleware('throttle:60,1');
+    // P3-02: antrean pencatatan offline milik perangkat ini; halaman tanpa data server.
+    Route::get('/offline/queue', OfflineQueueController::class)->name('offline.queue');
 });
 
 // AUTH-06: ganti kata sandi sendiri. Gate account.password = pengguna aktif; percobaan dibatasi.

@@ -5,6 +5,7 @@ import type { KeyboardEvent, ReactNode } from 'react';
 import { buildCrumbs } from '@/components/layout/breadcrumbs';
 import { FlashMessages } from '@/components/layout/FlashMessages';
 import { NotificationBell } from '@/components/layout/NotificationBell';
+import { OfflineIndicator } from '@/components/layout/OfflineIndicator';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
 import type { NavItem } from '@/components/layout/navigation';
 import { PageTitleProvider } from '@/components/layout/PageTitle';
@@ -284,6 +285,7 @@ function Shell({
           {auth.user ? <strong className="font-semibold">{auth.user.name}</strong> : null}
           {auth.user?.roles[0] ? ` (${roleText(auth.user.roles[0])})` : ''}
         </span>
+        {auth.user ? <OfflineIndicator /> : null}
         <span className="ml-auto tabular-nums">
           <Clock timezone={clinic?.timezone} />
         </span>

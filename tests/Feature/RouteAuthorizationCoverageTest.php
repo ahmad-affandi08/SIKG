@@ -33,6 +33,7 @@ const ROUTE_PUBLIK = [
 const ROUTE_LOGIN_SAJA = [
     '/dashboard' => ['GET'],
     '/logout' => ['POST'],
+    '/offline/queue' => ['GET'], // P3-02: halaman antrean offline perangkat; tanpa data server
     '/branch/switch' => ['POST'], // P3-04: hanya mengubah cabang aktif di sesi sendiri; use case menolak pengguna terikat cabang
 ];
 

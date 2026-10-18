@@ -2,12 +2,14 @@ import { createInertiaApp } from '@inertiajs/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import type { ComponentType } from 'react';
 
+import { registerServiceWorker } from '@/lib/offline/register';
 import { createQueryClient } from '@/lib/queryClient';
 import { installZodIndonesian } from '@/lib/zod-id';
 
 import '../css/app.css';
 
 installZodIndonesian();
+registerServiceWorker();
 
 const queryClient = createQueryClient();
 const pages = import.meta.glob<{ default: ComponentType }>('./Pages/**/*.tsx');

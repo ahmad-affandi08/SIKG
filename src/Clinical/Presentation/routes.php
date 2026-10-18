@@ -61,8 +61,8 @@ Route::middleware('can:encounter.create')->group(function () use ($id): void {
 });
 
 Route::middleware('can:encounter.write')->group(function () use ($id): void {
-    Route::put('/encounters/{encounter}/anamnesis', [EncounterController::class, 'anamnesis'])->where('encounter', $id);
-    Route::put('/encounters/{encounter}/notes', [EncounterController::class, 'notes'])->where('encounter', $id);
+    Route::put('/encounters/{encounter}/anamnesis', [EncounterController::class, 'anamnesis'])->middleware('offline.dedupe')->where('encounter', $id);
+    Route::put('/encounters/{encounter}/notes', [EncounterController::class, 'notes'])->middleware('offline.dedupe')->where('encounter', $id);
     Route::get('/encounters/{encounter}/diagnoses/create', [EncounterController::class, 'entryForm'])->defaults('form', 'diagnosis')->where('encounter', $id);
     Route::get('/encounters/{encounter}/procedures/create', [EncounterController::class, 'entryForm'])->defaults('form', 'procedure')->where('encounter', $id);
     Route::get('/encounters/{encounter}/files/create', [EncounterController::class, 'entryForm'])->defaults('form', 'file')->where('encounter', $id);

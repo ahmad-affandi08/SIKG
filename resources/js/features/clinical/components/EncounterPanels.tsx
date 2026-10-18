@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
@@ -17,6 +17,7 @@ import {
 } from '@/features/clinical/schemas';
 import type { SoapKey } from '@/features/clinical/schemas';
 import { formatBytes } from '@/features/clinical/files';
+import { putOrQueue } from '@/lib/offline/submit';
 import { formatDateTime, formatRupiah } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
 
@@ -85,6 +86,7 @@ export function AnamnesisPanel({
   encounter: EncounterData;
   canWrite: boolean;
 }) {
+  const { auth } = usePage().props;
   const [values, setValues] = useState({
     chief_complaint: encounter.chief_complaint ?? '',
     complaint_history: encounter.complaint_history ?? '',
@@ -108,7 +110,8 @@ export function AnamnesisPanel({
     }
     setErrors({});
     setSaving(true);
-    router.put(
+    void putOrQueue(
+      auth.user?.id ?? null,
       `/encounters/${encounter.id}/anamnesis`,
       {
         chief_complaint: values.chief_complaint,
@@ -213,6 +216,7 @@ export function SoapPanel({
   notes: Note[];
   canWrite: boolean;
 }) {
+  const { auth } = usePage().props;
   const bodyOf = (type: string, section: string | null) =>
     notes.find((n) => n.type === type && n.section === section);
   const initial: Record<SoapKey, Note | undefined> = {
@@ -242,7 +246,7 @@ export function SoapPanel({
     }
     setErrors({});
     setSaving(true);
-    router.put(`/encounters/${encounter.id}/notes`, values, {
+    void putOrQueue(auth.user?.id ?? null, `/encounters/${encounter.id}/notes`, values, {
       preserveScroll: true,
       onError: (serverErrors) => {
         setErrors(serverErrors);

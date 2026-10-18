@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\DedupeOfflineReplay;
 use App\Http\Middleware\EnforceIdleTimeout;
 use App\Http\Middleware\EnforcePasswordChange;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -26,6 +27,8 @@ return Application::configure(basePath: dirname(__DIR__))
             EnforcePasswordChange::class,
             HandleInertiaRequests::class,
         ]);
+        // P3-02: pengiriman ulang antrean offline hanya dijalankan sekali per kunci (dipasang di route anamnesis dan catatan).
+        $middleware->alias(['offline.dedupe' => DedupeOfflineReplay::class]);
         // Global (bukan grup web) agar header juga ada di 404, /up, dan pengalihan.
         $middleware->append(SecurityHeaders::class);
         // Percaya proxy hosting (HTTPS diakhiri di penyedia) agar cookie aman dan HSTS benar.
