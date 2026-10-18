@@ -14,6 +14,7 @@ use Src\Billing\Domain\InvoiceItem;
 use Src\Billing\Domain\InvoiceRepository;
 use Src\Billing\Domain\Payment;
 use Src\Billing\Domain\PaymentType;
+use Src\Billing\Domain\PromotionGuard;
 use Src\Clinic\Contracts\PaymentMethodCatalog;
 use Src\Shared\Application\AuditEntry;
 use Src\Shared\Application\AuditLogger;
@@ -31,6 +32,7 @@ final readonly class InvoiceService
 {
     public function __construct(
         private InvoiceRepository $invoices,
+        private PromotionGuard $promotions,
         private BillingNumbering $numbering,
         private PaymentMethodCatalog $methods,
         private Transaction $tx,
@@ -95,6 +97,9 @@ final readonly class InvoiceService
     {
         $this->mutate($actorId, $invoiceId, 'invoice.item_discount_applied', function (Invoice $invoice) use ($itemId, $discount, $limitBasisPoints): array {
             $item = $invoice->item($itemId) ?? throw new InvalidBillingData('invoice.item_not_found', 'Item tagihan tidak ditemukan.');
+            if ($this->promotions->itemHasPackageUsage($itemId)) {
+                throw new InvalidBillingData('promo.active', 'Item ini memakai sesi paket; lepas sesi paket dulu di halaman promo.');
+            }
             $this->guardLimit($discount, $item->gross(), $limitBasisPoints);
             $before = $item->discountAmount()->amount;
             $invoice->applyItemDiscount($itemId, $discount);
@@ -106,6 +111,9 @@ final readonly class InvoiceService
     public function applyInvoiceDiscount(string $actorId, string $invoiceId, ?Discount $discount, int $limitBasisPoints): void
     {
         $this->mutate($actorId, $invoiceId, 'invoice.discount_applied', function (Invoice $invoice) use ($discount, $limitBasisPoints): array {
+            if ($this->promotions->invoiceHasPromotion($invoice->id)) {
+                throw new InvalidBillingData('promo.active', 'Tagihan memakai promo (voucher atau poin); lepas promo dulu di halaman promo.');
+            }
             $this->guardLimit($discount, $invoice->subtotal(), $limitBasisPoints);
             $before = $invoice->discountAmount()->amount;
             $invoice->applyInvoiceDiscount($discount);

@@ -8,7 +8,9 @@ use Src\Billing\Presentation\Http\Controllers\ExpenseController;
 use Src\Billing\Presentation\Http\Controllers\InstallmentController;
 use Src\Billing\Presentation\Http\Controllers\InvoiceController;
 use Src\Billing\Presentation\Http\Controllers\InvoicePrintController;
+use Src\Billing\Presentation\Http\Controllers\LoyaltyController;
 use Src\Billing\Presentation\Http\Controllers\PaymentController;
+use Src\Billing\Presentation\Http\Controllers\PromotionController;
 
 // Semua route di balik 'auth' (dipasang oleh ServiceProvider).
 // Setiap route wajib punya pemeriksaan izin: ->middleware('can:<permission>') atau authorize() di controller.
@@ -73,4 +75,27 @@ Route::middleware('can:expense.manage')->group(function () use ($id): void {
     Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
     Route::post('/expenses', [ExpenseController::class, 'store']);
     Route::post('/expenses/{expense}/void', [ExpenseController::class, 'void'])->where('expense', $id);
+});
+
+// P3-06: voucher, poin, dan paket kunjungan.
+Route::middleware('can:invoice.view')->group(function () use ($id): void {
+    Route::get('/invoices/{invoice}/promotions', [PromotionController::class, 'show'])->name('invoices.promotions')->where('invoice', $id);
+});
+
+Route::middleware('can:invoice.edit')->group(function () use ($id): void {
+    Route::post('/invoices/{invoice}/promotions/voucher', [PromotionController::class, 'voucher'])->where('invoice', $id)->middleware('throttle:30,1');
+    Route::post('/invoices/{invoice}/promotions/points', [PromotionController::class, 'points'])->where('invoice', $id);
+    Route::post('/invoices/{invoice}/promotions/remove', [PromotionController::class, 'remove'])->where('invoice', $id);
+    Route::post('/invoices/{invoice}/promotions/package', [PromotionController::class, 'package'])->where('invoice', $id);
+    Route::post('/invoices/{invoice}/promotions/package/remove', [PromotionController::class, 'removePackage'])->where('invoice', $id);
+    Route::post('/patients/{patient}/packages', [LoyaltyController::class, 'sell'])->where('patient', $id);
+});
+
+Route::middleware('can:patient.view')->group(function () use ($id): void {
+    Route::get('/patients/{patient}/loyalty', [LoyaltyController::class, 'patient'])->name('patients.loyalty')->where('patient', $id);
+});
+
+Route::middleware('can:setting.manage')->group(function (): void {
+    Route::get('/settings/loyalty', [LoyaltyController::class, 'settings'])->name('settings.loyalty');
+    Route::post('/settings/loyalty', [LoyaltyController::class, 'saveSettings']);
 });

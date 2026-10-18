@@ -161,6 +161,24 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Pengaturan',
   },
   {
+    label: 'Voucher',
+    href: '/settings/master/vouchers',
+    permission: 'invoice.view',
+    group: 'Pengaturan',
+  },
+  {
+    label: 'Paket kunjungan',
+    href: '/settings/master/visit-packages',
+    permission: 'invoice.view',
+    group: 'Pengaturan',
+  },
+  {
+    label: 'Pengaturan poin',
+    href: '/settings/loyalty',
+    permission: 'setting.manage',
+    group: 'Pengaturan',
+  },
+  {
     label: 'Obat dan bahan',
     href: '/settings/master/medicines',
     permission: 'stock.view',

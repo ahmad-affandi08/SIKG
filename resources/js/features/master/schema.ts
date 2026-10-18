@@ -3,7 +3,7 @@ import { z } from 'zod';
 export interface MasterFieldDef {
   key: string;
   label: string;
-  type: 'text' | 'textarea' | 'number' | 'money' | 'select';
+  type: 'text' | 'textarea' | 'number' | 'money' | 'select' | 'date';
   required: boolean;
   options: { value: string; label: string }[];
   max: number | null;
@@ -36,6 +36,16 @@ function fieldSchema(field: MasterFieldDef): z.ZodType<string> {
         return /^\d{1,12}$/.test(text);
       },
       { message: `${field.label} harus berupa ${unit} tidak negatif.` },
+    );
+  }
+
+  if (field.type === 'date') {
+    return z.string().refine(
+      (value) => {
+        const text = value.trim();
+        return text === '' ? !field.required : /^\d{4}-\d{2}-\d{2}$/.test(text);
+      },
+      { message: `${field.label} harus berupa tanggal yang sah.` },
     );
   }
 

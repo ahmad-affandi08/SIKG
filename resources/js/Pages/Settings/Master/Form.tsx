@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { Select } from '@/components/ui/Select';
 import { TextArea } from '@/components/ui/TextArea';
 import { TextField } from '@/components/ui/TextField';
@@ -86,6 +87,17 @@ export default function Form({ entity, row }: Props) {
                 value={form.data[field.key] ?? ''}
                 onChange={(event) => {
                   form.setData(field.key, event.target.value);
+                }}
+                error={errorFor(field.key)}
+              />
+            ) : field.type === 'date' ? (
+              <DatePicker
+                key={field.key}
+                field={field.key}
+                label={field.label}
+                value={form.data[field.key] ?? ''}
+                onChange={(value) => {
+                  form.setData(field.key, value);
                 }}
                 error={errorFor(field.key)}
               />

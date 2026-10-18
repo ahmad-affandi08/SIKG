@@ -76,6 +76,7 @@ it('SYS-03 setiap tabel bertenant memiliki model yang aman dan setiap tabel data
         'access_logs', 'audit_logs', 'cash_closings', 'payments', 'stock_movements', 'installment_plans', 'installments',
         'clinical_notes', 'patient_consents', 'odontogram_tooth_states', 'prescription_items', 'stock_balances',
         'backup_runs', 'diagnoses', 'report_jobs', 'clinical_documents', 'document_signatures', 'notifications', 'notification_reads',
+        'loyalty_ledger', 'loyalty_balances',
     ];
     $sistem = ['cache', 'cache_locks', 'failed_jobs', 'job_batches', 'jobs', 'migrations', 'model_has_permissions', 'model_has_roles', 'permissions', 'role_has_permissions', 'roles', 'sequences', 'sessions', 'system_heartbeats'];
 

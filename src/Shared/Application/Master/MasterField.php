@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Src\Shared\Application\Master;
 
 /**
- * Definisi satu kolom formulir master data. Tipe: text, textarea, number, money (rupiah bulat), select.
+ * Definisi satu kolom formulir master data. Tipe: text, textarea, number, money (rupiah bulat), select, date (YYYY-MM-DD).
  */
 final readonly class MasterField
 {

@@ -115,4 +115,4 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [ ] P3-03 | Integrasi rontgen digital
 - [ ] P3-04 | Multi-cabang penuh
 - [ ] P3-05 | Pembayaran online
-- [ ] P3-06 | Voucher dan membership
+- [x] P3-06 | Voucher dan membership

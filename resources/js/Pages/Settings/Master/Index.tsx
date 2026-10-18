@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import type { MasterFieldDef } from '@/features/master/schema';
-import { formatRupiah } from '@/lib/format';
+import { formatDate, formatRupiah } from '@/lib/format';
 
 type Row = Record<string, string | number | boolean | null> & {
   id: string;
@@ -31,6 +31,9 @@ function display(field: MasterFieldDef, value: Row[string] | undefined): string 
   }
   if (field.type === 'money') {
     return formatRupiah(Number(value));
+  }
+  if (field.type === 'date') {
+    return formatDate(String(value));
   }
   if (field.type === 'select') {
     return field.options.find((option) => option.value === String(value))?.label ?? String(value);

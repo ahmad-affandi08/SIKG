@@ -162,6 +162,11 @@ export default function Show({ invoice, items, payments, installments, can }: Pr
                 Diskon tagihan
               </Link>
             ) : null}
+            {!voided ? (
+              <Link href={`/invoices/${invoice.id}/promotions`} className="btn btn-secondary">
+                Promo dan poin
+              </Link>
+            ) : null}
             {can.edit && invoice.lifecycle === 'issued' && !voided ? (
               <Link
                 href={`/insurance/claims/create?invoice=${invoice.id}`}

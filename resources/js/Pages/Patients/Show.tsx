@@ -111,6 +111,9 @@ export default function Show({
                 Paket ortodonti
               </Link>
             ) : null}
+            <Link href={`/patients/${patient.id}/loyalty`} className="btn btn-secondary">
+              Poin dan paket
+            </Link>
             {can.timeline ? (
               <Link href={`/lab-orders/create?patient=${patient.id}`} className="btn btn-secondary">
                 Pesanan lab
