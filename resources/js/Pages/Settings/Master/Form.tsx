@@ -86,6 +86,7 @@ export default function Form({ entity, row }: Props) {
             field.type === 'select' ? (
               <Select
                 field={field.key}
+                required={field.required}
                 key={field.key}
                 label={field.label}
                 options={field.options}
@@ -100,6 +101,7 @@ export default function Form({ entity, row }: Props) {
               <DatePicker
                 key={field.key}
                 field={field.key}
+                required={field.required}
                 label={field.label}
                 value={form.data[field.key] ?? ''}
                 onChange={(value) => {
@@ -111,6 +113,7 @@ export default function Form({ entity, row }: Props) {
               <div key={field.key} className="flex flex-col gap-1">
                 <TextArea
                   field={field.key}
+                  required={field.required}
                   label={field.label}
                   value={form.data[field.key] ?? ''}
                   onChange={(event) => {
@@ -123,6 +126,7 @@ export default function Form({ entity, row }: Props) {
             ) : isMoney(field) ? (
               <div key={field.key} className="flex flex-col gap-1">
                 <MoneyField
+                  required={field.required}
                   label={field.label.replace(/\s*\(Rp\)$/, '')}
                   value={form.data[field.key] ?? ''}
                   onValueChange={(digits) => {
@@ -135,6 +139,7 @@ export default function Form({ entity, row }: Props) {
             ) : (
               <div key={field.key} className="flex flex-col gap-1">
                 <TextField
+                  required={field.required}
                   label={field.label}
                   inputMode={field.type === 'text' ? undefined : 'numeric'}
                   value={form.data[field.key] ?? ''}

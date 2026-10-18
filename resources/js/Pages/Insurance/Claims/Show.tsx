@@ -201,6 +201,7 @@ export default function Show({ claim, receipts, methods, can }: Props) {
             >
               <h2>Penjamin menyetujui</h2>
               <MoneyField
+                required
                 label="Jumlah disetujui"
                 value={approve.data.approved_amount}
                 onValueChange={(digits) => {
@@ -225,6 +226,7 @@ export default function Show({ claim, receipts, methods, can }: Props) {
             <form onSubmit={submitReject} noValidate aria-label="Tolak klaim" className="form-grid">
               <h2>Penjamin menolak</h2>
               <TextField
+                required
                 label="Alasan penolakan"
                 value={reject.data.reason}
                 onChange={(event) => {
@@ -253,6 +255,7 @@ export default function Show({ claim, receipts, methods, can }: Props) {
               Sisa yang disetujui: {formatRupiah(remaining)}. Pembayaran juga tercatat pada tagihan.
             </p>
             <Select
+              required
               label="Metode pembayaran"
               placeholder="Pilih metode"
               options={methods}
@@ -263,6 +266,7 @@ export default function Show({ claim, receipts, methods, can }: Props) {
               error={err('payment_method_id', receive.errors.payment_method_id)}
             />
             <MoneyField
+              required
               label="Jumlah diterima"
               value={receive.data.amount}
               onValueChange={(digits) => {

@@ -98,6 +98,7 @@ export default function Create({ invoice, policies, insurers }: Props) {
         ) : null}
         <form onSubmit={submit} noValidate aria-label="Klaim baru" className="form-grid">
           <Select
+            required
             label="Penjamin"
             placeholder="Pilih penjamin"
             options={insurers}
@@ -124,6 +125,7 @@ export default function Create({ invoice, policies, insurers }: Props) {
             error={error('policy_id')}
           />
           <MoneyField
+            required
             label="Jumlah klaim"
             value={form.data.claimed_amount}
             onValueChange={(digits) => {

@@ -161,6 +161,7 @@ export default function Promotions({ invoice, promotion, loyalty, items, package
                 className="form-grid max-w-md"
               >
                 <TextField
+                  required
                   label="Kode promo"
                   value={voucher.data.code}
                   onChange={(event) => {
@@ -188,6 +189,7 @@ export default function Promotions({ invoice, promotion, loyalty, items, package
                     poin, maksimal {loyalty.max_points} poin untuk tagihan ini.
                   </p>
                   <TextField
+                    required
                     label="Poin ditukar"
                     inputMode="numeric"
                     value={points.data.points}
@@ -265,6 +267,7 @@ export default function Promotions({ invoice, promotion, loyalty, items, package
               className="form-grid max-w-md"
             >
               <Select
+                required
                 label="Item tagihan"
                 placeholder="Pilih item"
                 options={items
@@ -277,6 +280,7 @@ export default function Promotions({ invoice, promotion, loyalty, items, package
                 error={err('item_id', pack.errors.item_id)}
               />
               <Select
+                required
                 label="Paket pasien"
                 placeholder="Pilih paket"
                 options={packages.map((p) => ({

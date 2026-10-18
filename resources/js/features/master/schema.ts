@@ -22,21 +22,28 @@ export function buildMasterSchema(fields: readonly MasterFieldDef[]) {
   return z.object(shape);
 }
 
-function fieldSchema(field: MasterFieldDef): z.ZodType<string> {
+function fieldSchema(def: MasterFieldDef): z.ZodType<string> {
+  // Satuan "(Rp)" sudah terwakili format rupiah di isian, jadi tidak diulang di pesan galat.
+  const field = { ...def, label: def.label.replace(/\s*\(Rp\)$/, '') };
   const required = field.required ? `${field.label} wajib diisi.` : null;
 
   if (field.type === 'money' || field.type === 'number') {
     const unit = field.type === 'money' ? 'rupiah bulat' : 'bilangan bulat';
-    return z.string().refine(
-      (value) => {
-        const text = value.trim();
-        if (text === '') {
-          return !field.required;
+    return z.string().superRefine((value, ctx) => {
+      const text = value.trim();
+      if (text === '') {
+        if (field.required) {
+          ctx.addIssue({ code: 'custom', message: `${field.label} wajib diisi.` });
         }
-        return /^\d{1,12}$/.test(text);
-      },
-      { message: `${field.label} harus berupa ${unit} tidak negatif.` },
-    );
+        return;
+      }
+      if (!/^\d{1,12}$/.test(text)) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `${field.label} harus berupa ${unit} tidak negatif.`,
+        });
+      }
+    });
   }
 
   if (field.type === 'date') {

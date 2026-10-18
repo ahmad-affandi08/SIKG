@@ -158,6 +158,7 @@ export default function Insurance({ patient, policies, insurers, canManage }: Pr
           >
             <h2>Tambah polis</h2>
             <Select
+              required
               label="Penjamin"
               placeholder="Pilih penjamin"
               options={insurers}
@@ -168,6 +169,7 @@ export default function Insurance({ patient, policies, insurers, canManage }: Pr
               error={error('insurer_id')}
             />
             <TextField
+              required
               label="Nomor polis atau kartu anggota"
               value={form.data.policy_no}
               onChange={(event) => {

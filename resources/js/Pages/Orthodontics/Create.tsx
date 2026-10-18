@@ -57,6 +57,7 @@ export default function Create({ patient, doctors, appliances, today }: Props) {
   const error = (key: keyof CaseValues): string | undefined => errors[key] ?? form.errors[key];
   const text = (key: keyof CaseValues, label: string, numeric = false) => (
     <TextField
+      required
       label={label}
       {...(numeric ? { inputMode: 'numeric' as const } : {})}
       value={form.data[key]}
@@ -68,6 +69,7 @@ export default function Create({ patient, doctors, appliances, today }: Props) {
   );
   const money = (key: 'total_fee_amount' | 'down_payment_amount', label: string) => (
     <MoneyField
+      required={key === 'total_fee_amount'}
       label={label}
       value={form.data[key]}
       onValueChange={(digits) => {
@@ -93,6 +95,7 @@ export default function Create({ patient, doctors, appliances, today }: Props) {
         />
         <form onSubmit={submit} noValidate aria-label="Paket ortodonti baru" className="form-grid">
           <Select
+            required
             label="Dokter"
             placeholder="Pilih dokter"
             options={doctors}
@@ -103,6 +106,7 @@ export default function Create({ patient, doctors, appliances, today }: Props) {
             error={error('doctor_id')}
           />
           <Select
+            required
             label="Jenis alat"
             placeholder="Pilih jenis alat"
             options={appliances}
@@ -125,6 +129,7 @@ export default function Create({ patient, doctors, appliances, today }: Props) {
           {money('down_payment_amount', 'Uang muka (kosongkan bila tidak ada)')}
           {text('installment_count', 'Jumlah cicilan (termasuk uang muka)', true)}
           <DatePicker
+            required
             label="Tanggal mulai"
             value={form.data.start_date}
             onChange={(value) => {

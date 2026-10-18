@@ -266,6 +266,7 @@ export default function Show({
                 className="form-grid max-w-xl"
               >
                 <DatePicker
+                  required
                   label="Tanggal kontrol"
                   value={form.data.control_date}
                   onChange={(value) => {
@@ -387,6 +388,7 @@ export default function Show({
                 className="flex items-end gap-2"
               >
                 <TextField
+                  required
                   label="Alasan menghentikan"
                   value={stop.data.reason}
                   onChange={(event) => {

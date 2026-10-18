@@ -102,6 +102,7 @@ export default function Reminders({ settings, kinds, placeholders }: Props) {
             <span>Aktifkan pengingat pasien</span>
           </label>
           <Select
+            required
             label="Cara pengiriman"
             options={[
               {
@@ -120,6 +121,7 @@ export default function Reminders({ settings, kinds, placeholders }: Props) {
             error={error('mode')}
           />
           <TextField
+            required
             label="Kontrol berkala setelah kunjungan terakhir (bulan)"
             inputMode="numeric"
             value={form.data.recall_months}

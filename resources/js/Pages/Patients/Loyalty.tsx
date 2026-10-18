@@ -163,6 +163,7 @@ export default function Loyalty({
               className="form-grid max-w-md"
             >
               <Select
+                required
                 label="Paket"
                 placeholder="Pilih paket"
                 options={catalog.map((c) => ({
@@ -176,6 +177,7 @@ export default function Loyalty({
                 error={err('package_id')}
               />
               <Select
+                required
                 label="Tagihkan ke kunjungan"
                 placeholder={
                   open_encounters.length === 0 ? 'Tidak ada kunjungan berjalan' : 'Pilih kunjungan'

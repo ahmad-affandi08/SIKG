@@ -85,6 +85,7 @@ export default function Create({ suppliers, medicines }: Props) {
           className="form-grid"
         >
           <Select
+            required
             label="Pemasok"
             field="supplier_id"
             placeholder="Pilih pemasok"
