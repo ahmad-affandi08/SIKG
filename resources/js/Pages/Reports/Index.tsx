@@ -6,7 +6,6 @@ import { PageHead } from '@/components/layout/PageTitle';
 
 interface ReportItem {
   key: string;
-  code: string;
   title: string;
   description: string;
   group: string;
@@ -36,9 +35,7 @@ export default function Index({ reports }: { reports: ReportItem[] }) {
                         href={`/reports/${report.key}`}
                         className="pane hover:bg-brand-50 block h-full"
                       >
-                        <span className="pane-head">
-                          {report.code} {report.title}
-                        </span>
+                        <span className="pane-head">{report.title}</span>
                         <span className="text-muted block p-2">{report.description}</span>
                       </Link>
                     </li>

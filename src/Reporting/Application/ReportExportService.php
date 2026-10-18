@@ -103,7 +103,7 @@ final readonly class ReportExportService
         $this->audit->record(new AuditEntry($viewer->userId, 'report.downloaded', 'report_job', $jobId, null, ['report' => $key->code(), 'format' => $format->value]));
 
         $range = $job['filters'];
-        $name = sprintf('%s-%s_%s_%s.%s', strtolower($key->code()), $key->value, (string) ($range['from'] ?? ''), (string) ($range['to'] ?? ''), $format->extension());
+        $name = sprintf('%s_%s_%s.%s', $key->value, (string) ($range['from'] ?? ''), (string) ($range['to'] ?? ''), $format->extension());
 
         return ['name' => $name, 'mime' => $format->mimeType(), 'contents' => $contents];
     }

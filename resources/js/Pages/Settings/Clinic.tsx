@@ -189,7 +189,7 @@ export default function Clinic({
               />
             ))}
             <p className="text-muted text-sm sm:col-span-3">
-              Diskon tagihan atau item di atas batas ini ditolak untuk peran tersebut (KSR-02).
+              Diskon tagihan atau item di atas batas ini ditolak untuk peran tersebut.
             </p>
             <TextField
               field="tax_percent"
@@ -206,7 +206,7 @@ export default function Clinic({
             <p className="text-muted text-sm sm:col-span-2">
               Bawaan 0. Layanan kesehatan umumnya dibebaskan PPN; pastikan dengan konsultan pajak
               klinik. Tarif disalin ke tagihan saat dibuat, jadi perubahan di sini tidak mengubah
-              tagihan yang sudah ada (KSR-09).
+              tagihan yang sudah ada.
             </p>
           </section>
 

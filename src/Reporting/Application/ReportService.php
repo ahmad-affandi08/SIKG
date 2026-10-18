@@ -33,12 +33,12 @@ final class ReportService
     }
 
     /**
-     * @return list<array{key: string, code: string, title: string, description: string, group: string}>
+     * @return list<array{key: string, title: string, description: string, group: string}>
      */
     public function available(ReportViewer $viewer): array
     {
         return array_map(fn (ReportKey $k) => [
-            'key' => $k->value, 'code' => $k->code(), 'title' => $k->title(), 'description' => $k->description(), 'group' => $k->group(),
+            'key' => $k->value, 'title' => $k->title(), 'description' => $k->description(), 'group' => $k->group(),
         ], $viewer->visibleReports());
     }
 

@@ -648,7 +648,7 @@ it('LAP ekspor XLSX dan PDF lewat antrean: status selesai dan berkas dapat diund
         $unduh = test()->actingAs($d['u']['pemilik'])->get("/report-jobs/{$id}/download");
         $unduh->assertOk()->assertHeader('Content-Type', ExportFormat::from($format)->mimeType());
         expect(str_starts_with($unduh->getContent(), $awal))->toBeTrue()
-            ->and((string) $unduh->headers->get('Content-Disposition'))->toContain('lap-02-revenue_'.SENIN.'_'.SENIN.".{$format}");
+            ->and((string) $unduh->headers->get('Content-Disposition'))->toContain('revenue_'.SENIN.'_'.SENIN.".{$format}");
         expect(Storage::disk('private')->allFiles('reports'))->not->toBe([]);
     }
 });
@@ -905,11 +905,11 @@ it('LAP berkas XLSX tampil profesional: judul, tajuk dibekukan dengan filter, fo
     $buku = IOFactory::load($tmp);
     unlink($tmp);
 
-    expect($buku->getProperties()->getCreator())->toBe('Klinik Uji')->and($buku->getProperties()->getTitle())->toBe('LAP-02 Pendapatan')
+    expect($buku->getProperties()->getCreator())->toBe('Klinik Uji')->and($buku->getProperties()->getTitle())->toBe('Pendapatan')
         ->and($buku->getProperties()->getSubject())->toContain('Periode 16/06/2025');
 
     $ringkasan = $buku->getSheetByName('1 Ringkasan');
-    expect($ringkasan?->getCell('A1')->getValue())->toBe('KLINIK UJI')->and($ringkasan?->getCell('A3')->getValue())->toBe('LAP-02 Pendapatan')
+    expect($ringkasan?->getCell('A1')->getValue())->toBe('KLINIK UJI')->and($ringkasan?->getCell('A3')->getValue())->toBe('Pendapatan')
         ->and($ringkasan?->getCell('A7')->getValue())->toBe('Keterangan')->and($ringkasan?->getCell('A7')->getStyle()->getFont()->getBold())->toBeTrue()
         ->and($ringkasan?->getCell('B10')->getStyle()->getNumberFormat()->getFormatCode())->toContain('"Rp"')
         ->and($ringkasan?->getCell('B14')->getValue())->toBe(0)

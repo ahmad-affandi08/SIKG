@@ -23,13 +23,12 @@ final readonly class ReportResult
     ) {}
 
     /**
-     * @return array{key: string, code: string, title: string, from: string, to: string, metrics: list<array{label: string, value: int|string|null, kind: string}>, tables: list<array<string, mixed>>, notes: list<string>}
+     * @return array{key: string, title: string, from: string, to: string, metrics: list<array{label: string, value: int|string|null, kind: string}>, tables: list<array<string, mixed>>, notes: list<string>}
      */
     public function toArray(): array
     {
         return [
             'key' => $this->key->value,
-            'code' => $this->key->code(),
             'title' => $this->key->title(),
             'from' => $this->range->from,
             'to' => $this->range->to,

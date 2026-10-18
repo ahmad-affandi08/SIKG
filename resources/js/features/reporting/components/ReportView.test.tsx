@@ -6,7 +6,6 @@ import type { Report } from '@/features/reporting/schemas';
 
 const report: Report = {
   key: 'revenue',
-  code: 'LAP-02',
   title: 'Pendapatan',
   from: '2025-06-16',
   to: '2025-06-16',

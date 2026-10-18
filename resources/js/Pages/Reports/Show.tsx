@@ -56,9 +56,9 @@ export default function Show({ report, filters, options, scope, description }: P
   return (
     <AppLayout>
       <main className="flex flex-col gap-3 p-3">
-        <PageHead title={`${report.code} ${report.title}`} />
+        <PageHead title={report.title} />
         <PageHeader
-          title={`${report.code} ${report.title}`}
+          title={report.title}
           description={`Periode ${period}`}
           back={{ href: '/reports', label: 'Laporan' }}
         />

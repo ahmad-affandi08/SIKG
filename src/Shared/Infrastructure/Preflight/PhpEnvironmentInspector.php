@@ -22,7 +22,7 @@ final readonly class PhpEnvironmentInspector implements EnvironmentInspector
             $this->phpVersion(),
             $this->extensions(),
             $this->writable(),
-            $this->limit('upload_max_filesize', 'Batas unggah berkas (upload_max_filesize)', 12 * 1048576, 'RM-08 mengunggah sampai 10 MB'),
+            $this->limit('upload_max_filesize', 'Batas unggah berkas (upload_max_filesize)', 12 * 1048576, 'unggahan berkas klinis sampai 10 MB'),
             $this->limit('post_max_size', 'Batas ukuran permintaan (post_max_size)', 16 * 1048576, 'harus lebih besar dari batas unggah'),
             $this->memory(),
             $this->executionTime(),

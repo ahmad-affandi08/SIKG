@@ -36,7 +36,7 @@ final readonly class DelegatingReportRenderer implements ReportRenderer
             $head->clinicName,
             $head->address,
             $head->licenseNo,
-            $result->key->code().' '.$result->key->title(),
+            $result->key->title(),
             CellFormatter::date($result->range->from).' - '.CellFormatter::date($result->range->to),
             CellFormatter::dateTime($printed),
         );

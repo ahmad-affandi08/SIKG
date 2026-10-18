@@ -1,8 +1,8 @@
 @extends('pdf.layout')
-@section('title', $code.' '.$title)
-@section('footer-left', $code.' '.$title.' · Periode '.$from.($from !== $to ? ' – '.$to : '').' · Dicetak '.$printedAt)
+@section('title', $title)
+@section('footer-left', $title.' · Periode '.$from.($from !== $to ? ' – '.$to : '').' · Dicetak '.$printedAt)
 @section('heading', $title)
-@section('subheading', $code.' · Periode '.$from.($from !== $to ? ' sampai '.$to : '').' · Dicetak '.$printedAt)
+@section('subheading', 'Periode '.$from.($from !== $to ? ' sampai '.$to : '').' · Dicetak '.$printedAt)
 @section('style')
     body { font-size: 9pt; }
     table.data th { font-size: 8pt; }

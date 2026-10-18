@@ -11,7 +11,6 @@ describe('LAP skema respons laporan', () => {
   it('menerima bentuk laporan dari server', () => {
     const parsed = reportSchema.parse({
       key: 'revenue',
-      code: 'LAP-02',
       title: 'Pendapatan',
       from: '2025-06-16',
       to: '2025-06-16',
@@ -36,7 +35,6 @@ describe('LAP skema respons laporan', () => {
     expect(() =>
       reportSchema.parse({
         key: 'x',
-        code: 'LAP-99',
         title: 'X',
         from: '2025-06-16',
         to: '2025-06-16',

@@ -42,7 +42,6 @@ final readonly class PdfReportWriter
 
         return $this->renderer->render(new PdfRequest('pdf.report', [
             'letterhead' => $head->toArray(),
-            'code' => $result->key->code(),
             'title' => $result->key->title(),
             'from' => CellFormatter::date($result->range->from),
             'to' => CellFormatter::date($result->range->to),
@@ -50,7 +49,7 @@ final readonly class PdfReportWriter
             'metrics' => $metrics,
             'tables' => $tables,
             'notes' => $result->notes,
-        ], $result->key->code().' '.$result->key->title(), landscape: $wide));
+        ], $result->key->title(), landscape: $wide));
     }
 
     /**

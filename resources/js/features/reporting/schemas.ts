@@ -17,7 +17,6 @@ export type Cell = z.infer<typeof cellSchema>;
 
 export const reportSchema = z.object({
   key: z.string(),
-  code: z.string(),
   title: z.string(),
   from: z.string(),
   to: z.string(),
