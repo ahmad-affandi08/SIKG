@@ -7,12 +7,13 @@ namespace Src\Billing\Infrastructure\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Src\Shared\Application\Setup\StarterDataContributor;
 
 /**
  * Kategori biaya operasional awal (P2-08) untuk setiap klinik. Tanpa kategori, halaman Catat biaya tidak dapat dipakai.
  * Aman dijalankan berulang: kategori yang namanya sudah ada tidak diduplikasi, dan yang diubah atau dinonaktifkan klinik tidak ditimpa.
  */
-final class ExpenseCategorySeeder extends Seeder
+final class ExpenseCategorySeeder extends Seeder implements StarterDataContributor
 {
     /** @return list<string> */
     public static function names(): array
@@ -28,6 +29,11 @@ final class ExpenseCategorySeeder extends Seeder
             'Perizinan dan pajak',
             'Lain-lain',
         ];
+    }
+
+    public function starterKey(): string
+    {
+        return 'expense_categories';
     }
 
     public function run(): void

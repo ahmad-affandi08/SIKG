@@ -21,5 +21,6 @@ final readonly class PaymentIntent
         public ?string $paymentId,
         public ?string $note,
         public ?string $createdBy,
+        public ?string $branchId = null,
     ) {}
 }

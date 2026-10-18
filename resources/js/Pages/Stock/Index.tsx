@@ -68,6 +68,9 @@ export default function Index({ medicines, alerts, can }: Props) {
               </Link>
               {can.manage ? (
                 <>
+                  <Link href="/settings/master/stock-opening/import" className="btn btn-secondary">
+                    Impor stok awal
+                  </Link>
                   <Link href="/stock/adjustments/create" className="btn btn-secondary">
                     Penyesuaian stok
                   </Link>

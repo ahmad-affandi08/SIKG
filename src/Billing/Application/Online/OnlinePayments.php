@@ -112,10 +112,14 @@ final readonly class OnlinePayments
     /**
      * Membatalkan QR yang masih menunggu. Bila ternyata sudah dibayar, pembayarannya dicatat dan pembatalan ditolak.
      */
-    public function cancel(string $actorId, string $intentId): void
+    public function cancel(string $actorId, string $invoiceId, string $intentId): void
     {
         $settings = $this->intents->settings();
         $intent = $this->intents->find($intentId) ?? throw new InvalidBillingData('online.not_found', 'Pembayaran online tidak ditemukan.');
+        // Tagihan dimuat lewat repositori ber-scope cabang: niat bayar milik tagihan cabang lain diperlakukan tidak ada.
+        if ($intent->invoiceId !== $invoiceId || $this->invoices->find($invoiceId) === null) {
+            throw new InvalidBillingData('online.not_found', 'Pembayaran online tidak ditemukan.');
+        }
         if ($intent->status !== IntentStatus::Pending) {
             throw new InvalidBillingData('online.not_pending', 'Pembayaran online ini sudah tidak menunggu.');
         }
@@ -282,7 +286,9 @@ final readonly class OnlinePayments
             if ($settings->methodId === null || $intent->createdBy === null) {
                 throw new InvalidBillingData('payment.method_not_found', 'Metode pembayaran online belum dipilih.');
             }
-            $payment = $this->payments->recordPayment($intent->createdBy, $intent->invoiceId, $settings->methodId, PaymentType::Pay, $intent->amount, 'online:'.$intent->id, $gateway->reference ?? $intent->orderId);
+            // Webhook dan rekonsiliasi berjalan tanpa cabang aktif; pembayaran harus tetap jatuh ke cabang tagihan.
+            $clinicId = $this->tenant->clinicId() ?? throw new InvalidBillingData('payment.method_not_found', 'Klinik tidak dikenali.');
+            $payment = $this->tenant->runAs($clinicId, $intent->branchId, fn () => $this->payments->recordPayment($intent->createdBy, $intent->invoiceId, $settings->methodId, PaymentType::Pay, $intent->amount, 'online:'.$intent->id, $gateway->reference ?? $intent->orderId));
         } catch (InvalidBillingData $e) {
             $this->intents->transition($intent->id, IntentStatus::Mismatch, $e->getMessage(), $now, null);
             $this->audit->record(new AuditEntry(null, 'online_payment.mismatch', 'invoice', $intent->invoiceId, null, ['intent_id' => $intent->id, 'reason' => $e->businessCode()]));

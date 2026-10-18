@@ -7,18 +7,24 @@ namespace Src\Clinic\Infrastructure\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Src\Shared\Application\Setup\StarterDataContributor;
 
 /**
  * Metode pembayaran awal (MST-06): tunai, transfer bank, QRIS, kartu debit, dan kartu kredit, masing-masing bila klinik
  * belum punya metode dengan jenis itu. Pencatatan manual. Kasir tidak dapat menerima pembayaran sebelum ada metode,
  * dan klinik baru tidak membuatnya sendiri. Aman dijalankan berulang.
  */
-final class PaymentMethodSeeder extends Seeder
+final class PaymentMethodSeeder extends Seeder implements StarterDataContributor
 {
     /** @return array<string, string> jenis => nama */
     public static function methods(): array
     {
         return ['cash' => 'Tunai', 'transfer' => 'Transfer bank', 'qris' => 'QRIS', 'debit' => 'Kartu debit', 'credit' => 'Kartu kredit'];
+    }
+
+    public function starterKey(): string
+    {
+        return 'payment_methods';
     }
 
     public function run(): void

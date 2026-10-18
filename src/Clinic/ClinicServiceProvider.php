@@ -12,6 +12,7 @@ use Src\Clinic\Application\Settings\ClinicSettingsService;
 use Src\Clinic\Contracts\BranchDirectory;
 use Src\Clinic\Contracts\ChairDirectory;
 use Src\Clinic\Contracts\ClinicCalendar;
+use Src\Clinic\Contracts\ClinicProvisioner;
 use Src\Clinic\Contracts\DiscountLimits;
 use Src\Clinic\Contracts\DoctorDirectory;
 use Src\Clinic\Contracts\DocumentTemplateCatalog;
@@ -33,6 +34,7 @@ use Src\Clinic\Infrastructure\EloquentBranchDirectory;
 use Src\Clinic\Infrastructure\EloquentChairDirectory;
 use Src\Clinic\Infrastructure\EloquentClinicCalendar;
 use Src\Clinic\Infrastructure\EloquentClinicProfileService;
+use Src\Clinic\Infrastructure\EloquentClinicProvisioner;
 use Src\Clinic\Infrastructure\EloquentClinicSettingsService;
 use Src\Clinic\Infrastructure\EloquentDoctorAdministration;
 use Src\Clinic\Infrastructure\EloquentDoctorDirectory;
@@ -47,14 +49,20 @@ use Src\Clinic\Infrastructure\Master\DocumentTemplateEntity;
 use Src\Clinic\Infrastructure\Master\PaymentMethodEntity;
 use Src\Clinic\Infrastructure\Master\ProcedureEntity;
 use Src\Clinic\Infrastructure\Master\ToothConditionEntity;
+use Src\Clinic\Infrastructure\Seeders\NationalHolidaySeeder;
+use Src\Clinic\Infrastructure\Seeders\PaymentMethodSeeder;
+use Src\Clinic\Infrastructure\Seeders\ProcedureSeeder;
+use Src\Clinic\Infrastructure\Setup\ClinicSetupSteps;
 use Src\Shared\Application\Master\MasterEntityRegistry;
 use Src\Shared\Application\Notifications\StaffDestinations;
+use Src\Shared\Application\Setup\SetupRegistry;
 
 final class ClinicServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->app->singleton(BranchDirectory::class, EloquentBranchDirectory::class);
+        $this->app->singleton(ClinicProvisioner::class, EloquentClinicProvisioner::class);
         $this->app->singleton(ClinicSettingsService::class, EloquentClinicSettingsService::class);
         $this->app->singleton(DoctorDirectory::class, EloquentDoctorDirectory::class);
         $this->app->singleton(LetterheadProvider::class, EloquentLetterheadProvider::class);
@@ -85,6 +93,13 @@ final class ClinicServiceProvider extends ServiceProvider
         $registry->register($this->app->make(PaymentMethodEntity::class));
         $registry->register($this->app->make(ToothConditionEntity::class));
         $registry->register($this->app->make(DocumentTemplateEntity::class));
+
+        // MST-10: langkah dan data awal yang dimiliki konteks ini untuk halaman Penyiapan awal.
+        $setup = $this->app->make(SetupRegistry::class);
+        $setup->registerSteps(new ClinicSetupSteps);
+        $setup->registerStarter(new PaymentMethodSeeder);
+        $setup->registerStarter(new ProcedureSeeder);
+        $setup->registerStarter(new NationalHolidaySeeder);
 
         Route::middleware(['web', 'auth'])
             ->group(__DIR__.'/Presentation/routes.php');

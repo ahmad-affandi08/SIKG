@@ -15,6 +15,7 @@ use Src\IdentityAccess\Application\TwoFactor\TwoFactorStore;
 use Src\IdentityAccess\Application\TwoFactor\TwoFactorVerifier;
 use Src\IdentityAccess\Application\Users\UserAdministration;
 use Src\IdentityAccess\Contracts\UserLookup;
+use Src\IdentityAccess\Domain\FirstOwnerRegistrar;
 use Src\IdentityAccess\Domain\Role;
 use Src\IdentityAccess\Domain\UserDirectory;
 use Src\IdentityAccess\Domain\UserPermissions;
@@ -23,13 +24,16 @@ use Src\IdentityAccess\Infrastructure\Auth\SikgUserProvider;
 use Src\IdentityAccess\Infrastructure\Auth\UserPolicy;
 use Src\IdentityAccess\Infrastructure\Eloquent\User;
 use Src\IdentityAccess\Infrastructure\EloquentAccountSecurity;
+use Src\IdentityAccess\Infrastructure\EloquentFirstOwnerRegistrar;
 use Src\IdentityAccess\Infrastructure\EloquentRoleAdministration;
 use Src\IdentityAccess\Infrastructure\EloquentTwoFactorStore;
 use Src\IdentityAccess\Infrastructure\EloquentUserAdministration;
 use Src\IdentityAccess\Infrastructure\EloquentUserLookup;
 use Src\IdentityAccess\Infrastructure\EloquentUserPermissions;
+use Src\IdentityAccess\Infrastructure\Setup\UserSetupSteps;
 use Src\Shared\Application\AuditLogger;
 use Src\Shared\Application\Clock;
+use Src\Shared\Application\Setup\SetupRegistry;
 use Src\Shared\Application\Transaction;
 
 final class IdentityAccessServiceProvider extends ServiceProvider
@@ -39,6 +43,7 @@ final class IdentityAccessServiceProvider extends ServiceProvider
         $this->app->singleton(UserDirectory::class, EloquentUserDirectory::class);
         $this->app->singleton(UserAdministration::class, EloquentUserAdministration::class);
         $this->app->singleton(UserLookup::class, EloquentUserLookup::class);
+        $this->app->singleton(FirstOwnerRegistrar::class, EloquentFirstOwnerRegistrar::class);
         $this->app->singleton(AccountSecurity::class, EloquentAccountSecurity::class);
         $this->app->singleton(UserPermissions::class, EloquentUserPermissions::class);
         $this->app->singleton(RoleAdministration::class, EloquentRoleAdministration::class);
@@ -55,6 +60,9 @@ final class IdentityAccessServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/Infrastructure/Migrations');
 
         Auth::provider('sikg', SikgUserProvider::make(...));
+
+        // MST-10: langkah Penyiapan awal yang dimiliki konteks ini.
+        $this->app->make(SetupRegistry::class)->registerSteps(new UserSetupSteps);
 
         Gate::policy(User::class, UserPolicy::class);
         // AUTH-06: setiap pengguna aktif boleh mengelola kata sandinya sendiri (bukan izin peran).

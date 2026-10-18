@@ -14,6 +14,7 @@ use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
  * P3-05: niat bayar online untuk satu tagihan.
  *
  * @property string $id
+ * @property string|null $branch_id
  * @property string $invoice_id
  * @property string $order_id
  * @property string $provider

@@ -7,13 +7,14 @@ namespace Src\Pharmacy\Infrastructure\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Src\Shared\Application\Setup\StarterDataContributor;
 
 /**
  * Katalog obat dan bahan umum untuk klinik gigi (MST-05) sebagai usulan awal. Semua baris dibuat NONAKTIF dengan harga 0 dan
  * stok minimum 0: klinik wajib mengisi harga jual, lalu mengaktifkannya, sebelum obat dapat diresepkan atau ditagih. Kelas obat
  * (dasar peringatan alergi, OBT-02; huruf kecil, angka, garis bawah sesuai aturan formulir) wajib diperiksa dokter klinik. Aman dijalankan berulang: nama yang sudah ada tidak diduplikasi.
  */
-final class MedicineSeeder extends Seeder
+final class MedicineSeeder extends Seeder implements StarterDataContributor
 {
     /**
      * @return list<array{name: string, unit: string, drug_class: ?string}>
@@ -46,6 +47,11 @@ final class MedicineSeeder extends Seeder
             ['name' => 'Sarung tangan periksa', 'unit' => 'kotak', 'drug_class' => null],
             ['name' => 'Masker bedah', 'unit' => 'kotak', 'drug_class' => null],
         ];
+    }
+
+    public function starterKey(): string
+    {
+        return 'medicines';
     }
 
     public function run(): void

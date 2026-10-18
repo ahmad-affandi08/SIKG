@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import Import, { importFileIssue } from '@/Pages/Settings/Master/Import';
+import { importFileIssue } from '@/features/master/schema';
+import Import from '@/Pages/Settings/Master/Import';
 
 const post = vi.fn<(...args: unknown[]) => void>();
 
@@ -44,6 +45,8 @@ const entity = {
   key: 'procedures',
   title: 'Katalog tindakan dan tarif',
   import_key: 'code',
+  warning: null,
+  home: '/settings/master/procedures',
   fields: [
     {
       key: 'code',

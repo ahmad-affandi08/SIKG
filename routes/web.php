@@ -7,7 +7,6 @@ use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\MasterImportController;
 use App\Http\Controllers\SetupController;
 use Illuminate\Support\Facades\Route;
-use Src\Shared\Application\Master\ImportableMaster;
 use Src\Shared\Application\Master\MasterEntityRegistry;
 
 // Rute modul didefinisikan di Presentation/routes.php tiap konteks (dimuat ServiceProvider konteks).
@@ -31,8 +30,7 @@ Route::middleware('auth')->prefix('settings/master')->group(function (): void {
             Route::get('/'.$key, [MasterDataController::class, 'index'])->defaults('entity', $key)->name('master.'.$key);
         });
 
-        $importable = $master instanceof ImportableMaster;
-        Route::middleware('can:'.$master->managePermission())->group(function () use ($key, $importable): void {
+        Route::middleware('can:'.$master->managePermission())->group(function () use ($key): void {
             Route::get('/'.$key.'/create', [MasterDataController::class, 'form'])->defaults('entity', $key)->name('master.'.$key.'.create');
             Route::get('/'.$key.'/{id}/edit', [MasterDataController::class, 'form'])->defaults('entity', $key)->name('master.'.$key.'.edit');
             Route::post('/'.$key, [MasterDataController::class, 'store'])->defaults('entity', $key);
@@ -40,14 +38,19 @@ Route::middleware('auth')->prefix('settings/master')->group(function (): void {
             Route::post('/'.$key.'/{id}/activate', [MasterDataController::class, 'activate'])->defaults('entity', $key);
             Route::post('/'.$key.'/{id}/deactivate', [MasterDataController::class, 'deactivate'])->defaults('entity', $key);
 
-            // MST-09: impor Excel hanya untuk entitas yang menyatakan pengenal alaminya (ImportableMaster).
-            if ($importable) {
-                Route::get('/'.$key.'/import', [MasterImportController::class, 'create'])->defaults('entity', $key)->name('master.'.$key.'.import');
-                Route::get('/'.$key.'/import/template', [MasterImportController::class, 'template'])->defaults('entity', $key);
-                Route::post('/'.$key.'/import', [MasterImportController::class, 'store'])->defaults('entity', $key)->middleware('throttle:20,1');
-                Route::get('/'.$key.'/import/{token}', [MasterImportController::class, 'show'])->defaults('entity', $key)->name('master.'.$key.'.import.show')->where('token', '[0-9A-Z]{26}');
-                Route::post('/'.$key.'/import/{token}/commit', [MasterImportController::class, 'commit'])->defaults('entity', $key)->where('token', '[0-9A-Z]{26}');
-            }
+        });
+    }
+
+    // MST-09 dan MST-11: impor Excel untuk master yang menyatakan pengenal alaminya dan entitas hanya-impor (stok awal), di balik
+    // izin kelola entitas itu. Didaftarkan di luar rute master agar entitas hanya-impor tidak punya halaman daftar atau formulir.
+    foreach (app(MasterEntityRegistry::class)->importable() as $master) {
+        $key = $master->key();
+        Route::middleware('can:'.$master->managePermission())->group(function () use ($key): void {
+            Route::get('/'.$key.'/import', [MasterImportController::class, 'create'])->defaults('entity', $key)->name('master.'.$key.'.import');
+            Route::get('/'.$key.'/import/template', [MasterImportController::class, 'template'])->defaults('entity', $key);
+            Route::post('/'.$key.'/import', [MasterImportController::class, 'store'])->defaults('entity', $key)->middleware('throttle:20,1');
+            Route::get('/'.$key.'/import/{token}', [MasterImportController::class, 'show'])->defaults('entity', $key)->name('master.'.$key.'.import.show')->where('token', '[0-9A-Z]{26}');
+            Route::post('/'.$key.'/import/{token}/commit', [MasterImportController::class, 'commit'])->defaults('entity', $key)->where('token', '[0-9A-Z]{26}');
         });
     }
 });

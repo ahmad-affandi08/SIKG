@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Src\Shared\Application\Setup\StarterDataContributor;
 
 /**
  * Hari libur nasional yang tanggalnya TETAP tiap tahun (Tahun Baru, Hari Buruh, Hari Lahir Pancasila, HUT Kemerdekaan, Natal)
@@ -15,7 +16,7 @@ use Illuminate\Support\Str;
  * (Idulfitri, Idul Adha, Imlek, Nyepi, Waisak, Kenaikan Isa Almasih, tahun baru Islam, Maulid, cuti bersama) berubah menurut
  * keputusan bersama menteri dan harus ditambahkan klinik lewat Pengaturan, Libur. Aman dijalankan berulang.
  */
-final class NationalHolidaySeeder extends Seeder
+final class NationalHolidaySeeder extends Seeder implements StarterDataContributor
 {
     /** @return array<string, string> bulan-hari => nama */
     public static function fixed(): array
@@ -27,6 +28,11 @@ final class NationalHolidaySeeder extends Seeder
             '08-17' => 'Hari Kemerdekaan Republik Indonesia',
             '12-25' => 'Hari Raya Natal',
         ];
+    }
+
+    public function starterKey(): string
+    {
+        return 'holidays';
     }
 
     public function run(): void

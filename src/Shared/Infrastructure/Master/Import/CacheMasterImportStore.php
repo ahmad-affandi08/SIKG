@@ -63,9 +63,20 @@ final class CacheMasterImportStore implements MasterImportStore
         return $payload;
     }
 
+    public function claim(string $token): bool
+    {
+        return Cache::add($this->key($token).':claim', true, self::TTL_SECONDS);
+    }
+
+    public function release(string $token): void
+    {
+        Cache::forget($this->key($token).':claim');
+    }
+
     public function forget(string $token): void
     {
         Cache::forget($this->key($token));
+        Cache::forget($this->key($token).':claim');
     }
 
     private function key(string $token): string

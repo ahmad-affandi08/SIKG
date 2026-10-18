@@ -29,6 +29,7 @@ use Src\Shared\Application\PdfRenderer;
 use Src\Shared\Application\PiiProtector;
 use Src\Shared\Application\ResourceLock;
 use Src\Shared\Application\SequenceGenerator;
+use Src\Shared\Application\Setup\SetupRegistry;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Application\Transaction;
 use Src\Shared\Domain\IdGenerator;
@@ -73,6 +74,7 @@ final class SharedServiceProvider extends ServiceProvider
         $this->app->singleton(TenantContext::class);
         $this->app->singleton(ResourceLock::class, DatabaseResourceLock::class);
         $this->app->singleton(MasterEntityRegistry::class);
+        $this->app->singleton(SetupRegistry::class);
         $this->app->singleton(MasterSheet::class, PhpSpreadsheetMasterSheet::class);
         $this->app->singleton(MasterRowValidator::class, LaravelMasterRowValidator::class);
         $this->app->singleton(MasterImportStore::class, CacheMasterImportStore::class);

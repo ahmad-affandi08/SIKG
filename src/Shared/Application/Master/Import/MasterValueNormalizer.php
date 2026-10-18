@@ -7,7 +7,7 @@ namespace Src\Shared\Application\Master\Import;
 use Src\Shared\Application\Master\MasterField;
 
 /**
- * Menyeragamkan isian sel sebelum divalidasi: uang dan angka tanpa "Rp" dan titik ribuan, pilihan dicocokkan lewat nilai atau
+ * Menyeragamkan isian sel sebelum divalidasi: uang dan angka tanpa "Rp" dan titik ribuan yang sah, pilihan dicocokkan lewat nilai atau
  * label, tanggal DD/MM/YYYY menjadi YYYY-MM-DD, dan sel kosong menjadi null. Nilai yang tidak dikenali dibiarkan apa adanya
  * agar ditolak aturan validasi dengan pesan yang jelas.
  */
@@ -42,9 +42,15 @@ final class MasterValueNormalizer
     private static function digits(string $value): string
     {
         $text = trim((string) preg_replace('/^\s*rp\.?\s*/i', '', $value));
-        $withoutDots = str_replace('.', '', $text);
+        if (preg_match('/^\d+$/', $text) === 1) {
+            return $text;
+        }
+        // Titik hanya dianggap pemisah ribuan bila polanya sah (250.000); "250000.50" atau "1.5" dibiarkan agar ditolak validasi.
+        if (preg_match('/^\d{1,3}(\.\d{3})+$/', $text) === 1) {
+            return str_replace('.', '', $text);
+        }
 
-        return preg_match('/^\d+$/', $withoutDots) === 1 ? $withoutDots : $value;
+        return $value;
     }
 
     private static function option(MasterField $field, string $value): string

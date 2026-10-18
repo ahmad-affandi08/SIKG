@@ -13,7 +13,7 @@ it('MST-10 klinik baru belum memenuhi langkah wajib dan halaman menampilkan daft
         ->component('Settings/Setup')
         ->where('required_total', 5)
         ->where('required_done', 0)
-        ->has('steps', 8)
+        ->has('steps', 9)
         ->where('steps.0.key', 'profile')
         ->where('steps.4.import_href', '/settings/master/procedures/import'));
 });
@@ -35,7 +35,9 @@ it('MST-10 kemajuan mengikuti isi data klinik, bukan status tersimpan', function
         ->where('steps.4.done', true)
         // Tindakan data awal nonaktif dan berharga 0, jadi belum dihitung sampai klinik mengisinya.
         ->where('steps.5.done', false)
-        ->where('steps.7.done', false));
+        ->where('steps.6.key', 'stock_opening')
+        ->where('steps.6.done', false)
+        ->where('steps.8.done', false));
 });
 
 it('MST-10 tombol data awal memuat data awal untuk klinik pemanggil saja, tercatat di audit, dan aman diulang', function () {

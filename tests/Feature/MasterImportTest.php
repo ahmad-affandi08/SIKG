@@ -6,30 +6,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Src\IdentityAccess\Domain\Role;
-
-/**
- * @param  list<list<string|int|float|null>>  $rows  baris pertama = judul kolom
- */
-function xlsxImpor(array $rows): UploadedFile
-{
-    $book = new Spreadsheet;
-    $book->getActiveSheet()->fromArray($rows);
-    $stream = fopen('php://temp', 'r+');
-    (new Xlsx($book))->save($stream);
-    rewind($stream);
-
-    return UploadedFile::fake()->createWithContent('impor.xlsx', (string) stream_get_contents($stream));
-}
-
-function tokenDariPengalihan($respons): string
-{
-    $lokasi = (string) $respons->headers->get('Location');
-
-    return substr($lokasi, strrpos($lokasi, '/') + 1);
-}
 
 const JUDUL_TINDAKAN = ['Kode', 'Nama tindakan', 'Kategori', 'Cakupan', 'Tarif standar', 'Kondisi gigi hasil tindakan', 'Kode ICD-9-CM (SATUSEHAT)'];
 

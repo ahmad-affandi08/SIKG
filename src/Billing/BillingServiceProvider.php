@@ -55,12 +55,15 @@ use Src\Billing\Infrastructure\Master\VisitPackageEntity;
 use Src\Billing\Infrastructure\Master\VoucherEntity;
 use Src\Billing\Infrastructure\Online\DokuGateway;
 use Src\Billing\Infrastructure\Online\EloquentOnlinePaymentRepository;
+use Src\Billing\Infrastructure\Seeders\ExpenseCategorySeeder;
+use Src\Billing\Infrastructure\Setup\BillingSetupSteps;
 use Src\Clinical\Domain\Events\EncounterClosed;
 use Src\Clinical\Domain\Events\ProcedurePerformed;
 use Src\Clinical\Domain\Events\ProcedureRetracted;
 use Src\Pharmacy\Domain\Events\MedicineDispensed;
 use Src\Pharmacy\Domain\Events\MedicineReturned;
 use Src\Shared\Application\Master\MasterEntityRegistry;
+use Src\Shared\Application\Setup\SetupRegistry;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Domain\IdGenerator;
 use Src\Shared\Infrastructure\ModelPatientMover;
@@ -110,6 +113,11 @@ final class BillingServiceProvider extends ServiceProvider
         Gate::define('expense.manage', fn (Authenticatable $user): bool => Gate::forUser($user)->allows('payment.refund'));
 
         $this->app->make(MasterEntityRegistry::class)->register($this->app->make(ExpenseCategoryEntity::class));
+
+        // MST-10: langkah dan data awal yang dimiliki konteks ini untuk halaman Penyiapan awal.
+        $setup = $this->app->make(SetupRegistry::class);
+        $setup->registerSteps(new BillingSetupSteps);
+        $setup->registerStarter(new ExpenseCategorySeeder);
         $this->app->make(MasterEntityRegistry::class)->register($this->app->make(VoucherEntity::class));
         $this->app->make(MasterEntityRegistry::class)->register($this->app->make(VisitPackageEntity::class));
 

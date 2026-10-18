@@ -8,7 +8,7 @@ use Src\Clinic\Infrastructure\Seeders\NationalHolidaySeeder;
 use Src\Clinic\Infrastructure\Seeders\ProcedureSeeder;
 use Src\Pharmacy\Infrastructure\Seeders\MedicineSeeder;
 
-it('DATA-AWAL membuat kategori biaya, lima metode bayar, tindakan, obat, dan libur tetap untuk klinik baru', function () {
+it('MST-10 data awal: membuat kategori biaya, lima metode bayar, tindakan, obat, dan libur tetap untuk klinik baru', function () {
     $klinik = makeClinic('Klinik Data Awal');
 
     $this->seed(StarterDataSeeder::class);
@@ -22,7 +22,7 @@ it('DATA-AWAL membuat kategori biaya, lima metode bayar, tindakan, obat, dan lib
         ->and(DB::table('holidays')->where('clinic_id', $id)->count())->toBe(2 * count(NationalHolidaySeeder::fixed()));
 });
 
-it('DATA-AWAL tindakan dan obat dibuat nonaktif dengan harga 0 sampai klinik mengisinya', function () {
+it('MST-10 data awal: tindakan dan obat dibuat nonaktif dengan harga 0 sampai klinik mengisinya', function () {
     $klinik = makeClinic();
     $this->seed(StarterDataSeeder::class);
 
@@ -30,7 +30,7 @@ it('DATA-AWAL tindakan dan obat dibuat nonaktif dengan harga 0 sampai klinik men
         ->and(DB::table('medicines')->where('clinic_id', $klinik->id)->where(fn ($q) => $q->where('is_active', true)->orWhere('sell_price_amount', '>', 0))->count())->toBe(0);
 });
 
-it('DATA-AWAL aman dijalankan berulang dan tidak menimpa yang sudah diubah klinik', function () {
+it('MST-10 data awal: aman dijalankan berulang dan tidak menimpa yang sudah diubah klinik', function () {
     $klinik = makeClinic();
     $this->seed(StarterDataSeeder::class);
     DB::table('procedures')->where('clinic_id', $klinik->id)->where('code', 'SCALING')
@@ -58,7 +58,7 @@ it('DATA-AWAL aman dijalankan berulang dan tidak menimpa yang sudah diubah klini
         ->and((bool) $scaling->is_active)->toBeTrue();
 });
 
-it('DATA-AWAL berlaku untuk setiap klinik tanpa bocor antar klinik', function () {
+it('MST-10 data awal: berlaku untuk setiap klinik tanpa bocor antar klinik', function () {
     $a = makeClinic('Klinik A');
     $b = makeClinic('Klinik B');
 
@@ -70,7 +70,7 @@ it('DATA-AWAL berlaku untuk setiap klinik tanpa bocor antar klinik', function ()
     expect(DB::table('procedures')->count())->toBe(2 * count(ProcedureSeeder::catalog()));
 });
 
-it('DATA-AWAL kode tindakan valid dan kondisi gigi hasil tindakan ada di klinik', function () {
+it('MST-10 data awal: kode tindakan valid dan kondisi gigi hasil tindakan ada di klinik', function () {
     $klinik = makeClinic();
     $this->seed(StarterDataSeeder::class);
 
@@ -91,7 +91,7 @@ it('DATA-AWAL kode tindakan valid dan kondisi gigi hasil tindakan ada di klinik'
     expect($kode)->toBe(array_values(array_unique($kode)));
 });
 
-it('DATA-AWAL libur tetap mencakup tahun berjalan dan tahun depan dan menyusul bila tahun berganti', function () {
+it('MST-10 data awal: libur tetap mencakup tahun berjalan dan tahun depan dan menyusul bila tahun berganti', function () {
     $klinik = makeClinic();
     $seeder = new NationalHolidaySeeder;
 
@@ -104,13 +104,13 @@ it('DATA-AWAL libur tetap mencakup tahun berjalan dan tahun depan dan menyusul b
     expect($tanggal)->toContain('2032-05-01')->and(count($tanggal))->toBe(3 * count(NationalHolidaySeeder::fixed()));
 });
 
-it('DATA-AWAL tanpa klinik tidak melakukan apa pun', function () {
+it('MST-10 data awal: tanpa klinik tidak melakukan apa pun', function () {
     $this->seed(StarterDataSeeder::class);
 
     expect(DB::table('procedures')->count())->toBe(0)->and(DB::table('medicines')->count())->toBe(0);
 });
 
-it('DATA-AWAL kelas obat mengikuti aturan formulir (huruf kecil, angka, garis bawah) sehingga obat bawaan dapat diubah', function () {
+it('MST-10 data awal: kelas obat mengikuti aturan formulir (huruf kecil, angka, garis bawah) sehingga obat bawaan dapat diubah', function () {
     foreach (MedicineSeeder::catalog() as $obat) {
         if ($obat['drug_class'] !== null) {
             expect($obat['drug_class'])->toMatch('/^[a-z0-9_]+$/');

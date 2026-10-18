@@ -68,6 +68,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 
 - [x] MST-09 | S | Impor Excel master data (tindakan, obat, pemasok, kategori biaya, laboratorium, penjamin) dengan pratinjau dan laporan galat per baris (Q-30; belum ada di PRD, perlu ditambahkan pengguna)
 - [x] MST-10 | S | Penyiapan awal klinik untuk Pemilik dan Admin: daftar periksa kemajuan dan tombol data awal (Q-30; belum ada di PRD, perlu ditambahkan pengguna)
+- [x] MST-11 | S | Impor Excel stok awal obat dan bahan (menambah stok lewat penerimaan biasa) dan banner Penyiapan awal di Beranda (Q-31; belum ada di PRD, perlu ditambahkan pengguna)
 - [x] AUTH-05 | S | Autentikasi dua faktor (TOTP) opsional untuk Pemilik dan Admin
 - [x] AUTH-07 | S | Halaman Peran dan izin: Pemilik dan Admin menyesuaikan izin per peran, tercatat di audit log (Q-8)
 - [x] PAS-07 | S | Penggabungan data pasien ganda oleh Admin, tercatat di audit log

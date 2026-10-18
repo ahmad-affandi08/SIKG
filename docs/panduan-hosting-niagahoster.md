@@ -109,7 +109,7 @@ php artisan sikg:preflight
 
 ```
 cd /home/pengguna/app && /usr/local/bin/php artisan migrate --force > /home/pengguna/migrasi.log 2>&1
-cd /home/pengguna/app && /usr/local/bin/php artisan sikg:install --clinic="Nama Klinik" --name="Nama Pemilik" --username=pemilik --email=email@contoh.id --password="KataSandiSementara123" > /home/pengguna/install.log 2>&1
+cd /home/pengguna/app && /usr/local/bin/php artisan sikg:install --clinic="Nama Klinik" --name="Nama Pemilik" --username=pemilik --email=email@contoh.id --password="GANTI-DENGAN-KATA-SANDI-ACAK-PANJANG" > /home/pengguna/install.log 2>&1
 cd /home/pengguna/app && /usr/local/bin/php artisan db:seed --force > /home/pengguna/seed.log 2>&1
 cd /home/pengguna/app && /usr/local/bin/php artisan config:cache > /dev/null 2>&1
 ```

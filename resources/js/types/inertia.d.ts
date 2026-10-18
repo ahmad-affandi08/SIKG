@@ -18,6 +18,8 @@ declare module '@inertiajs/core' {
       } | null;
       /** Isian wajib menurut aturan validasi server; dikirim per halaman formulir. */
       required?: string[];
+      /** Kemajuan Penyiapan awal untuk banner Beranda (MST-10); null bila selesai atau bukan halaman Beranda. */
+      setup?: { done: number; total: number } | null;
       flash: { success: string | null; error: string | null; error_code?: string | null };
     };
   }

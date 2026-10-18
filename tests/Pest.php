@@ -3,9 +3,12 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Src\Clinic\Infrastructure\Eloquent\BranchModel;
 use Src\Clinic\Infrastructure\Eloquent\ChairModel;
 use Src\Clinic\Infrastructure\Eloquent\ClinicModel;
@@ -437,4 +440,25 @@ function dicomSintetis(array $o = []): string
     $data .= $element(0x7FE0, 0x0010, $bits === 8 ? 'OB' : 'OW', $raw, $big, $implicit);
 
     return str_repeat("\0", 128).'DICM'.$meta.$data;
+}
+
+/**
+ * @param  list<list<string|int|float|null>>  $rows  baris pertama = judul kolom
+ */
+function xlsxImpor(array $rows): UploadedFile
+{
+    $book = new Spreadsheet;
+    $book->getActiveSheet()->fromArray($rows);
+    $stream = fopen('php://temp', 'r+');
+    (new Xlsx($book))->save($stream);
+    rewind($stream);
+
+    return UploadedFile::fake()->createWithContent('impor.xlsx', (string) stream_get_contents($stream));
+}
+
+function tokenDariPengalihan($respons): string
+{
+    $lokasi = (string) $respons->headers->get('Location');
+
+    return substr($lokasi, strrpos($lokasi, '/') + 1);
 }

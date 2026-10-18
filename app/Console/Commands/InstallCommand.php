@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Src\Clinic\Infrastructure\Eloquent\ClinicModel;
-use Src\IdentityAccess\Domain\Role;
-use Src\IdentityAccess\Infrastructure\Eloquent\User;
-use Src\IdentityAccess\Infrastructure\Seeders\RolePermissionSeeder;
+use Src\IdentityAccess\Application\Install\AlreadyInstalled;
+use Src\IdentityAccess\Application\Install\CreateFirstOwner;
 
 /**
  * Penyiapan awal di server: membuat satu klinik kosong dan satu pengguna Pemilik dengan kata sandi sementara
@@ -26,14 +23,8 @@ final class InstallCommand extends Command
 
     protected $description = 'Buat klinik pertama dan pengguna Pemilik (hanya bila belum ada klinik)';
 
-    public function handle(): int
+    public function handle(CreateFirstOwner $createFirstOwner): int
     {
-        if (DB::table('clinics')->exists()) {
-            $this->error('Sudah ada klinik di basis data ini. Penyiapan awal hanya dijalankan sekali.');
-
-            return self::FAILURE;
-        }
-
         $clinicName = trim((string) ($this->option('clinic') ?: $this->ask('Nama klinik')));
         $name = trim((string) ($this->option('name') ?: $this->ask('Nama lengkap Pemilik')));
         $username = trim((string) ($this->option('username') ?: $this->ask('Nama pengguna Pemilik')));
@@ -51,17 +42,13 @@ final class InstallCommand extends Command
             return self::FAILURE;
         }
 
-        (new RolePermissionSeeder)->run();
+        try {
+            $createFirstOwner($clinicName, $name, $username, $email, $password);
+        } catch (AlreadyInstalled $e) {
+            $this->error($e->getMessage());
 
-        $clinic = new ClinicModel;
-        $clinic->forceFill(['name' => $clinicName, 'timezone' => 'Asia/Jakarta'])->save();
-
-        $owner = new User;
-        $owner->forceFill([
-            'clinic_id' => $clinic->id, 'branch_id' => null, 'name' => $name, 'email' => $email, 'username' => $username,
-            'password' => $password, 'is_active' => true, 'must_change_password' => true,
-        ])->save();
-        $owner->assignRole(Role::Pemilik->value);
+            return self::FAILURE;
+        }
 
         $this->info("Klinik dan pengguna Pemilik '{$username}' dibuat. Kata sandi wajib diganti saat masuk pertama.");
 

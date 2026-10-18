@@ -36,7 +36,7 @@ final class OnlinePaymentController
 
     public function cancel(Request $request, string $invoice, string $intent): RedirectResponse
     {
-        $this->online->cancel($this->actorId($request), $intent);
+        $this->online->cancel($this->actorId($request), $invoice, $intent);
 
         return to_route('invoices.online-payments', ['invoice' => $invoice])->with('success', 'QR pembayaran dibatalkan.');
     }

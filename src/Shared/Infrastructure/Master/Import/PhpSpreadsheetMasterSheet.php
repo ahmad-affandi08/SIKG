@@ -9,6 +9,7 @@ use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Exception as SpreadsheetException;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\Csv;
+use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -19,6 +20,7 @@ use Src\Shared\Application\Master\Import\MasterImportInvalid;
 use Src\Shared\Application\Master\Import\MasterSheet;
 use Src\Shared\Application\Master\ImportableMaster;
 use Src\Shared\Application\Master\MasterField;
+use Src\Shared\Application\Master\RepeatableImportKey;
 use Src\Shared\Domain\IdGenerator;
 
 /**
@@ -70,7 +72,11 @@ final readonly class PhpSpreadsheetMasterSheet implements MasterSheet
             ]], null, 'A'.$row);
             $row++;
         }
-        $help->setCellValue('A'.($row + 1), 'Isi lembar "Data" mulai baris 2. Maksimal '.MasterImporter::MAX_ROWS.' baris per berkas. Baris yang '.$this->header($this->keyField($entity)).'-nya sudah ada di sistem dilewati, tidak ditimpa.');
+        $help->setCellValue('A'.($row + 1), 'Isi lembar "Data" mulai baris 2. Maksimal '.MasterImporter::MAX_ROWS.' baris per berkas. '.(
+            $entity instanceof RepeatableImportKey
+                ? $entity->importWarning()
+                : 'Baris yang '.$this->header($this->keyField($entity)).'-nya sudah ada di sistem dilewati, tidak ditimpa.'
+        ));
         $help->getStyle('A1:D1')->getFont()->setBold(true);
         foreach (['A' => 28, 'B' => 8, 'C' => 60, 'D' => 60] as $col => $width) {
             $help->getColumnDimension($col)->setWidth($width);
@@ -115,6 +121,15 @@ final readonly class PhpSpreadsheetMasterSheet implements MasterSheet
     {
         $reader = IOFactory::createReaderForFile($path);
         $reader->setReadDataOnly(true);
+        // Hanya baris judul dan MAX_ROWS + 1 baris pertama yang dimuat, sehingga berkas raksasa tidak menghabiskan memori;
+        // baris ekstra tetap terdeteksi dan ditolak di bawah.
+        $reader->setReadFilter(new class implements IReadFilter
+        {
+            public function readCell(string $columnAddress, int $row, string $worksheetName = ''): bool
+            {
+                return $row <= MasterImporter::MAX_ROWS + 2;
+            }
+        });
         if ($reader instanceof Csv) {
             // Excel berbahasa Indonesia mengekspor CSV dengan titik koma.
             $firstLine = (string) strtok((string) file_get_contents($path), "\n");

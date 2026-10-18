@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
+import { Alert } from '@/components/ui/Alert';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
 import { OwnerDashboard } from '@/features/reporting/components/OwnerDashboard';
 import type { Dashboard } from '@/features/reporting/schemas';
@@ -34,7 +35,7 @@ function greeting(hour: number): string {
 
 /** Beranda: sapaan dan akses cepat ke modul yang boleh dibuka pengguna. Isi per peran menyusul bersama kebutuhannya. */
 export default function Beranda({ dashboard }: { dashboard?: Dashboard | null }) {
-  const { auth } = usePage().props;
+  const { auth, setup } = usePage().props;
   const now = new Date();
   const items = visibleNavItems(NAV_ITEMS, auth.permissions).filter(
     (item) =>
@@ -53,6 +54,15 @@ export default function Beranda({ dashboard }: { dashboard?: Dashboard | null })
           </h1>
           <p className="text-muted mt-1">Pilih pekerjaan yang ingin Anda mulai hari ini.</p>
         </header>
+
+        {setup ? (
+          <Alert tone="info">
+            {`Penyiapan awal klinik belum selesai (${String(setup.done)} dari ${String(setup.total)} langkah wajib). `}
+            <Link href="/settings/setup" className="underline">
+              Buka Penyiapan awal
+            </Link>
+          </Alert>
+        ) : null}
 
         {dashboard ? <OwnerDashboard dashboard={dashboard} /> : null}
 

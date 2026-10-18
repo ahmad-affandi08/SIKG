@@ -12,6 +12,7 @@ use Src\Shared\Application\Master\Import\MasterImporter;
 use Src\Shared\Application\Master\Import\MasterImportInvalid;
 use Src\Shared\Application\Master\ImportableMaster;
 use Src\Shared\Application\Master\MasterEntityRegistry;
+use Src\Shared\Application\Master\RepeatableImportKey;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
@@ -77,7 +78,9 @@ final class MasterImportController
 
         $message = "{$result['created']} baris diimpor".($result['skipped'] > 0 ? ", {$result['skipped']} dilewati" : '').'.';
 
-        return redirect('/settings/master/'.$master->key())->with('success', $message);
+        $home = $master instanceof RepeatableImportKey ? $master->importHome() : '/settings/master/'.$master->key();
+
+        return redirect($home)->with('success', $message);
     }
 
     /**
@@ -90,6 +93,8 @@ final class MasterImportController
                 'key' => $master->key(),
                 'title' => $master->title(),
                 'import_key' => $master->importKey(),
+                'warning' => $master instanceof RepeatableImportKey ? $master->importWarning() : null,
+                'home' => $master instanceof RepeatableImportKey ? $master->importHome() : '/settings/master/'.$master->key(),
                 'fields' => array_map(fn ($f) => $f->toArray(), $master->fields()),
             ],
             'preview' => $preview,
@@ -99,9 +104,9 @@ final class MasterImportController
     private function master(Request $request): ImportableMaster
     {
         $key = $request->route('entity');
-        abort_unless(is_string($key) && $this->registry->has($key), 404);
-        $master = $this->registry->get($key);
-        abort_unless($master instanceof ImportableMaster, 404);
+        abort_unless(is_string($key), 404);
+        $master = $this->registry->importableByKey($key);
+        abort_if($master === null, 404);
 
         return $master;
     }

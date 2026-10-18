@@ -109,10 +109,11 @@ final readonly class EloquentOnlinePaymentRepository implements OnlinePaymentRep
     public function listForDesk(int $limit): array
     {
         $rows = PaymentIntentModel::query()->orderByRaw("case when status in ('pending','mismatch') then 0 else 1 end")->orderByDesc('created_at')->limit($limit)->get();
+        // InvoiceModel ber-scope cabang: niat bayar milik tagihan cabang lain tidak ikut tampil.
         $numbers = InvoiceModel::query()->whereIn('id', $rows->pluck('invoice_id')->all())->pluck('number', 'id');
 
-        return array_values($rows->map(fn (PaymentIntentModel $m) => [
-            'id' => $m->id, 'invoice_id' => $m->invoice_id, 'invoice_number' => $numbers[$m->invoice_id] ?? '-', 'order_id' => $m->order_id, 'amount' => $m->amount, 'status' => $m->status,
+        return array_values($rows->filter(fn (PaymentIntentModel $m) => isset($numbers[$m->invoice_id]))->map(fn (PaymentIntentModel $m) => [
+            'id' => $m->id, 'invoice_id' => $m->invoice_id, 'invoice_number' => $numbers[$m->invoice_id], 'order_id' => $m->order_id, 'amount' => $m->amount, 'status' => $m->status,
             'status_label' => IntentStatus::from($m->status)->label(), 'gateway_ref' => $m->gateway_ref, 'note' => $m->note, 'expires_at' => $m->expires_at->toImmutable(),
             'paid_at' => $m->paid_at?->toImmutable(), 'created_at' => ($m->created_at ?? $m->expires_at)->toImmutable(),
         ])->all());
@@ -139,7 +140,7 @@ final readonly class EloquentOnlinePaymentRepository implements OnlinePaymentRep
     {
         return new PaymentIntent(
             $m->id, $m->invoice_id, $m->order_id, $m->amount, IntentStatus::from($m->status), $m->payment_url, $m->gateway_ref, $m->expires_at->toImmutable(),
-            $m->paid_at?->toImmutable(), $m->payment_id, $m->note, $m->created_by,
+            $m->paid_at?->toImmutable(), $m->payment_id, $m->note, $m->created_by, $m->branch_id,
         );
     }
 }

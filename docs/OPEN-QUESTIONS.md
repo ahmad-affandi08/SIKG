@@ -248,7 +248,7 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
   7. **Perubahan pada tes yang sudah ada**: tidak ada yang dilonggarkan. `SoftDeleteTest` mendaftarkan `loyalty_ledger`, `loyalty_balances`, dan `stock_transfers` sebagai hanya-tambah; `RouteAuthorizationCoverageTest` mendaftarkan route publik booking dan webhook serta halaman login-saja (`/branch/switch`, `/offline/queue`); `ReportingTest` dan `ReportingDomainTest` menambah LAP-12; tes navigasi menambah menu.
 - Opsi: (a) pertahankan asumsi di atas; (b) pengguna menetapkan lain per butir (terutama butir 2 bila kebijakan privasi klinik melarang data klinis sementara di perangkat, dan butir 5 setelah pengujian sandbox)
 - Rekomendasi: (a)
-- Keputusan: (a), dengan penyedia DOKU.
+- Keputusan: (a), dengan penyedia DOKU. Catatan: butir 2 (data klinis terenkripsi sementara di IndexedDB perangkat) menyimpang dari aturan "tanpa PHI di penyimpanan peramban" (M11); keputusan umum "serahkan ke Claude" belum berupa persetujuan eksplisit khusus butir ini, sehingga butir 2 menunggu konfirmasi tertulis pengguna.
 
 ### Q-30: Impor Excel master data dan wizard penyiapan pertama (di luar PRD)
 - Kebutuhan terkait: MST-04, MST-05, PAS-08 (hanya impor pasien); M14 (kerjakan hanya yang ada di PRD)
@@ -257,6 +257,15 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Opsi: (a) setujui keduanya sebagai kebutuhan baru Fase 1 berprioritas Should dan tambahkan ID di PRD; (b) setujui hanya impor Excel; (c) tidak dikerjakan, klinik mengisi lewat Data master
 - Rekomendasi: (a), karena pengisian awal tarif dan obat adalah pekerjaan manual terbesar saat klinik mulai memakai sistem
 - Keputusan: (a), disetujui pengguna di sesi ini. Dikerjakan sebagai MST-09 (impor Excel generik untuk master yang menyatakan pengenal alaminya: tindakan, obat, pemasok, kategori biaya, laboratorium, penjamin) dan MST-10 (halaman Penyiapan awal). ID ini ada di `docs/STATUS.md` tetapi belum di `docs/PRD/02-fungsional-fase1.md`; PRD terlindungi, jadi pengguna perlu menambahkannya lalu memperbarui segel checksum sesuai README.
+
+### Q-31: Impor stok awal obat dan banner Penyiapan awal di Beranda (di luar PRD)
+- Kebutuhan terkait: OBT-04, OBT-05, MST-05, MST-10; M14 (kerjakan hanya yang ada di PRD)
+- Dokumen yang bertabrakan atau kurang: PRD tidak memuat cara memasukkan saldo stok awal secara massal (stok hanya bertambah lewat penerimaan barang satu per satu) maupun pengingat Penyiapan awal di Beranda
+- Latar: klinik yang mulai memakai sistem sudah punya persediaan. Tanpa impor, setiap obat dan batch harus diterima manual. Pengguna meminta fitur ini dikerjakan ("kerjakan 1 dan 3")
+- Yang dikerjakan (MST-11): (1) impor Excel/CSV "Stok awal" (nama obat, jumlah, batch, kedaluwarsa) dengan pratinjau, memakai kerangka MST-09. Tiap baris memanggil jalur penerimaan stok biasa (`StockService::receive`, mutasi dan audit seperti penerimaan manual) dengan catatan "Stok awal (impor Excel)"; obat harus ada di katalog dan aktif. Berbeda dari impor master lain, impor ini MENAMBAH stok setiap dikonfirmasi: berkas yang sama dua kali menggandakan stok, sehingga ada peringatan di pratinjau dan jendela konfirmasi, dan satu token hanya dapat dikonfirmasi sekali (klaim atomik). (2) Banner di Beranda untuk pemegang izin pengaturan selama langkah wajib Penyiapan awal belum selesai
+- Opsi: (a) setujui sebagai MST-11 (Should) dan tambahkan di PRD; (b) pertahankan MST-09/10 saja dan buang impor stok awal
+- Rekomendasi: (a)
+- Keputusan: belum ada persetujuan tertulis pengguna untuk ID MST-11; dikerjakan atas permintaan langsung pengguna di sesi ini. PRD terlindungi, jadi pengguna perlu menambahkan MST-09, MST-10, dan MST-11 lalu memperbarui segel checksum sesuai README.
 
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3

@@ -25,5 +25,13 @@ interface MasterImportStore
      */
     public function get(string $token, string $actorId, string $entityKey): ?array;
 
+    /**
+     * Mengklaim token untuk satu konfirmasi saja secara atomik; false bila sudah diklaim permintaan lain.
+     */
+    public function claim(string $token): bool;
+
+    /** Melepas klaim agar konfirmasi dapat diulang (dipakai bila pemrosesan gagal). */
+    public function release(string $token): void;
+
     public function forget(string $token): void;
 }

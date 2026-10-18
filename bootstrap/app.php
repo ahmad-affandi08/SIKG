@@ -31,8 +31,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias(['offline.dedupe' => DedupeOfflineReplay::class]);
         // Global (bukan grup web) agar header juga ada di 404, /up, dan pengalihan.
         $middleware->append(SecurityHeaders::class);
-        // Percaya proxy hosting (HTTPS diakhiri di penyedia) agar cookie aman dan HSTS benar.
-        $middleware->trustProxies(at: '*');
+        // Proxy tepercaya dibaca dari config/trustedproxy.php (bawaan: proxy lokal/privat saja). Jangan percaya semua alamat:
+        // header X-Forwarded-For dari klien akan dipakai apa adanya dan melewati pembatasan laju.
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

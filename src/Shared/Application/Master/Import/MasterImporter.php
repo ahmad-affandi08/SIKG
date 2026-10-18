@@ -7,8 +7,10 @@ namespace Src\Shared\Application\Master\Import;
 use Src\Shared\Application\AuditEntry;
 use Src\Shared\Application\AuditLogger;
 use Src\Shared\Application\Master\ImportableMaster;
+use Src\Shared\Application\Master\RepeatableImportKey;
 use Src\Shared\Application\Transaction;
 use Src\Shared\Domain\IdGenerator;
+use Throwable;
 
 /**
  * MST-09: impor master data dari Excel dengan pratinjau. Pratinjau memeriksa semua baris dengan aturan formulir yang sama,
@@ -49,7 +51,8 @@ final class MasterImporter
         }
 
         $keyField = $entity->importKey();
-        $existing = $this->existingKeys($entity);
+        $repeatable = $entity instanceof RepeatableImportKey;
+        $existing = $repeatable ? [] : $this->existingKeys($entity);
         $seen = [];
         $valid = [];
         $existingRows = [];
@@ -59,7 +62,7 @@ final class MasterImporter
         foreach ($rows as $row) {
             $number = $row['row'];
             $values = MasterValueNormalizer::normalize($entity->fields(), $row['values']);
-            $key = mb_strtolower(trim((string) ($values[$keyField] ?? '')));
+            $key = $repeatable ? '' : mb_strtolower(trim((string) ($values[$keyField] ?? '')));
 
             if ($key !== '' && isset($existing[$key])) {
                 $existingRows[] = $number;
@@ -113,12 +116,37 @@ final class MasterImporter
         $rows = $this->store->get($token, $actorId, $entity->key())
             ?? throw new MasterImportInvalid('Pratinjau impor sudah kedaluwarsa. Unggah ulang berkasnya.');
 
-        $result = $this->tx->run(function () use ($actorId, $entity, $rows): array {
-            $existing = $this->existingKeys($entity);
+        // Klaim atomik: dua konfirmasi bersamaan untuk token yang sama tidak boleh sama-sama diterapkan.
+        if (! $this->store->claim($token)) {
+            throw new MasterImportInvalid('Impor ini sedang atau sudah diproses.');
+        }
+
+        try {
+            $result = $this->runCommit($actorId, $entity, $rows);
+        } catch (Throwable $e) {
+            $this->store->release($token);
+
+            throw $e;
+        }
+
+        $this->store->forget($token);
+
+        return $result;
+    }
+
+    /**
+     * @param  list<array{row: int, data: array<string, mixed>}>  $rows
+     * @return array{created: int, skipped: int}
+     */
+    private function runCommit(string $actorId, ImportableMaster $entity, array $rows): array
+    {
+        return $this->tx->run(function () use ($actorId, $entity, $rows): array {
+            $repeatable = $entity instanceof RepeatableImportKey;
+            $existing = $repeatable ? [] : $this->existingKeys($entity);
             $created = 0;
             $skipped = 0;
             foreach ($rows as $row) {
-                $key = mb_strtolower(trim((string) ($row['data'][$entity->importKey()] ?? '')));
+                $key = $repeatable ? '' : mb_strtolower(trim((string) ($row['data'][$entity->importKey()] ?? '')));
                 if (($key !== '' && isset($existing[$key])) || $this->validator->validate($entity, $row['data'])['errors'] !== []) {
                     $skipped++;
 
@@ -137,10 +165,6 @@ final class MasterImporter
 
             return ['created' => $created, 'skipped' => $skipped];
         });
-
-        $this->store->forget($token);
-
-        return $result;
     }
 
     /**

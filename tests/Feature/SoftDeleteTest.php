@@ -167,6 +167,7 @@ it('SYS-03 tidak ada kode aplikasi yang menghapus permanen: setiap delete() terd
         'src/Reporting/Application/ReportExportService.php' => 1,             // berkas ekspor laporan kedaluwarsa via port; baris report_jobs tetap
         'src/Reporting/Infrastructure/PrivateReportFileStore.php' => 1,       // berkas ekspor laporan di disk privat, bukan data aplikasi
         'src/Shared/Infrastructure/Backup/PhpBackupEngine.php' => 1,          // cadangan lama sesuai retensi, bukan data aplikasi
+        'src/Shared/Infrastructure/Master/Import/PhpSpreadsheetMasterSheet.php' => 1, // berkas impor master sementara di disk privat (MST-09), dihapus setelah dibaca
     ];
 
     $ditemukan = [];

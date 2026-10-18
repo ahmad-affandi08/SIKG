@@ -32,8 +32,12 @@ use Src\Pharmacy\Infrastructure\EloquentStockCountRepository;
 use Src\Pharmacy\Infrastructure\EloquentStockRepository;
 use Src\Pharmacy\Infrastructure\EloquentSupplierDirectory;
 use Src\Pharmacy\Infrastructure\Master\MedicineEntity;
+use Src\Pharmacy\Infrastructure\Master\StockOpeningEntity;
 use Src\Pharmacy\Infrastructure\Master\SupplierEntity;
+use Src\Pharmacy\Infrastructure\Seeders\MedicineSeeder;
+use Src\Pharmacy\Infrastructure\Setup\PharmacySetupSteps;
 use Src\Shared\Application\Master\MasterEntityRegistry;
+use Src\Shared\Application\Setup\SetupRegistry;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Infrastructure\ModelPatientMover;
 
@@ -63,7 +67,13 @@ final class PharmacyServiceProvider extends ServiceProvider
         }
 
         $this->app->make(MasterEntityRegistry::class)->register($this->app->make(MedicineEntity::class));
+        $this->app->make(MasterEntityRegistry::class)->registerImportOnly($this->app->make(StockOpeningEntity::class));
         $this->app->make(MasterEntityRegistry::class)->register($this->app->make(SupplierEntity::class));
+
+        // MST-10: langkah dan data awal yang dimiliki konteks ini untuk halaman Penyiapan awal.
+        $setup = $this->app->make(SetupRegistry::class);
+        $setup->registerSteps(new PharmacySetupSteps);
+        $setup->registerStarter(new MedicineSeeder);
 
         // P2-05: bahan habis pakai mengikuti pencatatan dan pembatalan tindakan pada kunjungan.
         Event::listen(ProcedurePerformed::class, [ProcedureMaterialService::class, 'procedurePerformed']);

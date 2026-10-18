@@ -9,6 +9,7 @@ use Inertia\Middleware;
 use Src\Clinic\Contracts\BranchDirectory;
 use Src\Clinic\Infrastructure\Eloquent\ClinicModel;
 use Src\IdentityAccess\Infrastructure\Eloquent\User;
+use Src\Shared\Application\Setup\SetupOverview;
 use Src\Shared\Application\TenantContext;
 
 final class HandleInertiaRequests extends Middleware
@@ -47,12 +48,30 @@ final class HandleInertiaRequests extends Middleware
             ],
             'clinic' => $user instanceof User ? $this->clinic() : null,
             'branch' => $user instanceof User ? $this->branch($user) : null,
+            'setup' => fn () => $this->setup($request, $user),
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
                 'error_code' => $request->session()->get('error_code'),
             ],
         ];
+    }
+
+    /**
+     * Kemajuan Penyiapan awal untuk banner di Beranda (MST-10). Hanya dihitung di halaman Beranda dan untuk pemegang izin
+     * pengaturan, dan null bila semua langkah wajib sudah selesai.
+     *
+     * @return array{done: int, total: int}|null
+     */
+    private function setup(Request $request, mixed $user): ?array
+    {
+        $clinicId = $this->tenant->clinicId();
+        if (! $user instanceof User || $clinicId === null || ! $request->routeIs('dashboard') || ! $user->can('setting.manage')) {
+            return null;
+        }
+        $progress = app(SetupOverview::class)->requiredProgress($clinicId);
+
+        return $progress['done'] === $progress['total'] ? null : $progress;
     }
 
     /**

@@ -413,3 +413,28 @@ it('P3-05 polling status, hak akses, dan isolasi klinik', function () {
     $this->post("/invoices/{$s['invoice']}/online-payments/{$niat->id}/cancel")->assertSessionHas('error_code', 'online.not_found');
     expect(niatDaring()->status)->toBe('pending');
 });
+
+it('P3-05 pembayaran dari webhook jatuh ke cabang tagihan dan niat bayar cabang lain tidak dapat dibatalkan dari cabang ini', function () {
+    $s = siapDaring();
+    $penyedia = pasangPenyedia();
+    $cabang = makeBranch($s['klinik'], 'Cabang A');
+    mulaiQr($s)->assertSessionHasNoErrors();
+    $niat = niatDaring();
+    DB::table('invoices')->where('id', $s['invoice'])->update(['branch_id' => $cabang->id]);
+    DB::table('invoice_items')->where('invoice_id', $s['invoice'])->update(['branch_id' => $cabang->id]);
+    DB::table('payment_intents')->where('id', $niat->id)->update(['branch_id' => $cabang->id]);
+
+    // Kasir terikat cabang lain tidak melihat dan tidak dapat membatalkan niat bayar cabang A.
+    $cabangB = makeBranch($s['klinik'], 'Cabang B');
+    $kasirB = makeUser(Role::Kasir, $s['klinik'], $cabangB);
+    $this->actingAs($kasirB)->get('/online-payments')->assertOk()->assertInertia(fn ($p) => $p->where('intents', []));
+    $this->actingAs($kasirB)->post("/invoices/{$s['invoice']}/online-payments/{$niat->id}/cancel")->assertSessionHas('error_code', 'online.not_found');
+    expect(niatDaring()->status)->toBe('pending');
+
+    $this->post('/logout');
+    $penyedia->status = 'SUCCESS';
+    kirimWebhook($s['token'], $niat->order_id)->assertOk();
+
+    expect(DB::table('payments')->where('invoice_id', $s['invoice'])->value('branch_id'))->toBe($cabang->id)
+        ->and(niatDaring()->status)->toBe('paid');
+});

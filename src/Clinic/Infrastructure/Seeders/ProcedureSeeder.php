@@ -7,6 +7,7 @@ namespace Src\Clinic\Infrastructure\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Src\Shared\Application\Setup\StarterDataContributor;
 
 /**
  * Katalog tindakan gigi umum (MST-04) sebagai usulan awal. Semua baris dibuat NONAKTIF dengan tarif 0: klinik wajib
@@ -15,7 +16,7 @@ use Illuminate\Support\Str;
  * tindakan yang padanannya jelas dan wajib diperiksa petugas rekam medis; sisanya dikosongkan (tidak ikut dikirim).
  * Aman dijalankan berulang: kode yang sudah ada tidak diduplikasi dan tidak ditimpa.
  */
-final class ProcedureSeeder extends Seeder
+final class ProcedureSeeder extends Seeder implements StarterDataContributor
 {
     /**
      * @return list<array{code: string, name: string, category: string, scope: string, result: ?string, icd9: ?string}>
@@ -46,6 +47,11 @@ final class ProcedureSeeder extends Seeder
             ['code' => 'RO-PERIAPIKAL', 'name' => 'Foto rontgen periapikal', 'category' => 'Radiologi', 'scope' => 'tooth', 'result' => null, 'icd9' => '87.12'],
             ['code' => 'RO-PANORAMIK', 'name' => 'Foto rontgen panoramik', 'category' => 'Radiologi', 'scope' => 'visit', 'result' => null, 'icd9' => null],
         ];
+    }
+
+    public function starterKey(): string
+    {
+        return 'procedures';
     }
 
     public function run(): void

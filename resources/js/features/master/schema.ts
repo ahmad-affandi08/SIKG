@@ -76,3 +76,21 @@ function fieldSchema(def: MasterFieldDef): z.ZodType<string> {
 export function emptyValues(fields: readonly MasterFieldDef[]): Record<string, string> {
   return Object.fromEntries(fields.map((field) => [field.key, '']));
 }
+
+const IMPORT_MAX_BYTES = 2 * 1024 * 1024;
+
+/** Berkas impor Excel/CSV (MST-09): jenis dari ekstensi, maksimal 2 MB. Server memeriksa ulang isinya. */
+export const importFileSchema = z
+  .custom<File>((value) => value instanceof File, {
+    message: 'Pilih berkas Excel (.xlsx) atau CSV.',
+  })
+  .refine((file) => /\.(xlsx|csv)$/i.test(file.name), {
+    message: 'Berkas harus berformat .xlsx atau .csv.',
+  })
+  .refine((file) => file.size <= IMPORT_MAX_BYTES, { message: 'Berkas maksimal 2 MB.' });
+
+/** Pesan galat pertama untuk berkas impor, atau null bila sah. */
+export function importFileIssue(file: File | null): string | null {
+  const result = importFileSchema.safeParse(file);
+  return result.success ? null : (result.error.issues[0]?.message ?? 'Berkas tidak valid.');
+}

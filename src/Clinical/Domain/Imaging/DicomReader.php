@@ -24,6 +24,9 @@ final class DicomReader
 
     private const UNDEFINED = 0xFFFFFFFF;
 
+    /** Kedalaman urutan bersarang yang dilewati; lebih dari ini berkas dianggap rusak (mencegah rekursi tak terbatas). */
+    private const MAX_NESTING = 16;
+
     /** @var array<string, int|string|null> */
     private array $tags = [];
 
@@ -206,9 +209,12 @@ final class DicomReader
     }
 
     /** Melewati urutan atau item berpanjang tak tentu sampai pembatasnya; mengembalikan posisi sesudah pembatas. */
-    private function skipUndefined(int $cursor, bool $explicit, bool $big): int
+    private function skipUndefined(int $cursor, bool $explicit, bool $big, int $depth = 0): int
     {
         $length = strlen($this->data);
+        if ($depth > self::MAX_NESTING) {
+            return $length;
+        }
         while ($cursor + 8 <= $length) {
             $group = $this->u16($cursor, $big);
             $element = $this->u16($cursor + 2, $big);
@@ -219,7 +225,7 @@ final class DicomReader
             if ($group === 0xFFFE && $element === 0xE000) {
                 $cursor += 8;
                 if ($itemLength === self::UNDEFINED) {
-                    $cursor = $this->skipItemBody($cursor, $explicit, $big);
+                    $cursor = $this->skipItemBody($cursor, $explicit, $big, $depth + 1);
                 } else {
                     $cursor += $itemLength;
                 }
@@ -233,7 +239,7 @@ final class DicomReader
         return $length;
     }
 
-    private function skipItemBody(int $cursor, bool $explicit, bool $big): int
+    private function skipItemBody(int $cursor, bool $explicit, bool $big, int $depth): int
     {
         $length = strlen($this->data);
         while ($cursor + 8 <= $length) {
@@ -256,7 +262,7 @@ final class DicomReader
                 $valueLength = $this->u32($inner, $big);
                 $inner += 4;
             }
-            $cursor = $valueLength === self::UNDEFINED ? $this->skipUndefined($inner, $explicit, $big) : $inner + $valueLength;
+            $cursor = $valueLength === self::UNDEFINED ? $this->skipUndefined($inner, $explicit, $big, $depth + 1) : $inner + $valueLength;
         }
 
         return $length;

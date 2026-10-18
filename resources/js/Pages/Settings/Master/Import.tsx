@@ -8,6 +8,7 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { importFileIssue } from '@/features/master/schema';
 import type { MasterFieldDef } from '@/features/master/schema';
 
 interface Preview {
@@ -21,24 +22,15 @@ interface Preview {
 }
 
 interface Props {
-  entity: { key: string; title: string; import_key: string; fields: MasterFieldDef[] };
+  entity: {
+    key: string;
+    title: string;
+    import_key: string;
+    warning: string | null;
+    home: string;
+    fields: MasterFieldDef[];
+  };
   preview: Preview | null;
-}
-
-const MAX_BYTES = 2 * 1024 * 1024;
-
-/** Masalah pada berkas yang dapat diketahui sebelum diunggah (server tetap memeriksa ulang). */
-export function importFileIssue(file: File | null): string | null {
-  if (file === null) {
-    return 'Pilih berkas Excel (.xlsx) atau CSV.';
-  }
-  if (!/\.(xlsx|csv)$/i.test(file.name)) {
-    return 'Berkas harus berformat .xlsx atau .csv.';
-  }
-  if (file.size > MAX_BYTES) {
-    return 'Berkas maksimal 2 MB.';
-  }
-  return null;
 }
 
 /** Impor master data dari Excel dengan pratinjau (MST-09). Tidak ada yang disimpan sebelum dikonfirmasi. */
@@ -67,21 +59,29 @@ export default function Import({ entity, preview }: Props) {
         <PageHead title={`Impor ${entity.title}`} />
         <PageHeader
           title={`Impor ${entity.title.toLowerCase()} dari Excel`}
-          back={{ href: base, label: entity.title.toLowerCase() }}
+          back={{
+            href: entity.home,
+            label: entity.home === '/stock' ? 'stok' : entity.title.toLowerCase(),
+          }}
         />
 
         {preview === null ? (
           <section className="flex flex-col gap-4">
+            {entity.warning !== null ? <Alert tone="warning">{entity.warning}</Alert> : null}
             <ol className="list-decimal pl-5 text-sm">
               <li>Unduh templat, lalu isi lembar &quot;Data&quot; mulai baris 2.</li>
               <li>
                 Unggah berkas. Sistem menampilkan pratinjau; belum ada data yang disimpan sebelum
                 Anda mengonfirmasi.
               </li>
-              <li>
-                Baris yang {keyLabel.toLowerCase()}-nya sudah ada dilewati, tidak ditimpa. Baris
-                yang salah tidak ikut, dan dijelaskan per baris.
-              </li>
+              {entity.warning === null ? (
+                <li>
+                  Baris yang {keyLabel.toLowerCase()}-nya sudah ada dilewati, tidak ditimpa. Baris
+                  yang salah tidak ikut, dan dijelaskan per baris.
+                </li>
+              ) : (
+                <li>Baris yang salah tidak ikut, dan dijelaskan per baris.</li>
+              )}
             </ol>
             <div>
               <a href={`${base}/import/template`} className="btn btn-secondary">
@@ -197,7 +197,9 @@ export default function Import({ entity, preview }: Props) {
             <ConfirmDialog
               open={confirming}
               title="Impor data?"
-              message={`${String(preview.valid_rows)} baris akan ditambahkan ke ${entity.title.toLowerCase()}. Data yang sudah ada tidak diubah, dan setiap baris tercatat di audit.`}
+              message={`${String(preview.valid_rows)} baris akan ditambahkan ke ${entity.title.toLowerCase()}. ${
+                entity.warning ?? 'Data yang sudah ada tidak diubah.'
+              } Setiap baris tercatat di audit.`}
               confirmLabel="Ya, impor"
               onCancel={() => {
                 setConfirming(false);
