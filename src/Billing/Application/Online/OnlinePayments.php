@@ -11,6 +11,7 @@ use Src\Billing\Domain\InvalidBillingData;
 use Src\Billing\Domain\InvoiceRepository;
 use Src\Billing\Domain\Online\IntentStatus;
 use Src\Billing\Domain\Online\OnlinePaymentRepository;
+use Src\Billing\Domain\Online\OnlinePaymentSettings;
 use Src\Billing\Domain\Online\PaymentIntent;
 use Src\Billing\Domain\PaymentType;
 use Src\Shared\Application\AuditEntry;
@@ -20,6 +21,7 @@ use Src\Shared\Application\ResourceLock;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Application\Transaction;
 use Src\Shared\Domain\IdGenerator;
+use Throwable;
 
 /**
  * P3-05: pembayaran online (QRIS dinamis lewat payment gateway). Kasir membuat pembayaran untuk sisa tagihan; pasien membayar lewat halaman QRIS DOKU dengan aplikasi
@@ -43,6 +45,7 @@ final readonly class OnlinePayments
         private AuditLogger $audit,
         private IdGenerator $ids,
         private Clock $clock,
+        private WebhookReplayGuard $replays,
     ) {}
 
     /**
@@ -162,23 +165,40 @@ final readonly class OnlinePayments
             return null;
         }
 
-        return (bool) $this->tenant->runAs($clinicId, null, function () use ($headers, $rawBody, $path): bool {
+        return (bool) $this->tenant->runAs($clinicId, null, function () use ($clinicId, $headers, $rawBody, $path): bool {
             $settings = $this->intents->settings();
             if (! $this->gateway->verifyNotification($settings, $headers, $rawBody, $path)) {
                 return false;
             }
-            $payload = json_decode($rawBody, true);
-            $orderId = is_array($payload) && is_array($payload['order'] ?? null) ? ($payload['order']['invoice_number'] ?? null) : null;
-            $intent = is_string($orderId) ? $this->intents->findByOrderId($orderId) : null;
-            if ($intent === null) {
+            // Pengiriman ulang persis sama (Request-Id sama) sudah ditangani: dijawab sukses tanpa kerja ulang atau panggilan keluar.
+            $requestId = $headers['request-id'] ?? '';
+            if (! $this->replays->firstSeen($clinicId, $requestId)) {
                 return true;
             }
-            // Status ditanyakan ulang ke penyedia: badan webhook tidak menjadi sumber kebenaran. Galat sementara dilempar agar penyedia mencoba lagi.
-            $status = $this->gateway->status($settings, $intent->orderId);
-            $this->apply($intent->id, $status);
+            try {
+                return $this->processNotification($settings, $rawBody);
+            } catch (Throwable $e) {
+                // Galat sementara: lepas catatan supaya percobaan ulang penyedia diproses.
+                $this->replays->forget($clinicId, $requestId);
 
-            return true;
+                throw $e;
+            }
         });
+    }
+
+    private function processNotification(OnlinePaymentSettings $settings, string $rawBody): bool
+    {
+        $payload = json_decode($rawBody, true);
+        $orderId = is_array($payload) && is_array($payload['order'] ?? null) ? ($payload['order']['invoice_number'] ?? null) : null;
+        $intent = is_string($orderId) ? $this->intents->findByOrderId($orderId) : null;
+        if ($intent === null) {
+            return true;
+        }
+        // Status ditanyakan ulang ke penyedia: badan webhook tidak menjadi sumber kebenaran. Galat sementara dilempar agar penyedia mencoba lagi.
+        $status = $this->gateway->status($settings, $intent->orderId);
+        $this->apply($intent->id, $status);
+
+        return true;
     }
 
     /**

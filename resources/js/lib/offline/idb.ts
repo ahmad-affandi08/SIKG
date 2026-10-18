@@ -63,6 +63,21 @@ export const idbStore: QueueStore = {
     );
     return key ?? null;
   },
+  clear: async () => {
+    const db = await open();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction([REQUESTS, KEYS], 'readwrite');
+      tx.objectStore(REQUESTS).clear();
+      tx.objectStore(KEYS).clear();
+      tx.oncomplete = () => {
+        db.close();
+        resolve();
+      };
+      tx.onerror = () => {
+        reject(tx.error ?? new Error('Operasi IndexedDB gagal.'));
+      };
+    });
+  },
   saveKey: async (key) => {
     await run(KEYS, 'readwrite', (s) => s.put(key, KEY_ID));
   },

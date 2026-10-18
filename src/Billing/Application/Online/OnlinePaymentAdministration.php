@@ -34,6 +34,18 @@ final readonly class OnlinePaymentAdministration
     }
 
     /**
+     * Mengganti token pada alamat webhook (mis. bila alamat lama bocor). Alamat lama langsung ditolak; alamat baru harus didaftarkan
+     * ulang sebagai Notification URL di dasbor penyedia. Token tidak dicatat di audit.
+     */
+    public function rotateWebhookToken(string $actorId): void
+    {
+        $this->tx->run(function () use ($actorId): void {
+            $this->intents->rotateWebhookToken($actorId);
+            $this->audit->record(new AuditEntry($actorId, 'online_payment.webhook_token_rotated', 'clinic', 'online-payments', null, null));
+        });
+    }
+
+    /**
      * @param  string|null  $secretKey  null atau kosong berarti kunci lama dipertahankan
      */
     public function save(string $actorId, bool $enabled, string $environment, ?string $clientId, ?string $secretKey, ?string $methodId, int $expiryMinutes): void

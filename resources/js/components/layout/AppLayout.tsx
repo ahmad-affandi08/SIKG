@@ -4,6 +4,7 @@ import type { KeyboardEvent, ReactNode } from 'react';
 
 import { buildCrumbs } from '@/components/layout/breadcrumbs';
 import { FlashMessages } from '@/components/layout/FlashMessages';
+import { LogoutButton } from '@/components/layout/LogoutButton';
 import { NotificationBell } from '@/components/layout/NotificationBell';
 import { OfflineIndicator } from '@/components/layout/OfflineIndicator';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
@@ -216,15 +217,7 @@ function Shell({
             </label>
           ) : null}
           {auth.user ? <NotificationBell onClick={closeMenu} /> : null}
-          <Link
-            href="/logout"
-            method="post"
-            as="button"
-            className="menubar-item"
-            onClick={closeMenu}
-          >
-            Keluar
-          </Link>
+          <LogoutButton onClick={closeMenu} />
         </span>
       </nav>
 

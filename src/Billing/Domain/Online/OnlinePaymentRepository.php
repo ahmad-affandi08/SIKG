@@ -14,6 +14,9 @@ interface OnlinePaymentRepository
     /** `$secretKey` null berarti kunci lama dipertahankan. */
     public function saveSettings(string $actorId, bool $enabled, string $environment, ?string $clientId, ?string $secretKey, ?string $methodId, int $expiryMinutes): void;
 
+    /** Mengganti token webhook dengan yang baru; token lama langsung tidak berlaku. @return string token baru */
+    public function rotateWebhookToken(string $actorId): string;
+
     /**
      * Klinik pemilik token webhook, di luar cakupan klinik.
      *

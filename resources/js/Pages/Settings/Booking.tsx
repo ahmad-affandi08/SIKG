@@ -19,6 +19,7 @@ interface Props {
     min_lead_hours: number;
     hold_hours: number;
     max_active_per_phone: number;
+    max_requests_per_hour: number;
     otp_template: string;
     welcome_text: string;
   };
@@ -31,6 +32,7 @@ type Key =
   | 'min_lead_hours'
   | 'hold_hours'
   | 'max_active_per_phone'
+  | 'max_requests_per_hour'
   | 'otp_template'
   | 'welcome_text';
 
@@ -44,6 +46,7 @@ export default function Booking({ settings }: Props) {
     min_lead_hours: String(settings.min_lead_hours),
     hold_hours: String(settings.hold_hours),
     max_active_per_phone: String(settings.max_active_per_phone),
+    max_requests_per_hour: String(settings.max_requests_per_hour),
     otp_template: settings.otp_template,
     welcome_text: settings.welcome_text,
   });
@@ -128,6 +131,12 @@ export default function Booking({ settings }: Props) {
             inputMode="numeric"
             required
             {...text('max_active_per_phone')}
+          />
+          <TextField
+            label="Permintaan booking baru maksimal per jam (seluruh klinik)"
+            inputMode="numeric"
+            required
+            {...text('max_requests_per_hour')}
           />
           <TextField
             label="Nama templat WhatsApp kode verifikasi (opsional)"

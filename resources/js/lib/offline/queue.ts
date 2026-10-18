@@ -32,6 +32,8 @@ export interface QueueStore {
   remove(id: string): Promise<void>;
   loadKey(): Promise<CryptoKey | null>;
   saveKey(key: CryptoKey): Promise<void>;
+  /** Menghapus semua antrean dan kunci enkripsi dari penyimpanan. */
+  clear(): Promise<void>;
 }
 
 export type SendOutcome =
@@ -124,7 +126,25 @@ export class OfflineQueue {
     await this.store.remove(id);
   }
 
-  /** Membuang berkas yang melewati batas usia, dan semua milik pengguna lain bila `userId` diberikan. */
+  /** Membuang semua antrean dan kunci enkripsi (dipakai saat keluar akun, supaya tidak ada data klinis tertinggal di perangkat). */
+  async wipe(): Promise<void> {
+    await this.store.clear();
+  }
+
+  /** Membuang antrean milik pengguna lain (perangkat bersama); kunci dibuang juga bila tidak ada lagi yang tersisa. */
+  async purgeOtherUsers(userId: string): Promise<void> {
+    const items = await this.store.list();
+    for (const item of items) {
+      if (item.userId !== userId) {
+        await this.store.remove(item.id);
+      }
+    }
+    if (items.length > 0 && items.every((item) => item.userId !== userId)) {
+      await this.store.clear();
+    }
+  }
+
+  /** Membuang berkas yang melewati batas usia. */
   async purgeExpired(): Promise<void> {
     const limit = this.now() - MAX_AGE_MS;
     for (const item of await this.store.list()) {

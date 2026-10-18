@@ -61,15 +61,17 @@ final class BookingDeskController
             'min_lead_hours' => ['required', 'integer', 'min:0', 'max:72'],
             'hold_hours' => ['required', 'integer', 'min:1', 'max:168'],
             'max_active_per_phone' => ['required', 'integer', 'min:1', 'max:10'],
+            'max_requests_per_hour' => ['nullable', 'integer', 'min:5', 'max:500'],
             'otp_template' => ['nullable', 'string', 'max:100'],
             'welcome_text' => ['nullable', 'string', 'max:500'],
         ], [
             'slot_minutes.required' => 'Durasi slot wajib diisi.', 'horizon_days.required' => 'Batas hari wajib diisi.', 'min_lead_hours.required' => 'Jeda minimum wajib diisi.',
-            'hold_hours.required' => 'Masa tahan wajib diisi.', 'max_active_per_phone.required' => 'Batas per nomor wajib diisi.',
+            'hold_hours.required' => 'Masa tahan wajib diisi.', 'max_active_per_phone.required' => 'Batas per nomor wajib diisi.', 'max_requests_per_hour.min' => 'Batas permintaan per jam minimal 5.', 'max_requests_per_hour.max' => 'Batas permintaan per jam maksimal 500.', 'max_requests_per_hour.integer' => 'Batas permintaan per jam berupa bilangan bulat.',
         ]);
         $this->admin->save($this->actorId($request), new BookingSettings(
             (bool) $data['enabled'], strtolower(trim((string) ($data['slug'] ?? ''))), (int) $data['slot_minutes'], (int) $data['horizon_days'], (int) $data['min_lead_hours'],
             (int) $data['hold_hours'], (int) $data['max_active_per_phone'], $this->clean($data['otp_template'] ?? null), $this->clean($data['welcome_text'] ?? null),
+            (int) ($data['max_requests_per_hour'] ?? 30),
         ));
 
         return back()->with('success', 'Pengaturan booking online disimpan.');

@@ -33,17 +33,22 @@ interface BookingRepository
     /** Pemakaian aktif nomor: permintaan yang menahan slot dan janji hasil booking yang belum lewat. */
     public function activeCountForPhone(string $phoneHash, DateTimeImmutable $now): int;
 
+    /** Permintaan baru yang masuk ke klinik sejak waktu itu (semua nomor). */
+    public function requestsSince(DateTimeImmutable $since): int;
+
     /** Jumlah kode yang dikirim ke nomor dalam rentang waktu terakhir. */
     public function codesSentSince(string $phoneHash, DateTimeImmutable $since): int;
 
     /** Permintaan yang menahan slot dokter dan beririsan dengan rentang itu. */
     public function holdsBetween(string $doctorId, DateTimeImmutable $from, DateTimeImmutable $to, DateTimeImmutable $now): int;
 
+    /** Mengganti kode; masa tahan slot ikut menjadi masa berlaku kode. */
     public function setCode(string $id, string $codeHash, DateTimeImmutable $expiresAt): void;
 
     public function bumpAttempts(string $id): void;
 
-    public function markVerified(string $id, DateTimeImmutable $at): void;
+    /** Nomor terbukti milik pendaftar: slot ditahan sampai `holdUntil` (masa tahan klinik). */
+    public function markVerified(string $id, DateTimeImmutable $at, DateTimeImmutable $holdUntil): void;
 
     public function transition(string $id, BookingStatus $status, ?string $actorId, ?string $note, ?string $patientId, ?string $appointmentId, DateTimeImmutable $at): void;
 

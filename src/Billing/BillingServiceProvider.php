@@ -16,6 +16,7 @@ use Src\Billing\Application\InvoiceListing;
 use Src\Billing\Application\Loyalty\LoyaltyService;
 use Src\Billing\Application\Online\OnlinePayments;
 use Src\Billing\Application\Online\PaymentGateway;
+use Src\Billing\Application\Online\WebhookReplayGuard;
 use Src\Billing\Contracts\EncounterChargeGateway;
 use Src\Billing\Contracts\InvoiceClaimGateway;
 use Src\Billing\Contracts\InvoiceLookup;
@@ -53,6 +54,7 @@ use Src\Billing\Infrastructure\Loyalty\LoyaltyPatientMover;
 use Src\Billing\Infrastructure\Master\ExpenseCategoryEntity;
 use Src\Billing\Infrastructure\Master\VisitPackageEntity;
 use Src\Billing\Infrastructure\Master\VoucherEntity;
+use Src\Billing\Infrastructure\Online\CacheWebhookReplayGuard;
 use Src\Billing\Infrastructure\Online\DokuGateway;
 use Src\Billing\Infrastructure\Online\EloquentOnlinePaymentRepository;
 use Src\Billing\Infrastructure\Seeders\ExpenseCategorySeeder;
@@ -94,6 +96,7 @@ final class BillingServiceProvider extends ServiceProvider
         $this->app->singleton(ExpenseCategoryDirectory::class, EloquentExpenseCategoryDirectory::class);
         $this->app->singleton(OnlinePaymentRepository::class, EloquentOnlinePaymentRepository::class);
         $this->app->singleton(PaymentGateway::class, DokuGateway::class);
+        $this->app->singleton(WebhookReplayGuard::class, CacheWebhookReplayGuard::class);
     }
 
     public function boot(): void

@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Select } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
 import { onlineSettingsSchema } from '@/features/onlinePayments/schemas';
@@ -37,6 +38,7 @@ export default function OnlinePayments({ settings }: Props) {
     expiry_minutes: String(settings.expiry_minutes),
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [rotating, setRotating] = useState(false);
   const err = (key: Key) => errors[key] ?? (form.errors as Record<string, string | undefined>)[key];
 
   function submit(event: SyntheticEvent<HTMLFormElement>) {
@@ -72,6 +74,31 @@ export default function OnlinePayments({ settings }: Props) {
           <code>{settings.webhook_path}</code> (didahului alamat lengkap situs ini). Jangan bagikan
           alamat itu.
         </Alert>
+        <div>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              setRotating(true);
+            }}
+          >
+            Buat ulang alamat webhook
+          </Button>
+        </div>
+        <ConfirmDialog
+          open={rotating}
+          variant="danger"
+          title="Buat ulang alamat webhook?"
+          message="Alamat webhook lama langsung tidak berlaku. Pembayaran yang dibayar pasien sebelum alamat baru didaftarkan di DOKU Back Office baru tercatat lewat rekonsiliasi terjadwal."
+          confirmLabel="Ya, buat ulang"
+          onConfirm={() => {
+            setRotating(false);
+            router.post('/settings/online-payments/webhook-token', {}, { preserveScroll: true });
+          }}
+          onCancel={() => {
+            setRotating(false);
+          }}
+        />
         <form
           onSubmit={submit}
           noValidate

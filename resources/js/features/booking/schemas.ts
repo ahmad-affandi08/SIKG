@@ -50,6 +50,12 @@ export const bookingSettingsSchema = z.object({
   min_lead_hours: z.string().regex(/^\d{1,2}$/, 'Jeda minimum berupa jam bulat.'),
   hold_hours: z.string().regex(/^\d{1,3}$/, 'Masa tahan berupa jam bulat.'),
   max_active_per_phone: z.string().regex(/^\d{1,2}$/, 'Batas per nomor berupa bilangan bulat.'),
+  max_requests_per_hour: z
+    .string()
+    .regex(/^\d{1,3}$/, 'Batas per jam berupa bilangan bulat.')
+    .refine((value) => Number(value) >= 5 && Number(value) <= 500, {
+      message: 'Batas per jam antara 5 dan 500.',
+    }),
   otp_template: z.string().max(100, 'Nama templat terlalu panjang.'),
   welcome_text: z.string().max(500, 'Teks sambutan maksimal 500 karakter.'),
 });

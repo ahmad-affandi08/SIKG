@@ -21,6 +21,23 @@ export function queueSnapshot(): readonly QueueItem[] {
   return snapshot;
 }
 
+/** Membuang seluruh antrean dan kunci di perangkat ini, lalu mengosongkan tampilan (dipanggil sebelum keluar akun). */
+export async function wipeQueue(): Promise<void> {
+  const queue = offlineQueue();
+  if (queue) {
+    await queue.wipe();
+  }
+  snapshot = [];
+  listeners.forEach((listener) => {
+    listener();
+  });
+}
+
+/** Membuang antrean milik pengguna lain yang pernah memakai perangkat ini. */
+export async function purgeOtherUsers(userId: string): Promise<void> {
+  await offlineQueue()?.purgeOtherUsers(userId);
+}
+
 export async function refreshQueue(userId: string | null): Promise<void> {
   const queue = offlineQueue();
   snapshot = queue && userId !== null ? await queue.list(userId) : [];

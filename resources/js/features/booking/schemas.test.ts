@@ -49,11 +49,36 @@ describe('P3-01 skema booking online', () => {
       min_lead_hours: '2',
       hold_hours: '24',
       max_active_per_phone: '2',
+      max_requests_per_hour: '30',
       otp_template: '',
       welcome_text: '',
     };
     expect(bookingSettingsSchema.safeParse(base).success).toBe(true);
     expect(bookingSettingsSchema.safeParse({ ...base, slug: 'Klinik Sehat' }).success).toBe(false);
     expect(bookingSettingsSchema.safeParse({ ...base, slug: '' }).success).toBe(true);
+  });
+
+  it('P3-01 batas permintaan per jam antara 5 dan 500', () => {
+    const base = {
+      enabled: true,
+      slug: 'klinik-sehat',
+      slot_minutes: '30',
+      horizon_days: '30',
+      min_lead_hours: '2',
+      hold_hours: '24',
+      max_active_per_phone: '2',
+      max_requests_per_hour: '30',
+      otp_template: '',
+      welcome_text: '',
+    };
+    expect(bookingSettingsSchema.safeParse({ ...base, max_requests_per_hour: '4' }).success).toBe(
+      false,
+    );
+    expect(bookingSettingsSchema.safeParse({ ...base, max_requests_per_hour: '501' }).success).toBe(
+      false,
+    );
+    expect(bookingSettingsSchema.safeParse({ ...base, max_requests_per_hour: '60' }).success).toBe(
+      true,
+    );
   });
 });

@@ -135,18 +135,22 @@ final readonly class PublicBooking
             if (! in_array($time, $this->slots($doctorId, $date), true)) {
                 throw new InvalidBooking('booking.slot_unavailable', 'Slot itu baru saja terisi atau tidak tersedia. Pilih waktu lain.');
             }
-            if ($this->bookings->activeCountForPhone($phoneHash, $now) >= $settings->maxActivePerPhone) {
-                throw new InvalidBooking('booking.phone_limit', 'Nomor ini sudah mencapai batas janji aktif. Hubungi klinik bila perlu mengubahnya.');
+            // Penolakan karena nomor memakai satu pesan umum agar halaman publik tidak membocorkan apakah sebuah nomor punya booking atau kode.
+            if ($this->bookings->requestsSince($now->sub(new DateInterval('PT1H'))) >= $settings->maxRequestsPerHour) {
+                throw new InvalidBooking('booking.busy', 'Permintaan booking sedang ramai. Coba lagi beberapa saat lagi atau hubungi klinik.');
             }
-            if ($code !== null && $this->bookings->codesSentSince($phoneHash, $now->sub(new DateInterval('P1D'))) >= self::MAX_CODES_PER_PHONE_DAY) {
-                throw new InvalidBooking('booking.code_limit', 'Terlalu banyak permintaan kode untuk nomor ini hari ini. Coba lagi besok.');
+            if ($this->bookings->activeCountForPhone($phoneHash, $now) >= $settings->maxActivePerPhone
+                || ($code !== null && $this->bookings->codesSentSince($phoneHash, $now->sub(new DateInterval('P1D'))) >= self::MAX_CODES_PER_PHONE_DAY)) {
+                throw new InvalidBooking('booking.unavailable', 'Permintaan booking tidak dapat diproses untuk nomor ini. Hubungi klinik.');
             }
 
             $start = $this->time->parse($date, $time);
             $id = $this->ids->generate();
             $this->bookings->add(
                 $id, hash('sha256', $token), $doctorId, $start, $start->add(new DateInterval('PT'.$settings->slotMinutes.'M')), $name, $phone, $phoneHash, $complaint,
-                $code === null ? BookingStatus::Pending : BookingStatus::AwaitingCode, $now->add(new DateInterval('PT'.$settings->holdHours.'H')),
+                $code === null ? BookingStatus::Pending : BookingStatus::AwaitingCode,
+                // Tanpa verifikasi, slot hanya ditahan selama kode berlaku; masa tahan klinik dimulai setelah nomor terbukti.
+                $code === null ? $now->add(new DateInterval('PT'.$settings->holdHours.'H')) : $now->add(new DateInterval('PT'.self::CODE_TTL_MINUTES.'M')),
                 $code === null ? null : $this->codeHash($id, $code), $code === null ? null : $now->add(new DateInterval('PT'.self::CODE_TTL_MINUTES.'M')),
                 $ip === null ? null : $this->pii->blindIndex('ip', $ip),
             );
@@ -191,7 +195,7 @@ final readonly class PublicBooking
 
                 return new InvalidBooking('booking.code_wrong', 'Kode verifikasi salah.');
             }
-            $this->bookings->markVerified($record->id, $now);
+            $this->bookings->markVerified($record->id, $now, $now->add(new DateInterval('PT'.$this->bookings->settings()->holdHours.'H')));
             $this->audit->record(new AuditEntry(null, 'booking.verified', 'booking_request', $record->id, null, null));
 
             return null;
@@ -214,6 +218,9 @@ final readonly class PublicBooking
                 throw new InvalidBooking('booking.not_verifiable', 'Permintaan ini tidak lagi menunggu kode verifikasi.');
             }
             $now = $this->clock->now();
+            if ($record->expiresAt <= $now) {
+                throw new InvalidBooking('booking.code_expired', 'Waktu verifikasi habis dan slot dilepas. Buat permintaan booking baru.');
+            }
             $phoneHash = $this->bookings->phoneHashOf($record->id) ?? '';
             if ($record->codeSentCount >= self::MAX_CODES_PER_REQUEST || $this->bookings->codesSentSince($phoneHash, $now->sub(new DateInterval('P1D'))) >= self::MAX_CODES_PER_PHONE_DAY) {
                 throw new InvalidBooking('booking.code_limit', 'Batas pengiriman kode tercapai. Hubungi klinik bila perlu.');

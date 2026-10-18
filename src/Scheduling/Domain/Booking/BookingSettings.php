@@ -23,6 +23,7 @@ final readonly class BookingSettings
         public int $maxActivePerPhone,
         public ?string $otpTemplate,
         public ?string $welcomeText,
+        public int $maxRequestsPerHour = 30,
     ) {}
 
     public static function defaults(): self
@@ -44,8 +45,8 @@ final readonly class BookingSettings
         if ($this->slotMinutes < 15 || $this->slotMinutes > 180 || $this->slotMinutes % 5 !== 0) {
             throw new InvalidBooking('booking.settings_invalid', 'Durasi slot 15 sampai 180 menit, kelipatan 5.');
         }
-        if ($this->horizonDays < 1 || $this->horizonDays > 90 || $this->minLeadHours < 0 || $this->minLeadHours > 72 || $this->holdHours < 1 || $this->holdHours > 168 || $this->maxActivePerPhone < 1 || $this->maxActivePerPhone > 10) {
-            throw new InvalidBooking('booking.settings_invalid', 'Batas hari, jeda minimum, masa tahan, atau batas per nomor di luar rentang yang diizinkan.');
+        if ($this->horizonDays < 1 || $this->horizonDays > 90 || $this->minLeadHours < 0 || $this->minLeadHours > 72 || $this->holdHours < 1 || $this->holdHours > 168 || $this->maxActivePerPhone < 1 || $this->maxActivePerPhone > 10 || $this->maxRequestsPerHour < 5 || $this->maxRequestsPerHour > 500) {
+            throw new InvalidBooking('booking.settings_invalid', 'Batas hari, jeda minimum, masa tahan, batas per nomor, atau batas permintaan per jam di luar rentang yang diizinkan.');
         }
     }
 

@@ -2,7 +2,7 @@ import { usePage } from '@inertiajs/react';
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 
 import { offlineQueue, syncNow } from '@/lib/offline/service';
-import { queueSnapshot, refreshQueue, subscribeQueue } from '@/lib/offline/store';
+import { purgeOtherUsers, queueSnapshot, refreshQueue, subscribeQueue } from '@/lib/offline/store';
 import { OFFLINE_QUEUED_EVENT } from '@/lib/offline/submit';
 
 export interface OfflineStatus {
@@ -70,7 +70,9 @@ export function useOfflineStatus(): OfflineStatus {
     window.addEventListener('online', reconnect);
     window.addEventListener(OFFLINE_QUEUED_EVENT, queued);
     const timer = window.setInterval(reconnect, SYNC_INTERVAL_MS);
-    void refreshQueue(userId).then(reconnect);
+    void (userId === null ? Promise.resolve() : purgeOtherUsers(userId))
+      .then(() => refreshQueue(userId))
+      .then(reconnect);
     return () => {
       window.removeEventListener('online', reconnect);
       window.removeEventListener(OFFLINE_QUEUED_EVENT, queued);

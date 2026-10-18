@@ -22,6 +22,11 @@ function memoryStore(): QueueStore & { items: Map<string, QueuedRequest> } {
       items.delete(id);
       return Promise.resolve();
     },
+    clear: () => {
+      items.clear();
+      key = null;
+      return Promise.resolve();
+    },
     loadKey: () => Promise.resolve(key),
     saveKey: (created) => {
       key = created;
@@ -156,5 +161,42 @@ describe('P3-02 antrean offline terenkripsi', () => {
     const b = await queue.enqueue('U1', 'PUT', `/encounters/${ENCOUNTER}/notes`, { n: 2 });
     expect(a?.key).not.toBe(b?.key);
     expect(await queue.decrypt([...store.items.values()][1]!)).toEqual({ n: 2 });
+  });
+});
+
+describe('P3-02 pembuangan antrean dan kunci dari perangkat', () => {
+  it('wipe menghapus semua antrean dan kunci enkripsi', async () => {
+    const store = memoryStore();
+    const queue = new OfflineQueue(store, crypto);
+    await queue.enqueue('U1', 'PUT', `/encounters/${ENCOUNTER}/notes`, { subjective: 'Nyeri' });
+
+    await queue.wipe();
+
+    expect(store.items.size).toBe(0);
+    expect(await store.loadKey()).toBeNull();
+  });
+
+  it('purgeOtherUsers membuang antrean pengguna lain dan mempertahankan milik pengguna aktif', async () => {
+    const store = memoryStore();
+    const queue = new OfflineQueue(store, crypto);
+    await queue.enqueue('U1', 'PUT', `/encounters/${ENCOUNTER}/notes`, { subjective: 'A' });
+    await queue.enqueue('U2', 'PUT', `/encounters/${ENCOUNTER}/anamnesis`, { chief: 'B' });
+
+    await queue.purgeOtherUsers('U1');
+
+    expect((await queue.list('U1')).length).toBe(1);
+    expect((await queue.list('U2')).length).toBe(0);
+    expect(await store.loadKey()).not.toBeNull();
+  });
+
+  it('purgeOtherUsers juga membuang kunci bila semua antrean milik pengguna lain', async () => {
+    const store = memoryStore();
+    const queue = new OfflineQueue(store, crypto);
+    await queue.enqueue('U2', 'PUT', `/encounters/${ENCOUNTER}/notes`, { subjective: 'B' });
+
+    await queue.purgeOtherUsers('U1');
+
+    expect(store.items.size).toBe(0);
+    expect(await store.loadKey()).toBeNull();
   });
 });

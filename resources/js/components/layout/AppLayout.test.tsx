@@ -10,6 +10,7 @@ let permissions: string[] = [];
 let currentUrl = '/dashboard';
 
 vi.mock('@inertiajs/react', () => ({
+  router: { post: vi.fn() },
   usePage: () => ({
     url: currentUrl,
     props: {
@@ -82,7 +83,7 @@ describe('AUTH-02 tata letak aplikasi', () => {
   it('menyediakan tombol keluar', () => {
     render(<AppLayout navItems={MENU}>isi</AppLayout>);
 
-    expect(screen.getByRole('link', { name: 'Keluar' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Keluar' })).toBeInTheDocument();
   });
 
   it('menampilkan jejak halaman di header dan menandai halaman sekarang', () => {

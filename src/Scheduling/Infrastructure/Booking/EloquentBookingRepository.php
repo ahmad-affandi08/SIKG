@@ -34,7 +34,7 @@ final readonly class EloquentBookingRepository implements BookingRepository
         $m = BookingSettingModel::query()->first() ?? new BookingSettingModel;
         $m->forceFill([
             'enabled' => $s->enabled, 'slug' => $s->slug === '' ? null : $s->slug, 'slot_minutes' => $s->slotMinutes, 'horizon_days' => $s->horizonDays,
-            'min_lead_hours' => $s->minLeadHours, 'hold_hours' => $s->holdHours, 'max_active_per_phone' => $s->maxActivePerPhone,
+            'min_lead_hours' => $s->minLeadHours, 'hold_hours' => $s->holdHours, 'max_active_per_phone' => $s->maxActivePerPhone, 'max_requests_per_hour' => $s->maxRequestsPerHour,
             'otp_template' => $s->otpTemplate, 'welcome_text' => $s->welcomeText, 'updated_by' => $actorId,
         ])->save();
     }
@@ -97,6 +97,11 @@ final readonly class EloquentBookingRepository implements BookingRepository
         return $holding + $upcoming;
     }
 
+    public function requestsSince(DateTimeImmutable $since): int
+    {
+        return BookingRequestModel::query()->where('created_at', '>=', $since)->count();
+    }
+
     public function codesSentSince(string $phoneHash, DateTimeImmutable $since): int
     {
         return (int) BookingRequestModel::query()->where('phone_hash', $phoneHash)->where('created_at', '>=', $since)->sum('code_sent_count');
@@ -111,7 +116,8 @@ final readonly class EloquentBookingRepository implements BookingRepository
     public function setCode(string $id, string $codeHash, DateTimeImmutable $expiresAt): void
     {
         $m = BookingRequestModel::query()->findOrFail($id);
-        $m->forceFill(['code_hash' => $codeHash, 'code_expires_at' => $expiresAt, 'code_attempts' => 0, 'code_sent_count' => $m->code_sent_count + 1])->save();
+        // Selama menunggu kode, slot hanya ditahan sampai kode berlaku.
+        $m->forceFill(['code_hash' => $codeHash, 'code_expires_at' => $expiresAt, 'expires_at' => $expiresAt, 'code_attempts' => 0, 'code_sent_count' => $m->code_sent_count + 1])->save();
     }
 
     public function bumpAttempts(string $id): void
@@ -120,9 +126,9 @@ final readonly class EloquentBookingRepository implements BookingRepository
         $m->forceFill(['code_attempts' => $m->code_attempts + 1])->save();
     }
 
-    public function markVerified(string $id, DateTimeImmutable $at): void
+    public function markVerified(string $id, DateTimeImmutable $at, DateTimeImmutable $holdUntil): void
     {
-        BookingRequestModel::query()->findOrFail($id)->forceFill(['verified' => true, 'verified_at' => $at, 'status' => BookingStatus::Pending->value, 'code_hash' => null, 'code_expires_at' => null])->save();
+        BookingRequestModel::query()->findOrFail($id)->forceFill(['verified' => true, 'verified_at' => $at, 'expires_at' => $holdUntil, 'status' => BookingStatus::Pending->value, 'code_hash' => null, 'code_expires_at' => null])->save();
     }
 
     public function transition(string $id, BookingStatus $status, ?string $actorId, ?string $note, ?string $patientId, ?string $appointmentId, DateTimeImmutable $at): void
@@ -166,7 +172,7 @@ final readonly class EloquentBookingRepository implements BookingRepository
 
     private function settingsOf(BookingSettingModel $m): BookingSettings
     {
-        return new BookingSettings($m->enabled, (string) $m->slug, $m->slot_minutes, $m->horizon_days, $m->min_lead_hours, $m->hold_hours, $m->max_active_per_phone, $m->otp_template, $m->welcome_text);
+        return new BookingSettings($m->enabled, (string) $m->slug, $m->slot_minutes, $m->horizon_days, $m->min_lead_hours, $m->hold_hours, $m->max_active_per_phone, $m->otp_template, $m->welcome_text, $m->max_requests_per_hour);
     }
 
     private function record(BookingRequestModel $m): BookingRecord

@@ -158,7 +158,7 @@ it('P3-01 membatasi janji aktif per nomor HP, termasuk format nomor yang berbeda
 
     tokenDariRedirect(ajukanBooking($s, ['time' => '09:00']));
     tokenDariRedirect(ajukanBooking($s, ['time' => '10:00', 'phone' => '+62 812-3456-7890']));
-    ajukanBooking($s, ['time' => '11:00', 'phone' => '6281234567890'])->assertSessionHas('error_code', 'booking.phone_limit');
+    ajukanBooking($s, ['time' => '11:00', 'phone' => '6281234567890'])->assertSessionHas('error_code', 'booking.unavailable');
     // Nomor lain tidak terpengaruh.
     tokenDariRedirect(ajukanBooking($s, ['time' => '11:00', 'phone' => '081311112222']));
     expect(DB::table('booking_requests')->count())->toBe(3);
@@ -167,7 +167,7 @@ it('P3-01 membatasi janji aktif per nomor HP, termasuk format nomor yang berbeda
 it('P3-01 pasien membatalkan sendiri dan slot terbuka lagi serta batas nomor pulih', function () {
     $s = siapBooking(['max_active_per_phone' => 1]);
     $token = tokenDariRedirect(ajukanBooking($s));
-    ajukanBooking($s, ['time' => '11:00'])->assertSessionHas('error_code', 'booking.phone_limit');
+    ajukanBooking($s, ['time' => '11:00'])->assertSessionHas('error_code', 'booking.unavailable');
 
     $this->post("/book/klinik-uji/r/{$token}/cancel")->assertSessionHasNoErrors();
 
@@ -232,11 +232,14 @@ it('P3-01 kode kedaluwarsa, percobaan berlebih, dan kirim ulang dibatasi', funct
     $kedua = tokenDariRedirect(ajukanBooking($s, ['time' => '11:00']));
     Carbon::setTestNow(Carbon::now()->addMinutes(11));
     $this->post("/book/klinik-uji/r/{$kedua}/verify", ['code' => $pengirim->terkirim[2][1]])->assertSessionHas('error_code', 'booking.code_expired');
+    // Slot sudah dilepas, jadi kode tidak dapat dikirim ulang untuk permintaan yang sudah habis waktunya.
+    $this->post("/book/klinik-uji/r/{$kedua}/resend")->assertSessionHas('error_code', 'booking.code_expired');
 
     // Kirim ulang paling banyak 3 kode per permintaan.
-    $this->post("/book/klinik-uji/r/{$kedua}/resend")->assertSessionHasNoErrors();
-    $this->post("/book/klinik-uji/r/{$kedua}/resend")->assertSessionHasNoErrors();
-    $this->post("/book/klinik-uji/r/{$kedua}/resend")->assertSessionHas('error_code', 'booking.code_limit');
+    $ketiga = tokenDariRedirect(ajukanBooking($s, ['time' => '11:30', 'phone' => '081311112222']));
+    $this->post("/book/klinik-uji/r/{$ketiga}/resend")->assertSessionHasNoErrors();
+    $this->post("/book/klinik-uji/r/{$ketiga}/resend")->assertSessionHasNoErrors();
+    $this->post("/book/klinik-uji/r/{$ketiga}/resend")->assertSessionHas('error_code', 'booking.code_limit');
 });
 
 it('P3-01 kode yang gagal dikirim membatalkan permintaan agar slot tidak tertahan', function () {
@@ -400,4 +403,61 @@ it('P3-01 penggabungan pasien memindahkan permintaan booking yang sudah dikaitka
     $label['Permintaan booking online']->move($s['pasien'], $utama);
 
     expect(DB::table('booking_requests')->value('patient_id'))->toBe($utama);
+});
+
+it('P3-01 slot hanya ditahan selama kode berlaku dan masa tahan klinik dimulai setelah nomor terbukti', function () {
+    $s = siapBooking(['otp_template' => 'kode_booking', 'hold_hours' => 24]);
+    $pengirim = pasangPengirimKode();
+    $token = tokenDariRedirect(ajukanBooking($s));
+    $awal = Carbon::now();
+
+    expect(slotBooking($s)->json('data'))->not->toContain('10:00')
+        ->and(Carbon::parse((string) DB::table('booking_requests')->value('expires_at'), 'UTC')->diffInMinutes($awal, true))->toBeLessThanOrEqual(10);
+
+    // Tanpa verifikasi, slot terbuka lagi begitu kode kedaluwarsa (bot tidak dapat menahannya 24 jam).
+    Carbon::setTestNow($awal->copy()->addMinutes(11));
+    expect(slotBooking($s)->json('data'))->toContain('10:00');
+
+    // Kode benar sebelum kedaluwarsa memulai masa tahan klinik.
+    Carbon::setTestNow($awal);
+    $this->post("/book/klinik-uji/r/{$token}/verify", ['code' => $pengirim->terkirim[0][1]])->assertSessionHasNoErrors();
+    $tahan = Carbon::parse((string) DB::table('booking_requests')->value('expires_at'), 'UTC');
+    expect(abs($tahan->diffInHours($awal, true) - 24))->toBeLessThan(1)
+        ->and(DB::table('booking_requests')->value('status'))->toBe('pending');
+});
+
+it('P3-01 batas permintaan per jam untuk seluruh klinik menahan banjir booking dan pulih sesudah satu jam', function () {
+    $s = siapBooking(['max_requests_per_hour' => 5]);
+    foreach (['09:00', '09:30', '10:00', '10:30', '11:00'] as $i => $jam) {
+        tokenDariRedirect(ajukanBooking($s, ['time' => $jam, 'phone' => '08131111220'.$i]));
+    }
+
+    ajukanBooking($s, ['time' => '11:30', 'phone' => '081311112299'])->assertSessionHas('error_code', 'booking.busy');
+    expect(DB::table('booking_requests')->count())->toBe(5);
+
+    Carbon::setTestNow(Carbon::now()->addMinutes(61));
+    tokenDariRedirect(ajukanBooking($s, ['time' => '11:30', 'phone' => '081311112299']));
+});
+
+it('P3-01 penolakan karena nomor memakai satu pesan umum yang tidak membocorkan booking atau kode nomor itu', function () {
+    $s = siapBooking(['max_active_per_phone' => 1, 'otp_template' => 'kode_booking']);
+    pasangPengirimKode();
+    tokenDariRedirect(ajukanBooking($s));
+
+    $respons = ajukanBooking($s, ['time' => '11:00']);
+    $respons->assertSessionHas('error_code', 'booking.unavailable');
+    $pesan = (string) session('error');
+
+    expect($pesan)->not->toContain('batas')->and($pesan)->not->toContain('aktif')->and($pesan)->not->toContain('kode');
+});
+
+it('P3-01 pengaturan batas permintaan per jam divalidasi dan diaudit', function () {
+    $s = siapBooking();
+    $this->actingAs($s['admin']);
+    $dasar = ['enabled' => true, 'slug' => 'klinik-uji', 'slot_minutes' => 30, 'horizon_days' => 30, 'min_lead_hours' => 2, 'hold_hours' => 24, 'max_active_per_phone' => 2];
+
+    $this->post('/settings/booking', [...$dasar, 'max_requests_per_hour' => 2])->assertSessionHasErrors('max_requests_per_hour');
+    $this->post('/settings/booking', [...$dasar, 'max_requests_per_hour' => 60])->assertSessionHasNoErrors();
+
+    expect((int) DB::table('booking_settings')->value('max_requests_per_hour'))->toBe(60);
 });

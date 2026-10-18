@@ -114,4 +114,5 @@ Route::middleware('can:invoice.view')->get('/online-payments', [OnlinePaymentCon
 Route::middleware('can:setting.manage')->group(function (): void {
     Route::get('/settings/online-payments', [OnlinePaymentController::class, 'settings'])->name('settings.online-payments');
     Route::post('/settings/online-payments', [OnlinePaymentController::class, 'saveSettings']);
+    Route::post('/settings/online-payments/webhook-token', [OnlinePaymentController::class, 'rotateWebhookToken'])->middleware('throttle:5,1');
 });

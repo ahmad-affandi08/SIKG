@@ -19,6 +19,7 @@ use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
  * @property int $min_lead_hours
  * @property int $hold_hours
  * @property int $max_active_per_phone
+ * @property int $max_requests_per_hour
  * @property string|null $otp_template
  * @property string|null $welcome_text
  * @property string $clinic_id
@@ -44,6 +45,6 @@ final class BookingSettingModel extends Model
      */
     protected function casts(): array
     {
-        return ['enabled' => 'boolean', 'slot_minutes' => 'integer', 'horizon_days' => 'integer', 'min_lead_hours' => 'integer', 'hold_hours' => 'integer', 'max_active_per_phone' => 'integer'];
+        return ['enabled' => 'boolean', 'slot_minutes' => 'integer', 'horizon_days' => 'integer', 'min_lead_hours' => 'integer', 'hold_hours' => 'integer', 'max_active_per_phone' => 'integer', 'max_requests_per_hour' => 'integer'];
     }
 }

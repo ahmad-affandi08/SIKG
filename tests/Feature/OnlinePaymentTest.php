@@ -120,11 +120,12 @@ function kirimWebhook(string $token, string $orderId, array $o = [])
     $alamat = $o['alamat'] ?? "/webhooks/payments/{$token}";
     $isi = json_encode(['order' => ['invoice_number' => $orderId, 'amount' => 500000], 'transaction' => ['status' => 'SUCCESS', 'date' => '2025-06-16T00:00:00Z']], JSON_THROW_ON_ERROR);
     $clientId = $o['client_id'] ?? CLIENT_ID_UJI;
-    $waktu = '2025-06-16T00:00:01Z';
-    $tanda = $o['signature'] ?? tandaTanganDoku($o['rahasia'] ?? KUNCI_RAHASIA, $clientId, 'req-webhook-1', $waktu, "/webhooks/payments/{$token}", $isi);
+    $waktu = $o['waktu'] ?? '2025-06-16T00:00:01Z';
+    $idPermintaan = $o['request_id'] ?? 'req-webhook-1';
+    $tanda = $o['signature'] ?? tandaTanganDoku($o['rahasia'] ?? KUNCI_RAHASIA, $clientId, $idPermintaan, $waktu, "/webhooks/payments/{$token}", $isi);
 
     return test()->call('POST', $alamat, [], [], [], [
-        'CONTENT_TYPE' => 'application/json', 'HTTP_ACCEPT' => 'application/json', 'HTTP_CLIENT_ID' => $clientId, 'HTTP_REQUEST_ID' => 'req-webhook-1', 'HTTP_REQUEST_TIMESTAMP' => $waktu, 'HTTP_SIGNATURE' => $tanda,
+        'CONTENT_TYPE' => 'application/json', 'HTTP_ACCEPT' => 'application/json', 'HTTP_CLIENT_ID' => $clientId, 'HTTP_REQUEST_ID' => $idPermintaan, 'HTTP_REQUEST_TIMESTAMP' => $waktu, 'HTTP_SIGNATURE' => $tanda,
     ], $o['isi'] ?? $isi);
 }
 
@@ -437,4 +438,58 @@ it('P3-05 pembayaran dari webhook jatuh ke cabang tagihan dan niat bayar cabang 
 
     expect(DB::table('payments')->where('invoice_id', $s['invoice'])->value('branch_id'))->toBe($cabang->id)
         ->and(niatDaring()->status)->toBe('paid');
+});
+
+it('P3-05 notifikasi dengan Request-Timestamp basi atau dari masa depan ditolak walau tanda tangannya sah', function () {
+    $s = siapDaring();
+    $penyedia = pasangPenyedia('SUCCESS');
+    mulaiQr($s)->assertSessionHasNoErrors();
+    $niat = niatDaring();
+    auth()->logout();
+
+    kirimWebhook($s['token'], $niat->order_id, ['waktu' => '2025-06-15T23:40:00Z', 'request_id' => 'req-basi'])->assertForbidden();
+    kirimWebhook($s['token'], $niat->order_id, ['waktu' => '2025-06-16T00:20:00Z', 'request_id' => 'req-depan'])->assertForbidden();
+    kirimWebhook($s['token'], $niat->order_id, ['waktu' => 'bukan-waktu', 'request_id' => 'req-rusak'])->assertForbidden();
+    expect(niatDaring()->status)->toBe('pending')->and(DB::table('payments')->count())->toBe(0);
+
+    // Dalam batas 10 menit tetap diterima.
+    kirimWebhook($s['token'], $niat->order_id, ['waktu' => '2025-06-15T23:55:30Z', 'request_id' => 'req-segar'])->assertOk();
+    expect(niatDaring()->status)->toBe('paid')->and($penyedia->status)->toBe('SUCCESS');
+});
+
+it('P3-05 notifikasi dengan Request-Id yang sama tidak diproses ulang dan tidak memanggil penyedia lagi', function () {
+    $s = siapDaring();
+    pasangPenyedia('PENDING');
+    mulaiQr($s)->assertSessionHasNoErrors();
+    $niat = niatDaring();
+    auth()->logout();
+
+    kirimWebhook($s['token'], $niat->order_id, ['request_id' => 'req-sama'])->assertOk();
+    $panggilan = count(Http::recorded());
+    kirimWebhook($s['token'], $niat->order_id, ['request_id' => 'req-sama'])->assertOk()->assertJson(['ok' => true]);
+    expect(count(Http::recorded()))->toBe($panggilan);
+
+    // Request-Id lain diproses seperti biasa.
+    kirimWebhook($s['token'], $niat->order_id, ['request_id' => 'req-lain'])->assertOk();
+    expect(count(Http::recorded()))->toBeGreaterThan($panggilan);
+});
+
+it('P3-05 Admin membuat ulang token webhook: alamat lama ditolak, alamat baru bekerja, dan tercatat di audit tanpa token', function () {
+    $s = siapDaring();
+    pasangPenyedia('PENDING');
+    mulaiQr($s)->assertSessionHasNoErrors();
+    $niat = niatDaring();
+    $lama = $s['token'];
+
+    $this->actingAs($s['kasir'])->post('/settings/online-payments/webhook-token')->assertForbidden();
+    $this->actingAs($s['admin'])->post('/settings/online-payments/webhook-token')->assertSessionHas('success');
+    tenant()->set($s['klinik']->id);
+    $baru = (string) DB::table('online_payment_settings')->where('clinic_id', $s['klinik']->id)->value('webhook_token');
+    auth()->logout();
+
+    expect($baru)->not->toBe($lama)->and($baru)->toMatch('/^[a-f0-9]{40}$/');
+    kirimWebhook($lama, $niat->order_id)->assertNotFound();
+    kirimWebhook($baru, $niat->order_id)->assertOk();
+    $audit = DB::table('audit_logs')->where('action', 'online_payment.webhook_token_rotated')->get();
+    expect($audit)->toHaveCount(1)->and(json_encode($audit))->not->toContain($baru)->and(json_encode($audit))->not->toContain($lama);
 });

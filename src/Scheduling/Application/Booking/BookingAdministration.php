@@ -27,7 +27,7 @@ final readonly class BookingAdministration
 
         return [
             'enabled' => $s->enabled, 'slug' => $s->slug, 'slot_minutes' => $s->slotMinutes, 'horizon_days' => $s->horizonDays, 'min_lead_hours' => $s->minLeadHours,
-            'hold_hours' => $s->holdHours, 'max_active_per_phone' => $s->maxActivePerPhone, 'otp_template' => $s->otpTemplate ?? '', 'welcome_text' => $s->welcomeText ?? '',
+            'hold_hours' => $s->holdHours, 'max_active_per_phone' => $s->maxActivePerPhone, 'max_requests_per_hour' => $s->maxRequestsPerHour, 'otp_template' => $s->otpTemplate ?? '', 'welcome_text' => $s->welcomeText ?? '',
         ];
     }
 
@@ -49,6 +49,6 @@ final readonly class BookingAdministration
      */
     private function view(BookingSettings $s): array
     {
-        return ['enabled' => $s->enabled, 'slug' => $s->slug, 'slot_minutes' => $s->slotMinutes, 'horizon_days' => $s->horizonDays, 'min_lead_hours' => $s->minLeadHours, 'hold_hours' => $s->holdHours, 'max_active_per_phone' => $s->maxActivePerPhone, 'otp_template' => $s->otpTemplate];
+        return ['enabled' => $s->enabled, 'slug' => $s->slug, 'slot_minutes' => $s->slotMinutes, 'horizon_days' => $s->horizonDays, 'min_lead_hours' => $s->minLeadHours, 'hold_hours' => $s->holdHours, 'max_active_per_phone' => $s->maxActivePerPhone, 'max_requests_per_hour' => $s->maxRequestsPerHour, 'otp_template' => $s->otpTemplate];
     }
 }

@@ -6,6 +6,7 @@ namespace Src\Billing\Infrastructure\Online;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Src\Billing\Application\Online\GatewayCharge;
@@ -14,6 +15,7 @@ use Src\Billing\Application\Online\PaymentGateway;
 use Src\Billing\Application\Online\PaymentGatewayFailure;
 use Src\Billing\Domain\Online\IntentStatus;
 use Src\Billing\Domain\Online\OnlinePaymentSettings;
+use Throwable;
 
 /**
  * Klien DOKU (API non-SNAP) untuk QRIS lewat halaman Checkout yang dihosting DOKU, tanpa pustaka tambahan (M1). Tiap permintaan
@@ -25,6 +27,9 @@ final class DokuGateway implements PaymentGateway
     private const CHECKOUT_PATH = '/checkout/v1/payment';
 
     private const STATUS_PATH = '/orders/v1/status/';
+
+    /** Notifikasi dengan Request-Timestamp lebih lama atau lebih jauh ke depan dari ini ditolak (anti putar ulang). */
+    private const MAX_NOTIFICATION_SKEW_SECONDS = 600;
 
     public function charge(OnlinePaymentSettings $settings, string $orderId, int $amount, int $expiryMinutes): GatewayCharge
     {
@@ -78,11 +83,22 @@ final class DokuGateway implements PaymentGateway
         if ($settings->secretKey === null || $settings->clientId === null || $clientId === '' || $requestId === '' || $timestamp === '' || $given === '') {
             return false;
         }
-        if (! hash_equals($settings->clientId, $clientId)) {
+        if (! hash_equals($settings->clientId, $clientId) || ! $this->isFresh($timestamp)) {
             return false;
         }
 
         return hash_equals($this->sign($settings->secretKey, $clientId, $requestId, $timestamp, $path, $rawBody), $given);
+    }
+
+    private function isFresh(string $timestamp): bool
+    {
+        try {
+            $sent = Carbon::parse($timestamp);
+        } catch (Throwable) {
+            return false;
+        }
+
+        return abs(Carbon::now()->getTimestamp() - $sent->getTimestamp()) <= self::MAX_NOTIFICATION_SKEW_SECONDS;
     }
 
     /**

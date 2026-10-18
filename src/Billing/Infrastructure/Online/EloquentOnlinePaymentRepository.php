@@ -40,6 +40,15 @@ final readonly class EloquentOnlinePaymentRepository implements OnlinePaymentRep
         $m->save();
     }
 
+    public function rotateWebhookToken(string $actorId): string
+    {
+        $m = $this->row();
+        $token = bin2hex(random_bytes(20));
+        $m->forceFill(['webhook_token' => $token, 'updated_by' => $actorId])->save();
+
+        return $token;
+    }
+
     public function clinicForWebhookToken(string $token): ?string
     {
         return OnlinePaymentSettingModel::withoutGlobalScopes()->where('webhook_token', $token)->value('clinic_id');

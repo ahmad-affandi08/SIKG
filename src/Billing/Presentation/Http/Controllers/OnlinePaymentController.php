@@ -71,6 +71,13 @@ final class OnlinePaymentController
         return back()->with('success', 'Pengaturan pembayaran online disimpan.');
     }
 
+    public function rotateWebhookToken(Request $request): RedirectResponse
+    {
+        $this->admin->rotateWebhookToken($this->actorId($request));
+
+        return back()->with('success', 'Alamat webhook diganti. Daftarkan alamat baru sebagai Notification URL di DOKU Back Office; alamat lama tidak berlaku lagi.');
+    }
+
     private function actorId(Request $request): string
     {
         $id = $request->user()?->getAuthIdentifier();
