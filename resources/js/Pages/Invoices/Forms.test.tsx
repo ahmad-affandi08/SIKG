@@ -52,24 +52,24 @@ beforeEach(() => {
 });
 
 describe('KSR-03 formulir pembayaran', () => {
-  it('menolak jumlah desimal dan metode kosong tanpa mengirim ke server', async () => {
+  it('UI-08 jumlah selalu bilangan bulat berformat rupiah; metode kosong tidak dikirim ke server', async () => {
     render(
       <PaymentForm invoice={invoice} methods={methods} allowPay idempotencyKey="kunci-uji-0001" />,
     );
     await userEvent.clear(screen.getByRole('textbox', { name: /Jumlah/ }));
     await userEvent.type(screen.getByRole('textbox', { name: /Jumlah/ }), '1500.50');
+    expect(screen.getByRole('textbox', { name: /Jumlah/ })).toHaveValue('Rp 150.050');
     await userEvent.click(screen.getByRole('button', { name: 'Simpan pembayaran' }));
 
     expect(post).not.toHaveBeenCalled();
     expect(screen.getByText('Pilih metode pembayaran.')).toBeInTheDocument();
-    expect(screen.getByText(/bilangan bulat rupiah/)).toBeInTheDocument();
   });
 
   it('mengirim bilangan bulat dengan Idempotency-Key dan sisa tagihan sebagai jumlah awal', async () => {
     render(
       <PaymentForm invoice={invoice} methods={methods} allowPay idempotencyKey="kunci-uji-0001" />,
     );
-    expect(screen.getByRole('textbox', { name: /Jumlah/ })).toHaveValue('500000');
+    expect(screen.getByRole('textbox', { name: /Jumlah/ })).toHaveValue('Rp 500.000');
 
     await userEvent.selectOptions(
       screen.getByRole('combobox', { name: /Metode pembayaran/ }),

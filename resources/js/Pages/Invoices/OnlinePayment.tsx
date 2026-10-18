@@ -9,7 +9,7 @@ import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
-import { TextField } from '@/components/ui/TextField';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { useIntentStatus } from '@/features/onlinePayments/queries';
 import { INTENT_TONE, startQrSchema } from '@/features/onlinePayments/schemas';
 import { formatRupiah } from '@/lib/format';
@@ -123,14 +123,13 @@ export default function OnlinePayment({ invoice, ready, active, history }: Props
           </section>
         ) : ready && invoice.lifecycle === 'issued' && invoice.balance > 0 ? (
           <form onSubmit={submit} noValidate aria-label="Buat QR" className="form-grid">
-            <TextField
+            <MoneyField
               label="Jumlah (kosong = seluruh sisa tagihan)"
-              inputMode="numeric"
               required={false}
               value={form.data.amount}
               error={error ?? form.errors.amount}
-              onChange={(event) => {
-                form.setData('amount', event.target.value);
+              onValueChange={(digits) => {
+                form.setData('amount', digits);
               }}
             />
             <div>

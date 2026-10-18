@@ -9,6 +9,7 @@ import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { claimSchema } from '@/features/insurance/schemas';
 import type { ClaimValues } from '@/features/insurance/schemas';
@@ -122,12 +123,11 @@ export default function Create({ invoice, policies, insurers }: Props) {
             }}
             error={error('policy_id')}
           />
-          <TextField
-            label="Jumlah klaim (Rp)"
-            inputMode="numeric"
+          <MoneyField
+            label="Jumlah klaim"
             value={form.data.claimed_amount}
-            onChange={(event) => {
-              form.setData('claimed_amount', event.target.value);
+            onValueChange={(digits) => {
+              form.setData('claimed_amount', digits);
             }}
             error={error('claimed_amount')}
           />

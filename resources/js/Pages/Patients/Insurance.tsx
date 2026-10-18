@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { policySchema } from '@/features/insurance/schemas';
 import type { PolicyValues } from '@/features/insurance/schemas';
@@ -174,12 +175,11 @@ export default function Insurance({ patient, policies, insurers, canManage }: Pr
               }}
               error={error('policy_no')}
             />
-            <TextField
-              label="Plafon (Rp, kosongkan bila tanpa batas)"
-              inputMode="numeric"
+            <MoneyField
+              label="Plafon (kosongkan bila tanpa batas)"
               value={form.data.ceiling_amount}
-              onChange={(event) => {
-                form.setData('ceiling_amount', event.target.value);
+              onValueChange={(digits) => {
+                form.setData('ceiling_amount', digits);
               }}
               error={error('ceiling_amount')}
             />

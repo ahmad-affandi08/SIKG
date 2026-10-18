@@ -4,6 +4,7 @@ import type { SyntheticEvent } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
+import { MoneyField, digitsOnly } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { InvoiceFormShell } from '@/features/billing/components/InvoiceFormShell';
 import { discountSchema, percentText } from '@/features/billing/schemas';
@@ -96,21 +97,37 @@ export default function DiscountForm({ invoice, item, current, limitPercent }: P
           options={KINDS}
           value={values.kind}
           onChange={(e) => {
-            setValues({ ...values, kind: e.target.value as 'percent' | 'amount' | 'none' });
+            const kind = e.target.value as 'percent' | 'amount' | 'none';
+            // Persen boleh berpecahan, rupiah tidak: buang pecahan saat pindah ke nominal.
+            const value =
+              kind === 'amount' ? digitsOnly(values.value.split('.')[0] ?? '') : values.value;
+            setValues({ ...values, kind, value });
           }}
         />
         {none ? null : (
           <>
-            <TextField
-              field="value"
-              label={values.kind === 'percent' ? 'Persen' : 'Nominal (rupiah)'}
-              inputMode={values.kind === 'percent' ? 'decimal' : 'numeric'}
-              value={values.value}
-              error={errors.value}
-              onChange={(e) => {
-                setValues({ ...values, value: e.target.value });
-              }}
-            />
+            {values.kind === 'percent' ? (
+              <TextField
+                field="value"
+                label="Persen"
+                inputMode="decimal"
+                value={values.value}
+                error={errors.value}
+                onChange={(e) => {
+                  setValues({ ...values, value: e.target.value });
+                }}
+              />
+            ) : (
+              <MoneyField
+                field="value"
+                label="Nominal"
+                value={values.value}
+                error={errors.value}
+                onValueChange={(digits) => {
+                  setValues({ ...values, value: digits });
+                }}
+              />
+            )}
             <TextField
               field="reason"
               label="Alasan diskon"

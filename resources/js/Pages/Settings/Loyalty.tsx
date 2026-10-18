@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Button } from '@/components/ui/Button';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { loyaltySettingsSchema } from '@/features/loyalty/schemas';
 
@@ -53,6 +54,14 @@ export default function Loyalty({ settings }: Props) {
     error: err(key),
   });
 
+  const money = (key: 'rupiah_per_point' | 'point_value_amount') => ({
+    value: form.data[key],
+    onValueChange: (digits: string) => {
+      form.setData(key, digits);
+    },
+    error: err(key),
+  });
+
   return (
     <AppLayout>
       <main className="flex max-w-xl flex-col gap-3 p-3">
@@ -72,18 +81,8 @@ export default function Loyalty({ settings }: Props) {
             />
             Aktifkan poin loyalitas
           </label>
-          <TextField
-            label="Belanja per 1 poin (Rp)"
-            inputMode="numeric"
-            required
-            {...text('rupiah_per_point')}
-          />
-          <TextField
-            label="Nilai 1 poin saat ditukar (Rp)"
-            inputMode="numeric"
-            required
-            {...text('point_value_amount')}
-          />
+          <MoneyField label="Belanja per 1 poin" required {...money('rupiah_per_point')} />
+          <MoneyField label="Nilai 1 poin saat ditukar" required {...money('point_value_amount')} />
           <TextField
             label="Minimum poin sekali tukar"
             inputMode="numeric"

@@ -10,6 +10,7 @@ import { DatePicker } from '@/components/ui/DatePicker';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextArea } from '@/components/ui/TextArea';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { caseSchema, previewInstallments } from '@/features/orthodontics/schemas';
 import type { CaseValues } from '@/features/orthodontics/schemas';
@@ -65,6 +66,16 @@ export default function Create({ patient, doctors, appliances, today }: Props) {
       error={error(key)}
     />
   );
+  const money = (key: 'total_fee_amount' | 'down_payment_amount', label: string) => (
+    <MoneyField
+      label={label}
+      value={form.data[key]}
+      onValueChange={(digits) => {
+        form.setData(key, digits);
+      }}
+      error={error(key)}
+    />
+  );
   const preview = previewInstallments(
     Number(form.data.total_fee_amount) || 0,
     Number(form.data.installment_count) || 0,
@@ -110,8 +121,8 @@ export default function Create({ patient, doctors, appliances, today }: Props) {
             }}
             error={error('plan_notes')}
           />
-          {text('total_fee_amount', 'Biaya paket (Rp)', true)}
-          {text('down_payment_amount', 'Uang muka (Rp, kosongkan bila tidak ada)', true)}
+          {money('total_fee_amount', 'Biaya paket')}
+          {money('down_payment_amount', 'Uang muka (kosongkan bila tidak ada)')}
           {text('installment_count', 'Jumlah cicilan (termasuk uang muka)', true)}
           <DatePicker
             label="Tanggal mulai"

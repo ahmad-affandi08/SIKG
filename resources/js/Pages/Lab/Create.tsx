@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { labOrderSchema } from '@/features/lab/schemas';
 import type { LabOrderValues } from '@/features/lab/schemas';
@@ -60,6 +61,14 @@ export default function Create({ patient, doctors, laboratories, work_types, tod
     value: form.data[key],
     onChange: (event: { target: { value: string } }) => {
       form.setData(key, event.target.value);
+    },
+    error: error(key),
+  });
+
+  const money = (key: 'lab_cost_amount' | 'patient_charge_amount') => ({
+    value: form.data[key],
+    onValueChange: (digits: string) => {
+      form.setData(key, digits);
     },
     error: error(key),
   });
@@ -124,18 +133,8 @@ export default function Create({ patient, doctors, laboratories, work_types, tod
             }}
             error={error('due_date')}
           />
-          <TextField
-            label="Perkiraan biaya lab (Rp)"
-            inputMode="numeric"
-            required
-            {...text('lab_cost_amount')}
-          />
-          <TextField
-            label="Harga ke pasien (Rp)"
-            inputMode="numeric"
-            required
-            {...text('patient_charge_amount')}
-          />
+          <MoneyField label="Perkiraan biaya lab" required {...money('lab_cost_amount')} />
+          <MoneyField label="Harga ke pasien" required {...money('patient_charge_amount')} />
           <div className="flex gap-3">
             <Button type="submit" loading={form.processing} disabled={laboratories.length === 0}>
               Buat pesanan

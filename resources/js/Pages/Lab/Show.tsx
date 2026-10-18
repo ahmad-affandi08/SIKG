@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { cancelSchema, LAB_TONE, receiveSchema, sendSchema } from '@/features/lab/schemas';
 import { formatDate, formatRupiah } from '@/lib/format';
@@ -170,12 +171,11 @@ export default function Show({ order, open_encounters, can_clinical, can }: Prop
               error={err('date', receive.errors.date)}
               required
             />
-            <TextField
-              label="Biaya lab aktual (Rp)"
-              inputMode="numeric"
+            <MoneyField
+              label="Biaya lab aktual"
               value={receive.data.lab_cost_amount}
-              onChange={(event) => {
-                receive.setData('lab_cost_amount', event.target.value);
+              onValueChange={(digits) => {
+                receive.setData('lab_cost_amount', digits);
               }}
               error={err('lab_cost_amount', receive.errors.lab_cost_amount)}
               required

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { InvoiceFormShell } from '@/features/billing/components/InvoiceFormShell';
 import { invoiceItemSchema, quantitySchema } from '@/features/billing/schemas';
@@ -100,14 +101,13 @@ export default function ItemForm({ invoice, item }: Props) {
             Harga satuan {formatRupiah(item.unit_price_amount)} tidak dapat diubah.
           </p>
         ) : (
-          <TextField
+          <MoneyField
             field="unit_price_amount"
-            label="Harga satuan (rupiah)"
-            inputMode="numeric"
+            label="Harga satuan"
             value={values.unit_price_amount}
             error={errors.unit_price_amount}
-            onChange={(e) => {
-              setValues({ ...values, unit_price_amount: e.target.value });
+            onValueChange={(digits) => {
+              setValues({ ...values, unit_price_amount: digits });
             }}
           />
         )}

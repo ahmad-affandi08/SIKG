@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { purchaseOrderSchema } from '@/features/pharmacy/purchasing';
 import type { PurchaseOrderValues } from '@/features/pharmacy/purchasing';
@@ -140,13 +141,12 @@ export default function Create({ suppliers, medicines }: Props) {
                   error={error(`lines.${String(index)}.quantity`)}
                   required
                 />
-                <TextField
-                  label="Harga beli satuan (Rp)"
-                  inputMode="numeric"
+                <MoneyField
+                  label="Harga beli satuan"
                   value={line.unit_cost_amount}
-                  onChange={(event) => {
+                  onValueChange={(digits) => {
                     setLine(index, {
-                      unit_cost_amount: event.target.value,
+                      unit_cost_amount: digits,
                     });
                   }}
                   error={error(`lines.${String(index)}.unit_cost_amount`)}

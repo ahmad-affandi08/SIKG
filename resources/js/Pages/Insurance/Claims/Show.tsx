@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import {
   approveSchema,
@@ -199,12 +200,11 @@ export default function Show({ claim, receipts, methods, can }: Props) {
               className="form-grid"
             >
               <h2>Penjamin menyetujui</h2>
-              <TextField
-                label="Jumlah disetujui (Rp)"
-                inputMode="numeric"
+              <MoneyField
+                label="Jumlah disetujui"
                 value={approve.data.approved_amount}
-                onChange={(event) => {
-                  approve.setData('approved_amount', event.target.value);
+                onValueChange={(digits) => {
+                  approve.setData('approved_amount', digits);
                 }}
                 error={err('approved_amount', approve.errors.approved_amount)}
               />
@@ -262,12 +262,11 @@ export default function Show({ claim, receipts, methods, can }: Props) {
               }}
               error={err('payment_method_id', receive.errors.payment_method_id)}
             />
-            <TextField
-              label="Jumlah diterima (Rp)"
-              inputMode="numeric"
+            <MoneyField
+              label="Jumlah diterima"
               value={receive.data.amount}
-              onChange={(event) => {
-                receive.setData('amount', event.target.value);
+              onValueChange={(digits) => {
+                receive.setData('amount', digits);
               }}
               error={err('amount', receive.errors.amount)}
             />

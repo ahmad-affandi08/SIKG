@@ -5,6 +5,7 @@ import type { SyntheticEvent } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { InvoiceFormShell } from '@/features/billing/components/InvoiceFormShell';
 import { paymentSchema } from '@/features/billing/schemas';
@@ -91,14 +92,13 @@ export default function PaymentForm({ invoice, methods, allowPay, idempotencyKey
             setValues({ ...values, type: e.target.value });
           }}
         />
-        <TextField
+        <MoneyField
           field="amount"
-          label="Jumlah (rupiah)"
-          inputMode="numeric"
+          label="Jumlah"
           value={values.amount}
           error={errors.amount}
-          onChange={(e) => {
-            setValues({ ...values, amount: e.target.value });
+          onValueChange={(digits) => {
+            setValues({ ...values, amount: digits });
           }}
         />
         <TextField

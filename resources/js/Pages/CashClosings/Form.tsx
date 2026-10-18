@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { cashClosingSchema } from '@/features/billing/schemas';
 import { collectErrors } from '@/features/scheduling/form';
@@ -71,14 +72,13 @@ export default function Form({ preview }: Props) {
               {errors.domain}
             </p>
           ) : null}
-          <TextField
+          <MoneyField
             field="counted_amount"
-            label="Uang tunai fisik di laci (rupiah)"
-            inputMode="numeric"
+            label="Uang tunai fisik di laci"
             value={values.counted_amount}
             error={errors.counted_amount}
-            onChange={(e) => {
-              setValues({ ...values, counted_amount: e.target.value });
+            onValueChange={(digits) => {
+              setValues({ ...values, counted_amount: digits });
             }}
           />
           <TextField

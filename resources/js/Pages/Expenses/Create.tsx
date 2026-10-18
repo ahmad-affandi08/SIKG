@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { expenseSchema } from '@/features/expenses/schemas';
 import type { ExpenseValues } from '@/features/expenses/schemas';
@@ -88,7 +89,15 @@ export default function Create({ categories, today }: Props) {
             error={error('category_id')}
             required
           />
-          <TextField label="Jumlah (Rp)" inputMode="numeric" required {...text('amount')} />
+          <MoneyField
+            label="Jumlah"
+            required
+            value={form.data.amount}
+            onValueChange={(digits) => {
+              form.setData('amount', digits);
+            }}
+            error={error('amount')}
+          />
           <TextField label="Keterangan" required {...text('description')} />
           <TextField label="Dibayarkan kepada" {...text('payee')} />
           <TextField label="Nomor bukti" {...text('reference_no')} />

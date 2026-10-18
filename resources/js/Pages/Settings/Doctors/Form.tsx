@@ -7,6 +7,7 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
+import { MoneyField, digitsOnly } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { TimePicker } from '@/components/ui/TimePicker';
 import { basisPointsToPercent, doctorFormSchema, feeValueToText } from '@/features/clinic/doctor';
@@ -125,6 +126,9 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
     );
   }
 
+  /** Nilai persen bisa berpecahan (32.5); rupiah tidak. Saat pindah ke rupiah, buang pecahannya. */
+  const wholeRupiah = (value: string): string => digitsOnly(value.split('.')[0] ?? '');
+
   const valueHelp =
     form.data.fee_mode === 'percentage' ? 'Dalam persen, contoh 30 atau 32.5.' : 'Rupiah bulat.';
 
@@ -195,20 +199,38 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
               options={feeModes}
               value={form.data.fee_mode}
               onChange={(event) => {
-                form.setData('fee_mode', event.target.value === 'fixed' ? 'fixed' : 'percentage');
+                const mode = event.target.value === 'fixed' ? 'fixed' : 'percentage';
+                form.setData({
+                  ...form.data,
+                  fee_mode: mode,
+                  fee_value:
+                    mode === 'fixed' ? wholeRupiah(form.data.fee_value) : form.data.fee_value,
+                });
               }}
               error={error('fee_mode')}
             />
-            <TextField
-              field="fee_value"
-              label="Nilai jasa bawaan"
-              inputMode="decimal"
-              value={form.data.fee_value}
-              onChange={(event) => {
-                form.setData('fee_value', event.target.value);
-              }}
-              error={error('fee_value')}
-            />
+            {form.data.fee_mode === 'fixed' ? (
+              <MoneyField
+                field="fee_value"
+                label="Nilai jasa bawaan"
+                value={form.data.fee_value}
+                onValueChange={(digits) => {
+                  form.setData('fee_value', digits);
+                }}
+                error={error('fee_value')}
+              />
+            ) : (
+              <TextField
+                field="fee_value"
+                label="Nilai jasa bawaan"
+                inputMode="decimal"
+                value={form.data.fee_value}
+                onChange={(event) => {
+                  form.setData('fee_value', event.target.value);
+                }}
+                error={error('fee_value')}
+              />
+            )}
             <p className="text-muted text-sm">{valueHelp}</p>
 
             <h2>Pengecualian per tindakan</h2>
@@ -229,21 +251,35 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
                   options={feeModes}
                   value={row.mode}
                   onChange={(event) => {
+                    const mode = event.target.value === 'fixed' ? 'fixed' : 'percentage';
                     patchOverride(index, {
-                      mode: event.target.value === 'fixed' ? 'fixed' : 'percentage',
+                      mode,
+                      ...(mode === 'fixed' ? { value: wholeRupiah(row.value) } : {}),
                     });
                   }}
                 />
-                <TextField
-                  field={`fee_overrides.${String(index)}.value`}
-                  label={`Nilai jasa ${String(index + 1)}`}
-                  inputMode="decimal"
-                  value={row.value}
-                  onChange={(event) => {
-                    patchOverride(index, { value: event.target.value });
-                  }}
-                  error={error(`fee_overrides.${String(index)}.value`)}
-                />
+                {row.mode === 'fixed' ? (
+                  <MoneyField
+                    field={`fee_overrides.${String(index)}.value`}
+                    label={`Nilai jasa ${String(index + 1)}`}
+                    value={row.value}
+                    onValueChange={(digits) => {
+                      patchOverride(index, { value: digits });
+                    }}
+                    error={error(`fee_overrides.${String(index)}.value`)}
+                  />
+                ) : (
+                  <TextField
+                    field={`fee_overrides.${String(index)}.value`}
+                    label={`Nilai jasa ${String(index + 1)}`}
+                    inputMode="decimal"
+                    value={row.value}
+                    onChange={(event) => {
+                      patchOverride(index, { value: event.target.value });
+                    }}
+                    error={error(`fee_overrides.${String(index)}.value`)}
+                  />
+                )}
                 <div>
                   <Button
                     variant="secondary"
@@ -289,18 +325,17 @@ export default function Form({ doctor, branches, users, feeModes }: Props) {
               const last = index === form.data.fee_tiers.length - 1;
               return (
                 <div key={index} className="card flex flex-wrap items-end gap-3 p-3">
-                  <TextField
+                  <MoneyField
                     field={`fee_tiers.${String(index)}.up_to`}
                     label={
                       last
                         ? `Batas tingkat ${String(index + 1)} (tanpa batas)`
-                        : `Sampai produksi (Rp) ${String(index + 1)}`
+                        : `Sampai produksi ${String(index + 1)}`
                     }
-                    inputMode="numeric"
                     disabled={last}
                     value={last ? '' : tier.up_to}
-                    onChange={(event) => {
-                      patchTier(index, { up_to: event.target.value });
+                    onValueChange={(digits) => {
+                      patchTier(index, { up_to: digits });
                     }}
                     error={error(`fee_tiers.${String(index)}.up_to`)}
                   />

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { Select } from '@/components/ui/Select';
 import { TextArea } from '@/components/ui/TextArea';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { buildMasterSchema, emptyValues } from '@/features/master/schema';
 import type { MasterFieldDef } from '@/features/master/schema';
@@ -56,6 +57,11 @@ export default function Form({ entity, row }: Props) {
       form.post(base);
     }
   }
+
+  /** Uang bertipe `money`, dan nilai voucher bila jenisnya nominal (jenis persen tetap angka biasa). */
+  const isMoney = (field: MasterFieldDef): boolean =>
+    field.type === 'money' ||
+    (entity.key === 'vouchers' && field.key === 'value' && form.data.kind === 'amount');
 
   const errorFor = (key: string): string | undefined =>
     clientErrors[key] ?? (form.errors as Record<string, string | undefined>)[key];
@@ -109,6 +115,18 @@ export default function Form({ entity, row }: Props) {
                   value={form.data[field.key] ?? ''}
                   onChange={(event) => {
                     form.setData(field.key, event.target.value);
+                  }}
+                  error={errorFor(field.key)}
+                />
+                {field.help ? <p className="text-muted text-sm">{field.help}</p> : null}
+              </div>
+            ) : isMoney(field) ? (
+              <div key={field.key} className="flex flex-col gap-1">
+                <MoneyField
+                  label={field.label.replace(/\s*\(Rp\)$/, '')}
+                  value={form.data[field.key] ?? ''}
+                  onValueChange={(digits) => {
+                    form.setData(field.key, digits);
                   }}
                   error={errorFor(field.key)}
                 />

@@ -4,6 +4,7 @@ import type { SyntheticEvent } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
+import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { InvoiceFormShell } from '@/features/billing/components/InvoiceFormShell';
 import { refundSchema } from '@/features/billing/schemas';
@@ -65,14 +66,13 @@ export default function RefundForm({ invoice, methods, idempotencyKey }: Props) 
             setValues({ ...values, payment_method_id: e.target.value });
           }}
         />
-        <TextField
+        <MoneyField
           field="amount"
-          label="Jumlah (rupiah)"
-          inputMode="numeric"
+          label="Jumlah"
           value={values.amount}
           error={errors.amount}
-          onChange={(e) => {
-            setValues({ ...values, amount: e.target.value });
+          onValueChange={(digits) => {
+            setValues({ ...values, amount: digits });
           }}
         />
         <TextField
