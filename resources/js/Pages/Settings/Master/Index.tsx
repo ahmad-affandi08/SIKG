@@ -23,6 +23,7 @@ interface Props {
   };
   rows: Row[];
   canManage: boolean;
+  importable: boolean;
   tabs: { key: string; title: string }[];
 }
 
@@ -42,7 +43,7 @@ function display(field: MasterFieldDef, value: Row[string] | undefined): string 
   return String(value).length > 80 ? `${String(value).slice(0, 80)}...` : String(value);
 }
 
-export default function Index({ entity, rows, canManage, tabs }: Props) {
+export default function Index({ entity, rows, canManage, importable, tabs }: Props) {
   const base = `/settings/master/${entity.key}`;
   const columns = entity.columns
     .map((key) => entity.fields.find((field) => field.key === key))
@@ -64,9 +65,16 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
           title={entity.title}
           actions={
             canManage ? (
-              <Link href={`${base}/create`} className="btn btn-primary">
-                Tambah
-              </Link>
+              <div className="flex flex-wrap gap-2">
+                {importable ? (
+                  <Link href={`${base}/import`} className="btn btn-secondary">
+                    Impor Excel
+                  </Link>
+                ) : null}
+                <Link href={`${base}/create`} className="btn btn-primary">
+                  Tambah
+                </Link>
+              </div>
             ) : null
           }
         />

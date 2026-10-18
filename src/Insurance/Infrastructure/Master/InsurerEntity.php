@@ -6,14 +6,20 @@ namespace Src\Insurance\Infrastructure\Master;
 
 use Illuminate\Validation\Rule;
 use Src\Insurance\Infrastructure\Eloquent\InsurerModel;
+use Src\Shared\Application\Master\ImportableMaster;
 use Src\Shared\Application\Master\MasterField;
 use Src\Shared\Infrastructure\Master\EloquentMasterEntity;
 
 /**
  * P2-02: master penjamin (asuransi dan perusahaan). Kontak hanya kontak lembaga penjamin, bukan data pasien.
  */
-final class InsurerEntity extends EloquentMasterEntity
+final class InsurerEntity extends EloquentMasterEntity implements ImportableMaster
 {
+    public function importKey(): string
+    {
+        return 'name';
+    }
+
     public function key(): string
     {
         return 'insurers';

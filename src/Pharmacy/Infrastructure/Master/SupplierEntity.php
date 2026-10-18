@@ -5,14 +5,20 @@ declare(strict_types=1);
 namespace Src\Pharmacy\Infrastructure\Master;
 
 use Src\Pharmacy\Infrastructure\Eloquent\SupplierModel;
+use Src\Shared\Application\Master\ImportableMaster;
 use Src\Shared\Application\Master\MasterField;
 use Src\Shared\Infrastructure\Master\EloquentMasterEntity;
 
 /**
  * P2-05: master pemasok obat dan bahan. Kontak hanya kontak perusahaan pemasok, bukan data pasien.
  */
-final class SupplierEntity extends EloquentMasterEntity
+final class SupplierEntity extends EloquentMasterEntity implements ImportableMaster
 {
+    public function importKey(): string
+    {
+        return 'name';
+    }
+
     public function key(): string
     {
         return 'suppliers';

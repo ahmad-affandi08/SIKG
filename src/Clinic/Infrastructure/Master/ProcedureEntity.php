@@ -8,6 +8,7 @@ use Illuminate\Validation\Rule;
 use Src\Clinic\Domain\ProcedureScope;
 use Src\Clinic\Infrastructure\Eloquent\ProcedureModel;
 use Src\Clinic\Infrastructure\Eloquent\ToothConditionModel;
+use Src\Shared\Application\Master\ImportableMaster;
 use Src\Shared\Application\Master\MasterField;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Infrastructure\Master\EloquentMasterEntity;
@@ -16,8 +17,13 @@ use Src\Shared\Infrastructure\Master\EloquentMasterEntity;
  * MST-04: katalog tindakan (kode, nama, kategori, tarif standar, cakupan). Tarif standar hanya sumber salinan;
  * item tagihan dan tindakan menyalin tarif saat dibuat sehingga perubahan tarif tidak mengubah data lama (MST-08, M7).
  */
-final class ProcedureEntity extends EloquentMasterEntity
+final class ProcedureEntity extends EloquentMasterEntity implements ImportableMaster
 {
+    public function importKey(): string
+    {
+        return 'code';
+    }
+
     public function key(): string
     {
         return 'procedures';

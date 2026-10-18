@@ -62,6 +62,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/online-payments',
       '/insurance/claims',
       '/reports',
+      '/settings/setup',
       '/settings/users',
       '/settings/roles',
       '/settings/profile',

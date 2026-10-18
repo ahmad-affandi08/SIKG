@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Src\Shared\Application\Master\ImportableMaster;
 use Src\Shared\Application\Master\MasterEntity;
 use Src\Shared\Application\Master\MasterEntityRegistry;
 use Src\Shared\Application\RequiredFields;
@@ -33,6 +34,7 @@ final class MasterDataController
             ],
             'rows' => $master->list(),
             'canManage' => (bool) $request->user()?->can($master->managePermission()),
+            'importable' => $master instanceof ImportableMaster,
             'tabs' => $this->tabs($request),
         ]);
     }

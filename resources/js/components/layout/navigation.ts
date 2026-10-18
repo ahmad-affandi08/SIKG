@@ -125,6 +125,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     anyOf: ['report.view', 'stock.manage'],
   },
   {
+    label: 'Penyiapan awal',
+    href: '/settings/setup',
+    permission: 'setting.manage',
+    group: 'Pengaturan',
+  },
+  {
     label: 'Pengguna',
     href: '/settings/users',
     permission: 'user.view',

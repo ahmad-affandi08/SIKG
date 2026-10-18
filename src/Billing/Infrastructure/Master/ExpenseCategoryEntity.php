@@ -5,14 +5,20 @@ declare(strict_types=1);
 namespace Src\Billing\Infrastructure\Master;
 
 use Src\Billing\Infrastructure\Eloquent\ExpenseCategoryModel;
+use Src\Shared\Application\Master\ImportableMaster;
 use Src\Shared\Application\Master\MasterField;
 use Src\Shared\Infrastructure\Master\EloquentMasterEntity;
 
 /**
  * P2-08: kategori biaya operasional (sewa, listrik, gaji, perlengkapan, dan sejenisnya).
  */
-final class ExpenseCategoryEntity extends EloquentMasterEntity
+final class ExpenseCategoryEntity extends EloquentMasterEntity implements ImportableMaster
 {
+    public function importKey(): string
+    {
+        return 'name';
+    }
+
     public function key(): string
     {
         return 'expense-categories';

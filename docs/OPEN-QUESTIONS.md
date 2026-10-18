@@ -256,6 +256,7 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Latar: data awal klinik sudah disediakan lewat seeder (`StarterDataSeeder`, M14 tidak dilanggar karena isinya MST-04, MST-05, MST-06, dan P2-08). Dua usulan berikut menambah fitur baru: (1) impor Excel dengan pratinjau dan laporan galat per baris untuk tindakan, obat, dan pemasok, memakai pola `import_batches` milik PAS-08; (2) halaman penyiapan awal bagi Pemilik (profil klinik, jam buka, dokter pertama, kursi, lalu tarif dan obat) dengan daftar periksa kemajuan
 - Opsi: (a) setujui keduanya sebagai kebutuhan baru Fase 1 berprioritas Should dan tambahkan ID di PRD; (b) setujui hanya impor Excel; (c) tidak dikerjakan, klinik mengisi lewat Data master
 - Rekomendasi: (a), karena pengisian awal tarif dan obat adalah pekerjaan manual terbesar saat klinik mulai memakai sistem
+- Keputusan: (a), disetujui pengguna di sesi ini. Dikerjakan sebagai MST-09 (impor Excel generik untuk master yang menyatakan pengenal alaminya: tindakan, obat, pemasok, kategori biaya, laboratorium, penjamin) dan MST-10 (halaman Penyiapan awal). ID ini ada di `docs/STATUS.md` tetapi belum di `docs/PRD/02-fungsional-fase1.md`; PRD terlindungi, jadi pengguna perlu menambahkannya lalu memperbarui segel checksum sesuai README.
 
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3

@@ -5,14 +5,20 @@ declare(strict_types=1);
 namespace Src\Lab\Infrastructure\Master;
 
 use Src\Lab\Infrastructure\Eloquent\LaboratoryModel;
+use Src\Shared\Application\Master\ImportableMaster;
 use Src\Shared\Application\Master\MasterField;
 use Src\Shared\Infrastructure\Master\EloquentMasterEntity;
 
 /**
  * P2-06: master laboratorium gigi rekanan. Kontak hanya kontak perusahaan lab, bukan data pasien.
  */
-final class LaboratoryEntity extends EloquentMasterEntity
+final class LaboratoryEntity extends EloquentMasterEntity implements ImportableMaster
 {
+    public function importKey(): string
+    {
+        return 'name';
+    }
+
     public function key(): string
     {
         return 'laboratories';

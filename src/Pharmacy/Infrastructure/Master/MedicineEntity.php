@@ -5,14 +5,20 @@ declare(strict_types=1);
 namespace Src\Pharmacy\Infrastructure\Master;
 
 use Src\Pharmacy\Infrastructure\Eloquent\MedicineModel;
+use Src\Shared\Application\Master\ImportableMaster;
 use Src\Shared\Application\Master\MasterField;
 use Src\Shared\Infrastructure\Master\EloquentMasterEntity;
 
 /**
  * MST-05: katalog obat dan bahan (nama, satuan, harga jual, stok minimum, kelas obat untuk cek alergi).
  */
-final class MedicineEntity extends EloquentMasterEntity
+final class MedicineEntity extends EloquentMasterEntity implements ImportableMaster
 {
+    public function importKey(): string
+    {
+        return 'name';
+    }
+
     public function key(): string
     {
         return 'medicines';

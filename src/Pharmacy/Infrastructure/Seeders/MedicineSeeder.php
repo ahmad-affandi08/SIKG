@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 /**
  * Katalog obat dan bahan umum untuk klinik gigi (MST-05) sebagai usulan awal. Semua baris dibuat NONAKTIF dengan harga 0 dan
  * stok minimum 0: klinik wajib mengisi harga jual, lalu mengaktifkannya, sebelum obat dapat diresepkan atau ditagih. Kelas obat
- * (dasar peringatan alergi, OBT-02) wajib diperiksa dokter klinik. Aman dijalankan berulang: nama yang sudah ada tidak diduplikasi.
+ * (dasar peringatan alergi, OBT-02; huruf kecil, angka, garis bawah sesuai aturan formulir) wajib diperiksa dokter klinik. Aman dijalankan berulang: nama yang sudah ada tidak diduplikasi.
  */
 final class MedicineSeeder extends Seeder
 {
@@ -22,23 +22,23 @@ final class MedicineSeeder extends Seeder
     {
         return [
             // Antibiotik
-            ['name' => 'Amoksisilin 500 mg', 'unit' => 'kapsul', 'drug_class' => 'Penisilin'],
-            ['name' => 'Metronidazol 500 mg', 'unit' => 'tablet', 'drug_class' => 'Nitroimidazol'],
-            ['name' => 'Klindamisin 300 mg', 'unit' => 'kapsul', 'drug_class' => 'Linkosamida'],
-            ['name' => 'Sefadroksil 500 mg', 'unit' => 'kapsul', 'drug_class' => 'Sefalosporin'],
-            ['name' => 'Azitromisin 500 mg', 'unit' => 'tablet', 'drug_class' => 'Makrolida'],
+            ['name' => 'Amoksisilin 500 mg', 'unit' => 'kapsul', 'drug_class' => 'penisilin'],
+            ['name' => 'Metronidazol 500 mg', 'unit' => 'tablet', 'drug_class' => 'nitroimidazol'],
+            ['name' => 'Klindamisin 300 mg', 'unit' => 'kapsul', 'drug_class' => 'linkosamida'],
+            ['name' => 'Sefadroksil 500 mg', 'unit' => 'kapsul', 'drug_class' => 'sefalosporin'],
+            ['name' => 'Azitromisin 500 mg', 'unit' => 'tablet', 'drug_class' => 'makrolida'],
             // Pereda nyeri dan antiradang
-            ['name' => 'Parasetamol 500 mg', 'unit' => 'tablet', 'drug_class' => 'Parasetamol'],
-            ['name' => 'Asam mefenamat 500 mg', 'unit' => 'tablet', 'drug_class' => 'NSAID'],
-            ['name' => 'Ibuprofen 400 mg', 'unit' => 'tablet', 'drug_class' => 'NSAID'],
-            ['name' => 'Natrium diklofenak 50 mg', 'unit' => 'tablet', 'drug_class' => 'NSAID'],
-            ['name' => 'Deksametason 0,5 mg', 'unit' => 'tablet', 'drug_class' => 'Kortikosteroid'],
+            ['name' => 'Parasetamol 500 mg', 'unit' => 'tablet', 'drug_class' => 'parasetamol'],
+            ['name' => 'Asam mefenamat 500 mg', 'unit' => 'tablet', 'drug_class' => 'nsaid'],
+            ['name' => 'Ibuprofen 400 mg', 'unit' => 'tablet', 'drug_class' => 'nsaid'],
+            ['name' => 'Natrium diklofenak 50 mg', 'unit' => 'tablet', 'drug_class' => 'nsaid'],
+            ['name' => 'Deksametason 0,5 mg', 'unit' => 'tablet', 'drug_class' => 'kortikosteroid'],
             // Antiseptik dan obat kumur
-            ['name' => 'Klorheksidin 0,2% obat kumur', 'unit' => 'botol', 'drug_class' => 'Klorheksidin'],
-            ['name' => 'Povidone iodine 10%', 'unit' => 'botol', 'drug_class' => 'Iodium'],
+            ['name' => 'Klorheksidin 0,2% obat kumur', 'unit' => 'botol', 'drug_class' => 'klorheksidin'],
+            ['name' => 'Povidone iodine 10%', 'unit' => 'botol', 'drug_class' => 'iodium'],
             // Anestesi dan bahan tindakan
-            ['name' => 'Anestesi lokal injeksi (ampul)', 'unit' => 'ampul', 'drug_class' => 'Anestesi lokal'],
-            ['name' => 'Anestesi topikal gel', 'unit' => 'tube', 'drug_class' => 'Anestesi lokal'],
+            ['name' => 'Anestesi lokal injeksi (ampul)', 'unit' => 'ampul', 'drug_class' => 'anestesi_lokal'],
+            ['name' => 'Anestesi topikal gel', 'unit' => 'tube', 'drug_class' => 'anestesi_lokal'],
             ['name' => 'Bahan tambal komposit', 'unit' => 'syringe', 'drug_class' => null],
             ['name' => 'Semen ionomer kaca (GIC)', 'unit' => 'set', 'drug_class' => null],
             ['name' => 'Semen tambal sementara', 'unit' => 'pot', 'drug_class' => null],

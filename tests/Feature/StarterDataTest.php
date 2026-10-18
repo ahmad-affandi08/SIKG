@@ -109,3 +109,11 @@ it('DATA-AWAL tanpa klinik tidak melakukan apa pun', function () {
 
     expect(DB::table('procedures')->count())->toBe(0)->and(DB::table('medicines')->count())->toBe(0);
 });
+
+it('DATA-AWAL kelas obat mengikuti aturan formulir (huruf kecil, angka, garis bawah) sehingga obat bawaan dapat diubah', function () {
+    foreach (MedicineSeeder::catalog() as $obat) {
+        if ($obat['drug_class'] !== null) {
+            expect($obat['drug_class'])->toMatch('/^[a-z0-9_]+$/');
+        }
+    }
+});
