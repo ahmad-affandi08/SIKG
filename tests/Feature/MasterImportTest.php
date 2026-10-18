@@ -71,6 +71,7 @@ it('MST-09 pratinjau menghitung baris sah, sudah ada, dan galat; konfirmasi hany
     $token = tokenDariPengalihan($respons);
 
     $this->actingAs($admin)->get("/settings/master/procedures/import/{$token}")->assertOk()->assertInertia(fn ($halaman) => $halaman
+        ->where('preview.errors.1.messages.0', 'Cakupan tidak valid. Pilihan: Per gigi, Per permukaan gigi, Per rahang, Per kunjungan.')
         ->component('Settings/Master/Import')
         ->where('preview.total_rows', 6)
         ->where('preview.valid_rows', 2)

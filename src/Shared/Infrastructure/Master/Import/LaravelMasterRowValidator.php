@@ -43,17 +43,28 @@ final class LaravelMasterRowValidator implements MasterRowValidator
             }
         }
 
+        // Aturan enum Laravel memakai terjemahan bawaan (bahasa Inggris) dan mengabaikan pesan kustom: pilihan diperiksa di sini.
+        $invalidChoice = [];
+        foreach ($entity->fields() as $field) {
+            $value = $values[$field->key] ?? null;
+            if ($field->type === 'select' && $value !== null && ! in_array($value, array_column($field->options, 'value'), true)) {
+                $invalidChoice[$field->key] = "{$labels[$field->key]} tidak valid. Pilihan: {$options[$field->key]}.";
+            }
+        }
+
         $validator = Validator::make($values, $entity->rules(null), self::MESSAGES, $labels);
+        $errors = array_values($invalidChoice);
         if ($validator->fails()) {
-            $errors = [];
             foreach ($validator->errors()->messages() as $attribute => $messages) {
+                if (isset($invalidChoice[$attribute])) {
+                    continue;
+                }
                 foreach ($messages as $message) {
-                    $errors[] = isset($options[$attribute]) && $values[$attribute] !== null
-                        ? "{$message} Pilihan: {$options[$attribute]}."
-                        : $message;
+                    $errors[] = $message;
                 }
             }
-
+        }
+        if ($errors !== []) {
             return ['data' => [], 'errors' => array_values(array_unique($errors))];
         }
 
