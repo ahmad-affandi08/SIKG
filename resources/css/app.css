@@ -381,3 +381,17 @@ fieldset.form-grid {
   border: 0;
   padding: 0;
 }
+
+/* Bilah progres navigasi Inertia (NProgress); gaya bawaannya disisipkan sebagai <style> dan ditolak CSP, jadi ditulis di sini. */
+#nprogress {
+  pointer-events: none;
+}
+#nprogress .bar {
+  position: fixed;
+  z-index: 1031;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--color-brand-500);
+}

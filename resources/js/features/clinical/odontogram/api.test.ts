@@ -26,4 +26,10 @@ describe('ODO-01 skema odontogram', () => {
     expect(result.success).toBe(true);
     expect(result.data?.teeth['16']?.surfaces).toEqual({});
   });
+
+  it('ODO-01 menerima odontogram pasien tanpa data yang terkirim sebagai array kosong', () => {
+    const result = odontogramSchema.safeParse({ teeth: [], conditions: [] });
+    expect(result.success).toBe(true);
+    expect(result.data?.teeth).toEqual({});
+  });
 });

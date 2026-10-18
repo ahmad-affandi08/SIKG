@@ -106,6 +106,14 @@ it('ODO-01 gigi dengan kondisi seluruh gigi tanpa permukaan tetap dikirim sebaga
     expect($isi)->toContain('"surfaces":{}')->and($isi)->not->toContain('"surfaces":[]')->and($isi)->toContain('"meta":{}');
 });
 
+it('ODO-01 pasien yang belum punya data odontogram mengirim teeth sebagai objek kosong, bukan array', function () {
+    $s = siapKunjungan();
+
+    $isi = test()->actingAs($s['dokter_user'])->get("/internal-api/patients/{$s['pasien']}/odontogram")->assertOk()->getContent();
+
+    expect($isi)->toContain('"teeth":{}')->and($isi)->not->toContain('"teeth":[]');
+});
+
 it('ODO-01 nomor gigi, permukaan, dan kondisi yang tidak sah ditolak', function () {
     $s = siapKunjungan();
 

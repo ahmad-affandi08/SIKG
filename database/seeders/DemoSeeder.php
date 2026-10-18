@@ -12,6 +12,7 @@ use Src\Clinic\Infrastructure\Eloquent\ClinicModel;
 use Src\Clinic\Infrastructure\Eloquent\DoctorModel;
 use Src\Clinic\Infrastructure\Eloquent\DoctorScheduleModel;
 use Src\Clinic\Infrastructure\Eloquent\ProcedureModel;
+use Src\Clinic\Infrastructure\Seeders\PaymentMethodSeeder;
 use Src\IdentityAccess\Domain\Role;
 use Src\IdentityAccess\Infrastructure\Eloquent\User;
 use Src\IdentityAccess\Infrastructure\Seeders\RolePermissionSeeder;
@@ -51,16 +52,17 @@ class DemoSeeder extends Seeder
         }
 
         $this->call(RolePermissionSeeder::class);
-        $password = Str::password(14, symbols: false);
+        // DEMO_PASSWORD hanya untuk tes E2E lokal/CI (kata sandi sintetis yang diketahui); bila kosong, acak dan dicetak sekali.
+        $password = (string) (getenv('DEMO_PASSWORD') ?: Str::password(14, symbols: false));
 
         $clinic = new ClinicModel;
         $clinic->forceFill(['name' => 'Klinik Gigi Senyum Sehat', 'timezone' => 'Asia/Jakarta'])->save();
 
         $admin = $this->makeUser($clinic, $password, Role::Admin, 'Admin Contoh', 'admin');
+        $sari = $this->makeUser($clinic, $password, Role::Dokter, 'drg. Sari Wulandari', 'sari');
         foreach ([
             [Role::Pemilik, 'Pemilik Contoh', 'pemilik'],
             [Role::Resepsionis, 'Rina Resepsionis', 'rina'],
-            [Role::Dokter, 'drg. Sari Wulandari', 'sari'],
             [Role::Perawat, 'Nia Perawat', 'nia'],
             [Role::Kasir, 'Kiki Kasir', 'kasir'],
         ] as [$role, $name, $username]) {
@@ -70,9 +72,11 @@ class DemoSeeder extends Seeder
         app(TenantContext::class)->set($clinic->id);
 
         $doctor = new DoctorModel;
-        $doctor->forceFill(['name' => 'drg. Sari Wulandari', 'is_active' => true, 'fee_scheme' => null])->save();
-        foreach ([1, 2, 3, 4, 5, 6] as $weekday) {
-            (new DoctorScheduleModel)->forceFill(['doctor_id' => $doctor->id, 'weekday' => $weekday, 'start_time' => '09:00:00', 'end_time' => '17:00:00'])->save();
+        $doctor->forceFill(['name' => 'drg. Sari Wulandari', 'is_active' => true, 'fee_scheme' => null, 'user_id' => $sari->id])->save();
+        // Tes E2E (DEMO_ALL_DAY=1) memakai jadwal sehari penuh agar hasilnya tidak bergantung pada jam atau hari ia dijalankan.
+        $allDay = getenv('DEMO_ALL_DAY') === '1';
+        foreach ([1, 2, 3, 4, 5, 6, 7] as $weekday) {
+            (new DoctorScheduleModel)->forceFill(['doctor_id' => $doctor->id, 'weekday' => $weekday, 'start_time' => $allDay ? '00:00:00' : '09:00:00', 'end_time' => $allDay ? '23:59:00' : '17:00:00'])->save();
         }
         foreach (['Kursi 1', 'Kursi 2'] as $name) {
             (new ChairModel)->forceFill(['name' => $name, 'is_active' => true])->save();
@@ -81,6 +85,9 @@ class DemoSeeder extends Seeder
         foreach ([['TMB', 'Tambalan komposit', 'tooth', 350000], ['SCL', 'Scaling', 'jaw', 250000], ['CAB', 'Cabut gigi dewasa', 'tooth', 300000]] as [$code, $name, $scope, $price]) {
             (new ProcedureModel)->forceFill(['code' => $code, 'name' => $name, 'scope' => $scope, 'default_price_amount' => $price, 'is_active' => true])->save();
         }
+
+        // Metode pembayaran bawaan (tunai, transfer, QRIS, kartu) agar kasir dapat mencoba pembayaran.
+        (new PaymentMethodSeeder)->seedClinic($clinic->id);
 
         $stock = app(StockService::class);
         foreach ([

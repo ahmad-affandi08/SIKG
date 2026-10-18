@@ -15,6 +15,8 @@ const queryClient = createQueryClient();
 const pages = import.meta.glob<{ default: ComponentType }>('./Pages/**/*.tsx');
 
 void createInertiaApp({
+  // CSP `style-src 'self'` menolak <style> yang disisipkan pustaka progres; gayanya ada di app.css (includeCSS: false).
+  progress: { includeCSS: false, showSpinner: false },
   title: (title) => (title ? `${title} - SIKG` : 'SIKG'),
   resolve: async (name) => {
     const loader = pages[`./Pages/${name}.tsx`];

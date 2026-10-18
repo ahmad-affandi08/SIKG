@@ -33,7 +33,11 @@ const toothSchema = z.object({
 export type ToothState = z.infer<typeof toothSchema>;
 
 export const odontogramSchema = z.object({
-  teeth: z.record(z.string(), toothSchema),
+  // Jaring pengaman: PHP mengirim `[]` untuk peta kosong (pasien belum punya data odontogram) bila tidak dilemparkan menjadi objek.
+  teeth: z.preprocess(
+    (value) => (Array.isArray(value) && value.length === 0 ? {} : value),
+    z.record(z.string(), toothSchema),
+  ),
   conditions: z.array(conditionSchema),
 });
 

@@ -17,7 +17,11 @@ final class OdontogramController
     {
         $data = $request->validate(['encounter' => ['nullable', 'string', 'size:26']]);
 
-        return response()->json(['data' => $odontogram->current($patient, 'odontogram.show', $data['encounter'] ?? null), 'meta' => (object) []]);
+        $current = $odontogram->current($patient, 'odontogram.show', $data['encounter'] ?? null);
+        // Pasien tanpa data: `teeth` harus `{}` (objek), bukan `[]`, supaya tampilan dapat membacanya sebagai peta FDI.
+        $current['teeth'] = (object) $current['teeth'];
+
+        return response()->json(['data' => $current, 'meta' => (object) []]);
     }
 
     public function update(Request $request, string $encounter, int $fdi, OdontogramService $odontogram): JsonResponse
