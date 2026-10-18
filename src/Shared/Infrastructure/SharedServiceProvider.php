@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Src\Shared\Infrastructure;
 
 use Illuminate\Queue\Events\Looping;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Src\Shared\Application\AccessLogger;
@@ -47,6 +48,7 @@ use Src\Shared\Infrastructure\Console\HealthCheckCommand;
 use Src\Shared\Infrastructure\Console\NotificationsPruneCommand;
 use Src\Shared\Infrastructure\Console\PreflightCommand;
 use Src\Shared\Infrastructure\Health\DatabaseHealthMonitor;
+use Src\Shared\Infrastructure\Http\RouteScopedThrottle;
 use Src\Shared\Infrastructure\Master\Import\CacheMasterImportStore;
 use Src\Shared\Infrastructure\Master\Import\LaravelMasterRowValidator;
 use Src\Shared\Infrastructure\Master\Import\PhpSpreadsheetMasterSheet;
@@ -75,6 +77,8 @@ final class SharedServiceProvider extends ServiceProvider
         $this->app->singleton(ResourceLock::class, DatabaseResourceLock::class);
         $this->app->singleton(MasterEntityRegistry::class);
         $this->app->singleton(SetupRegistry::class);
+        // Nama middleware tetap ThrottleRequests (tes dapat mematikannya); isinya menghitung batas per rute.
+        $this->app->bind(ThrottleRequests::class, RouteScopedThrottle::class);
         $this->app->singleton(MasterSheet::class, PhpSpreadsheetMasterSheet::class);
         $this->app->singleton(MasterRowValidator::class, LaravelMasterRowValidator::class);
         $this->app->singleton(MasterImportStore::class, CacheMasterImportStore::class);
