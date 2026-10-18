@@ -42,6 +42,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Layanan',
   },
   {
+    label: 'Rontgen masuk',
+    href: '/imaging/inbox',
+    permission: 'encounter.write',
+    group: 'Layanan',
+  },
+  {
     label: 'Pengingat',
     href: '/reminders',
     permission: 'appointment.manage',

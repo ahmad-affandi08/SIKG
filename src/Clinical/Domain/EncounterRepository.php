@@ -16,6 +16,13 @@ interface EncounterRepository
 
     public function find(string $id): ?EncounterRecord;
 
+    /**
+     * Kunjungan yang masih berjalan, terbaru dulu (untuk memilih tujuan gambar rontgen masuk, P3-03).
+     *
+     * @return list<EncounterRecord>
+     */
+    public function openList(int $limit): array;
+
     public function findForUpdate(string $id): ?EncounterRecord;
 
     public function findByAppointment(string $appointmentId): ?EncounterRecord;

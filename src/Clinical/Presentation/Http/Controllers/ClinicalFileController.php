@@ -66,6 +66,11 @@ final class ClinicalFileController
             $headers['Content-Security-Policy'] = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
         }
 
+        // Berkas asli DICOM tidak dapat ditampilkan peramban: diunduh.
+        if ($opened['file']->mime === 'application/dicom') {
+            $headers['Content-Disposition'] = 'attachment; filename="rontgen.dcm"';
+        }
+
         return response($opened['contents'], 200, $headers);
     }
 

@@ -10,6 +10,7 @@ use Src\Clinical\Presentation\Http\Controllers\ClinicalFileController;
 use Src\Clinical\Presentation\Http\Controllers\DiagnosisSearchController;
 use Src\Clinical\Presentation\Http\Controllers\DocumentController;
 use Src\Clinical\Presentation\Http\Controllers\EncounterController;
+use Src\Clinical\Presentation\Http\Controllers\ImagingController;
 use Src\Clinical\Presentation\Http\Controllers\OdontogramCompareController;
 use Src\Clinical\Presentation\Http\Controllers\OdontogramController;
 use Src\Clinical\Presentation\Http\Controllers\OdontogramPrintController;
@@ -68,6 +69,11 @@ Route::middleware('can:encounter.write')->group(function () use ($id): void {
     Route::post('/encounters/{encounter}/diagnoses', [EncounterController::class, 'addDiagnosis'])->where('encounter', $id);
     Route::delete('/encounters/{encounter}/diagnoses/{entry}', [EncounterController::class, 'removeDiagnosis'])->where('encounter', $id)->where('entry', $id);
     Route::post('/encounters/{encounter}/files', [ClinicalFileController::class, 'store'])->where('encounter', $id);
+    // P3-03: rontgen digital (folder masuk dan impor DICOM).
+    Route::get('/imaging/inbox', [ImagingController::class, 'inbox'])->name('imaging.inbox');
+    Route::post('/imaging/inbox/import', [ImagingController::class, 'importFromInbox']);
+    Route::post('/imaging/inbox/discard', [ImagingController::class, 'discard']);
+    Route::post('/imaging/dicom', [ImagingController::class, 'uploadDicom'])->middleware('throttle:20,1');
     Route::delete('/encounters/{encounter}/files/{file}', [ClinicalFileController::class, 'destroy'])->where('encounter', $id)->where('file', $id);
     Route::post('/encounters/{encounter}/procedures', [EncounterController::class, 'addProcedure'])->where('encounter', $id);
     Route::delete('/encounters/{encounter}/procedures/{entry}', [EncounterController::class, 'removeProcedure'])->where('encounter', $id)->where('entry', $id);

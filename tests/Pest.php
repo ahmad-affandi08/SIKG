@@ -374,3 +374,67 @@ function rekamKirim(bool $email = true, bool $telegram = true): void
     app()->instance(EmailSender::class, new EmailPerekam);
     app()->instance(TelegramSender::class, new TelegramPerekam);
 }
+
+/**
+ * Membangun berkas DICOM sintetis (M12: tanpa data pasien nyata) untuk menguji pembaca.
+ *
+ * @param  array<string, mixed>  $o
+ */
+function dicomSintetis(array $o = []): string
+{
+    $syntax = $o['syntax'] ?? '1.2.840.10008.1.2.1';
+    $rows = $o['rows'] ?? 2;
+    $cols = $o['cols'] ?? 4;
+    $bits = $o['bits'] ?? 16;
+    $pixels = $o['pixels'] ?? [0, 100, 200, 300, 400, 500, 600, 1000];
+    $big = $syntax === '1.2.840.10008.1.2.2';
+    $implicit = $syntax === '1.2.840.10008.1.2';
+    $photometric = $o['photometric'] ?? 'MONOCHROME2';
+
+    $u16 = fn (int $v, bool $b = false) => pack($b ? 'n' : 'v', $v);
+    $pad = fn (string $s, string $fill = ' ') => strlen($s) % 2 === 1 ? $s.$fill : $s;
+    $long = ['OB', 'OW', 'SQ', 'UN', 'UT'];
+    $element = function (int $g, int $e, string $vr, string $value, bool $b, bool $imp) use ($u16, $long): string {
+        $tag = $u16($g, $b).$u16($e, $b);
+        if ($imp) {
+            return $tag.pack($b ? 'N' : 'V', strlen($value)).$value;
+        }
+        if (in_array($vr, $long, true)) {
+            return $tag.$vr."\0\0".pack($b ? 'N' : 'V', strlen($value)).$value;
+        }
+
+        return $tag.$vr.$u16(strlen($value), $b).$value;
+    };
+
+    $meta = $element(0x0002, 0x0010, 'UI', $pad($syntax, "\0"), false, false);
+    $meta = $element(0x0002, 0x0000, 'UL', pack('V', strlen($meta)), false, false).$meta;
+
+    $data = '';
+    $data .= $element(0x0008, 0x0020, 'DA', '20250616', $big, $implicit);
+    $data .= $element(0x0008, 0x0060, 'CS', 'IO', $big, $implicit);
+    if (isset($o['patient_id'])) {
+        $data .= $element(0x0010, 0x0020, 'LO', $pad($o['patient_id']), $big, $implicit);
+    }
+    if (isset($o['sequence'])) {
+        // Urutan (SQ) berpanjang tak tentu berisi satu item berpanjang tak tentu dengan elemen di dalamnya.
+        $inner = $element(0x0008, 0x1140, 'UI', $pad('1.2.3', "\0"), $big, $implicit);
+        $item = $u16(0xFFFE, $big).$u16(0xE000, $big).pack($big ? 'N' : 'V', 0xFFFFFFFF).$inner.$u16(0xFFFE, $big).$u16(0xE00D, $big).pack($big ? 'N' : 'V', 0);
+        $seq = $u16(0x0008, $big).$u16(0x1111, $big).($implicit ? '' : 'SQ'."\0\0").pack($big ? 'N' : 'V', 0xFFFFFFFF).$item.$u16(0xFFFE, $big).$u16(0xE0DD, $big).pack($big ? 'N' : 'V', 0);
+        $data .= $seq;
+    }
+    $data .= $element(0x0028, 0x0002, 'US', $u16(1, $big), $big, $implicit);
+    $data .= $element(0x0028, 0x0004, 'CS', $pad($photometric), $big, $implicit);
+    $data .= $element(0x0028, 0x0010, 'US', $u16($rows, $big), $big, $implicit);
+    $data .= $element(0x0028, 0x0011, 'US', $u16($cols, $big), $big, $implicit);
+    $data .= $element(0x0028, 0x0100, 'US', $u16($bits, $big), $big, $implicit);
+    $data .= $element(0x0028, 0x0101, 'US', $u16($bits, $big), $big, $implicit);
+    $data .= $element(0x0028, 0x0103, 'US', $u16($o['signed'] ?? 0, $big), $big, $implicit);
+    if (isset($o['window'])) {
+        $data .= $element(0x0028, 0x1050, 'DS', $pad((string) $o['window'][0]), $big, $implicit);
+        $data .= $element(0x0028, 0x1051, 'DS', $pad((string) $o['window'][1]), $big, $implicit);
+    }
+    $raw = $bits === 8 ? pack('C*', ...$pixels) : pack($big ? 'n*' : 'v*', ...array_map(fn (int $v) => $v < 0 ? $v + 65536 : $v, $pixels));
+    $data .= $element(0x7FE0, 0x0010, $bits === 8 ? 'OB' : 'OW', $raw, $big, $implicit);
+
+    return str_repeat("\0", 128).'DICM'.$meta.$data;
+}

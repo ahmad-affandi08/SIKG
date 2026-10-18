@@ -60,6 +60,12 @@ final class EloquentEncounterRepository implements EncounterRepository
         return $row === null ? null : $this->record($row);
     }
 
+    public function openList(int $limit): array
+    {
+        return array_values(EncounterModel::query()->where('status', EncounterStatus::Open->value)->orderByDesc('started_at')->orderByDesc('id')->limit($limit)->get()
+            ->map(fn (EncounterModel $e) => $this->record($e))->all());
+    }
+
     public function forPatient(string $patientId): array
     {
         return array_values(EncounterModel::query()->where('patient_id', $patientId)->orderByDesc('started_at')->orderByDesc('id')->get()

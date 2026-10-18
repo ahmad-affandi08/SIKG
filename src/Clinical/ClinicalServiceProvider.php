@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Src\Clinical\Application\Diagnosis\DiagnosisCatalog;
 use Src\Clinical\Application\FileVault;
+use Src\Clinical\Application\Imaging\GrayscaleEncoder;
+use Src\Clinical\Application\Imaging\InboxStore;
 use Src\Clinical\Application\OpenEncounterListener;
 use Src\Clinical\Contracts\EncounterExportLookup;
 use Src\Clinical\Contracts\EncounterFileLookup;
@@ -22,6 +24,7 @@ use Src\Clinical\Domain\DocumentSignatureRepository;
 use Src\Clinical\Domain\EncounterRepository;
 use Src\Clinical\Domain\OdontogramRepository;
 use Src\Clinical\Domain\TreatmentPlanRepository;
+use Src\Clinical\Infrastructure\Console\ScanImagingInboxCommand;
 use Src\Clinical\Infrastructure\Eloquent\ClinicalDocumentModel;
 use Src\Clinical\Infrastructure\Eloquent\ClinicalFileModel;
 use Src\Clinical\Infrastructure\Eloquent\EncounterModel;
@@ -38,6 +41,8 @@ use Src\Clinical\Infrastructure\EloquentEncounterRepository;
 use Src\Clinical\Infrastructure\EloquentOdontogramRepository;
 use Src\Clinical\Infrastructure\EloquentRecallLookup;
 use Src\Clinical\Infrastructure\EloquentTreatmentPlanRepository;
+use Src\Clinical\Infrastructure\Imaging\GdGrayscaleEncoder;
+use Src\Clinical\Infrastructure\Imaging\PrivateInboxStore;
 use Src\Clinical\Infrastructure\PrivateFileVault;
 use Src\Scheduling\Domain\Events\PatientCheckedIn;
 use Src\Shared\Application\PiiProtector;
@@ -56,6 +61,8 @@ final class ClinicalServiceProvider extends ServiceProvider
         $this->app->singleton(OdontogramRepository::class, EloquentOdontogramRepository::class);
         $this->app->singleton(ClinicalFileRepository::class, EloquentClinicalFileRepository::class);
         $this->app->singleton(FileVault::class, fn ($app) => new PrivateFileVault($app->make(PiiProtector::class), $app->make(IdGenerator::class), $app->make(TenantContext::class), (bool) config('sikg.encrypt_files')));
+        $this->app->singleton(GrayscaleEncoder::class, GdGrayscaleEncoder::class);
+        $this->app->singleton(InboxStore::class, PrivateInboxStore::class);
         $this->app->singleton(EncounterLookup::class, EloquentEncounterLookup::class);
         $this->app->singleton(EncounterExportLookup::class, EloquentEncounterExportLookup::class);
         $this->app->singleton(RecallLookup::class, EloquentRecallLookup::class);
@@ -72,6 +79,10 @@ final class ClinicalServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/Infrastructure/Migrations');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([ScanImagingInboxCommand::class]);
+        }
 
         // RM-09 dan RM-10: informed consent disiapkan tenaga klinis (encounter.write) dan surat diterbitkan dokter (encounter.close);
         // Admin mencetak lewat record.print. Pemeriksaan per jenis dilakukan di DocumentController.

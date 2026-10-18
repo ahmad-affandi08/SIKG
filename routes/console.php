@@ -55,6 +55,12 @@ Schedule::command('sikg:payments:reconcile')
     ->everyFiveMinutes()
     ->withoutOverlapping(10);
 
+// P3-03: folder masuk rontgen digital; petugas diberi tahu bila ada gambar menunggu (sekali per jumlah berkas per hari).
+Schedule::command('sikg:imaging:scan')
+    ->name('sikg-imaging-scan')
+    ->everyFiveMinutes()
+    ->withoutOverlapping(10);
+
 // JDW-07: ringkasan janji hari ini (mulai 07.00) dan besok (mulai 09.00) untuk pemilik dan staf; sekali per hari, aman diulang.
 Schedule::command('sikg:appointments:digest')
     ->name('sikg-appointment-digest')
