@@ -10,14 +10,14 @@ use Src\Shared\Infrastructure\Eloquent\UsesUlid;
 use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
 
 /**
- * P3-05: pengaturan pembayaran online. Server key hanya terenkripsi.
+ * P3-05: pengaturan pembayaran online. Secret key hanya terenkripsi.
  *
  * @property string $clinic_id
  * @property bool $enabled
  * @property string $provider
  * @property string $environment
- * @property string|null $merchant_id
- * @property string|null $server_key_encrypted
+ * @property string|null $client_id
+ * @property string|null $secret_key_encrypted
  * @property string|null $payment_method_id
  * @property int $expiry_minutes
  * @property string $webhook_token

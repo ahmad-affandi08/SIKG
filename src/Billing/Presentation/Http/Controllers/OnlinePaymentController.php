@@ -31,7 +31,7 @@ final class OnlinePaymentController
         $data = $request->validate(['amount' => ['nullable', 'integer', 'min:1', 'max:100000000000']], ['amount.integer' => 'Jumlah harus bilangan bulat rupiah.', 'amount.min' => 'Jumlah harus lebih dari nol.']);
         $this->online->start($this->actorId($request), $invoice, isset($data['amount']) ? (int) $data['amount'] : null);
 
-        return to_route('invoices.online-payments', ['invoice' => $invoice])->with('success', 'QR pembayaran dibuat. Minta pasien memindainya.');
+        return to_route('invoices.online-payments', ['invoice' => $invoice])->with('success', 'Pembayaran QRIS dibuat. Buka halaman pembayaran agar pasien dapat memindai QR-nya.');
     }
 
     public function cancel(Request $request, string $invoice, string $intent): RedirectResponse
@@ -61,12 +61,12 @@ final class OnlinePaymentController
         $data = $request->validate([
             'enabled' => ['required', 'boolean'],
             'environment' => ['required', 'in:sandbox,production'],
-            'merchant_id' => ['nullable', 'string', 'max:60'],
-            'server_key' => ['nullable', 'string', 'max:200'],
+            'client_id' => ['nullable', 'string', 'max:100'],
+            'secret_key' => ['nullable', 'string', 'max:200'],
             'payment_method_id' => ['nullable', 'string', 'size:26'],
             'expiry_minutes' => ['required', 'integer', 'min:5', 'max:1440'],
         ], ['environment.in' => 'Lingkungan harus sandbox atau production.', 'expiry_minutes.required' => 'Masa berlaku QR wajib diisi.', 'expiry_minutes.integer' => 'Masa berlaku QR berupa menit bulat.']);
-        $this->admin->save($this->actorId($request), (bool) $data['enabled'], $data['environment'], $data['merchant_id'] ?? null, $data['server_key'] ?? null, $data['payment_method_id'] ?? null, (int) $data['expiry_minutes']);
+        $this->admin->save($this->actorId($request), (bool) $data['enabled'], $data['environment'], $data['client_id'] ?? null, $data['secret_key'] ?? null, $data['payment_method_id'] ?? null, (int) $data['expiry_minutes']);
 
         return back()->with('success', 'Pengaturan pembayaran online disimpan.');
     }

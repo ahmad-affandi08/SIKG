@@ -16,8 +16,8 @@ describe('P3-05 skema pembayaran online', () => {
     const base = {
       enabled: true,
       environment: 'sandbox',
-      merchant_id: '',
-      server_key: '',
+      client_id: '',
+      secret_key: '',
       payment_method_id: '',
       expiry_minutes: '15',
     };

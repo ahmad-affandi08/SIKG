@@ -23,19 +23,19 @@ final readonly class EloquentOnlinePaymentRepository implements OnlinePaymentRep
         $m = $this->row();
 
         return new OnlinePaymentSettings(
-            $m->enabled, $m->provider, $m->environment, $m->merchant_id, $m->server_key_encrypted === null ? null : $this->pii->decrypt($m->server_key_encrypted),
+            $m->enabled, $m->provider, $m->environment, $m->client_id, $m->secret_key_encrypted === null ? null : $this->pii->decrypt($m->secret_key_encrypted),
             $m->payment_method_id, $m->expiry_minutes, $m->webhook_token,
         );
     }
 
-    public function saveSettings(string $actorId, bool $enabled, string $environment, ?string $merchantId, ?string $serverKey, ?string $methodId, int $expiryMinutes): void
+    public function saveSettings(string $actorId, bool $enabled, string $environment, ?string $clientId, ?string $secretKey, ?string $methodId, int $expiryMinutes): void
     {
         $m = $this->row();
         $m->forceFill([
-            'enabled' => $enabled, 'environment' => $environment, 'merchant_id' => $merchantId, 'payment_method_id' => $methodId, 'expiry_minutes' => $expiryMinutes, 'updated_by' => $actorId,
+            'enabled' => $enabled, 'environment' => $environment, 'client_id' => $clientId, 'payment_method_id' => $methodId, 'expiry_minutes' => $expiryMinutes, 'updated_by' => $actorId,
         ]);
-        if ($serverKey !== null) {
-            $m->server_key_encrypted = $this->pii->encrypt($serverKey);
+        if ($secretKey !== null) {
+            $m->secret_key_encrypted = $this->pii->encrypt($secretKey);
         }
         $m->save();
     }
@@ -50,7 +50,7 @@ final readonly class EloquentOnlinePaymentRepository implements OnlinePaymentRep
         $m = new PaymentIntentModel;
         $m->id = $intent->id;
         $m->forceFill([
-            'invoice_id' => $intent->invoiceId, 'order_id' => $intent->orderId, 'provider' => OnlinePaymentSettings::PROVIDER_MIDTRANS, 'amount' => $intent->amount, 'status' => $intent->status->value,
+            'invoice_id' => $intent->invoiceId, 'order_id' => $intent->orderId, 'provider' => OnlinePaymentSettings::PROVIDER_DOKU, 'amount' => $intent->amount, 'status' => $intent->status->value,
             'active_slot' => $intent->status === IntentStatus::Pending ? 1 : null, 'expires_at' => $intent->expiresAt, 'created_by' => $actorId,
         ])->save();
     }
@@ -83,9 +83,9 @@ final readonly class EloquentOnlinePaymentRepository implements OnlinePaymentRep
         return $m === null ? null : $this->record($m);
     }
 
-    public function attachCharge(string $id, ?string $qrImage, ?string $qrString, ?string $gatewayRef, DateTimeImmutable $expiresAt): void
+    public function attachCharge(string $id, ?string $paymentUrl, ?string $gatewayRef, DateTimeImmutable $expiresAt): void
     {
-        PaymentIntentModel::query()->findOrFail($id)->forceFill(['qr_image' => $qrImage, 'qr_string' => $qrString, 'gateway_ref' => $gatewayRef, 'expires_at' => $expiresAt])->save();
+        PaymentIntentModel::query()->findOrFail($id)->forceFill(['payment_url' => $paymentUrl, 'gateway_ref' => $gatewayRef, 'expires_at' => $expiresAt])->save();
     }
 
     public function transition(string $id, IntentStatus $status, ?string $note, ?DateTimeImmutable $paidAt, ?string $paymentId): void
@@ -128,7 +128,7 @@ final readonly class EloquentOnlinePaymentRepository implements OnlinePaymentRep
         $m = OnlinePaymentSettingModel::query()->first();
         if ($m === null) {
             $m = new OnlinePaymentSettingModel;
-            $m->forceFill(['webhook_token' => bin2hex(random_bytes(20)), 'environment' => OnlinePaymentSettings::ENV_SANDBOX, 'provider' => OnlinePaymentSettings::PROVIDER_MIDTRANS, 'expiry_minutes' => 15, 'enabled' => false]);
+            $m->forceFill(['webhook_token' => bin2hex(random_bytes(20)), 'environment' => OnlinePaymentSettings::ENV_SANDBOX, 'provider' => OnlinePaymentSettings::PROVIDER_DOKU, 'expiry_minutes' => 15, 'enabled' => false]);
             $m->save();
         }
 
@@ -138,7 +138,7 @@ final readonly class EloquentOnlinePaymentRepository implements OnlinePaymentRep
     private function record(PaymentIntentModel $m): PaymentIntent
     {
         return new PaymentIntent(
-            $m->id, $m->invoice_id, $m->order_id, $m->amount, IntentStatus::from($m->status), $m->qr_image, $m->qr_string, $m->gateway_ref, $m->expires_at->toImmutable(),
+            $m->id, $m->invoice_id, $m->order_id, $m->amount, IntentStatus::from($m->status), $m->payment_url, $m->gateway_ref, $m->expires_at->toImmutable(),
             $m->paid_at?->toImmutable(), $m->payment_id, $m->note, $m->created_by,
         );
     }

@@ -53,8 +53,8 @@ use Src\Billing\Infrastructure\Loyalty\LoyaltyPatientMover;
 use Src\Billing\Infrastructure\Master\ExpenseCategoryEntity;
 use Src\Billing\Infrastructure\Master\VisitPackageEntity;
 use Src\Billing\Infrastructure\Master\VoucherEntity;
+use Src\Billing\Infrastructure\Online\DokuGateway;
 use Src\Billing\Infrastructure\Online\EloquentOnlinePaymentRepository;
-use Src\Billing\Infrastructure\Online\MidtransGateway;
 use Src\Clinical\Domain\Events\EncounterClosed;
 use Src\Clinical\Domain\Events\ProcedurePerformed;
 use Src\Clinical\Domain\Events\ProcedureRetracted;
@@ -90,7 +90,7 @@ final class BillingServiceProvider extends ServiceProvider
         $this->app->singleton(PromotionGuard::class, EloquentPromotionGuard::class);
         $this->app->singleton(ExpenseCategoryDirectory::class, EloquentExpenseCategoryDirectory::class);
         $this->app->singleton(OnlinePaymentRepository::class, EloquentOnlinePaymentRepository::class);
-        $this->app->singleton(PaymentGateway::class, MidtransGateway::class);
+        $this->app->singleton(PaymentGateway::class, DokuGateway::class);
     }
 
     public function boot(): void

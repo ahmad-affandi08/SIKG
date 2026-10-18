@@ -15,7 +15,7 @@ interface Props {
   settings: {
     enabled: boolean;
     environment: 'sandbox' | 'production';
-    merchant_id: string;
+    client_id: string;
     has_key: boolean;
     payment_method_id: string;
     expiry_minutes: number;
@@ -24,15 +24,15 @@ interface Props {
   };
 }
 
-type Key = 'merchant_id' | 'server_key' | 'payment_method_id' | 'expiry_minutes' | 'environment';
+type Key = 'client_id' | 'secret_key' | 'payment_method_id' | 'expiry_minutes' | 'environment';
 
-/** P3-05: pengaturan payment gateway (Midtrans QRIS). Server key hanya ditulis; tidak pernah ditampilkan kembali (M13). */
+/** P3-05: pengaturan payment gateway (DOKU QRIS). Secret key hanya ditulis; tidak pernah ditampilkan kembali (M13). */
 export default function OnlinePayments({ settings }: Props) {
   const form = useForm({
     enabled: settings.enabled,
     environment: settings.environment,
-    merchant_id: settings.merchant_id,
-    server_key: '',
+    client_id: settings.client_id,
+    secret_key: '',
     payment_method_id: settings.payment_method_id,
     expiry_minutes: String(settings.expiry_minutes),
   });
@@ -54,7 +54,7 @@ export default function OnlinePayments({ settings }: Props) {
     form.post('/settings/online-payments', {
       preserveScroll: true,
       onSuccess: () => {
-        form.reset('server_key');
+        form.reset('secret_key');
       },
     });
   }
@@ -65,10 +65,10 @@ export default function OnlinePayments({ settings }: Props) {
         <PageHead title="Pengaturan pembayaran online" />
         <PageHeader
           title="Pembayaran online"
-          description="QRIS dinamis lewat Midtrans. Pembayaran yang masuk dicatat ke tagihan otomatis."
+          description="QRIS lewat DOKU Checkout. Pembayaran yang masuk dicatat ke tagihan otomatis."
         />
         <Alert tone="info">
-          Daftarkan alamat ini sebagai Payment Notification URL di dasbor Midtrans:{' '}
+          Daftarkan alamat ini sebagai Notification URL di DOKU Back Office:{' '}
           <code>{settings.webhook_path}</code> (didahului alamat lengkap situs ini). Jangan bagikan
           alamat itu.
         </Alert>
@@ -102,22 +102,25 @@ export default function OnlinePayments({ settings }: Props) {
             }}
           />
           <TextField
-            label="ID merchant (opsional)"
-            value={form.data.merchant_id}
-            error={err('merchant_id')}
+            label="Client ID DOKU"
+            required
+            value={form.data.client_id}
+            error={err('client_id')}
             onChange={(event) => {
-              form.setData('merchant_id', event.target.value);
+              form.setData('client_id', event.target.value);
             }}
           />
           <TextField
-            label={settings.has_key ? 'Server key (kosongkan untuk mempertahankan)' : 'Server key'}
+            label={
+              settings.has_key ? 'Secret Key (kosongkan untuk mempertahankan)' : 'Secret Key DOKU'
+            }
             type="password"
             autoComplete="off"
             required={false}
-            value={form.data.server_key}
-            error={err('server_key')}
+            value={form.data.secret_key}
+            error={err('secret_key')}
             onChange={(event) => {
-              form.setData('server_key', event.target.value);
+              form.setData('secret_key', event.target.value);
             }}
           />
           <Select

@@ -7,11 +7,11 @@ namespace Src\Billing\Domain\Online;
 use Src\Billing\Domain\InvalidBillingData;
 
 /**
- * Pengaturan pembayaran online satu klinik. `serverKey` berisi nilai terdekripsi dan tidak boleh ditulis ke log atau layar.
+ * Pengaturan pembayaran online satu klinik. `secretKey` berisi nilai terdekripsi dan tidak boleh ditulis ke log atau layar.
  */
 final readonly class OnlinePaymentSettings
 {
-    public const PROVIDER_MIDTRANS = 'midtrans';
+    public const PROVIDER_DOKU = 'doku';
 
     public const ENV_SANDBOX = 'sandbox';
 
@@ -21,8 +21,8 @@ final readonly class OnlinePaymentSettings
         public bool $enabled,
         public string $provider,
         public string $environment,
-        public ?string $merchantId,
-        public ?string $serverKey,
+        public ?string $clientId,
+        public ?string $secretKey,
         public ?string $methodId,
         public int $expiryMinutes,
         public string $webhookToken,
@@ -30,7 +30,7 @@ final readonly class OnlinePaymentSettings
 
     public function ready(): bool
     {
-        return $this->enabled && $this->serverKey !== null && $this->serverKey !== '' && $this->methodId !== null;
+        return $this->enabled && $this->clientId !== null && $this->clientId !== '' && $this->secretKey !== null && $this->secretKey !== '' && $this->methodId !== null;
     }
 
     /**

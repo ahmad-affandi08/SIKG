@@ -18,8 +18,8 @@ export function startQrSchema(balance: number) {
 export const onlineSettingsSchema = z.object({
   enabled: z.boolean(),
   environment: z.enum(['sandbox', 'production'], { message: 'Pilih lingkungan.' }),
-  merchant_id: z.string().max(60, 'ID merchant terlalu panjang.'),
-  server_key: z.string().max(200, 'Server key terlalu panjang.'),
+  client_id: z.string().max(100, 'Client ID terlalu panjang.'),
+  secret_key: z.string().max(200, 'Secret Key terlalu panjang.'),
   payment_method_id: z.string(),
   expiry_minutes: z
     .string()

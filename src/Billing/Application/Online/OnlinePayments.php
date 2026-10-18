@@ -22,7 +22,7 @@ use Src\Shared\Application\Transaction;
 use Src\Shared\Domain\IdGenerator;
 
 /**
- * P3-05: pembayaran online (QRIS dinamis lewat payment gateway). Kasir membuat QR untuk sisa tagihan; pasien membayar dengan aplikasi
+ * P3-05: pembayaran online (QRIS dinamis lewat payment gateway). Kasir membuat pembayaran untuk sisa tagihan; pasien membayar lewat halaman QRIS DOKU dengan aplikasi
  * pembayarannya; penyedia memberi tahu lewat webhook dan rekonsiliasi terjadwal memeriksa yang terlewat. Webhook tidak dipercaya
  * begitu saja: tanda tangannya diperiksa lalu status ditanyakan ulang ke penyedia, dan pembayaran dicatat lewat alur pembayaran biasa
  * dengan kunci idempotensi per niat (M7), sehingga notifikasi ganda tidak mencatat dua kali. Uang yang diterima tetapi tidak dapat
@@ -75,7 +75,7 @@ final readonly class OnlinePayments
             $now = $this->clock->now();
             $active = $this->intents->activeForInvoice($invoiceId);
             if ($active !== null) {
-                if ($active->expiresAt > $now && $active->amount === $value && $active->qrImage !== null) {
+                if ($active->expiresAt > $now && $active->amount === $value && $active->paymentUrl !== null) {
                     return $active;
                 }
                 try {
@@ -87,14 +87,14 @@ final readonly class OnlinePayments
             }
 
             $id = $this->ids->generate();
-            $intent = new PaymentIntent($id, $invoiceId, 'SIKG-'.$id, $value, IntentStatus::Pending, null, null, null, $now->add(new DateInterval('PT'.$settings->expiryMinutes.'M')), null, null, null, $actorId);
+            $intent = new PaymentIntent($id, $invoiceId, 'SIKG-'.$id, $value, IntentStatus::Pending, null, null, $now->add(new DateInterval('PT'.$settings->expiryMinutes.'M')), null, null, null, $actorId);
             $this->intents->add($intent, $actorId);
             $this->audit->record(new AuditEntry($actorId, 'online_payment.started', 'invoice', $invoiceId, null, ['intent_id' => $id, 'amount' => $value]));
 
             return $intent;
         });
 
-        if ($created->qrImage !== null || $created->gatewayRef !== null) {
+        if ($created->paymentUrl !== null || $created->gatewayRef !== null) {
             return $created->id;
         }
         try {
@@ -104,7 +104,7 @@ final readonly class OnlinePayments
 
             throw new InvalidBillingData('online.gateway_failed', $e->getMessage());
         }
-        $this->tx->run(fn () => $this->intents->attachCharge($created->id, $charge->qrImage, $charge->qrString, $charge->reference, $created->expiresAt));
+        $this->tx->run(fn () => $this->intents->attachCharge($created->id, $charge->paymentUrl, $charge->reference, $created->expiresAt));
 
         return $created->id;
     }
@@ -146,22 +146,25 @@ final readonly class OnlinePayments
     /**
      * Notifikasi webhook penyedia. Klinik dikenali dari token pada alamat. Mengembalikan false bila tanda tangan tidak sah.
      *
-     * @param  array<string, mixed>  $payload
+     * @param  array<string, string>  $headers  nama header huruf kecil => nilai
+     * @param  string  $rawBody  isi mentah permintaan (dasar digest tanda tangan)
+     * @param  string  $path  alamat webhook tanpa host, contoh `/webhooks/payments/{token}`
      * @return bool|null null bila token tidak dikenal
      */
-    public function handleWebhook(string $token, array $payload): ?bool
+    public function handleWebhook(string $token, array $headers, string $rawBody, string $path): ?bool
     {
         $clinicId = $this->intents->clinicForWebhookToken($token);
         if ($clinicId === null) {
             return null;
         }
 
-        return (bool) $this->tenant->runAs($clinicId, null, function () use ($payload): bool {
+        return (bool) $this->tenant->runAs($clinicId, null, function () use ($headers, $rawBody, $path): bool {
             $settings = $this->intents->settings();
-            if (! $this->gateway->verifySignature($settings, $payload)) {
+            if (! $this->gateway->verifyNotification($settings, $headers, $rawBody, $path)) {
                 return false;
             }
-            $orderId = $payload['order_id'] ?? null;
+            $payload = json_decode($rawBody, true);
+            $orderId = is_array($payload) && is_array($payload['order'] ?? null) ? ($payload['order']['invoice_number'] ?? null) : null;
             $intent = is_string($orderId) ? $this->intents->findByOrderId($orderId) : null;
             if ($intent === null) {
                 return true;
@@ -183,7 +186,7 @@ final readonly class OnlinePayments
     {
         $settings = $this->intents->settings();
         $out = ['checked' => 0, 'paid' => 0, 'closed' => 0, 'failed' => 0];
-        if ($settings->serverKey === null) {
+        if ($settings->secretKey === null) {
             return $out;
         }
         foreach ($this->intents->pending(self::RECONCILE_BATCH) as $intent) {

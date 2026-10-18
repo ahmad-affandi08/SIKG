@@ -22,8 +22,7 @@ interface Intent {
   note: string | null;
   expires_at: string;
   paid_at: string | null;
-  qr_image?: string | null;
-  qr_string?: string | null;
+  payment_url?: string | null;
 }
 
 interface Props {
@@ -85,24 +84,34 @@ export default function OnlinePayment({ invoice, ready, active, history }: Props
               {status.data?.status_label ?? active.status_label}
             </Badge>
             <p className="text-lg font-semibold">{formatRupiah(active.amount)}</p>
-            {active.qr_image ? (
-              <img
-                src={active.qr_image}
-                alt="Kode QRIS pembayaran"
-                className="size-64 border border-[#b9b9b9] bg-white p-2"
-              />
+            {active.payment_url ? (
+              <>
+                <a
+                  href={active.payment_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                >
+                  Buka halaman QRIS (layar pasien)
+                </a>
+                <p className="text-muted max-w-md text-center text-xs">
+                  Halaman milik DOKU menampilkan kode QRIS. Buka di layar yang dapat dilihat pasien,
+                  lalu pasien memindainya dengan aplikasi bank atau dompet digital. Tautan:{' '}
+                  <code>{active.payment_url}</code>
+                </p>
+              </>
             ) : (
               <Alert tone="warning">
-                Gambar QR tidak tersedia dari penyedia. Batalkan lalu buat QR baru.
+                Halaman pembayaran tidak tersedia dari penyedia. Batalkan lalu buat pembayaran baru.
               </Alert>
             )}
             <p className="text-muted text-xs">
               Berlaku sampai {active.expires_at}. Halaman ini memeriksa pembayaran otomatis.
             </p>
             <ConfirmAction
-              label="Batalkan QR"
-              message="QR ini dibatalkan dan tidak dapat dibayar lagi. Lanjutkan?"
-              confirmLabel="Ya, batalkan"
+              label="Tutup pembayaran ini"
+              message="Pembayaran ini ditutup di sistem. DOKU tidak dapat membatalkan halaman QRIS; bila pasien telanjur membayar, pembayarannya tetap dicatat atau ditandai untuk diselesaikan. Lanjutkan?"
+              confirmLabel="Ya, tutup"
               onConfirm={() => {
                 router.post(
                   `/invoices/${invoice.id}/online-payments/${active.id}/cancel`,

@@ -19,8 +19,11 @@ final class PaymentWebhookController
 
     public function receive(Request $request, string $token): JsonResponse
     {
-        $payload = $request->json()->all();
-        $result = $this->online->handleWebhook($token, $payload);
+        $headers = [];
+        foreach (['client-id', 'request-id', 'request-timestamp', 'signature'] as $name) {
+            $headers[$name] = (string) $request->header($name, '');
+        }
+        $result = $this->online->handleWebhook($token, $headers, (string) $request->getContent(), '/'.$request->path());
         abort_if($result === null, 404);
         abort_if($result === false, 403);
 

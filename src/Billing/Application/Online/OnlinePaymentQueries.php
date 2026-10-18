@@ -82,7 +82,7 @@ final readonly class OnlinePaymentQueries
         return [
             'id' => $i->id, 'amount' => $i->amount, 'status' => $i->status->value, 'status_label' => $i->status->label(), 'note' => $i->note,
             'expires_at' => $i->expiresAt->setTimezone($zone)->format('Y-m-d H:i'), 'paid_at' => $i->paidAt?->setTimezone($zone)->format('Y-m-d H:i'),
-            ...($withQr ? ['qr_image' => $i->qrImage, 'qr_string' => $i->qrString] : []),
+            ...($withQr ? ['payment_url' => $i->paymentUrl] : []),
         ];
     }
 }

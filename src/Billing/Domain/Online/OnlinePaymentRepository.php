@@ -11,8 +11,8 @@ interface OnlinePaymentRepository
     /** Pengaturan klinik; token webhook dibuat sekali saat pertama dibutuhkan. */
     public function settings(): OnlinePaymentSettings;
 
-    /** `$serverKey` null berarti kunci lama dipertahankan. */
-    public function saveSettings(string $actorId, bool $enabled, string $environment, ?string $merchantId, ?string $serverKey, ?string $methodId, int $expiryMinutes): void;
+    /** `$secretKey` null berarti kunci lama dipertahankan. */
+    public function saveSettings(string $actorId, bool $enabled, string $environment, ?string $clientId, ?string $secretKey, ?string $methodId, int $expiryMinutes): void;
 
     /**
      * Klinik pemilik token webhook, di luar cakupan klinik.
@@ -31,8 +31,8 @@ interface OnlinePaymentRepository
 
     public function activeForInvoice(string $invoiceId): ?PaymentIntent;
 
-    /** Menyimpan hasil pemanggilan penyedia (kode QR dan referensi). */
-    public function attachCharge(string $id, ?string $qrImage, ?string $qrString, ?string $gatewayRef, DateTimeImmutable $expiresAt): void;
+    /** Menyimpan hasil pemanggilan penyedia (tautan halaman pembayaran dan referensi). */
+    public function attachCharge(string $id, ?string $paymentUrl, ?string $gatewayRef, DateTimeImmutable $expiresAt): void;
 
     public function transition(string $id, IntentStatus $status, ?string $note, ?DateTimeImmutable $paidAt, ?string $paymentId): void;
 

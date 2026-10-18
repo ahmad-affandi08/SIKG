@@ -20,8 +20,7 @@ use Src\Shared\Infrastructure\Tenancy\BelongsToClinic;
  * @property int $amount
  * @property string $status
  * @property int|null $active_slot
- * @property string|null $qr_image
- * @property string|null $qr_string
+ * @property string|null $payment_url
  * @property string|null $gateway_ref
  * @property Carbon $expires_at
  * @property Carbon|null $paid_at
