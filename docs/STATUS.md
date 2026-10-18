@@ -110,7 +110,7 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 
 ## Fase 3 (dimulai setelah Gerbang 3)
 
-- [ ] P3-01 | Booking online pasien
+- [x] P3-01 | Booking online pasien
 - [ ] P3-02 | Mode offline (PWA)
 - [ ] P3-03 | Integrasi rontgen digital
 - [ ] P3-04 | Multi-cabang penuh

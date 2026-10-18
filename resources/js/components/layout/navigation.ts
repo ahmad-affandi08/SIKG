@@ -36,6 +36,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Layanan',
   },
   {
+    label: 'Booking online',
+    href: '/booking-requests',
+    permission: 'appointment.manage',
+    group: 'Layanan',
+  },
+  {
     label: 'Pengingat',
     href: '/reminders',
     permission: 'appointment.manage',
@@ -205,6 +211,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
   {
     label: 'SATUSEHAT',
     href: '/settings/satusehat',
+    permission: 'setting.manage',
+    group: 'Pengaturan',
+  },
+  {
+    label: 'Pengaturan booking',
+    href: '/settings/booking',
     permission: 'setting.manage',
     group: 'Pengaturan',
   },

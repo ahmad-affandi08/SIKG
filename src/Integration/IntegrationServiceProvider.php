@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Src\Clinical\Domain\Events\EncounterClosed;
 use Src\Integration\Application\QueueEncounterSubmission;
+use Src\Integration\Application\Reminder\WhatsAppBookingCodeSender;
 use Src\Integration\Application\Reminder\WhatsAppGateway;
 use Src\Integration\Application\SatuSehatGateway;
 use Src\Integration\Domain\IdentifierRepository;
@@ -25,6 +26,7 @@ use Src\Integration\Infrastructure\EloquentSatuSehatSettingsRepository;
 use Src\Integration\Infrastructure\EloquentSubmissionRepository;
 use Src\Integration\Infrastructure\HttpSatuSehatGateway;
 use Src\Integration\Infrastructure\WhatsAppCloudGateway;
+use Src\Scheduling\Contracts\BookingCodeSender;
 
 final class IntegrationServiceProvider extends ServiceProvider
 {
@@ -37,6 +39,8 @@ final class IntegrationServiceProvider extends ServiceProvider
         $this->app->singleton(ReminderSettingsRepository::class, EloquentReminderSettingsRepository::class);
         $this->app->singleton(ReminderRepository::class, EloquentReminderRepository::class);
         $this->app->singleton(WhatsAppGateway::class, WhatsAppCloudGateway::class);
+        // P3-01: kode verifikasi booking online lewat WhatsApp API klinik (menggantikan bawaan tanpa saluran milik Scheduling).
+        $this->app->singleton(BookingCodeSender::class, WhatsAppBookingCodeSender::class);
     }
 
     public function boot(): void

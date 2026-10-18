@@ -17,6 +17,14 @@ const ROUTE_PUBLIK = [
     '/login/two-factor' => ['GET', 'POST'], // AUTH-05: hanya berlaku dengan ID pengguna tertunda di sesi setelah kata sandi benar
     '/up' => ['GET'],
     '/health' => ['GET'], // dilindungi token X-Health-Token, bukan sesi (SYS-07)
+    // P3-01: booking online oleh pasien. Klinik ditentukan dari {slug} (404 bila booking mati), semua dibatasi throttle, dan tidak ada
+    // data pasien yang dapat dibaca: status hanya lewat token acak 40 heksa milik pembuat permintaan.
+    '/book/{slug}' => ['GET', 'POST'],
+    '/internal-api/book/{slug}/slots' => ['GET'],
+    '/book/{slug}/r/{token}' => ['GET'],
+    '/book/{slug}/r/{token}/verify' => ['POST'],
+    '/book/{slug}/r/{token}/resend' => ['POST'],
+    '/book/{slug}/r/{token}/cancel' => ['POST'],
 ];
 
 /** Route khusus pengguna yang masuk tanpa izin spesifik (tidak memuat data sensitif): uri => metode. */
