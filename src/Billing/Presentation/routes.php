@@ -9,6 +9,7 @@ use Src\Billing\Presentation\Http\Controllers\InstallmentController;
 use Src\Billing\Presentation\Http\Controllers\InvoiceController;
 use Src\Billing\Presentation\Http\Controllers\InvoicePrintController;
 use Src\Billing\Presentation\Http\Controllers\LoyaltyController;
+use Src\Billing\Presentation\Http\Controllers\OnlinePaymentController;
 use Src\Billing\Presentation\Http\Controllers\PaymentController;
 use Src\Billing\Presentation\Http\Controllers\PromotionController;
 
@@ -98,4 +99,19 @@ Route::middleware('can:patient.view')->group(function () use ($id): void {
 Route::middleware('can:setting.manage')->group(function (): void {
     Route::get('/settings/loyalty', [LoyaltyController::class, 'settings'])->name('settings.loyalty');
     Route::post('/settings/loyalty', [LoyaltyController::class, 'saveSettings']);
+});
+
+// P3-05: pembayaran online (QRIS dinamis). Membuat dan memantau QR: payment.create; rekonsiliasi: invoice.view; pengaturan: setting.manage.
+Route::middleware('can:payment.create')->group(function () use ($id): void {
+    Route::get('/invoices/{invoice}/online-payments', [OnlinePaymentController::class, 'show'])->name('invoices.online-payments')->where('invoice', $id);
+    Route::post('/invoices/{invoice}/online-payments', [OnlinePaymentController::class, 'start'])->middleware('throttle:20,1')->where('invoice', $id);
+    Route::post('/invoices/{invoice}/online-payments/{intent}/cancel', [OnlinePaymentController::class, 'cancel'])->where('invoice', $id)->where('intent', $id);
+    Route::get('/internal-api/invoices/{invoice}/online-payments/{intent}/status', [OnlinePaymentController::class, 'status'])->middleware('throttle:120,1')->where('invoice', $id)->where('intent', $id);
+});
+
+Route::middleware('can:invoice.view')->get('/online-payments', [OnlinePaymentController::class, 'desk'])->name('online-payments');
+
+Route::middleware('can:setting.manage')->group(function (): void {
+    Route::get('/settings/online-payments', [OnlinePaymentController::class, 'settings'])->name('settings.online-payments');
+    Route::post('/settings/online-payments', [OnlinePaymentController::class, 'saveSettings']);
 });

@@ -49,6 +49,12 @@ Schedule::command('sikg:booking:expire')
     ->everyFifteenMinutes()
     ->withoutOverlapping(10);
 
+// P3-05: rekonsiliasi QR pembayaran online yang masih menunggu (jaring pengaman bila webhook terlewat); aman diulang.
+Schedule::command('sikg:payments:reconcile')
+    ->name('sikg-payments-reconcile')
+    ->everyFiveMinutes()
+    ->withoutOverlapping(10);
+
 // JDW-07: ringkasan janji hari ini (mulai 07.00) dan besok (mulai 09.00) untuk pemilik dan staf; sekali per hari, aman diulang.
 Schedule::command('sikg:appointments:digest')
     ->name('sikg-appointment-digest')

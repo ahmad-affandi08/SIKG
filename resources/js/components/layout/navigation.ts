@@ -96,6 +96,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Kasir',
   },
   {
+    label: 'Pembayaran online',
+    href: '/online-payments',
+    permission: 'invoice.view',
+    group: 'Kasir',
+  },
+  {
     label: 'Klaim penjamin',
     href: '/insurance/claims',
     permission: 'invoice.view',
@@ -176,6 +182,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Paket kunjungan',
     href: '/settings/master/visit-packages',
     permission: 'invoice.view',
+    group: 'Pengaturan',
+  },
+  {
+    label: 'Pembayaran online (pengaturan)',
+    href: '/settings/online-payments',
+    permission: 'setting.manage',
     group: 'Pengaturan',
   },
   {

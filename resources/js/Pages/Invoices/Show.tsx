@@ -119,6 +119,14 @@ export default function Show({ invoice, items, payments, installments, can }: Pr
                   Catat pembayaran
                 </Link>
               ) : null}
+              {canPay && invoice.lifecycle === 'issued' ? (
+                <Link
+                  href={`/invoices/${invoice.id}/online-payments`}
+                  className="btn btn-secondary"
+                >
+                  Bayar QRIS
+                </Link>
+              ) : null}
             </>
           }
         />

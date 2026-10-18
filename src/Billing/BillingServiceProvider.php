@@ -14,6 +14,8 @@ use Src\Billing\Application\CashRegister;
 use Src\Billing\Application\InvoiceDrafting;
 use Src\Billing\Application\InvoiceListing;
 use Src\Billing\Application\Loyalty\LoyaltyService;
+use Src\Billing\Application\Online\OnlinePayments;
+use Src\Billing\Application\Online\PaymentGateway;
 use Src\Billing\Contracts\EncounterChargeGateway;
 use Src\Billing\Contracts\InvoiceClaimGateway;
 use Src\Billing\Contracts\InvoiceLookup;
@@ -27,10 +29,12 @@ use Src\Billing\Domain\Loyalty\LoyaltyRepository;
 use Src\Billing\Domain\Loyalty\PackageRepository;
 use Src\Billing\Domain\Loyalty\PromotionRepository;
 use Src\Billing\Domain\Loyalty\VoucherRepository;
+use Src\Billing\Domain\Online\OnlinePaymentRepository;
 use Src\Billing\Domain\PromotionGuard;
 use Src\Billing\Infrastructure\BillingEncounterChargeGateway;
 use Src\Billing\Infrastructure\BillingInvoiceClaimGateway;
 use Src\Billing\Infrastructure\ClinicBillingNumbering;
+use Src\Billing\Infrastructure\Console\ReconcileOnlinePaymentsCommand;
 use Src\Billing\Infrastructure\Eloquent\InvoiceModel;
 use Src\Billing\Infrastructure\Eloquent\InvoicePromotionModel;
 use Src\Billing\Infrastructure\Eloquent\PatientPackageModel;
@@ -49,6 +53,8 @@ use Src\Billing\Infrastructure\Loyalty\LoyaltyPatientMover;
 use Src\Billing\Infrastructure\Master\ExpenseCategoryEntity;
 use Src\Billing\Infrastructure\Master\VisitPackageEntity;
 use Src\Billing\Infrastructure\Master\VoucherEntity;
+use Src\Billing\Infrastructure\Online\EloquentOnlinePaymentRepository;
+use Src\Billing\Infrastructure\Online\MidtransGateway;
 use Src\Clinical\Domain\Events\EncounterClosed;
 use Src\Clinical\Domain\Events\ProcedurePerformed;
 use Src\Clinical\Domain\Events\ProcedureRetracted;
@@ -83,6 +89,8 @@ final class BillingServiceProvider extends ServiceProvider
         $this->app->singleton(PackageRepository::class, EloquentPackageRepository::class);
         $this->app->singleton(PromotionGuard::class, EloquentPromotionGuard::class);
         $this->app->singleton(ExpenseCategoryDirectory::class, EloquentExpenseCategoryDirectory::class);
+        $this->app->singleton(OnlinePaymentRepository::class, EloquentOnlinePaymentRepository::class);
+        $this->app->singleton(PaymentGateway::class, MidtransGateway::class);
     }
 
     public function boot(): void
@@ -109,7 +117,17 @@ final class BillingServiceProvider extends ServiceProvider
         Event::listen(PaymentReceived::class, [LoyaltyService::class, 'paymentReceived']);
         Event::listen(InvoiceVoided::class, [LoyaltyService::class, 'invoiceVoided']);
 
+        // P3-05: QR yang masih menunggu dibatalkan bersama tagihannya; rekonsiliasi dijalankan perintah terjadwal.
+        Event::listen(InvoiceVoided::class, [OnlinePayments::class, 'invoiceVoided']);
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([ReconcileOnlinePaymentsCommand::class]);
+        }
+
         Route::middleware(['web', 'auth'])
             ->group(__DIR__.'/Presentation/routes.php');
+
+        // P3-05: webhook penyedia pembayaran, tanpa sesi.
+        Route::group([], __DIR__.'/Presentation/routes-webhook.php');
     }
 }

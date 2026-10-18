@@ -25,6 +25,8 @@ const ROUTE_PUBLIK = [
     '/book/{slug}/r/{token}/verify' => ['POST'],
     '/book/{slug}/r/{token}/resend' => ['POST'],
     '/book/{slug}/r/{token}/cancel' => ['POST'],
+    // P3-05: webhook penyedia pembayaran; dikenali dari token acak di alamat, tanda tangan diperiksa, dan status ditanyakan ulang ke penyedia.
+    '/webhooks/payments/{token}' => ['POST'],
 ];
 
 /** Route khusus pengguna yang masuk tanpa izin spesifik (tidak memuat data sensitif): uri => metode. */
