@@ -96,17 +96,21 @@ Bangkitkan nilai acak di laptop Anda, bukan di server bersama: `php artisan key:
 ```
 php artisan migrate --force
 php artisan sikg:install --clinic="Nama Klinik" --name="Nama Pemilik" --username=pemilik --email=email@contoh.id
+php artisan db:seed --force
 php artisan config:cache && php artisan route:cache && php artisan view:cache
 php artisan sikg:preflight
 ```
 
 `sikg:install` meminta kata sandi sementara (minimal 12 karakter) bila `--password` tidak diberikan; Pemilik wajib menggantinya saat masuk pertama. Perintah ini hanya jalan bila belum ada klinik, dan **tidak** menjalankan data contoh.
 
+`db:seed --force` mengisi peran dan izin serta **data awal klinik** (seeder `StarterDataSeeder`), tanpa data pasien: lima metode pembayaran, sembilan kategori biaya operasional, katalog tindakan gigi umum dan katalog obat dan bahan umum, serta hari libur nasional bertanggal tetap untuk tahun berjalan dan tahun depan. Katalog tindakan dan obat dibuat **nonaktif dengan harga Rp 0**: klinik mengisi tarif dan harga lewat Pengaturan, Data master (Ubah), lalu mengaktifkannya. Kode ICD-9-CM dan kelas obat adalah usulan dan wajib diperiksa dokter atau petugas rekam medis klinik. Libur yang berpindah tiap tahun (Idulfitri, Imlek, Nyepi, dan lainnya) ditambahkan klinik sendiri. Seeder ini aman dijalankan ulang (misalnya awal tahun berikutnya untuk menambah libur tetap) dan tidak menimpa data yang sudah diubah klinik.
+
 **Bila tanpa SSH:** buat entri cron sekali jalan satu per satu di panel (jalur PHP dan folder sesuaikan, lihat bagian 7), tunggu satu menit sampai selesai, lalu **hapus entri itu**:
 
 ```
 cd /home/pengguna/app && /usr/local/bin/php artisan migrate --force > /home/pengguna/migrasi.log 2>&1
 cd /home/pengguna/app && /usr/local/bin/php artisan sikg:install --clinic="Nama Klinik" --name="Nama Pemilik" --username=pemilik --email=email@contoh.id --password="KataSandiSementara123" > /home/pengguna/install.log 2>&1
+cd /home/pengguna/app && /usr/local/bin/php artisan db:seed --force > /home/pengguna/seed.log 2>&1
 cd /home/pengguna/app && /usr/local/bin/php artisan config:cache > /dev/null 2>&1
 ```
 

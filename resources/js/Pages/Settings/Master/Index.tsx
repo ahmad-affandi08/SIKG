@@ -3,6 +3,7 @@ import { Link, router } from '@inertiajs/react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import type { MasterFieldDef } from '@/features/master/schema';
@@ -47,6 +48,14 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
     .map((key) => entity.fields.find((field) => field.key === key))
     .filter((field): field is MasterFieldDef => field !== undefined);
 
+  // Data awal (seeder) dibuat nonaktif dengan harga 0: ingatkan agar diisi dan diaktifkan sebelum dipakai.
+  const priceField = entity.fields.find(
+    (field) => field.key === 'default_price_amount' || field.key === 'sell_price_amount',
+  );
+  const unpriced = priceField
+    ? rows.filter((row) => !row.is_active && Number(row[priceField.key] ?? 0) === 0).length
+    : 0;
+
   return (
     <AppLayout>
       <main className="flex flex-col gap-3 p-3">
@@ -61,6 +70,12 @@ export default function Index({ entity, rows, canManage, tabs }: Props) {
             ) : null
           }
         />
+
+        {unpriced > 0 && canManage ? (
+          <Alert tone="info">
+            {`${String(unpriced)} data awal masih nonaktif dengan harga Rp 0. Ubah untuk mengisi harga, lalu aktifkan agar muncul di pilihan.`}
+          </Alert>
+        ) : null}
 
         {tabs.length > 1 ? (
           <nav aria-label="Jenis master data" className="flex flex-wrap gap-2">

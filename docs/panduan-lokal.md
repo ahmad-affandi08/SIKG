@@ -15,10 +15,10 @@ Untuk mencoba atau mengembangkan. Data contoh seluruhnya sintetis (M12); jangan 
 2. Buka berkas konfigurasi itu di editor Anda sendiri dan isi blok `DB_*` sesuai MySQL lokal. Bila memakai `compose.yaml`: basis data `sikg`, pengguna `sikg`, kata sandi `sikg_local_only`, host `127.0.0.1`. Isi juga `PII_HASH_KEY` dengan teks acak yang panjang (kunci untuk pencarian NIK dan nomor HP; jangan diganti setelah ada data).
 3. Pasang pustaka dan bangun tampilan: `composer install`, lalu `npm install --ignore-scripts`, lalu `npm run build`.
 4. Buat tabel: `php artisan migrate`.
-5. Isi data contoh (hanya di lokal): `php artisan db:seed --class=DemoSeeder`. Kata sandi acak untuk semua pengguna dicetak sekali di layar; catat. Pengguna contoh: `pemilik`, `admin`, `rina` (resepsionis), `sari` (dokter), `nia` (perawat), `kasir`.
+5. Isi data contoh (hanya di lokal): `php artisan db:seed --class=DemoSeeder` (klinik, pengguna tiap peran, dokter, kursi, tarif, obat, dan pasien sintetis). Untuk data awal saja tanpa pasien dan pengguna contoh, setelah ada klinik: `php artisan db:seed --class=StarterDataSeeder` (metode bayar, kategori biaya, katalog tindakan dan obat nonaktif berharga 0, dan libur nasional tetap). Kata sandi acak untuk semua pengguna dicetak sekali di layar; catat. Pengguna contoh: `pemilik`, `admin`, `rina` (resepsionis), `sari` (dokter), `nia` (perawat), `kasir`.
 6. Jalankan: `php artisan serve`, lalu buka http://127.0.0.1:8000 dan masuk.
 
-Seeder menolak berjalan bila `APP_ENV` bernilai `production` dan bila sudah ada klinik di basis data.
+`DemoSeeder` menolak berjalan bila `APP_ENV` bernilai `production` dan bila sudah ada klinik di basis data.
 
 ## Hal yang berguna
 

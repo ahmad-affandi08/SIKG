@@ -250,6 +250,13 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Rekomendasi: (a)
 - Keputusan: (a), dengan penyedia DOKU.
 
+### Q-30: Impor Excel master data dan wizard penyiapan pertama (di luar PRD)
+- Kebutuhan terkait: MST-04, MST-05, PAS-08 (hanya impor pasien); M14 (kerjakan hanya yang ada di PRD)
+- Dokumen yang bertabrakan atau kurang: PRD hanya mencantumkan impor Excel untuk pasien (PAS-08). Tidak ada kebutuhan untuk impor katalog tindakan, katalog obat, dan pemasok dari Excel, maupun halaman penyiapan awal (wizard) untuk Pemilik setelah login pertama
+- Latar: data awal klinik sudah disediakan lewat seeder (`StarterDataSeeder`, M14 tidak dilanggar karena isinya MST-04, MST-05, MST-06, dan P2-08). Dua usulan berikut menambah fitur baru: (1) impor Excel dengan pratinjau dan laporan galat per baris untuk tindakan, obat, dan pemasok, memakai pola `import_batches` milik PAS-08; (2) halaman penyiapan awal bagi Pemilik (profil klinik, jam buka, dokter pertama, kursi, lalu tarif dan obat) dengan daftar periksa kemajuan
+- Opsi: (a) setujui keduanya sebagai kebutuhan baru Fase 1 berprioritas Should dan tambahkan ID di PRD; (b) setujui hanya impor Excel; (c) tidak dikerjakan, klinik mengisi lewat Data master
+- Rekomendasi: (a), karena pengisian awal tarif dan obat adalah pekerjaan manual terbesar saat klinik mulai memakai sistem
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`

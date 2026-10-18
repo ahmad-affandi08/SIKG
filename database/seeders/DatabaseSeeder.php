@@ -10,10 +10,10 @@ use Src\IdentityAccess\Infrastructure\Seeders\RolePermissionSeeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Hanya data master dan data sintetis (tanpa data pasien nyata, M12).
+     * Peran dan izin, lalu data awal untuk setiap klinik yang sudah ada (tanpa data pasien nyata, M12).
      */
     public function run(): void
     {
-        $this->call(RolePermissionSeeder::class);
+        $this->call([RolePermissionSeeder::class, StarterDataSeeder::class]);
     }
 }
