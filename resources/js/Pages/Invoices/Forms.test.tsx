@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import CashClosingForm from '@/Pages/CashClosings/Form';
 import PaymentForm from '@/Pages/Invoices/PaymentForm';
+import RefundForm from '@/Pages/Invoices/RefundForm';
 import VoidForm from '@/Pages/Invoices/VoidForm';
 
 const post = vi.fn<(...args: unknown[]) => void>();
@@ -77,6 +78,11 @@ describe('KSR-03 formulir pembayaran', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: 'Simpan pembayaran' }));
 
+    // UI-09 pembayaran meminta konfirmasi yang menyebut nominal dan metode; baru setelah itu terkirim.
+    expect(post).not.toHaveBeenCalled();
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('Pembayaran Rp 500.000 lewat');
+    await userEvent.click(screen.getByRole('button', { name: 'Ya, catat' }));
+
     expect(post).toHaveBeenCalledTimes(1);
     const [url, body, options] = post.mock.calls[0] as [
       string,
@@ -100,6 +106,29 @@ describe('KSR-03 formulir pembayaran', () => {
     const jenis = screen.getByRole('combobox', { name: /Jenis/ });
     expect(jenis).toHaveValue('dp');
     expect(screen.queryByRole('option', { name: 'Pembayaran' })).not.toBeInTheDocument();
+  });
+});
+
+describe('UI-09 konfirmasi aksi uang', () => {
+  it('pengembalian dana meminta konfirmasi dengan nominal sebelum terkirim', async () => {
+    render(<RefundForm invoice={invoice} methods={methods} idempotencyKey="kunci-refund-01" />);
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: /Dikembalikan lewat metode/ }),
+      'M1',
+    );
+    await userEvent.type(screen.getByRole('textbox', { name: /Jumlah/ }), '75000');
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /Alasan pengembalian/ }),
+      'Salah input',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Catat pengembalian' }));
+
+    expect(post).not.toHaveBeenCalled();
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('Mengembalikan Rp 75.000');
+    await userEvent.click(screen.getByRole('button', { name: 'Ya, kembalikan' }));
+
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(post.mock.calls[0]?.[1]).toMatchObject({ amount: 75000, payment_method_id: 'M1' });
   });
 });
 
@@ -132,7 +161,21 @@ describe('KSR-08 tutup kas', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Tidak ada selisih.');
 
     await userEvent.click(screen.getByRole('button', { name: 'Tutup kas' }));
+    expect(post).not.toHaveBeenCalled();
+    expect(screen.getByRole('alertdialog')).toHaveTextContent('tidak ada selisih');
+    await userEvent.click(screen.getByRole('button', { name: 'Ya, tutup kas' }));
+
     expect(post).toHaveBeenCalledTimes(1);
     expect(post.mock.calls[0]?.[1]).toEqual({ counted_amount: 200000, note: null });
+  });
+
+  it('UI-09 batal pada konfirmasi tidak mengirim apa pun', async () => {
+    render(<CashClosingForm preview={preview} />);
+    await userEvent.type(screen.getByRole('textbox', { name: /Uang tunai fisik/ }), '200000');
+    await userEvent.click(screen.getByRole('button', { name: 'Tutup kas' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Batal' }));
+
+    expect(post).not.toHaveBeenCalled();
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 });

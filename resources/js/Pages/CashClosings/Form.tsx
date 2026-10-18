@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
 import { cashClosingSchema } from '@/features/billing/schemas';
@@ -21,6 +22,7 @@ export default function Form({ preview }: Props) {
   const [values, setValues] = useState({ counted_amount: '', note: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const counted = /^\d{1,12}$/.test(values.counted_amount) ? Number(values.counted_amount) : null;
   const difference = counted === null ? null : counted - preview.system_amount;
 
@@ -36,6 +38,11 @@ export default function Form({ preview }: Props) {
       return;
     }
     setErrors({});
+    setConfirming(true);
+  }
+
+  function send() {
+    setConfirming(false);
     setSaving(true);
     router.post(
       '/cash-closings',
@@ -54,6 +61,20 @@ export default function Form({ preview }: Props) {
   return (
     <AppLayout>
       <main className="flex flex-col gap-3 p-3">
+        <ConfirmDialog
+          open={confirming}
+          title="Tutup kas sekarang?"
+          message={`Uang fisik ${formatRupiah(counted ?? 0)} dibandingkan catatan sistem ${formatRupiah(preview.system_amount)}${
+            difference === 0 || difference === null
+              ? ', tidak ada selisih'
+              : `, selisih ${difference > 0 ? 'lebih' : 'kurang'} ${formatRupiah(Math.abs(difference))}`
+          }. Penutupan kas dicatat atas nama Anda dan tidak diubah atau dihapus.`}
+          confirmLabel="Ya, tutup kas"
+          onCancel={() => {
+            setConfirming(false);
+          }}
+          onConfirm={send}
+        />
         <PageHead title="Tutup kas sekarang" />
         <PageHeader
           title="Tutup kas sekarang"

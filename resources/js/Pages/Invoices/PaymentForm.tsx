@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { MoneyField } from '@/components/ui/MoneyField';
@@ -11,6 +12,7 @@ import { InvoiceFormShell } from '@/features/billing/components/InvoiceFormShell
 import { paymentSchema } from '@/features/billing/schemas';
 import type { InvoiceHead } from '@/features/billing/schemas';
 import { collectErrors } from '@/features/scheduling/form';
+import { formatRupiah } from '@/lib/format';
 
 interface Props {
   invoice: InvoiceHead;
@@ -34,6 +36,7 @@ export default function PaymentForm({ invoice, methods, allowPay, idempotencyKey
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   function submit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,6 +46,11 @@ export default function PaymentForm({ invoice, methods, allowPay, idempotencyKey
       return;
     }
     setErrors({});
+    setConfirming(true);
+  }
+
+  function send() {
+    setConfirming(false);
     setSaving(true);
     router.post(
       `/invoices/${invoice.id}/payments`,
@@ -66,6 +74,18 @@ export default function PaymentForm({ invoice, methods, allowPay, idempotencyKey
 
   return (
     <InvoiceFormShell title="Catat pembayaran" invoice={invoice} showAmounts>
+      <ConfirmDialog
+        open={confirming}
+        title={values.type === 'dp' ? 'Catat uang muka?' : 'Catat pembayaran?'}
+        message={`${values.type === 'dp' ? 'Uang muka' : 'Pembayaran'} ${formatRupiah(Number(values.amount) || 0)} lewat ${
+          methods.find((m) => m.value === values.payment_method_id)?.label ?? 'metode terpilih'
+        } untuk tagihan ${invoice.number ?? '(draft)'}${invoice.patient_name ? ` atas nama ${invoice.patient_name}` : ''}. Pembayaran yang sudah dicatat tidak dihapus; koreksinya lewat pengembalian dana.`}
+        confirmLabel="Ya, catat"
+        onCancel={() => {
+          setConfirming(false);
+        }}
+        onConfirm={send}
+      />
       <form onSubmit={submit} noValidate aria-label="Pembayaran" className="form-grid">
         {errors.domain ? (
           <p role="alert" className="text-danger-600">

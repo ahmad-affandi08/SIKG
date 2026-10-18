@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface ConfirmActionProps {
   label: string;
@@ -11,7 +12,7 @@ interface ConfirmActionProps {
   onConfirm: () => void;
 }
 
-/** Aksi merusak atau keuangan selalu meminta konfirmasi yang menyebut akibatnya. */
+/** Aksi merusak atau keuangan selalu meminta konfirmasi (jendela di tengah layar) yang menyebut akibatnya. */
 export function ConfirmAction({
   label,
   message,
@@ -21,8 +22,8 @@ export function ConfirmAction({
 }: ConfirmActionProps) {
   const [asking, setAsking] = useState(false);
 
-  if (!asking) {
-    return (
+  return (
+    <>
       <Button
         variant="secondary"
         onClick={() => {
@@ -31,33 +32,20 @@ export function ConfirmAction({
       >
         {label}
       </Button>
-    );
-  }
-
-  return (
-    <div
-      role="alertdialog"
-      aria-label={label}
-      className="border-t-ink flex flex-wrap items-center gap-3 border-t-[3px] py-2 text-sm"
-    >
-      <span>{message}</span>
-      <Button
-        variant={variant}
-        onClick={() => {
+      <ConfirmDialog
+        open={asking}
+        title={label}
+        message={message}
+        confirmLabel={confirmLabel}
+        variant={variant === 'danger' ? 'danger' : 'primary'}
+        onCancel={() => {
+          setAsking(false);
+        }}
+        onConfirm={() => {
           setAsking(false);
           onConfirm();
         }}
-      >
-        {confirmLabel}
-      </Button>
-      <Button
-        variant="secondary"
-        onClick={() => {
-          setAsking(false);
-        }}
-      >
-        Batal
-      </Button>
-    </div>
+      />
+    </>
   );
 }

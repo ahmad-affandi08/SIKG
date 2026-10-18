@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Select } from '@/components/ui/Select';
 import { MoneyField } from '@/components/ui/MoneyField';
 import { TextField } from '@/components/ui/TextField';
@@ -10,6 +11,7 @@ import { InvoiceFormShell } from '@/features/billing/components/InvoiceFormShell
 import { refundSchema } from '@/features/billing/schemas';
 import type { InvoiceHead } from '@/features/billing/schemas';
 import { collectErrors } from '@/features/scheduling/form';
+import { formatRupiah } from '@/lib/format';
 
 interface Props {
   invoice: InvoiceHead;
@@ -22,6 +24,7 @@ export default function RefundForm({ invoice, methods, idempotencyKey }: Props) 
   const [values, setValues] = useState({ payment_method_id: '', amount: '', reason: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   function submit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,6 +34,11 @@ export default function RefundForm({ invoice, methods, idempotencyKey }: Props) 
       return;
     }
     setErrors({});
+    setConfirming(true);
+  }
+
+  function send() {
+    setConfirming(false);
     setSaving(true);
     router.post(
       `/invoices/${invoice.id}/refunds`,
@@ -49,6 +57,19 @@ export default function RefundForm({ invoice, methods, idempotencyKey }: Props) 
 
   return (
     <InvoiceFormShell title="Pengembalian dana" invoice={invoice} showAmounts>
+      <ConfirmDialog
+        open={confirming}
+        title="Kembalikan dana?"
+        variant="danger"
+        message={`Mengembalikan ${formatRupiah(Number(values.amount) || 0)} lewat ${
+          methods.find((m) => m.value === values.payment_method_id)?.label ?? 'metode terpilih'
+        } untuk tagihan ${invoice.number ?? '(draft)'}. Pengembalian dicatat sebagai transaksi pembalik dan tidak dapat dibatalkan.`}
+        confirmLabel="Ya, kembalikan"
+        onCancel={() => {
+          setConfirming(false);
+        }}
+        onConfirm={send}
+      />
       <form onSubmit={submit} noValidate aria-label="Pengembalian dana" className="form-grid">
         {errors.domain ? (
           <p role="alert" className="text-danger-600">
