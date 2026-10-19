@@ -109,6 +109,7 @@ final readonly class EloquentPatientRepository implements PatientRepository
             $p->birth_date->toDateString(),
             $p->sex,
             $p->phone_encrypted === null ? null : (PhoneNumber::tryFrom($this->pii->decrypt($p->phone_encrypted))?->masked()),
+            $p->nik_encrypted === null ? null : $this->pii->decrypt($p->nik_encrypted),
         ))->all());
     }
 

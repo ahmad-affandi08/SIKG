@@ -7,6 +7,7 @@ import { FlashMessages } from '@/components/layout/FlashMessages';
 import { LogoutButton } from '@/components/layout/LogoutButton';
 import { NotificationBell } from '@/components/layout/NotificationBell';
 import { OfflineIndicator } from '@/components/layout/OfflineIndicator';
+import { QuickPatientSearch } from '@/components/layout/QuickPatientSearch';
 import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
 import type { NavItem } from '@/components/layout/navigation';
 import { PageTitleProvider } from '@/components/layout/PageTitle';
@@ -221,7 +222,7 @@ function Shell({
         </span>
       </nav>
 
-      <div className="flex items-center gap-2 border-b border-[#8f8f8f] bg-[#ececec] px-2">
+      <div className="flex flex-wrap items-center gap-x-2 border-b border-[#8f8f8f] bg-[#ececec] px-2 py-0.5 sm:flex-nowrap">
         <nav aria-label="Jejak halaman" className="min-w-0 flex-1">
           <ol className="flex min-h-7 flex-wrap items-center gap-x-1.5 text-xs">
             {crumbs.map((crumb, index) => {
@@ -253,6 +254,7 @@ function Shell({
             })}
           </ol>
         </nav>
+        {auth.user && auth.permissions.includes('patient.view') ? <QuickPatientSearch /> : null}
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-1.5 p-1.5">

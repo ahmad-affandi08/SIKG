@@ -9,6 +9,7 @@ export const patientSummarySchema = z.object({
   birth_date: z.string(),
   sex: z.string(),
   phone: z.string().nullable(),
+  nik: z.string().nullable().optional(),
 });
 
 export type PatientSummary = z.infer<typeof patientSummarySchema>;

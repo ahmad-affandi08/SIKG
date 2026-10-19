@@ -166,13 +166,13 @@ it('PAS-02 mencari lewat nama, nomor RM, NIK, dan nomor HP', function () {
         ->and($cari('tidak ada'))->toBe([]);
 });
 
-it('PAS-02 hasil pencarian tidak memuat NIK dan nomor HP tersamar', function () {
+it('PAS-02 hasil pencarian memuat NIK penuh dan nomor HP tersamar', function () {
     $user = makeUser(Role::Resepsionis);
     daftarkan($this, $user);
 
     $hasil = $this->actingAs($user)->postJson('/internal-api/patients/search', ['q' => 'budi'])->json('data.0');
 
-    expect($hasil)->not->toHaveKey('nik')->and($hasil['phone'])->toBe('0812***6789');
+    expect($hasil['nik'])->toBe('9999010101900001')->and($hasil['phone'])->toBe('0812***6789');
 });
 
 it('PAS-02 pencarian dibatasi 20 hasil dan wildcard dicari apa adanya', function () {
