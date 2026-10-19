@@ -20,6 +20,7 @@ use Src\Shared\Application\Clock;
 use Src\Shared\Application\ResourceLock;
 use Src\Shared\Application\TenantContext;
 use Src\Shared\Application\Transaction;
+use Src\Shared\Domain\Brand;
 use Src\Shared\Domain\IdGenerator;
 use Throwable;
 
@@ -90,7 +91,7 @@ final readonly class OnlinePayments
             }
 
             $id = $this->ids->generate();
-            $intent = new PaymentIntent($id, $invoiceId, 'SIKG-'.$id, $value, IntentStatus::Pending, null, null, $now->add(new DateInterval('PT'.$settings->expiryMinutes.'M')), null, null, null, $actorId);
+            $intent = new PaymentIntent($id, $invoiceId, Brand::NAME.'-'.$id, $value, IntentStatus::Pending, null, null, $now->add(new DateInterval('PT'.$settings->expiryMinutes.'M')), null, null, null, $actorId);
             $this->intents->add($intent, $actorId);
             $this->audit->record(new AuditEntry($actorId, 'online_payment.started', 'invoice', $invoiceId, null, ['intent_id' => $id, 'amount' => $value]));
 

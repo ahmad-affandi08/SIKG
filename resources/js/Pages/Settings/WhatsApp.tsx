@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
 import { missingRequired, whatsappSettingsSchema } from '@/features/reminders/whatsapp';
 import type { ProviderValue, WhatsAppSettingsValues } from '@/features/reminders/whatsapp';
+import { BRAND } from '@/lib/brand';
 
 interface Provider {
   value: ProviderValue;
@@ -153,9 +154,9 @@ export default function WhatsApp({ providers, settings }: Props) {
           {current && !current.official && current.value !== 'link' ? (
             <Alert tone="warning">
               Penyedia tidak resmi melanggar ketentuan layanan WhatsApp: nomor klinik dapat diblokir
-              kapan saja, dan isi pesan melewati server pihak ketiga. Pesan SIKG tidak memuat
-              diagnosa atau NIK, tetapi pengingat memuat nama depan, tanggal, jam, dan nama dokter.
-              Untuk kepatuhan penuh pakai WhatsApp Resmi.
+              kapan saja, dan isi pesan melewati server pihak ketiga. Pesan {BRAND.name} tidak
+              memuat diagnosa atau NIK, tetapi pengingat memuat nama depan, tanggal, jam, dan nama
+              dokter. Untuk kepatuhan penuh pakai WhatsApp Resmi.
             </Alert>
           ) : null}
 
