@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
+use Src\Clinic\Contracts\LoginBranding;
 use Src\IdentityAccess\Application\Login\TwoFactorChallenge;
 use Src\IdentityAccess\Domain\InvalidCredentials;
 use Src\IdentityAccess\Domain\TooManyLoginAttempts;
@@ -24,9 +25,9 @@ final class TwoFactorLoginController
 
     private const VALID_SECONDS = 300;
 
-    public function show(Request $request): Response|RedirectResponse
+    public function show(Request $request, LoginBranding $branding): Response|RedirectResponse
     {
-        return $this->pendingUser($request) === null ? $this->expired($request) : Inertia::render('Auth/TwoFactor');
+        return $this->pendingUser($request) === null ? $this->expired($request) : Inertia::render('Auth/TwoFactor', ['brand' => LoginController::brandProps($branding)]);
     }
 
     public function store(TwoFactorLoginRequest $request, TwoFactorChallenge $challenge): RedirectResponse

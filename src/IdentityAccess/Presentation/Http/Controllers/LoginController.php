@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
+use Src\Clinic\Contracts\LoginBranding;
 use Src\IdentityAccess\Application\Login\LoginCommand;
 use Src\IdentityAccess\Application\Login\LoginHandler;
 use Src\IdentityAccess\Domain\InvalidCredentials;
@@ -18,9 +19,20 @@ use Src\Shared\Application\RequiredFields;
 
 final class LoginController
 {
-    public function show(Request $request): Response
+    public function show(Request $request, LoginBranding $branding): Response
     {
-        return Inertia::render('Auth/Login', ['required' => RequiredFields::from(LoginRequest::createFrom($request)->rules())]);
+        return Inertia::render('Auth/Login', [
+            'required' => RequiredFields::from(LoginRequest::createFrom($request)->rules()),
+            'brand' => self::brandProps($branding),
+        ]);
+    }
+
+    /** @return array{name: string, logoUrl: string|null}|null */
+    public static function brandProps(LoginBranding $branding): ?array
+    {
+        $brand = $branding->brand();
+
+        return $brand === null ? null : ['name' => $brand->name, 'logoUrl' => $brand->logoVersion === null ? null : '/brand/logo?v='.$brand->logoVersion];
     }
 
     public function store(LoginRequest $request, LoginHandler $handler): RedirectResponse

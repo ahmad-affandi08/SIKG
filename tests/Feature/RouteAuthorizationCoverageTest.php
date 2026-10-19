@@ -15,6 +15,7 @@ const ROUTE_PUBLIK = [
     '/' => '*',
     '/login' => ['GET', 'POST'],
     '/login/two-factor' => ['GET', 'POST'], // AUTH-05: hanya berlaku dengan ID pengguna tertunda di sesi setelah kata sandi benar
+    '/brand/logo' => ['GET'], // hanya logo klinik untuk halaman masuk, dibatasi throttle; 404 bila klinik tidak tunggal
     '/up' => ['GET'],
     '/health' => ['GET'], // dilindungi token X-Health-Token, bukan sesi (SYS-07)
     // P3-01: booking online oleh pasien. Klinik ditentukan dari {slug} (404 bila booking mati), semua dibatasi throttle, dan tidak ada

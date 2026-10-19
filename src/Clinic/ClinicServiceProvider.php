@@ -18,6 +18,7 @@ use Src\Clinic\Contracts\DoctorDirectory;
 use Src\Clinic\Contracts\DocumentTemplateCatalog;
 use Src\Clinic\Contracts\InvoiceNumbering;
 use Src\Clinic\Contracts\LetterheadProvider;
+use Src\Clinic\Contracts\LoginBranding;
 use Src\Clinic\Contracts\MedicalRecordNumbering;
 use Src\Clinic\Contracts\PaymentMethodCatalog;
 use Src\Clinic\Contracts\ProcedureCatalog;
@@ -40,6 +41,7 @@ use Src\Clinic\Infrastructure\EloquentDoctorAdministration;
 use Src\Clinic\Infrastructure\EloquentDoctorDirectory;
 use Src\Clinic\Infrastructure\EloquentDocumentTemplateCatalog;
 use Src\Clinic\Infrastructure\EloquentLetterheadProvider;
+use Src\Clinic\Infrastructure\EloquentLoginBranding;
 use Src\Clinic\Infrastructure\EloquentPaymentMethodCatalog;
 use Src\Clinic\Infrastructure\EloquentProcedureCatalog;
 use Src\Clinic\Infrastructure\EloquentToothConditionCatalog;
@@ -66,6 +68,7 @@ final class ClinicServiceProvider extends ServiceProvider
         $this->app->singleton(ClinicSettingsService::class, EloquentClinicSettingsService::class);
         $this->app->singleton(DoctorDirectory::class, EloquentDoctorDirectory::class);
         $this->app->singleton(LetterheadProvider::class, EloquentLetterheadProvider::class);
+        $this->app->singleton(LoginBranding::class, EloquentLoginBranding::class);
         $this->app->singleton(StaffDestinations::class, ClinicStaffDestinations::class);
         $this->app->singleton(ReminderSettings::class, ClinicReminderSettings::class);
         $this->app->singleton(ChairDirectory::class, EloquentChairDirectory::class);
@@ -103,5 +106,9 @@ final class ClinicServiceProvider extends ServiceProvider
 
         Route::middleware(['web', 'auth'])
             ->group(__DIR__.'/Presentation/routes.php');
+
+        // Logo untuk halaman masuk: tanpa login.
+        Route::middleware(['web'])
+            ->group(__DIR__.'/Presentation/routes-public.php');
     }
 }

@@ -4,10 +4,11 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
+import { AuthBrand, type AuthBrandData } from '@/features/identityAccess/components/AuthBrand';
 import { twoFactorCodeSchema } from '@/features/identityAccess/schemas';
 
 /** AUTH-05: langkah kedua masuk. Menerima kode 6 digit dari autentikator atau satu kode pemulihan. */
-export default function TwoFactor() {
+export default function TwoFactor({ brand }: { brand?: AuthBrandData | null }) {
   const form = useForm({ code: '' });
   const [clientError, setClientError] = useState<string | null>(null);
 
@@ -34,6 +35,7 @@ export default function TwoFactor() {
           <span>SIKG - Sistem Informasi Klinik Gigi</span>
         </div>
         <div className="flex flex-col gap-3 p-4">
+          <AuthBrand brand={brand} />
           <header>
             <h1>Verifikasi dua langkah</h1>
             <p className="text-muted mt-1">

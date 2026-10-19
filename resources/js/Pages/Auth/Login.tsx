@@ -1,10 +1,11 @@
 import { Head, useForm } from '@inertiajs/react';
 
+import { AuthBrand, type AuthBrandData } from '@/features/identityAccess/components/AuthBrand';
 import { RequiredProvider } from '@/lib/useRequired';
 import { LoginForm } from '@/features/identityAccess/components/LoginForm';
 import type { LoginValues } from '@/features/identityAccess/schemas';
 
-export default function Login() {
+export default function Login({ brand }: { brand?: AuthBrandData | null }) {
   const form = useForm<LoginValues>({ identifier: '', password: '' });
 
   function submit(values: LoginValues) {
@@ -33,6 +34,7 @@ export default function Login() {
           <span>SIKG - Sistem Informasi Klinik Gigi</span>
         </div>
         <div className="flex flex-col gap-3 p-4">
+          <AuthBrand brand={brand} />
           <header>
             <h1>Masuk</h1>
             <p className="text-muted mt-1">Gunakan email atau nama pengguna Anda.</p>
