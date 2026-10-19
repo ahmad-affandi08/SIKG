@@ -7,8 +7,6 @@ import {
   procedureEntrySchema,
   temperatureToTenths,
   tenthsToTemperature,
-  tenthsToWeight,
-  weightToTenths,
 } from './schemas';
 
 const anamnesis = {
@@ -18,10 +16,6 @@ const anamnesis = {
   diastolic: '80',
   pulse: '78',
   temperature: '36.8',
-  respiratory_rate: '',
-  oxygen_saturation: '',
-  weight: '',
-  height: '',
 };
 
 function messages(result: {
@@ -41,10 +35,6 @@ describe('RM-02 anamnesis', () => {
         diastolic: '',
         pulse: '',
         temperature: '',
-        respiratory_rate: '',
-        oxygen_saturation: '',
-        weight: '',
-        height: '',
       }).success,
     ).toBe(true);
   });
@@ -78,45 +68,6 @@ describe('RM-02 anamnesis', () => {
     expect(Number.isNaN(temperatureToTenths('abc'))).toBe(true);
     expect(tenthsToTemperature(368)).toBe('36.8');
     expect(tenthsToTemperature(null)).toBe('');
-  });
-});
-
-describe('KLU-04 tanda vital lengkap', () => {
-  const lengkap = {
-    ...anamnesis,
-    respiratory_rate: '20',
-    oxygen_saturation: '98',
-    weight: '65.2',
-    height: '170',
-  };
-
-  it('menerima laju napas, saturasi, berat, dan tinggi badan yang wajar', () => {
-    expect(anamnesisSchema.safeParse(lengkap).success).toBe(true);
-  });
-
-  it('menolak nilai di luar rentang atau bukan angka', () => {
-    expect(
-      messages(anamnesisSchema.safeParse({ ...lengkap, oxygen_saturation: '101' })).join(),
-    ).toContain('Saturasi oksigen di luar rentang');
-    expect(
-      messages(anamnesisSchema.safeParse({ ...lengkap, respiratory_rate: '2' })).join(),
-    ).toContain('Laju napas di luar rentang');
-    expect(messages(anamnesisSchema.safeParse({ ...lengkap, height: '300' })).join()).toContain(
-      'Tinggi badan di luar rentang',
-    );
-    expect(messages(anamnesisSchema.safeParse({ ...lengkap, weight: 'abc' })).join()).toContain(
-      'Berat badan tidak wajar',
-    );
-  });
-
-  it('berat badan dikonversi ke persepuluh kilogram tanpa bilangan pecahan', () => {
-    expect(weightToTenths('65.2')).toBe(652);
-    expect(weightToTenths('65,2')).toBe(652);
-    expect(weightToTenths('7')).toBe(70);
-    expect(weightToTenths('')).toBeNull();
-    expect(Number.isNaN(weightToTenths('65.25'))).toBe(true);
-    expect(tenthsToWeight(652)).toBe('65.2');
-    expect(tenthsToWeight(null)).toBe('');
   });
 });
 

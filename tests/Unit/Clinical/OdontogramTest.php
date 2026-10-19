@@ -96,27 +96,10 @@ it('RM-05 sasaran tindakan per permukaan mengurutkan dan membuang duplikat', fun
 });
 
 it('RM-02 tanda vital: rentang, pasangan tekanan darah, dan suhu dalam persepuluh derajat', function () {
-    expect((new Vitals(120, 80, 70, 368))->toArray())->toBe([
-        'systolic' => 120, 'diastolic' => 80, 'pulse' => 70, 'temperature_tenths' => 368,
-        'respiratory_rate' => null, 'oxygen_saturation' => null, 'weight_tenths_kg' => null, 'height_cm' => null,
-    ]);
+    expect((new Vitals(120, 80, 70, 368))->toArray())->toBe(['systolic' => 120, 'diastolic' => 80, 'pulse' => 70, 'temperature_tenths' => 368]);
     expect(fn () => new Vitals(120, null))->toThrow(InvalidClinicalData::class)
         ->and(fn () => new Vitals(80, 120))->toThrow(InvalidClinicalData::class)
         ->and(fn () => new Vitals(null, null, 400))->toThrow(InvalidClinicalData::class)
         ->and(fn () => new Vitals(null, null, null, 290))->toThrow(InvalidClinicalData::class);
-    expect(Vitals::fromArray(null)->toArray())->toBe([
-        'systolic' => null, 'diastolic' => null, 'pulse' => null, 'temperature_tenths' => null,
-        'respiratory_rate' => null, 'oxygen_saturation' => null, 'weight_tenths_kg' => null, 'height_cm' => null,
-    ]);
-});
-
-it('KLU-04 tanda vital lengkap: napas, saturasi, berat dalam persepuluh kilogram, tinggi, dan rentangnya', function () {
-    $v = new Vitals(110, 70, 96, 385, 22, 97, 652, 168);
-
-    expect($v->toArray()['weight_tenths_kg'])->toBe(652)->and(Vitals::fromArray($v->toArray()))->toEqual($v)
-        ->and(fn () => new Vitals(respiratoryRate: 3))->toThrow(InvalidClinicalData::class)
-        ->and(fn () => new Vitals(oxygenSaturation: 101))->toThrow(InvalidClinicalData::class)
-        ->and(fn () => new Vitals(weightTenthsKg: 4))->toThrow(InvalidClinicalData::class)
-        ->and(fn () => new Vitals(heightCm: 19))->toThrow(InvalidClinicalData::class)
-        ->and(Vitals::fromArray(['systolic' => 120, 'diastolic' => 80])->weightTenthsKg)->toBeNull();
+    expect(Vitals::fromArray(null)->toArray())->toBe(['systolic' => null, 'diastolic' => null, 'pulse' => null, 'temperature_tenths' => null]);
 });
