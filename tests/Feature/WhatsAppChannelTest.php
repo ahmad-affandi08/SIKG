@@ -159,7 +159,7 @@ it('SYS-05 pesan uji lewat Fonnte mengirim teks dengan token di header dan nomor
 
     Http::assertSentCount(1);
     Http::assertSent(fn (Request $r) => $r->url() === 'https://api.fonnte.com/send' && $r->hasHeader('Authorization', 'TOKEN-FONNTE')
-        && $r['target'] === '6281234567890' && str_contains((string) $r['message'], 'Pesan uji dari pengaturan WhatsApp SIKG'));
+        && $r['target'] === '6281234567890' && str_contains((string) $r['message'], 'Pesan uji dari pengaturan WhatsApp SIKLIN'));
     expect(json_encode(DB::table('audit_logs')->where('action', 'whatsapp.test_sent')->get()))->not->toContain('81234567890')->not->toContain('TOKEN-FONNTE');
 });
 
@@ -208,7 +208,7 @@ it('SYS-05 pesan uji WhatsApp Resmi memakai templat staf dengan dua parameter', 
 
     Http::assertSent(fn (Request $r) => str_contains($r->url(), '/109876/messages') && $r->hasHeader('Authorization', 'Bearer token-meta')
         && $r['to'] === '6281234567890' && $r['template']['name'] === 'notifikasi_staf'
-        && array_column($r['template']['components'][0]['parameters'], 'text')[0] === 'Uji SIKG');
+        && array_column($r['template']['components'][0]['parameters'], 'text')[0] === 'Uji SIKLIN');
 
     simpanWa(['provider' => 'meta', 'phone_number_id' => '109876', 'staff_template' => ''])->assertSessionHasNoErrors();
     $this->post('/settings/whatsapp/test', ['phone' => '081234567890'])->assertSessionHas('error', fn ($m) => str_contains($m, 'templat'));
@@ -247,7 +247,7 @@ it('SYS-05 pemberitahuan staf lewat penyedia tidak resmi berupa teks, lewat What
     simpanWa(['provider' => 'fonnte', 'token' => 'tk'])->assertSessionHasNoErrors();
     fakeHttp(['api.fonnte.com/*' => Http::response(['status' => true])]);
     expect($staf->configured())->toBeTrue()->and($staf->send('628123456789', 'Stok menipis', '3 obat di bawah minimum'))->toBeTrue();
-    Http::assertSent(fn (Request $r) => $r['target'] === '628123456789' && $r['message'] === "[SIKG] Stok menipis\n3 obat di bawah minimum");
+    Http::assertSent(fn (Request $r) => $r['target'] === '628123456789' && $r['message'] === "[SIKLIN] Stok menipis\n3 obat di bawah minimum");
 
     simpanWa(['provider' => 'meta', 'phone_number_id' => '1', 'token' => 'tk'])->assertSessionHasNoErrors();
     expect($staf->configured())->toBeFalse();
