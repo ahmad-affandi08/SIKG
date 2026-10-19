@@ -6,12 +6,13 @@ namespace Src\Clinic\Domain;
 
 use InvalidArgumentException;
 use Src\Shared\Domain\NumberPattern;
+use Src\Shared\Domain\ServiceProfile;
 use Src\Shared\Domain\WhatsAppNumber;
 
 /**
  * Pengaturan klinik (SYS-04, AUTH-04, KSR-02): format nomor RM dan invoice, jam operasional per hari, batas sesi tidak aktif,
  * batas diskon per peran (persen bulat), tarif pajak tagihan (KSR-09, persen bulat, bawaan 0), serta tujuan notifikasi (SYS-05,
- * JDW-07): nomor WhatsApp staf dan sakelar pengingat janji untuk pasien.
+ * JDW-07): nomor WhatsApp staf dan sakelar pengingat janji untuk pasien, serta profil layanan klinik (KLU-01).
  * Zona waktu disimpan di kolom `clinics.timezone`. Hari: 1 = Senin sampai 7 = Minggu.
  */
 final readonly class ClinicSettings
@@ -39,6 +40,7 @@ final readonly class ClinicSettings
         public int $taxPercent = 0,
         public array $notifyWhatsapp = [],
         public bool $remindersEnabled = true,
+        public ServiceProfile $serviceProfile = ServiceProfile::Dental,
     ) {
         if (count($notifyWhatsapp) > self::MAX_NOTIFY_NUMBERS) {
             throw new InvalidArgumentException('Nomor WhatsApp staf maksimal '.self::MAX_NOTIFY_NUMBERS.'.');
@@ -141,6 +143,15 @@ final readonly class ClinicSettings
             taxPercent: isset($data['tax_percent']) ? (int) $data['tax_percent'] : $defaults->taxPercent,
             notifyWhatsapp: isset($data['notify_whatsapp']) && is_array($data['notify_whatsapp']) ? array_values(array_map('strval', $data['notify_whatsapp'])) : [],
             remindersEnabled: ! isset($data['reminders_enabled']) || (bool) $data['reminders_enabled'],
+            serviceProfile: isset($data['service_profile']) ? (ServiceProfile::tryFrom((string) $data['service_profile']) ?? ServiceProfile::default()) : ServiceProfile::default(),
+        );
+    }
+
+    public function withServiceProfile(ServiceProfile $profile): self
+    {
+        return new self(
+            $this->sessionTimeoutMinutes, $this->medicalRecordPattern, $this->invoicePattern, $this->operatingHours,
+            $this->discountLimits, $this->taxPercent, $this->notifyWhatsapp, $this->remindersEnabled, $profile,
         );
     }
 
@@ -158,6 +169,7 @@ final readonly class ClinicSettings
             'tax_percent' => $this->taxPercent,
             'notify_whatsapp' => $this->notifyWhatsapp,
             'reminders_enabled' => $this->remindersEnabled,
+            'service_profile' => $this->serviceProfile->value,
         ];
     }
 

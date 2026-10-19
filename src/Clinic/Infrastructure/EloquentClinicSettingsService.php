@@ -15,6 +15,7 @@ use Src\Shared\Application\AuditEntry;
 use Src\Shared\Application\AuditLogger;
 use Src\Shared\Application\Clock;
 use Src\Shared\Application\Transaction;
+use Src\Shared\Domain\ServiceProfile;
 
 final readonly class EloquentClinicSettingsService implements ClinicSettingsService
 {
@@ -48,6 +49,8 @@ final readonly class EloquentClinicSettingsService implements ClinicSettingsServ
         $this->tx->run(function () use ($actorId, $timezone, $settings): void {
             $clinic = ClinicModel::query()->lockForUpdate()->firstOrFail();
             $before = ['timezone' => $clinic->timezone, 'settings' => $clinic->clinicSettings()->toArray()];
+            // Profil layanan hanya berubah lewat changeServiceProfile(); formulir pengaturan umum tidak boleh menimpanya.
+            $settings = $settings->withServiceProfile($clinic->clinicSettings()->serviceProfile);
 
             $clinic->forceFill(['timezone' => $timezone, 'settings' => $settings->toArray(), 'updated_by' => $actorId])->save();
 
@@ -58,6 +61,28 @@ final readonly class EloquentClinicSettingsService implements ClinicSettingsServ
                 subjectId: $clinic->id,
                 before: $before,
                 after: ['timezone' => $timezone, 'settings' => $settings->toArray()],
+            ));
+        });
+    }
+
+    public function changeServiceProfile(string $actorId, ServiceProfile $profile): void
+    {
+        $this->tx->run(function () use ($actorId, $profile): void {
+            $clinic = ClinicModel::query()->lockForUpdate()->firstOrFail();
+            $current = $clinic->clinicSettings();
+            if ($current->serviceProfile === $profile) {
+                return;
+            }
+
+            $clinic->forceFill(['settings' => $current->withServiceProfile($profile)->toArray(), 'updated_by' => $actorId])->save();
+
+            $this->audit->record(new AuditEntry(
+                actorId: $actorId,
+                action: 'clinic.service_profile_changed',
+                subjectType: 'clinic',
+                subjectId: $clinic->id,
+                before: ['service_profile' => $current->serviceProfile->value],
+                after: ['service_profile' => $profile->value],
             ));
         });
     }
