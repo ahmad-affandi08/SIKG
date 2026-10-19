@@ -268,6 +268,15 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Rekomendasi: (a)
 - Keputusan: belum ada persetujuan tertulis pengguna untuk ID MST-11; dikerjakan atas permintaan langsung pengguna di sesi ini. PRD terlindungi, jadi pengguna perlu menambahkan MST-09, MST-10, dan MST-11 lalu memperbarui segel checksum sesuai README.
 
+### Q-32: Saluran WhatsApp terpadu menggantikan email dan Telegram (menyimpang dari PRD dan ADR-0010)
+- Kebutuhan terkait: SYS-04, SYS-05, JDW-07, P2-03, P3-01; M13, M14, M20
+- Dokumen yang bertabrakan atau kurang: PRD SYS-05 hanya menyebut "notifikasi dalam aplikasi"; penerusan notifikasi staf ke email dan Telegram datang dari ADR-0010 (permintaan pengguna sebelumnya), bukan dari PRD. PRD JDW-07 Fase 2 menyebut "penyedia WhatsApp API" dan PRD 13 menyebut peringatan teknis lewat "email atau WhatsApp". Pengguna kini meminta email dan Telegram dihapus dan semua pengiriman lewat WhatsApp, dengan pilihan penyedia di antarmuka: WhatsApp Resmi dan penyedia tidak resmi (Fonnte, Wablas, WAHA).
+- Yang dikerjakan: lihat ADR-0013. Penyimpangan dari PRD: (1) penyedia tidak resmi bukan "WhatsApp Business API"; (2) pemberitahuan staf diteruskan ke WhatsApp; (3) kode verifikasi booking (P3-01) dan pengingat pasien dapat berjalan lewat penyedia tidak resmi.
+- Hal yang perlu diketahui pengguna: (1) penyedia tidak resmi melanggar ketentuan layanan WhatsApp dan berisiko pemblokiran nomor klinik; antarmuka memberi peringatan; (2) kode verifikasi booking lewat penyedia tidak resmi bergantung pada nomor yang dapat diblokir, sehingga verifikasi bisa berhenti sewaktu-waktu (booking lalu menunggu konfirmasi staf); (3) kredensial tersimpan terenkripsi di basis data (seperti SATUSEHAT), bukan di lingkungan; (4) klien Fonnte, Wablas, dan WAHA belum diuji dengan akun nyata; (5) kunci `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`, `SIKG_ALERT_EMAIL`, dan `MAIL_*` pada `.env.example` sudah tidak dipakai dan boleh dihapus; berkas itu tidak dapat saya baca atau sunting di sesi ini (izin ditolak), jadi pembersihannya tertunda; (6) teks PRD 13 yang menyebut "email atau WhatsApp" dan JDW-07 perlu diselaraskan oleh pengguna, lalu segel checksum dihitung ulang sesuai README.
+- Opsi: (a) pertahankan keputusan di atas; (b) batasi hanya pada WhatsApp Resmi
+- Rekomendasi: (a), dengan WhatsApp Resmi bagi klinik yang mengutamakan kepatuhan
+- Keputusan: (a), diminta langsung oleh pengguna di sesi ini.
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`
