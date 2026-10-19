@@ -89,7 +89,7 @@ function Shell({
 }) {
   const { auth, clinic, branch } = usePage().props;
   const { url } = usePage();
-  const visible = visibleNavItems(navItems, auth.permissions, clinic?.dental ?? true);
+  const visible = visibleNavItems(navItems, auth.permissions);
   const entries = toEntries(visible);
   const crumbs = buildCrumbs(url, visible, pageTitle);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
