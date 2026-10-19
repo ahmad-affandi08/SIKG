@@ -26,46 +26,46 @@
 }
 
 /*
- * Token desain (docs/rules/frontend.md bagian 6). Gaya aplikasi desktop klasik: padat, panel berbingkai, tombol dan
- * tab bergradasi halus, biru sebagai warna pilihan. Ukuran teks Tailwind diperkecil agar seluruh halaman rapat.
+ * Token desain (docs/rules/frontend.md bagian 6). Gaya modern bersih namun tetap rapat: latar abu sangat muda, panel putih
+ * bersudut membulat dengan bayangan tipis, tombol datar, biru-teal sebagai warna pilihan.
  */
 @theme {
   --font-sans: 'Schibsted Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-  --text-xs: 0.6875rem;
-  --text-xs--line-height: 1.25;
-  --text-sm: 0.75rem;
-  --text-sm--line-height: 1.35;
-  --text-base: 0.8125rem;
-  --text-base--line-height: 1.4;
-  --text-lg: 0.9375rem;
-  --text-lg--line-height: 1.35;
-  --text-xl: 1.0625rem;
-  --text-xl--line-height: 1.3;
-  --text-2xl: 1.25rem;
-  --text-2xl--line-height: 1.25;
-  --text-3xl: 1.5rem;
-  --text-3xl--line-height: 1.2;
-  --color-ink: #1a1a1a;
-  --color-muted: #555555;
-  --color-chrome: #d9dce1;
-  --color-chrome-100: #f3f3f3;
-  --color-line: #9a9a9a;
-  --color-line-soft: #d5d5d5;
-  --color-brand-50: #eaf2fb;
-  --color-brand-100: #dbe8f6;
-  --color-brand-200: #b9d3ee;
-  --color-brand-500: #3b82c4;
-  --color-brand-600: #2f6db3;
-  --color-brand-700: #245a96;
-  --color-brand-800: #1b4a7d;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.3;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.4;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.45;
+  --text-lg: 1rem;
+  --text-lg--line-height: 1.4;
+  --text-xl: 1.125rem;
+  --text-xl--line-height: 1.35;
+  --text-2xl: 1.375rem;
+  --text-2xl--line-height: 1.3;
+  --text-3xl: 1.625rem;
+  --text-3xl--line-height: 1.25;
+  --color-ink: #17212b;
+  --color-muted: #5b6672;
+  --color-chrome: #f3f5f7;
+  --color-chrome-100: #f8fafb;
+  --color-line: #c9d1d9;
+  --color-line-soft: #e3e8ed;
+  --color-brand-50: #edf7f9;
+  --color-brand-100: #d7eef2;
+  --color-brand-200: #acdde5;
+  --color-brand-500: #159db3;
+  --color-brand-600: #0b8499;
+  --color-brand-700: #086a7c;
+  --color-brand-800: #07525f;
   --color-signal: #c0262d;
   --color-signal-700: #a31f25;
   --color-danger-600: #b3261e;
   --color-warning-500: #d9a000;
   --color-success-600: #1d7a46;
-  --radius-control: 2px;
-  --radius-card: 2px;
-  --spacing-touch: 1.75rem;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --spacing-touch: 2rem;
 }
 
 /* Layar sentuh (tablet): target minimal 44 px (docs/rules/frontend.md bagian 6). */
@@ -86,15 +86,15 @@
     height: 100%;
     background: var(--color-chrome);
     color: var(--color-ink);
-    font-size: 0.75rem;
-    line-height: 1.35;
+    font-size: 0.8125rem;
+    line-height: 1.4;
   }
   #app {
     height: 100%;
   }
   h1 {
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.125rem;
     line-height: 1.3;
   }
   h2,
@@ -114,7 +114,7 @@
   }
   * {
     scrollbar-width: thin;
-    scrollbar-color: #b0b0b0 transparent;
+    scrollbar-color: #c3cad1 transparent;
   }
 }
 
@@ -129,25 +129,30 @@
     background-repeat: no-repeat;
   }
 
-  /* Panel: kotak putih berbingkai tegas. */
+  /* Panel: kotak putih bersudut membulat dengan bayangan tipis. */
   .card,
   .pane {
     background: #fff;
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--color-line-soft);
+    border-radius: var(--radius-card);
+    box-shadow: 0 1px 2px rgb(16 24 40 / 0.05);
   }
 
-  /* Kepala panel dan judul bagian: bar bergradasi abu-abu. */
+  /* Kepala panel dan judul bagian: bar tipis dengan garis bawah. */
   .pane-head,
   .section-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    background: linear-gradient(#f8f8f8, #dcdcdc);
-    border-bottom: 1px solid var(--color-line);
-    font-size: 0.75rem;
-    font-weight: 700;
+    padding: 0.5rem 0.875rem;
+    background: var(--color-chrome-100);
+    border-bottom: 1px solid var(--color-line-soft);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  .pane > .pane-head:first-child {
+    border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0;
   }
   .eyebrow {
     font-size: 0.6875rem;
@@ -163,202 +168,211 @@
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
-    padding-inline: 0.75rem;
-    border: 1px solid #8f8f8f;
+    padding-inline: 0.875rem;
+    border: 1px solid transparent;
     border-radius: var(--radius-control);
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.8125rem;
+    font-weight: 600;
     line-height: 1.1rem;
     white-space: nowrap;
+    transition:
+      background-color 120ms,
+      border-color 120ms,
+      box-shadow 120ms;
   }
   .btn:active:not(:disabled) {
-    box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.25);
+    transform: translateY(0.5px);
   }
   .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
   .btn-secondary {
-    background: linear-gradient(#ffffff, #e4e4e4);
+    background: #fff;
+    border-color: var(--color-line);
     color: var(--color-ink);
+    box-shadow: 0 1px 1px rgb(16 24 40 / 0.04);
   }
   .btn-secondary:hover:not(:disabled) {
-    background: linear-gradient(#ffffff, #d8e6f6);
-    border-color: var(--color-brand-600);
+    background: var(--color-chrome-100);
+    border-color: #aeb8c2;
   }
   .btn-secondary[aria-pressed='true'],
   .btn-secondary[aria-current='page'] {
-    background: linear-gradient(#cfe1f7, #b9d3ee);
-    border-color: var(--color-brand-700);
-    font-weight: 700;
+    background: var(--color-brand-50);
+    border-color: var(--color-brand-600);
+    color: var(--color-brand-800);
   }
   .btn-primary {
-    background: linear-gradient(#3b82c4, #1f5fa0);
-    border-color: #164c82;
+    background: var(--color-brand-700);
     color: #fff;
+    box-shadow: 0 1px 2px rgb(7 82 95 / 0.25);
   }
   .btn-primary:hover:not(:disabled) {
-    background: linear-gradient(#4a90d2, #2a6cae);
+    background: var(--color-brand-800);
   }
   .btn-danger {
-    background: linear-gradient(#cf4a4a, #a82424);
-    border-color: #7d1a1a;
+    background: var(--color-danger-600);
     color: #fff;
   }
   .btn-danger:hover:not(:disabled) {
-    background: linear-gradient(#db5a5a, #b83030);
+    background: #8f1d17;
   }
 
-  /* Kolom isian berbingkai. */
+  /* Kolom isian. */
   .field {
     min-height: var(--spacing-touch);
-    padding-inline: 0.4rem;
-    border: 1px solid #8a8a8a;
+    padding-inline: 0.625rem;
+    border: 1px solid var(--color-line);
     border-radius: var(--radius-control);
     background: #fff;
     color: var(--color-ink);
-    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.08);
   }
   .field:hover {
-    border-color: #5f5f5f;
+    border-color: #9aa6b2;
   }
   .field:focus {
     border-color: var(--color-brand-600);
-    outline: 2px solid var(--color-brand-200);
+    outline: 3px solid rgb(11 132 153 / 0.2);
     outline-offset: 0;
   }
   .field[aria-invalid='true'] {
     border-color: var(--color-danger-600);
-    background: #fff5f4;
+    background: #fff6f5;
   }
   .field:disabled {
-    background: #ececec;
-    color: #777;
+    background: var(--color-chrome);
+    color: #7a8590;
   }
   .field::placeholder {
-    color: #8a8a8a;
+    color: #8793a0;
   }
 
-  /* Menubar teks di atas dan isi menu turunnya. */
+  /* Menu atas dan isi menu turunnya. */
   .menubar-item {
     display: inline-flex;
     min-height: var(--spacing-touch);
     align-items: center;
-    padding-inline: 0.625rem;
+    padding-inline: 0.75rem;
     border: 1px solid transparent;
-    font-size: 0.75rem;
+    border-radius: var(--radius-control);
+    font-size: 0.8125rem;
+    font-weight: 500;
     color: var(--color-ink);
     white-space: nowrap;
   }
   .menubar-item:hover,
   .menubar-item[aria-expanded='true'] {
-    background: linear-gradient(#ffffff, #cfe1f7);
-    border-color: var(--color-brand-600);
+    background: var(--color-chrome);
   }
   .menubar-item[aria-current='page'],
   .menubar-item[data-active='true'] {
+    background: var(--color-brand-50);
+    color: var(--color-brand-800);
     font-weight: 700;
   }
   .menu-link {
     display: block;
     min-height: var(--spacing-touch);
-    padding: 0.3rem 1.25rem 0.3rem 0.75rem;
-    font-size: 0.75rem;
+    margin-inline: 0.25rem;
+    padding: 0.4rem 1.25rem 0.4rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
     line-height: 1.1rem;
     white-space: nowrap;
   }
   .menu-link:hover,
   .menu-link:focus-visible {
-    background: var(--color-brand-600);
-    color: #fff;
+    background: var(--color-brand-50);
+    color: var(--color-brand-800);
     outline: none;
   }
   .menu-link[aria-current='page'] {
     font-weight: 700;
+    color: var(--color-brand-800);
   }
 
-  /* Status bar biru di dasar jendela. */
+  /* Bar status di dasar jendela dan kepala kartu masuk: biru-teal tua datar. */
   .status-bar {
-    background: linear-gradient(#3b82c4, #245a96);
-    border-top: 1px solid #164c82;
+    background: var(--color-brand-800);
   }
 
-  /* Tab klasik: tab terpilih menyatu dengan isi di bawahnya. */
+  /* Tab bergaris bawah: tab terpilih bertanda garis tebal berwarna. */
   .tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 1px;
-    padding: 4px 6px 0;
-    background: #d0d0d0;
-    border-bottom: 1px solid var(--color-line);
+    gap: 0.25rem;
+    padding: 0 0.5rem;
+    background: transparent;
+    border-bottom: 1px solid var(--color-line-soft);
   }
   .tab {
     position: relative;
-    top: 1px;
+    margin-bottom: -1px;
     min-height: var(--spacing-touch);
-    padding: 0 0.75rem;
-    border: 1px solid var(--color-line);
-    border-bottom: 0;
-    background: #e4e4e4;
-    font-size: 0.75rem;
-    color: var(--color-ink);
+    padding: 0 0.875rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-muted);
   }
   .tab:hover {
-    background: #eef3f9;
+    color: var(--color-ink);
+    background: var(--color-chrome-100);
   }
   .tab[aria-selected='true'],
   .tab[aria-current='page'] {
-    background: #fff;
+    border-bottom-color: var(--color-brand-700);
+    color: var(--color-brand-800);
     font-weight: 700;
   }
 }
 
-/* Tabel data: kisi berbingkai dengan kepala abu-abu. Tanpa lapisan agar seragam apa pun kelas utilitas pada selnya. */
+/* Tabel data: garis tipis antar baris, kepala abu muda. Tanpa lapisan agar seragam apa pun kelas utilitas pada selnya. */
 main table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   background: #fff;
 }
 main table th {
-  padding: 0.25rem 0.5rem;
-  background: linear-gradient(#f6f6f6, #e4e4e4);
-  border: 1px solid #b9b9b9;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-chrome-100);
+  border-bottom: 1px solid var(--color-line);
   font-size: 0.75rem;
   font-weight: 700;
+  letter-spacing: 0.02em;
   text-align: left;
   white-space: nowrap;
+  color: var(--color-muted);
 }
 main table td {
   font-variant-numeric: tabular-nums;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--color-line-soft);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-line-soft);
   vertical-align: middle;
 }
-main table tbody tr:nth-child(even) td {
-  background: #f8f9fb;
-}
 main table tbody tr:hover td {
-  background: #e4eefa;
+  background: var(--color-brand-50);
 }
 
 /* Judul bagian pada halaman. */
 main h1 {
-  font-size: 1rem;
+  font-size: 1.125rem;
 }
 main h2 {
-  padding: 0.25rem 0.5rem;
-  background: linear-gradient(#f8f8f8, #dcdcdc);
-  border: 1px solid var(--color-line);
-  font-size: 0.75rem;
+  padding: 0.25rem 0;
+  font-size: 0.9375rem;
   font-weight: 700;
 }
 main h3 {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
 }
 main legend {
   padding-bottom: 0.25rem;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 700;
 }
 

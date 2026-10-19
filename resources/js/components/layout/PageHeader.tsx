@@ -14,7 +14,7 @@ interface PageHeaderProps {
 export function PageHeader({ title, back, description, actions }: PageHeaderProps) {
   return (
     <header className="flex flex-col gap-1">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#b9b9b9] pb-2">
+      <div className="border-line-soft flex flex-wrap items-center justify-between gap-2 border-b pb-3">
         <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
           <h1>{title}</h1>
           {description ? <p className="text-muted text-xs">{description}</p> : null}

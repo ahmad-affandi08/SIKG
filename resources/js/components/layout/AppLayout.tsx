@@ -123,9 +123,9 @@ function Shell({
       <nav
         ref={barRef}
         aria-label="Menu utama"
-        className="flex flex-wrap items-center gap-px border-b border-[#8f8f8f] bg-gradient-to-b from-[#fbfbfb] to-[#d3d6dc] px-1.5"
+        className="border-line-soft flex flex-wrap items-center gap-0.5 border-b bg-white px-2 py-1"
       >
-        <span className="px-2 text-sm font-bold tracking-tight">SIKG</span>
+        <span className="text-brand-700 px-2 text-base font-extrabold tracking-tight">SIKG</span>
         {entries.map((entry) => {
           if (entry.kind === 'link') {
             const active = url.startsWith(entry.item.href);
@@ -176,7 +176,7 @@ function Shell({
                 <ul
                   id={`menu-${entry.title}`}
                   data-menu-open
-                  className="absolute top-full left-0 z-50 min-w-48 border border-[#6f6f6f] bg-white py-0.5 shadow-[2px_2px_4px_rgb(0_0_0/0.3)]"
+                  className="border-line-soft absolute top-full left-0 z-50 mt-1 min-w-52 rounded-xl border bg-white py-1 shadow-lg"
                 >
                   {entry.items.map((item) => (
                     <li key={item.href}>
@@ -222,7 +222,7 @@ function Shell({
         </span>
       </nav>
 
-      <div className="flex flex-wrap items-center gap-x-2 border-b border-[#8f8f8f] bg-[#ececec] px-2 py-0.5 sm:flex-nowrap">
+      <div className="flex flex-wrap items-center gap-x-2 px-3 pt-2 pb-0.5 sm:flex-nowrap">
         <nav aria-label="Jejak halaman" className="min-w-0 flex-1">
           <ol className="flex min-h-7 flex-wrap items-center gap-x-1.5 text-xs">
             {crumbs.map((crumb, index) => {
@@ -233,7 +233,7 @@ function Shell({
                   className="flex min-w-0 items-center gap-1.5"
                 >
                   {index > 0 ? (
-                    <span aria-hidden="true" className="text-[#777]">
+                    <span aria-hidden="true" className="text-muted">
                       ›
                     </span>
                   ) : null}
@@ -257,7 +257,7 @@ function Shell({
         {auth.user && auth.permissions.includes('patient.view') ? <QuickPatientSearch /> : null}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-1.5 p-1.5">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 px-3 pt-1 pb-3">
         <FlashMessages />
         <RequiredProvider>
           {bare ? (

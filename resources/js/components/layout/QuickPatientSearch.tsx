@@ -177,10 +177,10 @@ export function QuickPatientSearch() {
           setOpen(true);
         }}
         onKeyDown={onKeyDown}
-        className="field h-6 w-full py-0 text-xs"
+        className="field h-8 w-full py-0 text-sm"
       />
       {showPanel ? (
-        <div className="absolute top-full right-0 z-30 mt-0.5 w-[min(28rem,calc(100vw-1rem))] border border-[#8f8f8f] bg-white shadow-[2px_2px_5px_rgb(0_0_0/0.3)]">
+        <div className="border-line-soft absolute top-full right-0 z-30 mt-0.5 w-[min(28rem,calc(100vw-1rem))] rounded-xl border bg-white shadow-lg">
           <ul
             id={listId}
             role="listbox"
