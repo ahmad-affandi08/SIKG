@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
+import { TextArea } from '@/components/ui/TextArea';
 import { TextField } from '@/components/ui/TextField';
 import { TimePicker } from '@/components/ui/TimePicker';
-import { clinicSettingsSchema, WEEKDAYS } from '@/features/clinic/schemas';
+import { clinicSettingsSchema, splitWhatsAppNumbers, WEEKDAYS } from '@/features/clinic/schemas';
 import type { ClinicSettingsValues } from '@/features/clinic/schemas';
 import { formatDate } from '@/lib/format';
 
@@ -23,8 +24,7 @@ interface Props {
     discount_limits: { pemilik: number; admin: number; kasir: number };
     tax_percent: number;
     operating_hours: Record<string, { open: string; close: string } | null>;
-    notify_email: string | null;
-    telegram_chat_id: string | null;
+    notify_whatsapp: string[];
     reminders_enabled: boolean;
   };
   sessionMaxMinutes: number;
@@ -53,8 +53,7 @@ export default function Clinic({
     discount_limits: settings.discount_limits,
     tax_percent: settings.tax_percent,
     operating_hours: settings.operating_hours,
-    notify_email: settings.notify_email ?? '',
-    telegram_chat_id: settings.telegram_chat_id ?? '',
+    notify_whatsapp: settings.notify_whatsapp.join('\n'),
     reminders_enabled: settings.reminders_enabled,
   });
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
@@ -76,6 +75,10 @@ export default function Clinic({
       return;
     }
     setClientErrors({});
+    form.transform((data) => ({
+      ...data,
+      notify_whatsapp: splitWhatsAppNumbers(data.notify_whatsapp),
+    }));
     form.put('/settings/clinic', { preserveScroll: true });
   }
 
@@ -214,30 +217,25 @@ export default function Clinic({
           <section aria-labelledby="notifikasi" className="flex flex-col gap-3">
             <h2 id="notifikasi">Notifikasi</h2>
             <p className="text-muted text-sm">
-              Peringatan staf (stok menipis, obat hampir kedaluwarsa, janji baru) selalu tampil di
-              aplikasi. Isi tujuan berikut bila ingin diteruskan ke email atau grup Telegram klinik;
-              kosongkan bila tidak perlu. Pesan tidak memuat data pasien. Email memakai pengaturan
-              surel server, dan Telegram butuh bot yang dipasang pengelola server.
+              Peringatan staf (stok menipis, obat hampir kedaluwarsa, janji baru, ringkasan janji)
+              selalu tampil di aplikasi. Isi nomor WhatsApp staf berikut bila ingin diteruskan ke
+              WhatsApp; kosongkan bila tidak perlu. Pesan tidak memuat data pasien. Pengiriman butuh
+              saluran WhatsApp yang diatur di{' '}
+              <Link href="/settings/whatsapp" className="text-brand-700 underline">
+                Pengaturan WhatsApp
+              </Link>
+              .
             </p>
-            <TextField
-              field="notify_email"
-              label="Email notifikasi staf"
-              type="email"
-              value={form.data.notify_email}
+            <TextArea
+              field="notify_whatsapp"
+              label="Nomor WhatsApp staf (satu per baris, maksimal 5)"
+              rows={3}
+              placeholder="081234567890"
+              value={form.data.notify_whatsapp}
               onChange={(event) => {
-                form.setData('notify_email', event.target.value);
+                form.setData('notify_whatsapp', event.target.value);
               }}
-              error={error('notify_email')}
-            />
-            <TextField
-              field="telegram_chat_id"
-              label="ID grup atau obrolan Telegram klinik"
-              inputMode="numeric"
-              value={form.data.telegram_chat_id}
-              onChange={(event) => {
-                form.setData('telegram_chat_id', event.target.value);
-              }}
-              error={error('telegram_chat_id')}
+              error={error('notify_whatsapp')}
             />
             <label className="min-h-touch flex items-center gap-2">
               <input
@@ -247,7 +245,8 @@ export default function Clinic({
                   form.setData('reminders_enabled', event.target.checked);
                 }}
               />
-              Kirim pengingat janji H-1 dan hari-H ke pasien yang bersedia (email atau Telegram)
+              Terbitkan ringkasan janji besok dan hari ini untuk staf (dalam aplikasi dan WhatsApp
+              staf)
             </label>
           </section>
 

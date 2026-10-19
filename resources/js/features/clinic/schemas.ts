@@ -19,6 +19,28 @@ const numberPattern = z
     message: 'Harus memuat tepat satu token {seq}.',
   });
 
+/** Memecah isian nomor (satu per baris, atau dipisah koma atau titik koma) menjadi daftar nomor tanpa kosong. */
+export function splitWhatsAppNumbers(value: string): string[] {
+  return value
+    .split(/[\r\n,;]+/)
+    .map((part) => part.trim())
+    .filter((part) => part !== '');
+}
+
+/** Nomor Indonesia seperti aturan server: 08..., 8..., 62..., atau +62... (spasi, strip, dan kurung diabaikan), 10 sampai 15 digit. */
+export function isIndonesianNumber(value: string): boolean {
+  let digits = value.replace(/[\s\-().]/g, '').replace(/^\+/, '');
+  if (!/^\d{8,15}$/.test(digits)) {
+    return false;
+  }
+  if (digits.startsWith('0')) {
+    digits = `62${digits.slice(1)}`;
+  } else if (digits.startsWith('8')) {
+    digits = `62${digits}`;
+  }
+  return digits.startsWith('62') && digits.length >= 10 && digits.length <= 15;
+}
+
 /** Umpan balik cepat di klien. Server memvalidasi ulang dan berwenang. */
 export const clinicSettingsSchema = z.object({
   timezone: z.string().min(1, 'Zona waktu wajib dipilih.'),
@@ -36,18 +58,20 @@ export const clinicSettingsSchema = z.object({
     kasir: z.number().int('Harus bilangan bulat.').min(0, 'Minimal 0.').max(100, 'Maksimal 100.'),
   }),
   operating_hours: z.record(z.string(), dayHours),
-  notify_email: z
+  notify_whatsapp: z
     .string()
-    .trim()
-    .max(255, 'Terlalu panjang.')
-    .refine((value) => value === '' || z.email().safeParse(value).success, {
-      message: 'Format email tidak valid.',
-    }),
-  telegram_chat_id: z
-    .string()
-    .trim()
-    .refine((value) => value === '' || /^-?\d{5,20}$/.test(value), {
-      message: 'ID obrolan Telegram harus berupa angka (grup biasanya diawali tanda minus).',
+    .max(400, 'Terlalu panjang.')
+    .superRefine((value, ctx) => {
+      const numbers = splitWhatsAppNumbers(value);
+      if (numbers.length > 5) {
+        ctx.addIssue({ code: 'custom', message: 'Nomor WhatsApp staf maksimal 5.' });
+      }
+      if (numbers.some((number) => !isIndonesianNumber(number))) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Nomor WhatsApp staf harus nomor Indonesia (08..., 628..., atau +628...).',
+        });
+      }
     }),
   reminders_enabled: z.boolean(),
 });

@@ -84,8 +84,8 @@ export default function Index({ enabled, mode, pending, history, optouts }: Prop
         ) : null}
         {mode === 'api' ? (
           <Alert tone="info">
-            Mode API aktif: pengingat dikirim otomatis. Daftar menunggu di bawah hanya berisi yang
-            belum terkirim.
+            Pengiriman otomatis aktif lewat saluran WhatsApp: pengingat dikirim sendiri. Daftar
+            menunggu di bawah hanya berisi yang belum terkirim.
           </Alert>
         ) : null}
         {error ? <Alert tone="error">{error}</Alert> : null}
@@ -201,7 +201,7 @@ export default function Index({ enabled, mode, pending, history, optouts }: Prop
                     <td>
                       {r.last_error ??
                         (r.sent_at
-                          ? `${formatDateTime(r.sent_at, timezone)} lewat ${r.channel === 'api' ? 'API' : 'tautan WhatsApp'}`
+                          ? `${formatDateTime(r.sent_at, timezone)} lewat ${r.channel === 'api' ? 'pengiriman otomatis' : 'tautan WhatsApp'}`
                           : '-')}
                     </td>
                   </tr>

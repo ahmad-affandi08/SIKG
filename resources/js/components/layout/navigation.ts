@@ -257,6 +257,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Pengaturan',
   },
   {
+    label: 'WhatsApp',
+    href: '/settings/whatsapp',
+    permission: 'setting.manage',
+    group: 'Pengaturan',
+  },
+  {
     label: 'Pengaturan pengingat',
     href: '/settings/reminders',
     permission: 'setting.manage',

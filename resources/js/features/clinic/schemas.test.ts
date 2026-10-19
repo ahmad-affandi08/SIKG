@@ -5,6 +5,7 @@ import {
   clinicSettingsSchema,
   holidaySchema,
   logoFileIssue,
+  splitWhatsAppNumbers,
 } from '@/features/clinic/schemas';
 
 const VALID = {
@@ -15,8 +16,7 @@ const VALID = {
   discount_limits: { pemilik: 100, admin: 100, kasir: 10 },
   tax_percent: 0,
   operating_hours: { '1': { open: '08:00', close: '17:00' }, '7': null },
-  notify_email: '',
-  telegram_chat_id: '',
+  notify_whatsapp: '',
   reminders_enabled: true,
 };
 
@@ -89,25 +89,49 @@ describe('SYS-04 skema hari libur', () => {
 });
 
 describe('SYS-05 tujuan notifikasi pada pengaturan klinik', () => {
-  it('email dan ID Telegram boleh kosong', () => {
+  it('nomor WhatsApp staf boleh kosong', () => {
     expect(clinicSettingsSchema.safeParse(VALID).success).toBe(true);
   });
 
-  it('menerima email sah dan ID obrolan grup Telegram bertanda minus', () => {
+  it('menerima beberapa nomor Indonesia dalam bentuk 08, 628, dan +628, satu per baris atau dipisah koma', () => {
     const result = clinicSettingsSchema.safeParse({
       ...VALID,
-      notify_email: 'staf@klinik.test',
-      telegram_chat_id: '-1001234567890',
+      notify_whatsapp: '0812-3456-7890\n+62 812 9999 0000, 6281355550000',
     });
     expect(result.success).toBe(true);
   });
 
+  it('memecah isian menjadi daftar nomor tanpa baris kosong', () => {
+    expect(splitWhatsAppNumbers('0812345678901\n\n 0813555500001 ;')).toEqual([
+      '0812345678901',
+      '0813555500001',
+    ]);
+  });
+
   it.each([
-    ['email buruk', { notify_email: 'bukan-email' }, 'Format email tidak valid.'],
     [
-      'ID Telegram bukan angka',
-      { telegram_chat_id: '@grup' },
-      'ID obrolan Telegram harus berupa angka (grup biasanya diawali tanda minus).',
+      'nomor bukan Indonesia',
+      { notify_whatsapp: '+1 202 555 0100' },
+      'Nomor WhatsApp staf harus nomor Indonesia (08..., 628..., atau +628...).',
+    ],
+    [
+      'isian bukan nomor',
+      { notify_whatsapp: '@grup' },
+      'Nomor WhatsApp staf harus nomor Indonesia (08..., 628..., atau +628...).',
+    ],
+    [
+      'lebih dari lima nomor',
+      {
+        notify_whatsapp: [
+          '0812345670001',
+          '0812345670002',
+          '0812345670003',
+          '0812345670004',
+          '0812345670005',
+          '0812345670006',
+        ].join('\n'),
+      },
+      'Nomor WhatsApp staf maksimal 5.',
     ],
   ])('menolak %s', (_label, override, message) => {
     const result = clinicSettingsSchema.safeParse({ ...VALID, ...override });

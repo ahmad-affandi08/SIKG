@@ -84,6 +84,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/settings/master/document-templates',
       '/settings/satusehat',
       '/settings/booking',
+      '/settings/whatsapp',
       '/settings/reminders',
       '/audit',
       '/audit/access',

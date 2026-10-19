@@ -5,16 +5,12 @@ import { reminderSettingsSchema, unknownPlaceholders } from './schemas';
 const kind = { enabled: true, template: '', api_template: '' };
 const base = {
   enabled: true,
-  mode: 'link' as const,
   recall_months: '6',
-  api_phone_number_id: '',
-  api_token: '',
-  api_language: 'id',
   kinds: { h1: kind, h0: kind, recall: kind },
 };
 
 describe('P2-03 pengaturan pengingat', () => {
-  it('mode tautan sah tanpa data API', () => {
+  it('pengaturan isi pengingat sah tanpa data saluran (saluran diatur di Pengaturan WhatsApp)', () => {
     expect(reminderSettingsSchema.safeParse(base).success).toBe(true);
   });
 
@@ -27,11 +23,12 @@ describe('P2-03 pengaturan pengingat', () => {
     expect(result.success).toBe(false);
   });
 
-  it('mode API butuh ID nomor telepon dan nama templat berhuruf kecil', () => {
-    expect(reminderSettingsSchema.safeParse({ ...base, mode: 'api' }).success).toBe(false);
+  it('nama templat WhatsApp Resmi harus huruf kecil, angka, dan garis bawah', () => {
     expect(
-      reminderSettingsSchema.safeParse({ ...base, mode: 'api', api_phone_number_id: '123456' })
-        .success,
+      reminderSettingsSchema.safeParse({
+        ...base,
+        kinds: { ...base.kinds, h0: { ...kind, api_template: 'pengingat_h0' } },
+      }).success,
     ).toBe(true);
     expect(
       reminderSettingsSchema.safeParse({

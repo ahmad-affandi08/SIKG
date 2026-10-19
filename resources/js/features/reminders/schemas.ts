@@ -30,31 +30,14 @@ const kindSchema = z.object({
 });
 
 /** Umpan balik cepat di klien; server memvalidasi ulang dan berwenang (P2-03). */
-export const reminderSettingsSchema = z
-  .object({
-    enabled: z.boolean(),
-    mode: z.enum(['link', 'api']),
-    recall_months: z
-      .string()
-      .trim()
-      .regex(/^\d{1,2}$/, 'Jarak kontrol berupa bilangan bulat bulan.')
-      .refine((v) => Number(v) >= 1 && Number(v) <= 24, 'Jarak kontrol 1 sampai 24 bulan.'),
-    api_phone_number_id: z.string().trim().regex(/^\d*$/, 'ID nomor telepon hanya angka.'),
-    api_token: z.string().max(512, 'Terlalu panjang.'),
-    api_language: z
-      .string()
-      .trim()
-      .regex(/^([a-z]{2}(_[A-Z]{2})?)?$/, 'Kode bahasa berbentuk id atau en_US.'),
-    kinds: z.object({ h1: kindSchema, h0: kindSchema, recall: kindSchema }),
-  })
-  .superRefine((v, ctx) => {
-    if (v.enabled && v.mode === 'api' && v.api_phone_number_id === '') {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['api_phone_number_id'],
-        message: 'Mode API butuh ID nomor telepon.',
-      });
-    }
-  });
+export const reminderSettingsSchema = z.object({
+  enabled: z.boolean(),
+  recall_months: z
+    .string()
+    .trim()
+    .regex(/^\d{1,2}$/, 'Jarak kontrol berupa bilangan bulat bulan.')
+    .refine((v) => Number(v) >= 1 && Number(v) <= 24, 'Jarak kontrol 1 sampai 24 bulan.'),
+  kinds: z.object({ h1: kindSchema, h0: kindSchema, recall: kindSchema }),
+});
 
 export type ReminderSettingsValues = z.infer<typeof reminderSettingsSchema>;

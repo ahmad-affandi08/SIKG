@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import type { SyntheticEvent } from 'react';
 
@@ -7,7 +7,6 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
-import { Select } from '@/components/ui/Select';
 import { TextArea } from '@/components/ui/TextArea';
 import { TextField } from '@/components/ui/TextField';
 import { reminderSettingsSchema } from '@/features/reminders/schemas';
@@ -18,10 +17,10 @@ interface Props {
     enabled: boolean;
     mode: 'link' | 'api';
     recall_months: number;
-    api_phone_number_id: string | null;
-    api_language: string;
-    has_token: boolean;
-    api_ready: boolean;
+    provider: string;
+    provider_label: string;
+    uses_templates: boolean;
+    channel_ready: boolean;
   };
   kinds: {
     kind: 'h1' | 'h0' | 'recall';
@@ -35,15 +34,11 @@ interface Props {
   placeholders: string[];
 }
 
-/** P2-03: pengaturan pengingat (jenis, templat, mode tautan atau API). */
+/** P2-03: pengaturan isi pengingat (jenis, templat). Saluran pengiriman diatur di Pengaturan WhatsApp. */
 export default function Reminders({ settings, kinds, placeholders }: Props) {
   const form = useForm<ReminderSettingsValues>({
     enabled: settings.enabled,
-    mode: settings.mode,
     recall_months: String(settings.recall_months),
-    api_phone_number_id: settings.api_phone_number_id ?? '',
-    api_token: '',
-    api_language: settings.api_language,
     kinds: Object.fromEntries(
       kinds.map((k) => [
         k.kind,
@@ -65,12 +60,7 @@ export default function Reminders({ settings, kinds, placeholders }: Props) {
       return;
     }
     setErrors({});
-    form.put('/settings/reminders', {
-      preserveScroll: true,
-      onSuccess: () => {
-        form.setData('api_token', '');
-      },
-    });
+    form.put('/settings/reminders', { preserveScroll: true });
   }
 
   const error = (key: string): string | undefined =>
@@ -101,25 +91,17 @@ export default function Reminders({ settings, kinds, placeholders }: Props) {
             />
             <span>Aktifkan pengingat pasien</span>
           </label>
-          <Select
-            required
-            label="Cara pengiriman"
-            options={[
-              {
-                value: 'link',
-                label: 'Tautan WhatsApp - petugas membuka dan menekan kirim (gratis)',
-              },
-              {
-                value: 'api',
-                label: 'WhatsApp Business API - terkirim otomatis (berbiaya sesuai penyedia)',
-              },
-            ]}
-            value={form.data.mode}
-            onChange={(event) => {
-              form.setData('mode', event.target.value as 'link' | 'api');
-            }}
-            error={error('mode')}
-          />
+          <Alert tone={settings.mode === 'api' && !settings.channel_ready ? 'warning' : 'info'}>
+            Saluran pengiriman: {settings.provider_label}
+            {settings.mode === 'api' && !settings.channel_ready
+              ? ' (kredensial belum lengkap)'
+              : ''}
+            .{' '}
+            <Link href="/settings/whatsapp" className="underline">
+              Ubah di Pengaturan WhatsApp
+            </Link>
+            .
+          </Alert>
           <TextField
             required
             label="Kontrol berkala setelah kunjungan terakhir (bulan)"
@@ -153,9 +135,9 @@ export default function Reminders({ settings, kinds, placeholders }: Props) {
                 }}
                 error={error(`kinds.${k.kind}.template`)}
               />
-              {form.data.mode === 'api' ? (
+              {settings.uses_templates ? (
                 <TextField
-                  label={`Nama templat WhatsApp (isi ${k.api_parameters.map((p, i) => `{{${String(i + 1)}}}=${p}`).join(', ')})`}
+                  label={`Nama templat WhatsApp Resmi (isi ${k.api_parameters.map((p, i) => `{{${String(i + 1)}}}=${p}`).join(', ')})`}
                   value={form.data.kinds[k.kind].api_template}
                   onChange={(event) => {
                     setKind(k.kind, { api_template: event.target.value });
@@ -168,44 +150,6 @@ export default function Reminders({ settings, kinds, placeholders }: Props) {
           <p className="text-muted text-sm">
             Penanda yang tersedia: {placeholders.map((p) => `{${p}}`).join(' ')}.
           </p>
-
-          {form.data.mode === 'api' ? (
-            <fieldset className="form-grid">
-              <legend className="text-lg font-semibold">WhatsApp Business API</legend>
-              <TextField
-                label="ID nomor telepon (Phone Number ID)"
-                inputMode="numeric"
-                value={form.data.api_phone_number_id}
-                onChange={(event) => {
-                  form.setData('api_phone_number_id', event.target.value);
-                }}
-                error={error('api_phone_number_id')}
-              />
-              <TextField
-                label={
-                  settings.has_token ? 'Token akses (kosongkan bila tidak diganti)' : 'Token akses'
-                }
-                type="password"
-                autoComplete="off"
-                value={form.data.api_token}
-                onChange={(event) => {
-                  form.setData('api_token', event.target.value);
-                }}
-                error={error('api_token')}
-              />
-              <TextField
-                label="Kode bahasa templat"
-                value={form.data.api_language}
-                onChange={(event) => {
-                  form.setData('api_language', event.target.value);
-                }}
-                error={error('api_language')}
-              />
-              {!settings.api_ready ? (
-                <Alert tone="warning">ID nomor telepon dan token belum lengkap.</Alert>
-              ) : null}
-            </fieldset>
-          ) : null}
 
           <div>
             <Button type="submit" loading={form.processing}>
