@@ -9,6 +9,8 @@ export interface NavItem {
   anyOf?: readonly string[];
   /** Judul kelompok menu; item berurutan dengan kelompok sama ditampilkan di bawah satu judul. */
   group?: string;
+  /** Menu khusus profil klinik gigi (KLU-01); disembunyikan pada klinik umum. */
+  dental?: boolean;
 }
 
 /**
@@ -58,12 +60,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: '/orthodontics',
     anyOf: ['encounter.view', 'invoice.view'],
     group: 'Layanan',
+    dental: true,
   },
   {
     label: 'Pesanan lab',
     href: '/lab-orders',
     anyOf: ['encounter.view', 'invoice.view'],
     group: 'Layanan',
+    dental: true,
   },
   {
     label: 'Stok obat',
@@ -149,6 +153,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     group: 'Pengaturan',
   },
   {
+    label: 'Profil layanan',
+    href: '/settings/service-profile',
+    permission: 'setting.manage',
+    group: 'Pengaturan',
+  },
+  {
     label: 'Pengaturan klinik',
     href: '/settings/clinic',
     permission: 'setting.manage',
@@ -183,6 +193,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: '/settings/master/tooth-conditions',
     permission: 'setting.manage',
     group: 'Pengaturan',
+    dental: true,
   },
   {
     label: 'Metode pembayaran',
@@ -304,8 +315,12 @@ export const NAV_ALIASES: Readonly<Record<string, string>> = {
 export function visibleNavItems(
   items: readonly NavItem[],
   permissions: readonly string[],
+  dental = true,
 ): NavItem[] {
   return items.filter((item) => {
+    if (item.dental === true && !dental) {
+      return false;
+    }
     if (item.anyOf !== undefined) {
       return item.anyOf.some((permission) => can(permissions, permission));
     }
