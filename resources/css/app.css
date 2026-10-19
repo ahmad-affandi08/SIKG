@@ -119,6 +119,16 @@
 }
 
 @layer components {
+  /* Latar halaman masuk: foto ruang praktik dengan lapisan biru tua agar kartu masuk tetap terbaca. */
+  .login-backdrop {
+    background-color: #0b2a3d;
+    background-image:
+      linear-gradient(rgb(8 36 56 / 0.55), rgb(8 36 56 / 0.35)), url('/images/login-bg.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
   /* Panel: kotak putih berbingkai tegas. */
   .card,
   .pane {

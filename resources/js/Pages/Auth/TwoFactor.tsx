@@ -27,7 +27,7 @@ export default function TwoFactor() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-3">
+    <div className="login-backdrop flex min-h-screen items-center justify-center p-3">
       <main className="pane w-full max-w-sm shadow-[3px_3px_6px_rgb(0_0_0/0.3)]">
         <Head title="Verifikasi dua langkah" />
         <div className="pane-head status-bar border-0 text-white">
