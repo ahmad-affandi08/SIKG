@@ -444,5 +444,5 @@ it('RM-04 setelah menambah diagnosa, tindakan, dan addendum pengguna kembali ke 
 it('RM-05 perawat tanpa izin tulis tidak dapat membuka formulir tambah', function () {
     $s = siapKunjungan();
 
-    test()->actingAs(makeUser(Role::Kasir, $s['klinik']))->get("/encounters/{$s['kkunjungan']}/diagnoses/create")->assertForbidden();
+    test()->actingAs(makeUser(Role::Kasir, $s['klinik']))->get("/encounters/{$s['kunjungan']}/diagnoses/create")->assertForbidden();
 });
