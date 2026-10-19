@@ -8,7 +8,7 @@ Berlaku untuk P3-05 (ADR-0012, Q-29). Kode memakai respons palsu pada tes; uji t
 2. Di DOKU Back Office, aktifkan metode QRIS untuk Checkout.
 3. Ambil Client ID dan Secret Key (sandbox lebih dulu, produksi kemudian). Rahasia ini hanya dimasukkan lewat halaman Pengaturan pembayaran online; jangan dikirim lewat pesan atau disimpan di berkas.
 
-## Pengaturan di SIKG
+## Pengaturan di SIKLIN
 
 1. Buka Pengaturan, Pembayaran online. Isi Client ID dan Secret Key, pilih lingkungan Sandbox, pilih metode pembayaran penerimaan, lalu simpan.
 2. Salin alamat notifikasi (`/webhooks/payments/{token}` lengkap dengan domain klinik) dan daftarkan sebagai Notification URL di DOKU Back Office. Alamat harus HTTPS.
@@ -25,5 +25,5 @@ Berlaku untuk P3-05 (ADR-0012, Q-29). Kode memakai respons palsu pada tes; uji t
 ## Pindah ke produksi
 
 1. Ganti ke Client ID dan Secret Key produksi, pilih lingkungan Produksi, daftarkan ulang Notification URL di akun produksi.
-2. Lakukan satu transaksi nominal kecil dan pastikan tercatat; refund dilakukan di dasbor DOKU lalu dicatat sebagai refund biasa di SIKG.
+2. Lakukan satu transaksi nominal kecil dan pastikan tercatat; refund dilakukan di dasbor DOKU lalu dicatat sebagai refund biasa di SIKLIN.
 3. Pastikan cron (`schedule:run` dan antrean) berjalan, karena rekonsiliasi bergantung padanya.

@@ -1,4 +1,4 @@
-# Memasang SIKG di Niagahoster (shared hosting, Profil B)
+# Memasang SIKLIN di Niagahoster (shared hosting, Profil B)
 
 Panduan ini mengikuti `docs/rules/hosting.md` dan `docs/operations.md` bagian 2.2 sampai 2.4. Nama menu panel bisa berbeda antarpaket dan antarversi panel; bila berbeda, cari menu yang fungsinya sama.
 
@@ -18,7 +18,7 @@ Tanyakan ke layanan pelanggan Niagahoster atau periksa di panel paket yang dipil
 | 6 | Ekstensi PHP: bcmath, ctype, curl, dom, fileinfo, gd, intl, mbstring, openssl, pdo_mysql, tokenizer, xml, xmlwriter, simplexml, zip aktif? | Wajib | Minta diaktifkan |
 | 7 | `memory_limit` minimal 256 MB, `upload_max_filesize` minimal 12 MB, `post_max_size` minimal 16 MB, `max_execution_time` minimal 60 detik? | Wajib | Minta dinaikkan atau atur lewat menu opsi PHP |
 | 8 | Pusat data berada di Indonesia dan ada SSL gratis dengan pembaruan otomatis? | Wajib | Tidak cocok untuk data pasien |
-| 9 | Fungsi PHP `proc_open`, `exec`, `symlink` boleh nonaktif? | Tidak masalah | SIKG tidak memakainya |
+| 9 | Fungsi PHP `proc_open`, `exec`, `symlink` boleh nonaktif? | Tidak masalah | SIKLIN tidak memakainya |
 
 Contoh pesan ke layanan pelanggan:
 

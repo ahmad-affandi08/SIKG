@@ -1,4 +1,4 @@
-# Menjalankan SIKG di komputer lokal
+# Menjalankan SIKLIN di komputer lokal
 
 Untuk mencoba atau mengembangkan. Data contoh seluruhnya sintetis (M12); jangan memasukkan data pasien nyata ke lingkungan lokal.
 

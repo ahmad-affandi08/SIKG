@@ -1,12 +1,12 @@
 # Registrasi sistem elektronik dan integrasi SATUSEHAT
 
-Dokumen kerja untuk pemilik klinik. Isinya bahan untuk registrasi sistem elektronik kesehatan (Permenkes 24/2022) dan langkah menghidupkan integrasi SATUSEHAT di SIKG (P2-01). Bukan nasihat hukum; konfirmasikan kewajiban ke dinas kesehatan setempat atau konsultan hukum.
+Dokumen kerja untuk pemilik klinik. Isinya bahan untuk registrasi sistem elektronik kesehatan (Permenkes 24/2022) dan langkah menghidupkan integrasi SATUSEHAT di SIKLIN (P2-01). Bukan nasihat hukum; konfirmasikan kewajiban ke dinas kesehatan setempat atau konsultan hukum.
 
 ## 1. Bahan dokumen registrasi
 
-| Butir | Isi untuk SIKG |
+| Butir | Isi untuk SIKLIN |
 | --- | --- |
-| Nama sistem | SIKG, Sistem Informasi Klinik Gigi |
+| Nama sistem | SIKLIN, Sistem Informasi Klinik |
 | Jenis | Rekam medis elektronik dan operasional klinik gigi umum non-BPJS |
 | Fitur | Pendaftaran pasien, jadwal dan antrean, rekam medis dan odontogram, resep dan stok obat, tagihan dan kasir, laporan, notifikasi, integrasi SATUSEHAT |
 | Pengguna | Pemilik, Admin, Resepsionis, Dokter gigi, Perawat, Kasir (hak akses per izin sesuai matriks hak akses di PRD bagian 4) |
@@ -19,12 +19,12 @@ Dokumen kerja untuk pemilik klinik. Isinya bahan untuk registrasi sistem elektro
 
 Satu kunjungan yang ditutup dikirim sebagai satu Bundle transaksi FHIR R4.
 
-| Sumber daya FHIR | Sumber di SIKG |
+| Sumber daya FHIR | Sumber di SIKLIN |
 | --- | --- |
 | Encounter (rawat jalan, `AMB`, status selesai) | Kunjungan: waktu mulai dan tutup, pasien, dokter, lokasi, organisasi |
 | Condition (kategori diagnosa kunjungan) | Diagnosa ICD-10 pada kunjungan |
 | Procedure | Tindakan yang katalognya memiliki kode ICD-9-CM (isian "Kode ICD-9-CM" di katalog tindakan). Tindakan tanpa kode tidak dikirim sebagai prosedur |
-| Patient (rujukan) | ID pasien SATUSEHAT hasil pencarian NIK; SIKG tidak membuat data pasien di SATUSEHAT |
+| Patient (rujukan) | ID pasien SATUSEHAT hasil pencarian NIK; SIKLIN tidak membuat data pasien di SATUSEHAT |
 | Practitioner (rujukan) | ID praktisi SATUSEHAT hasil pencarian NIK dokter |
 | Organization dan Location (rujukan) | ID yang diberikan SATUSEHAT saat registrasi fasilitas, diisi di pengaturan SATUSEHAT |
 
@@ -34,7 +34,7 @@ Catatan klinis bebas (anamnesis, catatan SOAP), foto, dan tagihan tidak dikirim.
 
 1. Daftarkan fasilitas dan sistem elektronik sesuai ketentuan Kemenkes; siapkan dokumen pada bagian 1 dan 2.
 2. Dapatkan akses SATUSEHAT: ID organisasi, client ID dan client secret untuk staging dan produksi, serta ID lokasi (Location) klinik.
-3. Di SIKG buka Pengaturan > SATUSEHAT: isi lingkungan Staging, ID organisasi, ID lokasi, client ID dan client secret, lalu "Uji koneksi".
+3. Di SIKLIN buka Pengaturan > SATUSEHAT: isi lingkungan Staging, ID organisasi, ID lokasi, client ID dan client secret, lalu "Uji koneksi".
 4. Isi NIK tiap dokter di bagian "NIK dokter" (terenkripsi, tidak ditampilkan kembali). NIK pasien diisi saat pendaftaran pasien.
 5. Aktifkan "Kirim kunjungan yang ditutup ke SATUSEHAT", tutup satu kunjungan uji, lalu periksa status di bagian "Pengiriman kunjungan".
 6. Setelah hasil di staging sesuai, ganti lingkungan ke Produksi dengan kredensial produksi.
