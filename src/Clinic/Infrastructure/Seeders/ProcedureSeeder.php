@@ -7,17 +7,14 @@ namespace Src\Clinic\Infrastructure\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Src\Clinic\Domain\ClinicSettings;
 use Src\Shared\Application\Setup\StarterDataContributor;
-use Src\Shared\Domain\ServiceProfile;
 
 /**
  * Katalog tindakan gigi umum (MST-04) sebagai usulan awal. Semua baris dibuat NONAKTIF dengan tarif 0: klinik wajib
  * mengisi tarif, lalu mengaktifkannya, sebelum tindakan dapat dicatat dan ditagih. Tarif sengaja tidak diisi karena berbeda
  * di tiap klinik. Kondisi odontogram hasil tindakan (ODO-05) sudah terisi. Kode ICD-9-CM (SATUSEHAT) hanya diisi untuk
  * tindakan yang padanannya jelas dan wajib diperiksa petugas rekam medis; sisanya dikosongkan (tidak ikut dikirim).
- * Aman dijalankan berulang: kode yang sudah ada tidak diduplikasi dan tidak ditimpa. Klinik berprofil umum (KLU-01) mendapat
- * {@see generalCatalog()} (tanpa tindakan per gigi); klinik gigi mendapat {@see catalog()}.
+ * Aman dijalankan berulang: kode yang sudah ada tidak diduplikasi dan tidak ditimpa.
  */
 final class ProcedureSeeder extends Seeder implements StarterDataContributor
 {
@@ -52,44 +49,6 @@ final class ProcedureSeeder extends Seeder implements StarterDataContributor
         ];
     }
 
-    /**
-     * Tindakan awal klinik umum (KLU-03). Semua per kunjungan (tanpa gigi). Kode ICD-9-CM hanya untuk padanan yang jelas dan wajib
-     * diperiksa petugas rekam medis; sisanya dikosongkan sehingga tidak ikut dikirim ke SATUSEHAT.
-     *
-     * @return list<array{code: string, name: string, category: string, scope: string, result: ?string, icd9: ?string}>
-     */
-    public static function generalCatalog(): array
-    {
-        $row = fn (string $code, string $name, string $category, ?string $icd9 = null): array => ['code' => $code, 'name' => $name, 'category' => $category, 'scope' => 'visit', 'result' => null, 'icd9' => $icd9];
-
-        return [
-            $row('KONSUL', 'Konsultasi dan pemeriksaan dokter', 'Umum'),
-            $row('KONTROL', 'Kontrol ulang', 'Umum'),
-            $row('INJEKSI', 'Tindakan injeksi', 'Tindakan'),
-            $row('INFUS', 'Pemasangan infus', 'Tindakan'),
-            $row('NEBULISASI', 'Nebulisasi (terapi uap)', 'Tindakan', '93.94'),
-            $row('HECTING', 'Penjahitan luka', 'Tindakan', '86.59'),
-            $row('GANTI-BALUT', 'Perawatan luka dan ganti balutan', 'Tindakan', '93.57'),
-            $row('DEBRIDEMEN', 'Debridemen luka (nonekskisional)', 'Tindakan', '86.28'),
-            $row('INSISI-ABSES', 'Insisi abses kulit', 'Tindakan', '86.04'),
-            $row('SIRKUMSISI', 'Sirkumsisi (sunat)', 'Tindakan', '64.0'),
-            $row('IRIGASI-TELINGA', 'Irigasi telinga (pengeluaran serumen)', 'Tindakan', '96.52'),
-            $row('EKG', 'Elektrokardiogram (EKG)', 'Penunjang', '89.52'),
-            $row('LAB-GDS', 'Gula darah sewaktu', 'Penunjang'),
-            $row('LAB-ASAM-URAT', 'Asam urat', 'Penunjang'),
-            $row('LAB-KOLESTEROL', 'Kolesterol total', 'Penunjang'),
-            $row('LAB-HB', 'Hemoglobin', 'Penunjang'),
-            $row('LAB-URIN', 'Pemeriksaan urin rutin', 'Penunjang'),
-            $row('LAB-TES-HAMIL', 'Tes kehamilan', 'Penunjang'),
-        ];
-    }
-
-    /** @return list<array{code: string, name: string, category: string, scope: string, result: ?string, icd9: ?string}> */
-    public static function catalogFor(ServiceProfile $profile): array
-    {
-        return $profile->dental() ? self::catalog() : self::generalCatalog();
-    }
-
     public function starterKey(): string
     {
         return 'procedures';
@@ -105,14 +64,12 @@ final class ProcedureSeeder extends Seeder implements StarterDataContributor
     /** @return int jumlah tindakan yang ditambahkan */
     public function seedClinic(string $clinicId): int
     {
-        $settings = DB::table('clinics')->where('id', $clinicId)->value('settings');
-        $profile = ClinicSettings::fromArray(is_string($settings) ? (json_decode($settings, true) ?: null) : null)->serviceProfile;
         $existing = DB::table('procedures')->where('clinic_id', $clinicId)->pluck('code')
             ->map(fn ($c) => mb_strtolower((string) $c))->all();
         $conditions = DB::table('tooth_conditions')->where('clinic_id', $clinicId)->pluck('code')->all();
         $added = 0;
         $now = now();
-        foreach (self::catalogFor($profile) as $row) {
+        foreach (self::catalog() as $row) {
             if (in_array(mb_strtolower($row['code']), $existing, true)) {
                 continue;
             }

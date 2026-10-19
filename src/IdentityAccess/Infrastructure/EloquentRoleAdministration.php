@@ -8,7 +8,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role as RoleModel;
 use Spatie\Permission\PermissionRegistrar;
-use Src\Clinic\Contracts\ServiceProfileLookup;
 use Src\IdentityAccess\Application\Roles\RoleAdministration;
 use Src\IdentityAccess\Domain\DefaultRolePermissions;
 use Src\IdentityAccess\Domain\Permission;
@@ -22,7 +21,7 @@ use Src\Shared\Application\Transaction;
 
 final readonly class EloquentRoleAdministration implements RoleAdministration
 {
-    public function __construct(private Transaction $tx, private AuditLogger $audit, private Clock $clock, private ServiceProfileLookup $profile) {}
+    public function __construct(private Transaction $tx, private AuditLogger $audit, private Clock $clock) {}
 
     public function overview(string $actorId): array
     {
@@ -32,7 +31,7 @@ final readonly class EloquentRoleAdministration implements RoleAdministration
             $model = $this->model($role);
             $roles[] = [
                 'value' => $role->value,
-                'label' => $role->label($this->profile->current()),
+                'label' => $role->label(),
                 'permissions' => $this->current($model),
                 'defaults' => $this->defaults($role),
                 'customized' => $model->getAttribute('customized_at') !== null,

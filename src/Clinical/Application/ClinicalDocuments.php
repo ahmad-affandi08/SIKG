@@ -10,7 +10,6 @@ use Src\Clinic\Contracts\ClinicCalendar;
 use Src\Clinic\Contracts\DoctorDirectory;
 use Src\Clinic\Contracts\DocumentTemplateCatalog;
 use Src\Clinic\Contracts\LetterheadProvider;
-use Src\Clinic\Contracts\ServiceProfileLookup;
 use Src\Clinical\Domain\DocumentDefaults;
 use Src\Clinical\Domain\DocumentRecord;
 use Src\Clinical\Domain\DocumentRepository;
@@ -56,7 +55,6 @@ final readonly class ClinicalDocuments
         private AuditLogger $audit,
         private AccessLogger $access,
         private Clock $clock,
-        private ServiceProfileLookup $profile,
     ) {}
 
     /**
@@ -100,7 +98,7 @@ final readonly class ClinicalDocuments
         $this->access->patientRecordOpened($patientId, $route);
         $now = $this->clock->now()->setTimezone(new DateTimeZone($this->calendar->timezone()));
 
-        $templates = [['id' => '', 'name' => 'Templat bawaan', 'procedure_id' => null, 'body' => DocumentDefaults::body($type, $this->profile->current())]];
+        $templates = [['id' => '', 'name' => 'Templat bawaan', 'procedure_id' => null, 'body' => DocumentDefaults::body($type)]];
         foreach ($this->templates->active($type->value) as $template) {
             $templates[] = $template->toArray();
         }
