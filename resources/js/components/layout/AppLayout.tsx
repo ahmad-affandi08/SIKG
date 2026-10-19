@@ -12,6 +12,7 @@ import { NAV_ITEMS, visibleNavItems } from '@/components/layout/navigation';
 import type { NavItem } from '@/components/layout/navigation';
 import { PageTitleProvider } from '@/components/layout/PageTitle';
 import { useDismiss } from '@/components/ui/useDismiss';
+import { BRAND } from '@/lib/brand';
 import { formatDateTime } from '@/lib/format';
 import { RequiredProvider } from '@/lib/useRequired';
 
@@ -125,7 +126,9 @@ function Shell({
         aria-label="Menu utama"
         className="border-line-soft flex flex-wrap items-center gap-0.5 border-b bg-white px-2 py-1"
       >
-        <span className="text-brand-700 px-2 text-base font-extrabold tracking-tight">SIKG</span>
+        <span className="text-brand-700 px-2 text-base font-extrabold tracking-tight">
+          {BRAND.name}
+        </span>
         {entries.map((entry) => {
           if (entry.kind === 'link') {
             const active = url.startsWith(entry.item.href);
@@ -205,7 +208,9 @@ function Shell({
                 className="field !min-h-0 !py-0.5 text-xs"
                 value={branch.active_id ?? ''}
                 onChange={(event) => {
-                  router.post('/branch/switch', { branch_id: event.target.value || null });
+                  router.post('/branch/switch', {
+                    branch_id: event.target.value || null,
+                  });
                 }}
               >
                 <option value="">Semua cabang</option>

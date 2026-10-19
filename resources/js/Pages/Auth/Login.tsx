@@ -1,6 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 
 import { AuthBrand, type AuthBrandData } from '@/features/identityAccess/components/AuthBrand';
+import { BRAND } from '@/lib/brand';
 import { RequiredProvider } from '@/lib/useRequired';
 import { LoginForm } from '@/features/identityAccess/components/LoginForm';
 import type { LoginValues } from '@/features/identityAccess/schemas';
@@ -31,7 +32,9 @@ export default function Login({ brand }: { brand?: AuthBrandData | null }) {
       <main className="pane w-full max-w-sm shadow-[3px_3px_6px_rgb(0_0_0/0.3)]">
         <Head title="Masuk" />
         <div className="pane-head status-bar border-0 text-white">
-          <span>SIKG - Sistem Informasi Klinik Gigi</span>
+          <span>
+            {BRAND.name} - {BRAND.tagline}
+          </span>
         </div>
         <div className="flex flex-col gap-3 p-4">
           <AuthBrand brand={brand} />

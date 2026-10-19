@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
 import { AuthBrand, type AuthBrandData } from '@/features/identityAccess/components/AuthBrand';
 import { twoFactorCodeSchema } from '@/features/identityAccess/schemas';
+import { BRAND } from '@/lib/brand';
 
 /** AUTH-05: langkah kedua masuk. Menerima kode 6 digit dari autentikator atau satu kode pemulihan. */
 export default function TwoFactor({ brand }: { brand?: AuthBrandData | null }) {
@@ -32,7 +33,9 @@ export default function TwoFactor({ brand }: { brand?: AuthBrandData | null }) {
       <main className="pane w-full max-w-sm shadow-[3px_3px_6px_rgb(0_0_0/0.3)]">
         <Head title="Verifikasi dua langkah" />
         <div className="pane-head status-bar border-0 text-white">
-          <span>SIKG - Sistem Informasi Klinik Gigi</span>
+          <span>
+            {BRAND.name} - {BRAND.tagline}
+          </span>
         </div>
         <div className="flex flex-col gap-3 p-4">
           <AuthBrand brand={brand} />

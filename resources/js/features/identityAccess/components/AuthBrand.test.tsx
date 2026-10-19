@@ -5,7 +5,14 @@ import { AuthBrand } from './AuthBrand';
 
 describe('AuthBrand', () => {
   it('AUTH-01 menampilkan logo dan nama klinik bila tersedia', () => {
-    render(<AuthBrand brand={{ name: 'Klinik Gigi Senyum', logoUrl: '/brand/logo?v=abc' }} />);
+    render(
+      <AuthBrand
+        brand={{
+          name: 'Klinik Gigi Senyum',
+          logoUrl: '/brand/logo?v=abc',
+        }}
+      />,
+    );
 
     expect(screen.getByRole('img', { name: 'Logo Klinik Gigi Senyum' })).toHaveAttribute(
       'src',
@@ -17,7 +24,7 @@ describe('AuthBrand', () => {
   it('AUTH-01 klinik tanpa logo menampilkan nama dengan ikon aplikasi', () => {
     render(<AuthBrand brand={{ name: 'Klinik Gigi Senyum', logoUrl: null }} />);
 
-    expect(screen.getByRole('img', { name: 'Logo SIKG' })).toHaveAttribute(
+    expect(screen.getByRole('img', { name: 'Logo SIKLIN' })).toHaveAttribute(
       'src',
       '/icons/icon-192.png',
     );
@@ -27,7 +34,7 @@ describe('AuthBrand', () => {
   it('AUTH-01 tanpa data klinik hanya ikon aplikasi', () => {
     render(<AuthBrand brand={null} />);
 
-    expect(screen.getByRole('img', { name: 'Logo SIKG' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Logo SIKLIN' })).toBeInTheDocument();
     expect(screen.queryByText('Klinik Gigi Senyum')).not.toBeInTheDocument();
   });
 });

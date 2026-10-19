@@ -1,3 +1,5 @@
+import { BRAND } from '@/lib/brand';
+
 export interface AuthBrandData {
   name: string;
   logoUrl: string | null;
@@ -16,7 +18,11 @@ export function AuthBrand({ brand }: { brand?: AuthBrandData | null }) {
           className="h-20 w-auto max-w-56 object-contain"
         />
       ) : (
-        <img src="/icons/icon-192.png" alt="Logo SIKG" className="h-16 w-16 rounded-xl" />
+        <img
+          src="/icons/icon-192.png"
+          alt={`Logo ${BRAND.name}`}
+          className="h-16 w-16 rounded-xl"
+        />
       )}
       {brand ? <p className="text-ink text-base leading-tight font-bold">{brand.name}</p> : null}
     </div>
