@@ -119,3 +119,10 @@ Format baris: `- [ ] ID | prioritas | judul`. Ganti `[ ]` menjadi `[x]` hanya se
 - [x] P3-04 | Multi-cabang penuh
 - [x] P3-05 | Pembayaran online
 - [x] P3-06 | Voucher dan membership
+
+## Klinik umum dan rawat inap (di luar PRD; lihat Q-34 dan ADR-0015)
+
+- [x] KLU-01 | S | Profil layanan klinik (gigi atau umum) per klinik, dengan fitur gigi ditutup di server pada klinik umum (Q-34; belum ada di PRD, perlu ditambahkan pengguna)
+- [x] KLU-02 | S | Profil Umum: menu, tab odontogram, dan sebutan Dokter mengikuti profil (Q-34; belum ada di PRD, perlu ditambahkan pengguna)
+- [x] KLU-03 | S | Referensi ICD-10 layanan primer, katalog tindakan dan obat awal klinik umum, templat surat keterangan dan persetujuan tanpa kata gigi (Q-34; belum ada di PRD, perlu ditambahkan pengguna)
+- [x] KLU-04 | S | Tanda vital lengkap: laju napas, saturasi oksigen, berat dan tinggi badan (Q-34; belum ada di PRD, perlu ditambahkan pengguna)
