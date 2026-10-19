@@ -6,7 +6,6 @@ namespace Src\Clinical\Application;
 
 use Src\Clinic\Contracts\ChairDirectory;
 use Src\Clinic\Contracts\DoctorDirectory;
-use Src\Clinic\Contracts\ServiceProfileLookup;
 use Src\Clinical\Domain\ClinicalFileRepository;
 use Src\Clinical\Domain\EncounterNotFound;
 use Src\Clinical\Domain\EncounterRepository;
@@ -34,7 +33,6 @@ final readonly class EncounterWorkspace
         private PrescriptionLookup $prescriptions,
         private OdontogramService $odontogram,
         private TreatmentPlans $plans,
-        private ServiceProfileLookup $profile,
     ) {}
 
     /**
@@ -105,7 +103,7 @@ final readonly class EncounterWorkspace
                 'uploaded_by' => $uploaders[$f->uploadedBy] ?? '-',
             ], $files),
             // ODO-05: usulan pembaruan odontogram dan RM-06: langkah rencana perawatan yang dapat dikerjakan pada kunjungan ini.
-            'odontogram_suggestions' => $encounter->isClosed() || ! $this->profile->current()->dental() ? [] : $this->odontogram->suggestions($encounterId),
+            'odontogram_suggestions' => $encounter->isClosed() ? [] : $this->odontogram->suggestions($encounterId),
             'plan_items' => $encounter->isClosed() ? [] : array_map(fn ($i) => [
                 'id' => $i->id,
                 'plan_id' => $i->planId,

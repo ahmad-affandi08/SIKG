@@ -4,22 +4,14 @@ declare(strict_types=1);
 
 namespace Src\Clinical\Domain;
 
-use Src\Shared\Domain\ServiceProfile;
-
 /**
  * Templat bawaan bila klinik belum membuat templat sendiri (RM-09, RM-10). Penanda `{{nama}}` diisi saat dokumen dibuat
  * (daftar penanda di Src\Clinic\Contracts\DocumentPlaceholders). Isi hanya kerangka; dokter menyuntingnya sebelum dicetak.
- * Klinik berprofil umum (KLU-01) memakai redaksi tanpa kata gigi; surat keterangan dipakai juga sebagai surat keterangan sakit
- * (lama istirahat diisi lewat penanda `{{istirahat}}`). Surat rujukan sama untuk semua profil.
  */
 final class DocumentDefaults
 {
-    public static function body(DocumentType $type, ServiceProfile $profile = ServiceProfile::Dental): string
+    public static function body(DocumentType $type): string
     {
-        if (! $profile->dental()) {
-            return self::generalBody($type);
-        }
-
         return match ($type) {
             DocumentType::Consent => <<<'TEXT'
 Saya yang bertanda tangan di bawah ini, sebagai pasien atau wali pasien atas nama {{pasien}} (Nomor RM {{no_rm}}, tanggal lahir {{tanggal_lahir}}), menyatakan telah menerima penjelasan dari {{dokter}} mengenai tindakan kedokteran gigi berikut:
@@ -72,44 +64,6 @@ Alasan rujukan: {{alasan}}
 
 Pasien kami periksa di {{klinik}} pada tanggal {{tanggal_kunjungan}}. Mohon balasan mengenai hasil pemeriksaan dan penanganan selanjutnya. Atas perhatian dan kerja sama Bapak atau Ibu, kami ucapkan terima kasih.
 TEXT,
-        };
-    }
-
-    private static function generalBody(DocumentType $type): string
-    {
-        return match ($type) {
-            DocumentType::Consent => <<<'TEXT'
-Saya yang bertanda tangan di bawah ini, sebagai pasien atau wali pasien atas nama {{pasien}} (Nomor RM {{no_rm}}, tanggal lahir {{tanggal_lahir}}), menyatakan telah menerima penjelasan dari {{dokter}} mengenai tindakan kedokteran berikut:
-
-Diagnosis: {{diagnosa}}
-Tindakan: {{tindakan}}
-Tujuan tindakan: Menghilangkan keluhan serta memulihkan kesehatan.
-Tata cara: Sesuai penjelasan dokter sebelum tindakan dimulai.
-Risiko dan komplikasi: Nyeri, perdarahan, infeksi, atau reaksi terhadap obat dan anestesi; risiko khusus tindakan telah dijelaskan dokter.
-Alternatif dan risikonya: Perawatan lain atau tidak melakukan tindakan, beserta risikonya, telah dijelaskan dokter.
-Prognosis: Sesuai penjelasan dokter.
-Perkiraan biaya: Sesuai tarif klinik yang berlaku.
-
-Saya telah diberi kesempatan untuk bertanya dan seluruh penjelasan telah saya pahami. Dengan penuh kesadaran saya MENYETUJUI dilakukannya tindakan tersebut di {{klinik}}. Saya memahami bahwa hasil perawatan tidak dapat dijamin sepenuhnya dan bahwa persetujuan ini dapat saya tarik kembali secara tertulis sebelum tindakan dimulai.
-
-Demikian surat pernyataan ini saya buat dengan sebenarnya dan penuh rasa tanggung jawab.
-TEXT,
-            DocumentType::Certificate => <<<'TEXT'
-Yang bertanda tangan di bawah ini, {{dokter}}, dokter pada {{klinik}}, menerangkan bahwa:
-
-Nama: {{pasien}}
-Nomor RM: {{no_rm}}
-Tanggal lahir: {{tanggal_lahir}} (umur {{umur}} tahun)
-
-telah menjalani pemeriksaan dan perawatan pada tanggal {{tanggal_kunjungan}} dengan diagnosa: {{diagnosa}}.
-
-Berdasarkan hasil pemeriksaan tersebut, pasien {{istirahat}}.
-
-Surat keterangan ini dibuat untuk keperluan {{keperluan}}.
-
-Demikian surat keterangan ini dibuat dan diberikan untuk diketahui dan digunakan sebagaimana mestinya.
-TEXT,
-            DocumentType::Referral => self::body(DocumentType::Referral),
         };
     }
 }
