@@ -17,6 +17,7 @@ use Src\Integration\Domain\Reminder\ReminderRepository;
 use Src\Integration\Domain\Reminder\ReminderSettingsRepository;
 use Src\Integration\Domain\SatuSehatSettingsRepository;
 use Src\Integration\Domain\SubmissionRepository;
+use Src\Integration\Infrastructure\ChannelStaffWhatsApp;
 use Src\Integration\Infrastructure\Console\RunRemindersCommand;
 use Src\Integration\Infrastructure\Console\SubmitEncountersCommand;
 use Src\Integration\Infrastructure\EloquentIdentifierRepository;
@@ -24,9 +25,12 @@ use Src\Integration\Infrastructure\EloquentReminderRepository;
 use Src\Integration\Infrastructure\EloquentReminderSettingsRepository;
 use Src\Integration\Infrastructure\EloquentSatuSehatSettingsRepository;
 use Src\Integration\Infrastructure\EloquentSubmissionRepository;
+use Src\Integration\Infrastructure\HostResolver;
 use Src\Integration\Infrastructure\HttpSatuSehatGateway;
-use Src\Integration\Infrastructure\WhatsAppCloudGateway;
+use Src\Integration\Infrastructure\ProviderWhatsAppGateway;
+use Src\Integration\Infrastructure\SystemHostResolver;
 use Src\Scheduling\Contracts\BookingCodeSender;
+use Src\Shared\Application\Notifications\StaffWhatsApp;
 
 final class IntegrationServiceProvider extends ServiceProvider
 {
@@ -38,8 +42,11 @@ final class IntegrationServiceProvider extends ServiceProvider
         $this->app->singleton(SatuSehatGateway::class, HttpSatuSehatGateway::class);
         $this->app->singleton(ReminderSettingsRepository::class, EloquentReminderSettingsRepository::class);
         $this->app->singleton(ReminderRepository::class, EloquentReminderRepository::class);
-        $this->app->singleton(WhatsAppGateway::class, WhatsAppCloudGateway::class);
-        // P3-01: kode verifikasi booking online lewat WhatsApp API klinik (menggantikan bawaan tanpa saluran milik Scheduling).
+        $this->app->singleton(HostResolver::class, SystemHostResolver::class);
+        $this->app->singleton(WhatsAppGateway::class, ProviderWhatsAppGateway::class);
+        // Pemberitahuan staf (SYS-05) lewat saluran WhatsApp klinik, menggantikan email dan Telegram.
+        $this->app->singleton(StaffWhatsApp::class, ChannelStaffWhatsApp::class);
+        // P3-01: kode verifikasi booking online lewat saluran WhatsApp klinik (menggantikan bawaan tanpa saluran milik Scheduling).
         $this->app->singleton(BookingCodeSender::class, WhatsAppBookingCodeSender::class);
     }
 

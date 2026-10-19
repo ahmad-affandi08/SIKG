@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Src\Integration\Presentation\Http\Controllers\ReminderController;
 use Src\Integration\Presentation\Http\Controllers\SatuSehatController;
+use Src\Integration\Presentation\Http\Controllers\WhatsAppSettingsController;
 
 // Semua route di balik 'auth' (dipasang oleh ServiceProvider).
 // Setiap route wajib punya pemeriksaan izin: ->middleware('can:<permission>') atau authorize() di controller.
@@ -36,4 +37,11 @@ Route::middleware(['can:appointment.manage', 'throttle:60,1'])->prefix('internal
 Route::middleware('can:setting.manage')->prefix('settings/reminders')->group(function (): void {
     Route::get('/', [ReminderController::class, 'settings'])->name('settings.reminders');
     Route::put('/', [ReminderController::class, 'saveSettings']);
+});
+
+// Saluran WhatsApp (WhatsApp Resmi atau penyedia tidak resmi) untuk pengingat, kode booking, dan pemberitahuan staf.
+Route::middleware('can:setting.manage')->prefix('settings/whatsapp')->group(function (): void {
+    Route::get('/', [WhatsAppSettingsController::class, 'index'])->name('settings.whatsapp');
+    Route::put('/', [WhatsAppSettingsController::class, 'update']);
+    Route::post('/test', [WhatsAppSettingsController::class, 'test'])->middleware('throttle:10,1');
 });

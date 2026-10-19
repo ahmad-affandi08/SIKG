@@ -7,12 +7,10 @@ namespace Src\Integration\Presentation\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Src\Integration\Application\Reminder\ReminderAdministration;
 use Src\Integration\Application\Reminder\ReminderDesk;
-use Src\Integration\Domain\Reminder\ReminderSettings;
 
 /**
  * P2-03: meja pengingat (izin appointment.manage) dan pengaturan pengingat (izin setting.manage), dipasang di route.
@@ -69,18 +67,12 @@ final class ReminderController
     {
         $data = $request->validate([
             'enabled' => ['required', 'boolean'],
-            'mode' => ['required', Rule::in([ReminderSettings::MODE_LINK, ReminderSettings::MODE_API])],
             'recall_months' => ['required', 'integer', 'min:1', 'max:24'],
-            'api_phone_number_id' => ['nullable', 'string', 'max:64', 'regex:/^[0-9]+$/'],
-            'api_token' => ['nullable', 'string', 'max:512'],
-            'api_language' => ['nullable', 'string', 'max:10', 'regex:/^[a-z]{2}(_[A-Z]{2})?$/'],
             'kinds' => ['required', 'array'],
             'kinds.*.enabled' => ['required', 'boolean'],
             'kinds.*.template' => ['nullable', 'string', 'max:500'],
             'kinds.*.api_template' => ['nullable', 'string', 'max:100', 'regex:/^[a-z0-9_]+$/'],
         ], [
-            'api_phone_number_id.regex' => 'ID nomor telepon hanya angka.',
-            'api_language.regex' => 'Kode bahasa berbentuk id atau en_US.',
             'kinds.*.api_template.regex' => 'Nama templat hanya huruf kecil, angka, dan garis bawah.',
             'kinds.*.template.max' => 'Templat pesan maksimal 500 karakter.',
             'recall_months.min' => 'Jarak kontrol berkala 1 sampai 24 bulan.',
@@ -92,8 +84,7 @@ final class ReminderController
             $kinds[(string) $kind] = ['enabled' => (bool) $input['enabled'], 'template' => $input['template'] ?? null, 'api_template' => $input['api_template'] ?? null];
         }
         $this->admin->save(
-            $this->actorId($request), (bool) $data['enabled'], (string) $data['mode'], (int) $data['recall_months'],
-            $data['api_phone_number_id'] ?? null, $data['api_token'] ?? null, (string) ($data['api_language'] ?? 'id'), $kinds,
+            $this->actorId($request), (bool) $data['enabled'], (int) $data['recall_months'], $kinds,
         );
 
         return back()->with('success', 'Pengaturan pengingat disimpan.');
