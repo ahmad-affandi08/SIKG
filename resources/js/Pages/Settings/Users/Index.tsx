@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
@@ -26,6 +26,7 @@ interface Props {
 }
 
 export default function Index({ users, canCreate }: Props) {
+  const doctorTitle = usePage().props.clinic?.doctor_title;
   return (
     <AppLayout>
       <main className="flex flex-col gap-3 p-3">
@@ -64,7 +65,7 @@ export default function Index({ users, canCreate }: Props) {
                   <div className="text-muted">{user.email}</div>
                 </td>
                 <td className="pr-3">{user.username}</td>
-                <td className="pr-3">{roleLabel(user.role)}</td>
+                <td className="pr-3">{roleLabel(user.role, doctorTitle)}</td>
                 <td className="pr-3">{user.branch ?? 'Semua cabang'}</td>
                 <td className="pr-3">
                   <Badge tone={user.isActive ? 'success' : 'neutral'}>

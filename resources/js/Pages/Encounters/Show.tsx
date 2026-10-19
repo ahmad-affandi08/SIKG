@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -30,6 +30,8 @@ import type {
 import { PrescriptionPanel } from '@/features/pharmacy/components/PrescriptionPanel';
 import type { PrescriptionData } from '@/features/pharmacy/components/PrescriptionPanel';
 import { OdontogramBoard } from '@/features/clinical/odontogram/OdontogramBoard';
+import { visibleTabs } from '@/features/clinical/tabs';
+import type { TabKey } from '@/features/clinical/tabs';
 import { formatDateTime, formatRupiah } from '@/lib/format';
 import { useQueue } from '@/features/scheduling/queries';
 import { useCan } from '@/lib/permissions';
@@ -80,19 +82,6 @@ interface Props {
   };
 }
 
-const TABS = [
-  { key: 'anamnesis', label: 'Anamnesis' },
-  { key: 'soap', label: 'Catatan SOAP' },
-  { key: 'odontogram', label: 'Odontogram' },
-  { key: 'diagnosis', label: 'Diagnosa' },
-  { key: 'procedures', label: 'Tindakan' },
-  { key: 'prescriptions', label: 'Resep' },
-  { key: 'files', label: 'Berkas' },
-  { key: 'addenda', label: 'Addendum dan riwayat' },
-] as const;
-
-type TabKey = (typeof TABS)[number]['key'];
-
 export default function Show(props: Props) {
   const {
     encounter,
@@ -113,7 +102,12 @@ export default function Show(props: Props) {
     can,
     initialTab,
   } = props;
-  const [tab, setTab] = useState<TabKey>(initialTab);
+  // KLU-02: klinik umum tidak memakai odontogram; tab dan isinya tidak ditampilkan.
+  const dentalProfile = usePage().props.clinic?.dental ?? true;
+  const tabs = visibleTabs(dentalProfile);
+  const [tab, setTab] = useState<TabKey>(
+    !dentalProfile && initialTab === 'odontogram' ? 'anamnesis' : initialTab,
+  );
   const [chairId, setChairId] = useState(encounter.chair_id ?? '');
   const timezone = useClinicTimezone();
   const canEdit = can.write && !encounter.is_closed;
@@ -184,7 +178,7 @@ export default function Show(props: Props) {
             ) : null}
 
             <div role="tablist" aria-label="Bagian pemeriksaan" className="tabs">
-              {TABS.map((item) => (
+              {tabs.map((item) => (
                 <button
                   key={item.key}
                   id={`tab-${item.key}`}

@@ -15,6 +15,8 @@ import {
   soapSchema,
   temperatureToTenths,
   tenthsToTemperature,
+  tenthsToWeight,
+  weightToTenths,
 } from '@/features/clinical/schemas';
 import type { SoapKey } from '@/features/clinical/schemas';
 import { formatBytes } from '@/features/clinical/files';
@@ -49,6 +51,10 @@ export interface EncounterData {
     diastolic: number | null;
     pulse: number | null;
     temperature_tenths: number | null;
+    respiratory_rate?: number | null;
+    oxygen_saturation?: number | null;
+    weight_tenths_kg?: number | null;
+    height_cm?: number | null;
   };
 }
 
@@ -95,6 +101,10 @@ export function AnamnesisPanel({
     diastolic: encounter.vitals.diastolic?.toString() ?? '',
     pulse: encounter.vitals.pulse?.toString() ?? '',
     temperature: tenthsToTemperature(encounter.vitals.temperature_tenths),
+    respiratory_rate: encounter.vitals.respiratory_rate?.toString() ?? '',
+    oxygen_saturation: encounter.vitals.oxygen_saturation?.toString() ?? '',
+    weight: tenthsToWeight(encounter.vitals.weight_tenths_kg ?? null),
+    height: encounter.vitals.height_cm?.toString() ?? '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -121,6 +131,11 @@ export function AnamnesisPanel({
         diastolic: values.diastolic === '' ? null : Number(values.diastolic),
         pulse: values.pulse === '' ? null : Number(values.pulse),
         temperature_tenths: temperatureToTenths(values.temperature),
+        respiratory_rate: values.respiratory_rate === '' ? null : Number(values.respiratory_rate),
+        oxygen_saturation:
+          values.oxygen_saturation === '' ? null : Number(values.oxygen_saturation),
+        weight_tenths_kg: weightToTenths(values.weight),
+        height_cm: values.height === '' ? null : Number(values.height),
       },
       {
         preserveScroll: true,
@@ -189,6 +204,42 @@ export function AnamnesisPanel({
               set('temperature', e.target.value);
             }}
             error={errors.temperature}
+          />
+          <TextField
+            label="Laju napas (x/menit)"
+            inputMode="numeric"
+            value={values.respiratory_rate}
+            onChange={(e) => {
+              set('respiratory_rate', e.target.value);
+            }}
+            error={errors.respiratory_rate}
+          />
+          <TextField
+            label="Saturasi oksigen (%)"
+            inputMode="numeric"
+            value={values.oxygen_saturation}
+            onChange={(e) => {
+              set('oxygen_saturation', e.target.value);
+            }}
+            error={errors.oxygen_saturation}
+          />
+          <TextField
+            label="Berat badan (kg)"
+            inputMode="decimal"
+            value={values.weight}
+            onChange={(e) => {
+              set('weight', e.target.value);
+            }}
+            error={errors.weight}
+          />
+          <TextField
+            label="Tinggi badan (cm)"
+            inputMode="numeric"
+            value={values.height}
+            onChange={(e) => {
+              set('height', e.target.value);
+            }}
+            error={errors.height}
           />
         </div>
         {errors.domain ? (
