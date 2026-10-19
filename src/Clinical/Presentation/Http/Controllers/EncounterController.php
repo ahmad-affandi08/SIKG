@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Src\Billing\Contracts\InvoiceLookup;
-use Src\Clinic\Contracts\ServiceProfileLookup;
 use Src\Clinical\Application\EncounterEntries;
 use Src\Clinical\Application\EncounterLifecycle;
 use Src\Clinical\Application\EncounterNotes;
@@ -103,7 +102,7 @@ final class EncounterController
         ];
     }
 
-    public function show(Request $request, string $encounter, EncounterWorkspace $workspace, InvoiceLookup $invoices, ServiceProfileLookup $profile): Response
+    public function show(Request $request, string $encounter, EncounterWorkspace $workspace, InvoiceLookup $invoices): Response
     {
         $tab = $request->query('tab');
 
@@ -117,7 +116,7 @@ final class EncounterController
                 'close' => (bool) $request->user()?->can('encounter.close'),
                 'addendum' => (bool) $request->user()?->can('encounter.addendum'),
                 'prescribe' => (bool) $request->user()?->can('prescription.create'),
-                'odontogram' => $profile->current()->dental() && (bool) $request->user()?->can('odontogram.write'),
+                'odontogram' => (bool) $request->user()?->can('odontogram.write'),
                 'printPrescription' => (bool) $request->user()?->can('prescription.view'),
                 'overrideStock' => (bool) $request->user()?->can('stock.override'),
             ],
@@ -152,10 +151,6 @@ final class EncounterController
             'diastolic' => ['nullable', 'integer'],
             'pulse' => ['nullable', 'integer'],
             'temperature_tenths' => ['nullable', 'integer'],
-            'respiratory_rate' => ['nullable', 'integer'],
-            'oxygen_saturation' => ['nullable', 'integer'],
-            'weight_tenths_kg' => ['nullable', 'integer'],
-            'height_cm' => ['nullable', 'integer'],
         ]);
 
         $notes->recordAnamnesis(
