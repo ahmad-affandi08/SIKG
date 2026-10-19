@@ -99,6 +99,36 @@ it('RM-02 tanda vital di luar rentang atau tidak berpasangan ditolak', function 
     $kirim(['systolic' => 120, 'diastolic' => 80, 'pulse' => 70, 'temperature_tenths' => 370])->assertSessionHasNoErrors();
 });
 
+it('KLU-04 anamnesis menyimpan laju napas, saturasi oksigen, berat, dan tinggi badan sebagai bilangan bulat', function () {
+    $s = siapKunjungan();
+
+    test()->actingAs($s['perawat'])->put("/encounters/{$s['kunjungan']}/anamnesis", [
+        'chief_complaint' => 'Demam 3 hari', 'systolic' => 110, 'diastolic' => 70, 'pulse' => 96, 'temperature_tenths' => 385,
+        'respiratory_rate' => 22, 'oxygen_saturation' => 97, 'weight_tenths_kg' => 652, 'height_cm' => 168,
+    ])->assertSessionHasNoErrors();
+
+    tenant()->set($s['klinik']->id);
+    $k = EncounterModel::query()->findOrFail($s['kunjungan']);
+    expect($k->vitals['respiratory_rate'])->toBe(22)->and($k->vitals['oxygen_saturation'])->toBe(97)
+        ->and($k->vitals['weight_tenths_kg'])->toBe(652)->and($k->vitals['height_cm'])->toBe(168);
+    $log = AuditLogModel::query()->where('action', 'encounter.anamnesis_saved')->firstOrFail();
+    expect($log->after['vitals']['weight_tenths_kg'])->toBe(652);
+});
+
+it('KLU-04 tanda vital baru di luar rentang ditolak dan kunjungan lama tanpa nilai itu tetap terbaca', function () {
+    $s = siapKunjungan();
+    $kirim = fn (array $v) => test()->actingAs($s['perawat'])->put("/encounters/{$s['kunjungan']}/anamnesis", ['chief_complaint' => 'x'] + $v);
+
+    $kirim(['oxygen_saturation' => 120])->assertSessionHasErrors('domain');
+    $kirim(['respiratory_rate' => 1])->assertSessionHasErrors('domain');
+    $kirim(['weight_tenths_kg' => 9000])->assertSessionHasErrors('domain');
+    $kirim(['height_cm' => 400])->assertSessionHasErrors('domain');
+    $kirim(['pulse' => 70])->assertSessionHasNoErrors();
+
+    tenant()->set($s['klinik']->id);
+    expect(EncounterModel::query()->findOrFail($s['kunjungan'])->vitals['weight_tenths_kg'] ?? null)->toBeNull();
+});
+
 it('RM-02 menyimpan ulang anamnesis yang sama tidak membuat audit baru', function () {
     $s = siapKunjungan();
     $data = ['chief_complaint' => 'Nyeri', 'pulse' => 70];
@@ -414,5 +444,5 @@ it('RM-04 setelah menambah diagnosa, tindakan, dan addendum pengguna kembali ke 
 it('RM-05 perawat tanpa izin tulis tidak dapat membuka formulir tambah', function () {
     $s = siapKunjungan();
 
-    test()->actingAs(makeUser(Role::Kasir, $s['klinik']))->get("/encounters/{$s['kunjungan']}/diagnoses/create")->assertForbidden();
+    test()->actingAs(makeUser(Role::Kasir, $s['klinik']))->get("/encounters/{$s['kkunjungan']}/diagnoses/create")->assertForbidden();
 });
