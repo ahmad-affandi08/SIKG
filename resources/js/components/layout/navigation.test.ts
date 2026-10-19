@@ -66,6 +66,7 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/settings/users',
       '/settings/roles',
       '/settings/profile',
+      '/settings/service-profile',
       '/settings/clinic',
       '/settings/master/branches',
       '/settings/doctors',
@@ -91,5 +92,32 @@ describe('AUTH-02 menu disaring menurut izin (kenyamanan UI, bukan keamanan)', (
       '/settings/system',
       '/account/password',
     ]);
+  });
+});
+
+describe('KLU-01 menu khusus gigi disembunyikan pada klinik umum', () => {
+  const semua = ['patient.view', 'encounter.view', 'invoice.view', 'setting.manage'];
+  const khususGigi = ['Ortodonti', 'Pesanan lab', 'Kondisi gigi'];
+
+  it('klinik gigi (bawaan) melihat menu gigi', () => {
+    expect(labels(visibleNavItems(NAV_ITEMS, semua))).toEqual(expect.arrayContaining(khususGigi));
+    expect(labels(visibleNavItems(NAV_ITEMS, semua, true))).toEqual(
+      expect.arrayContaining(khususGigi),
+    );
+  });
+
+  it('klinik umum tidak melihat menu gigi tetapi tetap melihat menu lain dan Profil layanan', () => {
+    const umum = labels(visibleNavItems(NAV_ITEMS, semua, false));
+
+    for (const label of khususGigi) {
+      expect(umum).not.toContain(label);
+    }
+    expect(umum).toEqual(expect.arrayContaining(['Pasien', 'Tagihan', 'Profil layanan']));
+  });
+
+  it('menu gigi yang ditandai memang hanya tiga itu', () => {
+    expect(NAV_ITEMS.filter((item) => item.dental === true).map((item) => item.label)).toEqual(
+      khususGigi,
+    );
   });
 });
