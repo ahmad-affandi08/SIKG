@@ -178,7 +178,7 @@ it('P3-05 kasir membuat pembayaran QRIS untuk sisa tagihan; permintaan ke DOKU b
     mulaiQr($s)->assertSessionHasNoErrors()->assertRedirect("/invoices/{$s['invoice']}/online-payments");
 
     $niat = niatDaring();
-    expect($niat->status)->toBe('pending')->and((int) $niat->amount)->toBe(500000)->and($niat->order_id)->toBe('SIKG-'.$niat->id)->and($niat->gateway_ref)->toBe('TOK-UJI-1')
+    expect($niat->status)->toBe('pending')->and((int) $niat->amount)->toBe(500000)->and($niat->order_id)->toBe('SIKLIN-'.$niat->id)->and($niat->gateway_ref)->toBe('TOK-UJI-1')
         ->and($niat->payment_url)->toBe('https://sandbox.doku.com/checkout-link-v2/TOK-UJI-1')->and((int) $niat->active_slot)->toBe(1)->and($niat->created_by)->toBe($s['kasir']->id);
     Http::assertSent(function (Request $r) use ($niat) {
         $isi = $r->body();
@@ -253,13 +253,13 @@ it('P3-05 notifikasi ditolak untuk token tak dikenal, tanda tangan salah, Client
     // Isi diubah setelah ditandatangani (digest tidak cocok).
     $asli = json_encode(['order' => ['invoice_number' => $niat->order_id]], JSON_THROW_ON_ERROR);
     $ditandatangani = tandaTanganDoku(KUNCI_RAHASIA, CLIENT_ID_UJI, 'req-webhook-1', '2025-06-16T00:00:01Z', "/webhooks/payments/{$s['token']}", $asli);
-    kirimWebhook($s['token'], $niat->order_id, ['signature' => $ditandatangani, 'isi' => str_replace($niat->order_id, 'SIKG-LAIN', $asli)])->assertForbidden();
+    kirimWebhook($s['token'], $niat->order_id, ['signature' => $ditandatangani, 'isi' => str_replace($niat->order_id, 'SIKLIN-LAIN', $asli)])->assertForbidden();
 
     // Tanpa header sama sekali.
     $this->call('POST', "/webhooks/payments/{$s['token']}", [], [], [], ['CONTENT_TYPE' => 'application/json'], '{}')->assertForbidden();
 
     // Pesanan tak dikenal dijawab OK tanpa efek. Tanda tangan sah tetapi DOKU menjawab masih menunggu: tidak ada pembayaran dicatat.
-    kirimWebhook($s['token'], 'SIKG-TIDAK-ADA')->assertOk();
+    kirimWebhook($s['token'], 'SIKLIN-TIDAK-ADA')->assertOk();
     kirimWebhook($s['token'], $niat->order_id)->assertOk();
     expect(niatDaring()->status)->toBe('pending')->and(DB::table('payments')->count())->toBe(0)->and($penyedia->status)->toBe('PENDING');
 });
