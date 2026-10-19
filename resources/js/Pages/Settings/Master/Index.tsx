@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import type { MasterFieldDef } from '@/features/master/schema';
 import { formatDate, formatRupiah } from '@/lib/format';
 
@@ -173,8 +174,13 @@ export default function Index({ entity, rows, canManage, importable, tabs }: Pro
             ))}
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 2} className="text-muted py-4">
-                  Belum ada data.
+                <td colSpan={columns.length + 2}>
+                  <EmptyState
+                    kind="box"
+                    size="compact"
+                    title="Belum ada data"
+                    description="Tambahkan satu per satu atau impor dari Excel."
+                  />
                 </td>
               </tr>
             ) : null}

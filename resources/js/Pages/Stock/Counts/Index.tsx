@@ -7,6 +7,7 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { TextField } from '@/components/ui/TextField';
 import { scheduleSchema } from '@/features/pharmacy/purchasing';
 import { formatDate } from '@/lib/format';
@@ -128,7 +129,12 @@ export default function Index({ schedule, open, sessions, can }: Props) {
         <section aria-labelledby="riwayat-opname">
           <h2 id="riwayat-opname">Riwayat sesi</h2>
           {sessions.length === 0 ? (
-            <p className="text-muted text-sm">Belum ada sesi opname.</p>
+            <EmptyState
+              kind="folder"
+              size="page"
+              title="Belum ada sesi opname"
+              description="Mulai sesi opname untuk mencocokkan stok fisik dengan catatan."
+            />
           ) : (
             <table className="w-full text-left text-sm">
               <caption className="sr-only">Sesi opname</caption>

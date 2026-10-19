@@ -5,6 +5,7 @@ import type { SyntheticEvent } from 'react';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { TextArea } from '@/components/ui/TextArea';
 import { TextField } from '@/components/ui/TextField';
@@ -130,7 +131,12 @@ export default function Index({
                     </span>
                   </span>
                   {slots.isSuccess && slots.data.length === 0 ? (
-                    <p className="text-muted text-sm">Tidak ada jam kosong pada tanggal itu.</p>
+                    <EmptyState
+                      kind="calendar"
+                      size="compact"
+                      title="Tidak ada jam kosong pada tanggal itu"
+                      description="Coba tanggal atau dokter lain."
+                    />
                   ) : null}
                   {slots.isError ? (
                     <p role="alert" className="text-danger-600 text-sm">

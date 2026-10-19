@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { TextField } from '@/components/ui/TextField';
 import { formatDateTime, formatRupiah } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
@@ -61,7 +62,14 @@ export function PrescriptionPanel({
           </Link>
         </div>
       ) : null}
-      {prescriptions.length === 0 ? <p className="text-muted text-sm">Belum ada resep.</p> : null}
+      {prescriptions.length === 0 ? (
+        <EmptyState
+          kind="pill"
+          size="compact"
+          title="Belum ada resep"
+          description="Buat resep bila pasien perlu obat."
+        />
+      ) : null}
       {prescriptions.map((prescription) => (
         <section key={prescription.id} aria-label="Resep" className="card flex flex-col gap-2 p-3">
           <div className="flex flex-wrap items-center gap-2">

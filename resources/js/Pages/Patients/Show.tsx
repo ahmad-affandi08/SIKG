@@ -5,6 +5,7 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import type { SelectOption } from '@/components/ui/Select';
 import { formatDate, formatDateTime } from '@/lib/format';
 
@@ -176,7 +177,7 @@ export default function Show({
         <section aria-label="Riwayat medis" className="flex flex-col gap-3">
           <h2>Riwayat medis</h2>
           {histories.length === 0 ? (
-            <p className="text-muted text-sm">Belum ada riwayat medis.</p>
+            <EmptyState kind="folder" size="compact" title="Belum ada riwayat medis" />
           ) : (
             <ul className="flex flex-col gap-2">
               {histories.map((h) => (

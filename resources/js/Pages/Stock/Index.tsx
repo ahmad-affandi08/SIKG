@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { expiryText, stockLevel } from '@/features/pharmacy/schemas';
 import { formatDate } from '@/lib/format';
 
@@ -120,7 +121,12 @@ export default function Index({ medicines, alerts, can }: Props) {
         ) : null}
 
         {medicines.length === 0 ? (
-          <p className="text-muted text-sm">Belum ada obat di katalog.</p>
+          <EmptyState
+            kind="pill"
+            size="page"
+            title="Belum ada obat di katalog"
+            description="Tambahkan obat dan bahan di Pengaturan, Data master, atau impor stok awal dari Excel."
+          />
         ) : (
           <table>
             <caption className="sr-only">Stok obat dan bahan</caption>

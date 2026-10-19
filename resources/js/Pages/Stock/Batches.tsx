@@ -1,6 +1,7 @@
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDate, formatRupiah } from '@/lib/format';
 
 interface Batch {
@@ -28,7 +29,12 @@ export default function Batches({ batches }: { batches: Batch[] }) {
           description="Stok keluar mengambil batch yang paling cepat kedaluwarsa lebih dulu."
         />
         {batches.length === 0 ? (
-          <p className="text-muted text-sm">Belum ada batch bersisa.</p>
+          <EmptyState
+            kind="pill"
+            size="page"
+            title="Belum ada batch bersisa"
+            description="Batch muncul setelah barang diterima."
+          />
         ) : (
           <table className="w-full text-left text-sm">
             <caption className="sr-only">Batch bersisa</caption>

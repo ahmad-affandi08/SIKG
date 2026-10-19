@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { LEDGER_LABEL, sellPackageSchema } from '@/features/loyalty/schemas';
@@ -88,7 +89,7 @@ export default function Loyalty({
             <p className="text-muted text-sm">Poin loyalitas belum diaktifkan di klinik ini.</p>
           )}
           {loyalty.ledger.length === 0 ? (
-            <p className="text-muted text-sm">Belum ada riwayat poin.</p>
+            <EmptyState kind="box" size="compact" title="Belum ada riwayat poin" />
           ) : (
             <table className="w-full text-left text-sm">
               <caption className="sr-only">Riwayat poin</caption>

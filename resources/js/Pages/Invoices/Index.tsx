@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import type { DateRange } from '@/components/ui/DateRangePicker';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
 import { STATUS_TONE } from '@/features/billing/schemas';
@@ -92,7 +93,12 @@ export default function Index({ rows, total, page, per_page: perPage, filters, s
         </form>
 
         {rows.length === 0 ? (
-          <p className="text-muted">Belum ada tagihan yang cocok.</p>
+          <EmptyState
+            kind="search"
+            size="page"
+            title="Belum ada tagihan yang cocok"
+            description="Ubah filter atau kata kunci pencarian."
+          />
         ) : (
           <table>
             <caption className="sr-only">Daftar tagihan</caption>

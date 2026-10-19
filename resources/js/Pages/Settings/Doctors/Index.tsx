@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DoctorRow {
   id: string;
@@ -106,8 +107,13 @@ export default function Index({ doctors }: Props) {
             ))}
             {doctors.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-muted py-4">
-                  Belum ada dokter.
+                <td colSpan={8}>
+                  <EmptyState
+                    kind="tooth"
+                    size="compact"
+                    title="Belum ada dokter"
+                    description="Tambahkan dokter agar janji dan kunjungan dapat dibuat."
+                  />
                 </td>
               </tr>
             ) : null}

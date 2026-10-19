@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { LAB_TONE } from '@/features/lab/schemas';
@@ -61,7 +62,12 @@ export default function Index({ orders, statuses, filters }: Props) {
           </Link>
         </div>
         {orders.length === 0 ? (
-          <p className="text-muted text-sm">Belum ada pesanan lab.</p>
+          <EmptyState
+            kind="box"
+            size="page"
+            title="Belum ada pesanan lab"
+            description="Pesanan ke laboratorium gigi akan tampil di sini."
+          />
         ) : (
           <table className="w-full text-left text-sm">
             <caption className="sr-only">Daftar pesanan lab</caption>

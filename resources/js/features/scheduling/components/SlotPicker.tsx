@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/EmptyState';
 import { useAvailability } from '@/features/scheduling/queries';
 
 interface SlotPickerProps {
@@ -21,7 +22,12 @@ export function SlotPicker({ doctor, date, minutes, chair, time, onPick }: SlotP
     <div className="flex flex-col gap-1">
       <span className="text-sm font-semibold">Jam kosong</span>
       {slots.isSuccess && slots.data.length === 0 ? (
-        <p className="text-muted text-sm">Tidak ada jam kosong pada tanggal itu.</p>
+        <EmptyState
+          kind="calendar"
+          size="compact"
+          title="Tidak ada jam kosong pada tanggal itu"
+          description="Coba tanggal atau dokter lain."
+        />
       ) : null}
       <div className="flex flex-wrap gap-2">
         {(slots.data ?? []).map((slot) => (

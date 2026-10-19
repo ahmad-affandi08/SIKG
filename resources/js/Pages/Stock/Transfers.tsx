@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
 import { CENTRAL, transferSchema } from '@/features/branches/schemas';
@@ -168,8 +169,8 @@ export default function Transfers({
               <tbody>
                 {balances.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="text-muted">
-                      Belum ada saldo stok.
+                    <td colSpan={3}>
+                      <EmptyState kind="box" size="compact" title="Belum ada saldo stok" />
                     </td>
                   </tr>
                 ) : null}
@@ -204,8 +205,8 @@ export default function Transfers({
               <tbody>
                 {transfers.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-muted">
-                      Belum ada transfer.
+                    <td colSpan={6}>
+                      <EmptyState kind="box" size="compact" title="Belum ada transfer" />
                     </td>
                   </tr>
                 ) : null}

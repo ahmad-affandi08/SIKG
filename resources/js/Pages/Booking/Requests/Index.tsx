@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { TextField } from '@/components/ui/TextField';
 import { fetchBookingPhone } from '@/features/booking/api';
 import { BOOKING_TONE, rejectSchema } from '@/features/booking/schemas';
@@ -68,7 +69,14 @@ export default function Index({ requests, public_path: publicPath }: Props) {
 
         <section aria-label="Menunggu keputusan" className="flex flex-col gap-2">
           <h2>Menunggu ({String(open.length)})</h2>
-          {open.length === 0 ? <p className="text-muted text-sm">Tidak ada permintaan.</p> : null}
+          {open.length === 0 ? (
+            <EmptyState
+              kind="calendar"
+              size="compact"
+              title="Tidak ada permintaan yang menunggu"
+              description="Permintaan baru dari halaman booking publik akan muncul di sini."
+            />
+          ) : null}
           {open.map((row) => (
             <RequestCard key={row.id} row={row} />
           ))}
@@ -76,7 +84,9 @@ export default function Index({ requests, public_path: publicPath }: Props) {
 
         <section aria-label="Riwayat" className="flex flex-col gap-2">
           <h2>Riwayat</h2>
-          {done.length === 0 ? <p className="text-muted text-sm">Belum ada riwayat.</p> : null}
+          {done.length === 0 ? (
+            <EmptyState kind="folder" size="compact" title="Belum ada riwayat keputusan" />
+          ) : null}
           <ul className="flex flex-col gap-1 text-sm">
             {done.map((row) => (
               <li key={row.id} className="card flex flex-wrap items-center gap-x-4 gap-y-1 p-2">

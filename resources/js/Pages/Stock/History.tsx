@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDateTime } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
 
@@ -56,7 +57,12 @@ export default function History({ medicine, movements, can }: Props) {
         />
 
         {movements.length === 0 ? (
-          <p className="text-muted text-sm">Belum ada mutasi.</p>
+          <EmptyState
+            kind="pill"
+            size="page"
+            title="Belum ada mutasi stok"
+            description="Penerimaan, pemakaian, dan penyesuaian stok akan tercatat di sini."
+          />
         ) : (
           <table>
             <caption className="sr-only">Riwayat mutasi stok {medicine.name}</caption>

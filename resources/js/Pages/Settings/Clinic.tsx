@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
 import { TimePicker } from '@/components/ui/TimePicker';
@@ -319,7 +320,12 @@ export default function Clinic({
             </Link>
           </div>
           {holidays.length === 0 ? (
-            <p className="text-muted text-sm">Belum ada hari libur.</p>
+            <EmptyState
+              kind="calendar"
+              size="compact"
+              title="Belum ada hari libur"
+              description="Hari libur membuat jadwal dokter menutup tanggal itu."
+            />
           ) : (
             <table className="w-full text-left text-sm">
               <caption className="sr-only">Daftar hari libur</caption>

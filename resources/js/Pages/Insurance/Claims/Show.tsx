@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { MoneyField } from '@/components/ui/MoneyField';
@@ -293,7 +294,7 @@ export default function Show({ claim, receipts, methods, can }: Props) {
         <section aria-label="Pembayaran diterima" className="flex flex-col gap-2">
           <h2>Pembayaran dari penjamin</h2>
           {receipts.length === 0 ? (
-            <p className="text-muted text-sm">Belum ada pembayaran.</p>
+            <EmptyState kind="invoice" size="compact" title="Belum ada pembayaran klaim" />
           ) : (
             <table className="w-full text-left text-sm">
               <thead>

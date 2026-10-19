@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextArea } from '@/components/ui/TextArea';
@@ -325,7 +326,7 @@ export default function Show({
               </form>
             ) : null}
             {controls.length === 0 ? (
-              <p className="text-muted text-sm">Belum ada catatan kontrol.</p>
+              <EmptyState kind="tooth" size="compact" title="Belum ada catatan kontrol" />
             ) : (
               <ul className="flex flex-col gap-2">
                 {controls.map((control) => (

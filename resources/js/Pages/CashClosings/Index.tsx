@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDate, formatDateTime, formatRupiah } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
 
@@ -45,7 +46,12 @@ export default function Index({ history, preview }: Props) {
           }
         />
         {history.length === 0 ? (
-          <p className="text-muted">Belum ada penutupan kas.</p>
+          <EmptyState
+            kind="invoice"
+            size="page"
+            title="Belum ada penutupan kas"
+            description="Riwayat tutup kas harian akan tampil di sini."
+          />
         ) : (
           <table>
             <caption className="sr-only">Riwayat tutup kas</caption>

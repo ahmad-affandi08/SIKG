@@ -5,6 +5,7 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { useCan } from '@/lib/permissions';
 import { useQueue } from '@/features/scheduling/queries';
 import { statusTone } from '@/features/scheduling/status';
@@ -89,7 +90,12 @@ export default function Index({ canManage }: Props) {
               </tbody>
             </table>
           ) : queue.isSuccess ? (
-            <p className="text-muted text-sm">Belum ada pasien dalam antrean.</p>
+            <EmptyState
+              kind="queue"
+              size="page"
+              title="Belum ada pasien dalam antrean"
+              description="Pasien yang check-in atau ditambahkan tanpa janji akan tampil di sini."
+            />
           ) : null}
           <p className="text-muted mt-2 text-xs">Diperbarui otomatis setiap 10 detik.</p>
         </section>

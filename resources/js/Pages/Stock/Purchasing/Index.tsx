@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { PURCHASE_TONE } from '@/features/pharmacy/purchasing';
@@ -63,7 +64,12 @@ export default function Index({ orders, statuses, filters, can }: Props) {
           </Link>
         </div>
         {orders.length === 0 ? (
-          <p className="text-muted text-sm">Belum ada pesanan pembelian.</p>
+          <EmptyState
+            kind="box"
+            size="page"
+            title="Belum ada pesanan pembelian"
+            description="Pesanan ke pemasok akan tercatat di sini."
+          />
         ) : (
           <table className="w-full text-left text-sm">
             <caption className="sr-only">Daftar pesanan pembelian</caption>

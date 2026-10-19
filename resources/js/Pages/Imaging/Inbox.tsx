@@ -8,6 +8,7 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
 import { dicomUploadSchema, formatBytes, importSchema } from '@/features/imaging/schemas';
@@ -36,10 +37,12 @@ export default function Inbox({ files, encounters }: Props) {
         <section aria-label="Berkas masuk" className="flex flex-col gap-2">
           <h2>Menunggu ({String(files.length)})</h2>
           {files.length === 0 ? (
-            <p className="text-muted text-sm">
-              Tidak ada berkas. Atur perangkat lunak sensor untuk menyimpan ke folder masuk klinik
-              di server.
-            </p>
+            <EmptyState
+              kind="folder"
+              size="section"
+              title="Belum ada berkas masuk"
+              description="Atur perangkat lunak sensor untuk menyimpan ke folder masuk klinik di server."
+            />
           ) : null}
           {files.map((file) => (
             <InboxRow key={file.name} file={file} encounters={encounters} />

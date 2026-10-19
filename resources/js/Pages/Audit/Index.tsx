@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import type { DateRange } from '@/components/ui/DateRangePicker';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
 import { formatDateTime } from '@/lib/format';
@@ -131,7 +132,12 @@ export default function Index({
         </form>
 
         {rows.length === 0 ? (
-          <p className="text-muted">Tidak ada catatan yang cocok.</p>
+          <EmptyState
+            kind="search"
+            size="page"
+            title="Tidak ada catatan yang cocok"
+            description="Ubah rentang tanggal atau filter aksi."
+          />
         ) : (
           <table>
             <caption className="sr-only">Catatan audit</caption>

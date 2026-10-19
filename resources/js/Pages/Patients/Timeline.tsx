@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Badge } from '@/components/ui/Badge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDateTime, formatRupiah } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
 
@@ -54,7 +55,12 @@ export default function Timeline({ patient, encounters }: Props) {
         </div>
 
         {encounters.length === 0 ? (
-          <p className="text-muted text-sm">Belum ada kunjungan.</p>
+          <EmptyState
+            kind="folder"
+            size="page"
+            title="Belum ada kunjungan"
+            description="Kunjungan pasien akan tampil di sini menurut urutan waktu."
+          />
         ) : null}
 
         <ol className="flex flex-col gap-4">

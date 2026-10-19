@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { useMarkAllRead, useMarkRead, useNotifications } from '@/features/notifications/queries';
 import type { NotificationOverview } from '@/features/notifications/schemas';
 import { formatDateTime } from '@/lib/format';
@@ -35,7 +36,12 @@ export default function Index(initial: NotificationOverview) {
         </p>
 
         {data.items.length === 0 ? (
-          <p className="text-muted">Belum ada pemberitahuan.</p>
+          <EmptyState
+            kind="bell"
+            size="page"
+            title="Belum ada pemberitahuan"
+            description="Peringatan stok, obat hampir kedaluwarsa, dan janji baru akan muncul di sini."
+          />
         ) : (
           <ul className="flex flex-col border border-[#8f8f8f]">
             {data.items.map((item) => (

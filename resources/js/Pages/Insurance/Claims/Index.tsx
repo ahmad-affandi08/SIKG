@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { CLAIM_TONE } from '@/features/insurance/schemas';
@@ -75,7 +76,12 @@ export default function Index({ claims, statuses, insurers, filters }: Props) {
         </div>
 
         {claims.length === 0 ? (
-          <p className="text-muted text-sm">Belum ada klaim.</p>
+          <EmptyState
+            kind="invoice"
+            size="page"
+            title="Belum ada klaim"
+            description="Klaim ke penjamin yang dibuat dari tagihan akan tampil di sini."
+          />
         ) : (
           <table className="w-full text-left text-sm">
             <caption className="sr-only">Daftar klaim penjamin</caption>

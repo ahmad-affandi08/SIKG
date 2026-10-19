@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatCell, isNumericKind } from '@/features/reporting/cell';
 import type { Report, ReportTable } from '@/features/reporting/schemas';
 
@@ -24,7 +25,12 @@ function DataTable({ table }: { table: ReportTable }) {
     <section aria-label={table.title} className="flex flex-col gap-1">
       <h2 className="text-base">{table.title}</h2>
       {table.rows.length === 0 ? (
-        <p className="text-muted">{table.empty_text ?? 'Tidak ada data.'}</p>
+        <EmptyState
+          kind="chart"
+          size="section"
+          title={table.empty_text ?? 'Tidak ada data'}
+          description="Ubah rentang tanggal atau filter untuk melihat data lain."
+        />
       ) : (
         <div className="overflow-x-auto">
           <table>

@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { percentText, STATUS_TONE } from '@/features/billing/schemas';
 import type { InvoiceItemRow, InvoiceStatus, PaymentRow } from '@/features/billing/schemas';
 import { formatDate, formatDateTime, formatRupiah } from '@/lib/format';
@@ -220,8 +221,8 @@ export default function Show({ invoice, items, payments, installments, can }: Pr
             <tbody>
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-muted">
-                    Belum ada item.
+                  <td colSpan={6}>
+                    <EmptyState kind="invoice" size="compact" title="Belum ada item tagihan" />
                   </td>
                 </tr>
               ) : null}
@@ -336,7 +337,7 @@ export default function Show({ invoice, items, payments, installments, can }: Pr
               {installments?.overdue ? <Badge tone="danger">Ada cicilan jatuh tempo</Badge> : null}
             </div>
             {installments === null ? (
-              <p className="text-muted">Belum ada jadwal cicilan.</p>
+              <EmptyState kind="calendar" size="compact" title="Belum ada jadwal cicilan" />
             ) : (
               <table>
                 <caption className="sr-only">Jadwal cicilan</caption>
@@ -390,7 +391,12 @@ export default function Show({ invoice, items, payments, installments, can }: Pr
             ) : null}
           </div>
           {payments.length === 0 ? (
-            <p className="text-muted">Belum ada pembayaran.</p>
+            <EmptyState
+              kind="invoice"
+              size="compact"
+              title="Belum ada pembayaran"
+              description="Pembayaran yang dicatat kasir akan tampil di sini."
+            />
           ) : (
             <table>
               <caption className="sr-only">Riwayat pembayaran</caption>

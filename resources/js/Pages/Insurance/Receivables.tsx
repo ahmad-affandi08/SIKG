@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { formatRupiah } from '@/lib/format';
 
 interface Props {
@@ -30,7 +31,12 @@ export default function Receivables({ total, count, buckets, insurers }: Props) 
           description={`${String(count)} klaim belum lunas, total ${formatRupiah(total)}. Umur dihitung dari tanggal pengajuan.`}
         />
         {insurers.length === 0 ? (
-          <p className="text-muted text-sm">Tidak ada piutang penjamin.</p>
+          <EmptyState
+            kind="invoice"
+            size="page"
+            title="Tidak ada piutang penjamin"
+            description="Semua klaim sudah lunas atau belum ada klaim yang diajukan."
+          />
         ) : (
           <table className="w-full text-left text-sm">
             <caption className="sr-only">Piutang per penjamin</caption>

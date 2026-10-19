@@ -7,6 +7,7 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
@@ -156,7 +157,12 @@ export default function Index({ expenses, total_amount, categories, filters, can
         </p>
 
         {expenses.length === 0 ? (
-          <p className="text-muted text-sm">Belum ada biaya pada rentang ini.</p>
+          <EmptyState
+            kind="invoice"
+            size="page"
+            title="Belum ada biaya pada rentang ini"
+            description="Ubah rentang tanggal, atau catat biaya operasional baru."
+          />
         ) : (
           <table className="w-full text-left text-sm">
             <caption className="sr-only">Daftar biaya operasional</caption>

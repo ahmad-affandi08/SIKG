@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { DatePicker } from '@/components/ui/DatePicker';
@@ -175,7 +176,7 @@ export default function Index({ filters, today, calendar, doctors, chairs, canMa
                 {day === today ? ' (hari ini)' : ''}
               </h2>
               {items.length === 0 ? (
-                <p className="text-muted text-sm">Tidak ada janji.</p>
+                <EmptyState kind="calendar" size="compact" title="Tidak ada janji" />
               ) : (
                 <ul className="flex flex-col gap-2">
                   {items.map((item) => (

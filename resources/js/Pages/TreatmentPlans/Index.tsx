@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { nextStatus, progressText } from '@/features/clinical/plan';
 import type { Plan } from '@/features/clinical/plan';
 import { formatDate, formatRupiah } from '@/lib/format';
@@ -49,7 +50,14 @@ export default function Index({ patient, plans, can, statuses }: Props) {
           }
         />
 
-        {plans.length === 0 ? <p className="text-muted">Belum ada rencana perawatan.</p> : null}
+        {plans.length === 0 ? (
+          <EmptyState
+            kind="tooth"
+            size="page"
+            title="Belum ada rencana perawatan"
+            description="Rencana multi-kunjungan untuk pasien ini akan tampil di sini."
+          />
+        ) : null}
 
         {plans.map((plan) => (
           <section key={plan.id} className="pane" aria-label={plan.title}>
@@ -65,7 +73,7 @@ export default function Index({ patient, plans, can, statuses }: Props) {
               </p>
               {plan.notes ? <p className="text-sm">{plan.notes}</p> : null}
               {plan.items.length === 0 ? (
-                <p className="text-muted text-sm">Belum ada langkah.</p>
+                <EmptyState kind="tooth" size="compact" title="Belum ada langkah" />
               ) : (
                 <table>
                   <caption className="sr-only">Langkah rencana {plan.title}</caption>

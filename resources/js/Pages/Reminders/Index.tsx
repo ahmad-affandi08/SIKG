@@ -8,6 +8,7 @@ import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { fetchWhatsAppLink } from '@/features/reminders/api';
 import { formatDateTime } from '@/lib/format';
 import { HttpError } from '@/lib/http';
@@ -92,7 +93,12 @@ export default function Index({ enabled, mode, pending, history, optouts }: Prop
         <section aria-label="Menunggu" className="flex flex-col gap-2">
           <h2>Menunggu dikirim ({pending.length})</h2>
           {pending.length === 0 ? (
-            <p className="text-muted text-sm">Tidak ada pengingat yang menunggu.</p>
+            <EmptyState
+              kind="bell"
+              size="section"
+              title="Tidak ada pengingat yang menunggu"
+              description="Pengingat janji akan muncul di sini sebelum waktu kirim."
+            />
           ) : (
             <table className="w-full text-left text-sm">
               <caption className="sr-only">Pengingat menunggu</caption>
@@ -170,7 +176,7 @@ export default function Index({ enabled, mode, pending, history, optouts }: Prop
         <section aria-label="Riwayat" className="flex flex-col gap-2">
           <h2>Riwayat terakhir</h2>
           {history.length === 0 ? (
-            <p className="text-muted text-sm">Belum ada riwayat.</p>
+            <EmptyState kind="folder" size="section" title="Belum ada riwayat pengingat" />
           ) : (
             <table className="w-full text-left text-sm">
               <caption className="sr-only">Riwayat pengingat</caption>

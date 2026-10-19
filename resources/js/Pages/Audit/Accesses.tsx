@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { DateRangePicker } from '@/components/ui/DateRangePicker';
 import type { DateRange } from '@/components/ui/DateRangePicker';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { formatDateTime } from '@/lib/format';
 import { useClinicTimezone } from '@/lib/useClinicTimezone';
@@ -83,7 +84,12 @@ export default function Accesses({ rows, total, page, per_page: perPage, actors,
         </form>
 
         {rows.length === 0 ? (
-          <p className="text-muted">Tidak ada catatan yang cocok.</p>
+          <EmptyState
+            kind="search"
+            size="page"
+            title="Tidak ada catatan yang cocok"
+            description="Ubah rentang tanggal atau filter pengguna."
+          />
         ) : (
           <table>
             <caption className="sr-only">Jejak akses rekam medis</caption>

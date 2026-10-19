@@ -7,6 +7,7 @@ import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
@@ -107,7 +108,7 @@ export default function ProcedureMaterials({ materials, medicines }: Props) {
         </form>
 
         {materials.length === 0 ? (
-          <p className="text-muted text-sm">Belum ada bahan yang diatur.</p>
+          <EmptyState kind="pill" size="compact" title="Belum ada bahan yang diatur" />
         ) : (
           <table className="w-full text-left text-sm">
             <caption className="sr-only">Bahan per tindakan</caption>

@@ -5,6 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Badge } from '@/components/ui/Badge';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import {
@@ -265,7 +266,11 @@ export default function Show(props: Props) {
                   <section aria-label="Riwayat versi catatan" className="flex flex-col gap-2">
                     <h3 className="text-base font-semibold">Riwayat versi catatan</h3>
                     {history.length === 0 ? (
-                      <p className="text-muted text-sm">Belum ada catatan.</p>
+                      <EmptyState
+                        kind="folder"
+                        size="compact"
+                        title="Belum ada riwayat versi catatan"
+                      />
                     ) : null}
                     <ul className="flex flex-col gap-1 text-sm">
                       {history.map((note) => (
@@ -389,7 +394,9 @@ function QueuePane({ currentPatientId }: { currentPatientId: string }) {
           );
         })}
         {queue.isSuccess && rows.length === 0 ? (
-          <li className="text-muted p-2">Belum ada pasien dalam antrean.</li>
+          <li>
+            <EmptyState kind="queue" size="compact" title="Belum ada pasien dalam antrean" />
+          </li>
         ) : null}
       </ul>
     </aside>

@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { PageHead } from '@/components/layout/PageTitle';
 import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { INTENT_TONE } from '@/features/onlinePayments/schemas';
 import { formatRupiah } from '@/lib/format';
 
@@ -55,8 +56,8 @@ export default function OnlinePayments({ intents }: { intents: Row[] }) {
             <tbody>
               {intents.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-muted">
-                    Belum ada pembayaran online.
+                  <td colSpan={5}>
+                    <EmptyState kind="invoice" size="compact" title="Belum ada pembayaran online" />
                   </td>
                 </tr>
               ) : null}

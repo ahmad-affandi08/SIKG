@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHead } from '@/components/layout/PageTitle';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import type { SelectOption } from '@/components/ui/Select';
 import { formatDate, formatRupiah } from '@/lib/format';
@@ -64,7 +65,12 @@ export default function Index({ cases, statuses, filters }: Props) {
         </div>
 
         {cases.length === 0 ? (
-          <p className="text-muted text-sm">Belum ada paket ortodonti.</p>
+          <EmptyState
+            kind="tooth"
+            size="page"
+            title="Belum ada paket ortodonti"
+            description="Paket perawatan ortodonti pasien akan tampil di sini."
+          />
         ) : (
           <table className="w-full text-left text-sm">
             <caption className="sr-only">Daftar paket ortodonti</caption>

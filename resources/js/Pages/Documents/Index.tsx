@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { PageHead } from '@/components/layout/PageTitle';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { toDisplayDate } from '@/features/clinical/documents';
 
 interface DocumentRow {
@@ -51,7 +52,12 @@ export default function Index({ patient, documents, can, types }: Props) {
         />
 
         {documents.length === 0 ? (
-          <p className="text-muted">Belum ada dokumen yang diterbitkan.</p>
+          <EmptyState
+            kind="folder"
+            size="page"
+            title="Belum ada dokumen yang diterbitkan"
+            description="Surat keterangan, rujukan, dan persetujuan tindakan yang diterbitkan tersimpan di sini."
+          />
         ) : (
           <table>
             <caption className="sr-only">Dokumen klinis pasien</caption>

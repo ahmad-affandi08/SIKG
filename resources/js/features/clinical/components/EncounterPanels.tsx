@@ -6,6 +6,7 @@ import { Alert } from '@/components/ui/Alert';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ConfirmAction } from '@/components/ui/ConfirmAction';
+import { EmptyState } from '@/components/ui/EmptyState';
 import type { SelectOption } from '@/components/ui/Select';
 import { TextField } from '@/components/ui/TextField';
 import {
@@ -337,7 +338,14 @@ export function DiagnosisPanel({
       {canEdit ? (
         <AddLink href={`/encounters/${encounterId}/diagnoses/create`}>Tambah diagnosa</AddLink>
       ) : null}
-      {entries.length === 0 ? <p className="text-muted text-sm">Belum ada diagnosa.</p> : null}
+      {entries.length === 0 ? (
+        <EmptyState
+          kind="tooth"
+          size="compact"
+          title="Belum ada diagnosa"
+          description="Tambahkan diagnosa untuk kunjungan ini."
+        />
+      ) : null}
       {entries.length > 0 ? (
         <table>
           <caption className="sr-only">Diagnosa pada kunjungan</caption>
@@ -510,7 +518,14 @@ export function ProcedurePanel({
       {canEdit ? (
         <AddLink href={`/encounters/${encounterId}/procedures/create`}>Tambah tindakan</AddLink>
       ) : null}
-      {entries.length === 0 ? <p className="text-muted text-sm">Belum ada tindakan.</p> : null}
+      {entries.length === 0 ? (
+        <EmptyState
+          kind="tooth"
+          size="compact"
+          title="Belum ada tindakan"
+          description="Tambahkan tindakan yang dikerjakan pada kunjungan ini."
+        />
+      ) : null}
       {entries.length > 0 ? (
         <table>
           <caption className="sr-only">Tindakan pada kunjungan</caption>
@@ -594,7 +609,9 @@ export function AddendumPanel({
       {canAdd ? (
         <AddLink href={`/encounters/${encounterId}/addenda/create`}>Tambah addendum</AddLink>
       ) : null}
-      {addenda.length === 0 ? <p className="text-muted text-sm">Belum ada addendum.</p> : null}
+      {addenda.length === 0 ? (
+        <EmptyState kind="folder" size="compact" title="Belum ada addendum" />
+      ) : null}
       <ul className="flex flex-col">
         {addenda.map((note) => (
           <li key={note.id} className="border-b border-[#ddd] py-3">
@@ -637,7 +654,14 @@ export function FilesPanel({
       {canEdit ? (
         <AddLink href={`/encounters/${encounterId}/files/create`}>Unggah berkas</AddLink>
       ) : null}
-      {files.length === 0 ? <p className="text-muted text-sm">Belum ada berkas.</p> : null}
+      {files.length === 0 ? (
+        <EmptyState
+          kind="folder"
+          size="compact"
+          title="Belum ada berkas"
+          description="Foto atau rontgen yang diunggah ke kunjungan ini tampil di sini."
+        />
+      ) : null}
       {files.length > 0 ? (
         <table>
           <caption className="sr-only">Berkas pada kunjungan</caption>
