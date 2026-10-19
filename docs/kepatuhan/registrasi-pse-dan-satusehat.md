@@ -13,7 +13,7 @@ Dokumen kerja untuk pemilik klinik. Isinya bahan untuk registrasi sistem elektro
 | Lokasi penyimpanan data | Server atau shared hosting di wilayah Indonesia yang dipilih klinik; basis data MySQL 8. Isi lokasi dan penyedia hosting di formulir registrasi |
 | Keamanan | Otorisasi per izin di server, audit log dan jejak akses, enkripsi NIK dan nomor HP di kolom, kata sandi ter-hash, verifikasi dua langkah opsional, cadangan terjadwal dan uji pemulihan |
 | Retensi | Tidak ada hapus permanen data klinis dan keuangan lewat aplikasi; cadangan menjaga retensi rekam medis 25 tahun |
-| Pihak ketiga | SATUSEHAT (Kemenkes). Email dan Telegram hanya untuk pemberitahuan ke staf, tanpa data pasien |
+| Pihak ketiga | SATUSEHAT (Kemenkes). Penyedia WhatsApp pilihan klinik (WhatsApp Resmi/Meta, atau penyedia tidak resmi seperti Fonnte) untuk pemberitahuan staf, kode booking, dan pengingat pasien; pemberitahuan staf tanpa data pasien, pengingat memuat nama depan, jadwal, dan nama dokter |
 
 ## 2. Variabel dan metadata yang dikirim ke SATUSEHAT
 

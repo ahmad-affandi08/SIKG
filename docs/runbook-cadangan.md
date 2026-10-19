@@ -12,7 +12,7 @@ Dokumen ini melengkapi `docs/operations.md` bagian 3. Kode aplikasi tidak memaka
 | Pemangkasan retensi | `php artisan sikg:backup:prune` | Harian 04:30 | Harian 30 hari, bulanan 12 bulan, tahunan disimpan terus |
 | Pemulihan bencana | `php artisan sikg:backup:restore <berkas> --confirm` | Manual | Memulihkan ke basis data baru yang kosong |
 
-Karena cadangan hanya berjalan bila jatuh tempo, cron yang terlewat atau terlambat tidak menumpuk cadangan maupun membuatnya hilang. Hasil setiap jalan tercatat di tabel `backup_runs` dan tampil di halaman Pengaturan, Sistem. Bila cadangan gagal, terlambat lebih dari dua kali interval, atau uji pemulihan gagal, `sikg:health-check` mengirim surel ke `SIKG_ALERT_EMAIL` (sekali per perubahan keadaan).
+Karena cadangan hanya berjalan bila jatuh tempo, cron yang terlewat atau terlambat tidak menumpuk cadangan maupun membuatnya hilang. Hasil setiap jalan tercatat di tabel `backup_runs` dan tampil di halaman Pengaturan, Sistem. Bila cadangan gagal, terlambat lebih dari dua kali interval, atau uji pemulihan gagal, `sikg:health-check` menerbitkan pemberitahuan ke pemegang izin pengaturan dan meneruskannya ke nomor WhatsApp staf klinik bila saluran WhatsApp sudah diatur (sekali per perubahan keadaan).
 
 ## Konfigurasi
 

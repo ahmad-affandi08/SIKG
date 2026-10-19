@@ -1,6 +1,6 @@
 # ADR-0010: Notifikasi untuk pemilik dan staf lewat email dan Telegram, tanpa WhatsApp dan tanpa menghubungi pasien
 
-- Status: Disetujui (permintaan pengguna)
+- Status: Digantikan oleh ADR-0013 (saluran WhatsApp terpadu menggantikan email dan Telegram). Teks asli di bawah dipertahankan sebagai riwayat. Status semula: Disetujui (permintaan pengguna)
 - Konteks terkait: SYS-05, SYS-04, OBT-06, JDW-07, AUTH-05; M11, M13, M20, M21
 
 ## Konteks

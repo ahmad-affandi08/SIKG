@@ -2,6 +2,7 @@
 
 - Status: Disetujui (permintaan pengguna: kerjakan P2-01 sampai P2-09)
 - Konteks terkait: P2-01, P2-03, ADR-0005, ADR-0010; M1, M11, M13, M20, M21
+- Catatan: bagian "notifikasi staf lewat email dan Telegram" di bawah digantikan ADR-0013 (saluran WhatsApp terpadu); keputusan SATUSEHAT dan pengingat pasien tetap berlaku.
 
 ## Konteks
 

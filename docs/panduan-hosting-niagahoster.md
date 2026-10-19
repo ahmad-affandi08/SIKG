@@ -81,10 +81,8 @@ QUEUE_CONNECTION=database
 SIKG_HOSTING_PROFILE=shared
 LOG_DAILY_DAYS=90
 SIKG_BACKUP_INTERVAL_HOURS=6
-SIKG_ALERT_EMAIL=email-admin@contoh.id
 HEALTH_TOKEN=         # teks acak untuk pemeriksaan /health
 BACKUP_KEY=           # teks acak minimal 16 karakter, simpan terpisah dari server
-MAIL_*                # isi dengan SMTP dari panel email hosting
 ```
 
 Bangkitkan nilai acak di laptop Anda, bukan di server bersama: `php artisan key:generate --show` memberi `APP_KEY`; untuk `PII_HASH_KEY`, `HEALTH_TOKEN`, dan `BACKUP_KEY` pakai pembuat kata sandi acak yang panjang (minimal 32 karakter). **Simpan `APP_KEY`, `PII_HASH_KEY`, dan `BACKUP_KEY` di pengelola kata sandi, terpisah dari server.** Tanpa `APP_KEY` dan `PII_HASH_KEY` yang sama, NIK dan nomor HP tidak terbaca lagi setelah pemulihan, dan `PII_HASH_KEY` tidak boleh diganti setelah ada data. Lengkapi variabel lain dari `.env.example`.
