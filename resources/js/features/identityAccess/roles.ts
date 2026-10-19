@@ -8,13 +8,9 @@ export const ROLE_LABELS: Record<string, string> = {
   kasir: 'Kasir',
 };
 
-/** `doctorTitle` mengikuti profil layanan klinik (KLU-02): klinik umum menyebut "Dokter". */
-export function roleLabel(role: string | null, doctorTitle?: string): string {
+export function roleLabel(role: string | null): string {
   if (role === null) {
     return '-';
-  }
-  if (role === 'dokter' && doctorTitle !== undefined) {
-    return doctorTitle;
   }
   return ROLE_LABELS[role] ?? role;
 }

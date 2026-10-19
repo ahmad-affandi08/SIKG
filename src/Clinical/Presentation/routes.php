@@ -88,19 +88,19 @@ Route::middleware('can:encounter.addendum')->group(function () use ($id): void {
     Route::post('/encounters/{encounter}/addenda', [EncounterController::class, 'addendum'])->where('encounter', $id);
 });
 
-Route::middleware(['profile.dental', 'can:odontogram.view'])->group(function () use ($id): void {
+Route::middleware('can:odontogram.view')->group(function () use ($id): void {
     Route::get('/patients/{patient}/odontogram/compare', OdontogramCompareController::class)->name('odontogram.compare')->where('patient', $id);
     Route::get('/patients/{patient}/odontogram/print', OdontogramPrintController::class)->name('odontogram.print')->where('patient', $id);
 });
 
-Route::middleware(['profile.dental', 'can:odontogram.view', 'throttle:120,1'])->prefix('internal-api')->group(function () use ($id): void {
+Route::middleware(['can:odontogram.view', 'throttle:120,1'])->prefix('internal-api')->group(function () use ($id): void {
     Route::get('/patients/{patient}/odontogram', [OdontogramController::class, 'show'])->where('patient', $id);
 });
 
-Route::middleware(['profile.dental', 'can:odontogram.write'])->group(function () use ($id): void {
+Route::middleware('can:odontogram.write')->group(function () use ($id): void {
     Route::post('/encounters/{encounter}/procedures/{entry}/odontogram', [EncounterController::class, 'resolveOdontogram'])->where('encounter', $id)->where('entry', $id);
 });
 
-Route::middleware(['profile.dental', 'can:odontogram.write', 'throttle:120,1'])->prefix('internal-api')->group(function () use ($id): void {
+Route::middleware(['can:odontogram.write', 'throttle:120,1'])->prefix('internal-api')->group(function () use ($id): void {
     Route::put('/encounters/{encounter}/odontogram/teeth/{fdi}', [OdontogramController::class, 'update'])->where('encounter', $id)->where('fdi', '[0-9]{2}');
 });

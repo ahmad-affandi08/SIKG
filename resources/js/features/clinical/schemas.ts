@@ -32,26 +32,6 @@ export function tenthsToTemperature(tenths: number | null): string {
   return `${String(Math.trunc(tenths / 10))}.${String(tenths % 10)}`;
 }
 
-/** Berat badan diketik dalam kilogram (contoh 65.2) dan dikirim sebagai persepuluh kilogram (652), tanpa bilangan pecahan. */
-export function weightToTenths(text: string): number | null {
-  const value = text.trim().replace(',', '.');
-  if (value === '') {
-    return null;
-  }
-  const match = /^(\d{1,3})(?:\.(\d))?$/.exec(value);
-  if (!match) {
-    return Number.NaN;
-  }
-  return Number(match[1]) * 10 + Number(match[2] ?? '0');
-}
-
-export function tenthsToWeight(tenths: number | null): string {
-  if (tenths === null) {
-    return '';
-  }
-  return `${String(Math.trunc(tenths / 10))}.${String(tenths % 10)}`;
-}
-
 export const anamnesisSchema = z
   .object({
     chief_complaint: z.string().trim().max(2000, 'Terlalu panjang.'),
@@ -60,10 +40,6 @@ export const anamnesisSchema = z
     diastolic: optionalInt('Tekanan diastolik', 20, 200),
     pulse: optionalInt('Nadi', 20, 300),
     temperature: z.string().trim(),
-    respiratory_rate: optionalInt('Laju napas', 4, 80),
-    oxygen_saturation: optionalInt('Saturasi oksigen', 40, 100),
-    weight: z.string().trim(),
-    height: optionalInt('Tinggi badan', 20, 250),
   })
   .superRefine((v, ctx) => {
     if ((v.systolic === '') !== (v.diastolic === '')) {
@@ -85,14 +61,6 @@ export const anamnesisSchema = z
         code: 'custom',
         path: ['temperature'],
         message: 'Suhu tidak wajar (contoh 36.8, rentang 30 sampai 45).',
-      });
-    }
-    const weight = weightToTenths(v.weight);
-    if (weight !== null && (Number.isNaN(weight) || weight < 5 || weight > 6000)) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['weight'],
-        message: 'Berat badan tidak wajar (contoh 65.2, rentang 0.5 sampai 600 kg).',
       });
     }
   });

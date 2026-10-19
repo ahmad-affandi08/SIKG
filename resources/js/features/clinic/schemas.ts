@@ -119,8 +119,3 @@ export function logoFileIssue(file: { type: string; size: number }): string | nu
   }
   return null;
 }
-
-/** KLU-01: pilihan profil layanan klinik; nilai sama dengan enum server. */
-export const serviceProfileSchema = z.object({
-  profile: z.enum(['dental', 'general'], { message: 'Profil layanan tidak dikenal.' }),
-});

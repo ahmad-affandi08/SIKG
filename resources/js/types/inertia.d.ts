@@ -8,14 +8,7 @@ declare module '@inertiajs/core' {
         // Hanya untuk kenyamanan UI; server tetap menolak aksi tanpa izin (M9).
         permissions: string[];
       };
-      /** Profil layanan (KLU-01): `dental` false pada klinik umum; menu dan istilah gigi disembunyikan. */
-      clinic: {
-        name: string;
-        timezone: string;
-        profile: string;
-        dental: boolean;
-        doctor_title: string;
-      } | null;
+      clinic: { name: string; timezone: string } | null;
       /** Cabang aktif dan pilihannya (P3-04); `options` kosong bila klinik hanya punya satu cabang. */
       branch: {
         active_id: string | null;
