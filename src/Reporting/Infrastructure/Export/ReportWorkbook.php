@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithProperties;
 use Src\Reporting\Domain\ReportResult;
+use Src\Shared\Domain\Brand;
 
 /**
  * Buku kerja Excel: satu lembar "Ringkasan" lalu satu lembar per tabel, semuanya dengan gaya seragam (SheetStyler) dan
@@ -33,10 +34,10 @@ final class ReportWorkbook implements Export, WithMultipleSheets, WithProperties
     {
         return [
             'creator' => $this->context->clinicName,
-            'lastModifiedBy' => 'SIKG',
+            'lastModifiedBy' => Brand::NAME,
             'title' => $this->context->heading,
             'subject' => 'Periode '.$this->context->period,
-            'description' => 'Laporan dibuat otomatis oleh SIKG pada '.$this->context->printedAt.'.',
+            'description' => 'Laporan dibuat otomatis oleh '.Brand::NAME.' pada '.$this->context->printedAt.'.',
             'category' => 'Laporan klinik',
             'company' => $this->context->clinicName,
         ];

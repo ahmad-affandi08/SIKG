@@ -7,6 +7,7 @@ namespace Src\Shared\Infrastructure\Pdf;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Src\Shared\Application\PdfRenderer;
 use Src\Shared\Application\PdfRequest;
+use Src\Shared\Domain\Brand;
 
 /**
  * dompdf (PHP murni, M21). Penomoran halaman memakai kanvas dompdf, bukan PHP di dalam templat, sehingga opsi PHP dompdf
@@ -31,8 +32,8 @@ final class DompdfRenderer implements PdfRenderer
         $pdf->render();
         $dompdf = $pdf->getDomPDF();
         $dompdf->addInfo('Title', $request->title);
-        $dompdf->addInfo('Creator', 'SIKG');
-        $dompdf->addInfo('Producer', 'SIKG (dompdf)');
+        $dompdf->addInfo('Creator', Brand::NAME);
+        $dompdf->addInfo('Producer', Brand::NAME.' (dompdf)');
 
         if ($request->pageNumbers) {
             $canvas = $dompdf->getCanvas();

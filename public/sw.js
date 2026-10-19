@@ -1,5 +1,5 @@
 /*
- * Service worker SIKG (P3-02). Sengaja sempit demi privasi (M11): hanya menyimpan aset bundel statis (/build/*) dan halaman offline.
+ * Service worker SIKLIN (P3-02). Sengaja sempit demi privasi (M11): hanya menyimpan aset bundel statis (/build/*) dan halaman offline.
  * Halaman, respons Inertia, dan data pasien TIDAK pernah disimpan di cache. Antrean pencatatan offline ada di aplikasi (IndexedDB
  * terenkripsi), bukan di sini.
  */

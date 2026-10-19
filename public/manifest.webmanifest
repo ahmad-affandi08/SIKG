@@ -1,6 +1,6 @@
 {
-  "name": "SIKG - Sistem Informasi Klinik Gigi",
-  "short_name": "SIKG",
+  "name": "SIKLIN - Sistem Informasi Klinik",
+  "short_name": "SIKLIN",
   "description": "Rekam medis elektronik dan operasional klinik gigi.",
   "lang": "id",
   "start_url": "/dashboard",

@@ -7,6 +7,7 @@ namespace Src\Shared\Infrastructure\Backup;
 use Generator;
 use JsonException;
 use Src\Shared\Application\Backup\BackupFailed;
+use Src\Shared\Domain\Brand;
 
 /**
  * Membaca cadangan buatan BackupWriter. Kunci salah, isi diubah, atau berkas terpotong menghasilkan BackupFailed.
@@ -29,9 +30,9 @@ final class BackupReader
      */
     public function records(): Generator
     {
-        $head = $this->take(strlen(BackupWriter::MAGIC) + SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_HEADERBYTES, 'Berkas bukan cadangan SIKG atau rusak.');
+        $head = $this->take(strlen(BackupWriter::MAGIC) + SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_HEADERBYTES, 'Berkas bukan cadangan '.Brand::NAME.' atau rusak.');
         if (! str_starts_with($head, BackupWriter::MAGIC)) {
-            throw new BackupFailed('Berkas bukan cadangan SIKG.');
+            throw new BackupFailed('Berkas bukan cadangan '.Brand::NAME.'.');
         }
         $state = sodium_crypto_secretstream_xchacha20poly1305_init_pull(substr($head, strlen(BackupWriter::MAGIC)), $this->key);
 
