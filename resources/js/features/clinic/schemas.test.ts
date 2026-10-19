@@ -4,6 +4,7 @@ import {
   clinicProfileSchema,
   clinicSettingsSchema,
   holidaySchema,
+  serviceProfileSchema,
   logoFileIssue,
   splitWhatsAppNumbers,
 } from '@/features/clinic/schemas';
@@ -162,5 +163,15 @@ describe('MST-01 profil klinik', () => {
     expect(logoFileIssue({ type: 'image/jpeg', size: 2 * 1024 * 1024 })).toBe(
       'Ukuran logo maksimal 1 MB.',
     );
+  });
+});
+
+describe('KLU-01 skema profil layanan', () => {
+  it('menerima profil yang dikenal dan menolak lainnya', () => {
+    expect(serviceProfileSchema.safeParse({ profile: 'dental' }).success).toBe(true);
+    expect(serviceProfileSchema.safeParse({ profile: 'general' }).success).toBe(true);
+    const buruk = serviceProfileSchema.safeParse({ profile: 'rumah-sakit' });
+    expect(buruk.success).toBe(false);
+    expect(buruk.error?.issues[0]?.message).toBe('Profil layanan tidak dikenal.');
   });
 });
