@@ -75,18 +75,13 @@ final class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * @return array{name: string, timezone: string, profile: string, dental: bool, doctor_title: string}|null
+     * @return array{name: string, timezone: string}|null
      */
     private function clinic(): ?array
     {
         $clinic = ClinicModel::query()->first();
-        if (! $clinic instanceof ClinicModel) {
-            return null;
-        }
-        // KLU-01: profil layanan menentukan menu dan istilah yang tampil (server tetap menutup fitur gigi lewat middleware).
-        $profile = $clinic->clinicSettings()->serviceProfile;
 
-        return ['name' => $clinic->name, 'timezone' => $clinic->timezone, 'profile' => $profile->value, 'dental' => $profile->dental(), 'doctor_title' => $profile->doctorTitle()];
+        return $clinic instanceof ClinicModel ? ['name' => $clinic->name, 'timezone' => $clinic->timezone] : null;
     }
 
     /**

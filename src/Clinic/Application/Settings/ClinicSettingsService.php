@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Src\Clinic\Application\Settings;
 
 use Src\Clinic\Domain\ClinicSettings;
-use Src\Shared\Domain\ServiceProfile;
 
 /**
  * SYS-04 dan AUTH-04: pengaturan klinik dan hari libur. Port Application untuk konteks CRUD terstruktur (ADR-0001);
@@ -18,11 +17,7 @@ interface ClinicSettingsService
      */
     public function overview(): array;
 
-    /** Menyimpan pengaturan umum. Profil layanan tidak ikut berubah; gunakan {@see changeServiceProfile()}. */
     public function update(string $actorId, string $timezone, ClinicSettings $settings): void;
-
-    /** KLU-01: mengganti profil layanan klinik. Hanya mengubah fitur yang tampil; tidak ada data yang dihapus. */
-    public function changeServiceProfile(string $actorId, ServiceProfile $profile): void;
 
     public function addHoliday(string $actorId, string $date, string $name): void;
 

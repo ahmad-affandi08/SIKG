@@ -6,7 +6,6 @@ use App\Http\Middleware\DedupeOfflineReplay;
 use App\Http\Middleware\EnforceIdleTimeout;
 use App\Http\Middleware\EnforcePasswordChange;
 use App\Http\Middleware\HandleInertiaRequests;
-use App\Http\Middleware\RequireDentalProfile;
 use App\Http\Middleware\ResolveTenant;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
@@ -29,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
         ]);
         // P3-02: pengiriman ulang antrean offline hanya dijalankan sekali per kunci (dipasang di route anamnesis dan catatan).
-        $middleware->alias(['offline.dedupe' => DedupeOfflineReplay::class, 'profile.dental' => RequireDentalProfile::class]);
+        $middleware->alias(['offline.dedupe' => DedupeOfflineReplay::class]);
         // Global (bukan grup web) agar header juga ada di 404, /up, dan pengalihan.
         $middleware->append(SecurityHeaders::class);
         // Proxy tepercaya dibaca dari config/trustedproxy.php (bawaan: proxy lokal/privat saja). Jangan percaya semua alamat:
