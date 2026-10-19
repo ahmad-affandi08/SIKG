@@ -110,14 +110,14 @@ it('OBT-06 pemberitahuan tidak terbit sebelum jam 07.00 lokal dan tidak ada bila
 
 it('OBT-06 perintah terjadwal menerbitkan peringatan tiap klinik dan meneruskan ke tujuan klinik', function () {
     $s = siapStokPeringatan();
-    DB::table('clinics')->where('id', $s['k']->id)->update(['settings' => json_encode(['notify_email' => 'staf@klinik.test', 'telegram_chat_id' => '-1001234567890'])]);
+    DB::table('clinics')->where('id', $s['k']->id)->update(['settings' => json_encode(['notify_whatsapp' => ['628123450001']])]);
     rekamKirim();
 
     $this->artisan('sikg:stock:alerts')->assertSuccessful();
     $this->artisan('sikg:stock:alerts')->assertSuccessful();
 
-    expect(DB::table('notifications')->count())->toBe(2)->and(KirimPerekam::$email)->toHaveCount(2)->and(KirimPerekam::$telegram)->toHaveCount(2)
-        ->and(KirimPerekam::$email[0]['subject'])->toBe('[SIKG] Stok obat menipis');
+    expect(DB::table('notifications')->count())->toBe(2)->and(KirimPerekam::$whatsapp)->toHaveCount(2)
+        ->and(KirimPerekam::$whatsapp[0]['title'])->toBe('Stok obat menipis');
 });
 
 it('OBT-06 klinik lain tidak melihat peringatan stok klinik ini', function () {

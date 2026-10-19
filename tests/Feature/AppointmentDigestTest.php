@@ -32,14 +32,14 @@ function terbitkanRingkasan(array $s): int
 it('JDW-07 ringkasan janji besok terbit untuk pemilik setelah pukul 09.00 tanpa nama pasien', function () {
     $s = siapJadwal();
     bukaJanji($s, ['date' => SELASA, 'time' => '09:00']);
-    $s['klinik']->forceFill(['settings' => ['notify_email' => 'pemilik@contoh.test', 'telegram_chat_id' => '-100123']])->save();
+    $s['klinik']->forceFill(['settings' => ['notify_whatsapp' => ['628123450009']]])->save();
 
     expect(terbitkanRingkasan($s))->toBe(1);
 
     $baris = ringkasan()->first();
     expect($baris->title)->toBe('Janji besok')->and($baris->body)->toContain('1 janji besok')->toContain('17/06/2025')->toContain('pukul 09:00')
         ->and($baris->body)->not->toContain('Budi')->and($baris->permission)->toBe('appointment.view')
-        ->and(KirimPerekam::$email[0]['to'])->toBe('pemilik@contoh.test')->and(KirimPerekam::$telegram[0]['chat'])->toBe('-100123');
+        ->and(KirimPerekam::$whatsapp[0]['phone'])->toBe('628123450009');
 });
 
 it('JDW-07 ringkasan terbit sekali per hari walau perintah dijalankan berulang', function () {

@@ -2,16 +2,12 @@
 
 declare(strict_types=1);
 
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Src\IdentityAccess\Domain\Role;
 use Src\Shared\Application\Notifications\Notification;
 use Src\Shared\Application\Notifications\Notifier;
 use Src\Shared\Application\Notifications\StaffAlerts;
-use Src\Shared\Infrastructure\Notifications\TelegramBotSender;
 
 beforeEach(function () {
     Carbon::setTestNow(Carbon::parse('2025-06-16 07:00:00', 'Asia/Jakarta'));
@@ -99,27 +95,27 @@ it('SYS-05 halaman notifikasi memuat daftar untuk pengguna', function () {
     $this->actingAs($perawat)->get('/notifications')->assertOk()->assertInertia(fn ($p) => $p->component('Notifications/Index')->where('unread', 1)->has('items', 1));
 });
 
-it('SYS-05 peringatan diteruskan ke email dan Telegram klinik hanya saat pertama terbit', function () {
+it('SYS-05 peringatan diteruskan ke WhatsApp staf klinik hanya saat pertama terbit', function () {
     $k = makeClinic();
     tenant()->set($k->id);
-    DB::table('clinics')->where('id', $k->id)->update(['settings' => json_encode(['notify_email' => 'staf@klinik.test', 'telegram_chat_id' => '-1001234567890'])]);
+    DB::table('clinics')->where('id', $k->id)->update(['settings' => json_encode(['notify_whatsapp' => ['628123450001', '628123450002']])]);
     rekamKirim();
 
     $baru = app(StaffAlerts::class)->raise(notif('stok:1'));
     $ulang = app(StaffAlerts::class)->raise(notif('stok:1'));
 
     expect($baru)->toBeTrue()->and($ulang)->toBeFalse()
-        ->and(KirimPerekam::$email)->toHaveCount(1)->and(KirimPerekam::$email[0]['to'])->toBe('staf@klinik.test')->and(KirimPerekam::$email[0]['subject'])->toBe('[SIKG] Stok menipis')
-        ->and(KirimPerekam::$telegram)->toHaveCount(1)->and(KirimPerekam::$telegram[0]['chat'])->toBe('-1001234567890')->and(KirimPerekam::$telegram[0]['text'])->toContain('Stok menipis');
+        ->and(KirimPerekam::$whatsapp)->toHaveCount(2)->and(KirimPerekam::$whatsapp[0]['phone'])->toBe('628123450001')->and(KirimPerekam::$whatsapp[1]['phone'])->toBe('628123450002')
+        ->and(KirimPerekam::$whatsapp[0]['title'])->toBe('Stok menipis');
 });
 
 it('SYS-05 saluran yang belum dikonfigurasi atau gagal tidak menggagalkan peringatan dalam aplikasi', function () {
     $k = makeClinic();
     tenant()->set($k->id);
-    DB::table('clinics')->where('id', $k->id)->update(['settings' => json_encode(['notify_email' => 'staf@klinik.test', 'telegram_chat_id' => '-1001234567890'])]);
+    DB::table('clinics')->where('id', $k->id)->update(['settings' => json_encode(['notify_whatsapp' => ['628123450001', '628123450002']])]);
 
-    rekamKirim(email: false, telegram: false);
-    expect(app(StaffAlerts::class)->raise(notif('stok:1')))->toBeTrue()->and(KirimPerekam::$email)->toBe([])->and(KirimPerekam::$telegram)->toBe([]);
+    rekamKirim(whatsapp: false);
+    expect(app(StaffAlerts::class)->raise(notif('stok:1')))->toBeTrue()->and(KirimPerekam::$whatsapp)->toBe([]);
 
     rekamKirim();
     KirimPerekam::$gagal = true;
@@ -133,13 +129,13 @@ it('SYS-05 tanpa tujuan di pengaturan tidak ada yang dikirim keluar', function (
 
     app(StaffAlerts::class)->raise(notif('stok:1'));
 
-    expect(KirimPerekam::$email)->toBe([])->and(KirimPerekam::$telegram)->toBe([])->and(DB::table('notifications')->count())->toBe(1);
+    expect(KirimPerekam::$whatsapp)->toBe([])->and(DB::table('notifications')->count())->toBe(1);
 });
 
 it('SYS-05 janji baru menjadi pemberitahuan tanpa nama pasien dan diteruskan ke tujuan klinik', function () {
     $s = siapJadwal();
     tenant()->set($s['klinik']->id);
-    DB::table('clinics')->where('id', $s['klinik']->id)->update(['settings' => json_encode(['notify_email' => 'staf@klinik.test', 'telegram_chat_id' => '-1001234567890'])]);
+    DB::table('clinics')->where('id', $s['klinik']->id)->update(['settings' => json_encode(['notify_whatsapp' => ['628123450001', '628123450002']])]);
     rekamKirim();
 
     $janji = bukaJanji($s);
@@ -148,11 +144,10 @@ it('SYS-05 janji baru menjadi pemberitahuan tanpa nama pasien dan diteruskan ke 
     expect($n)->not->toBeNull()->and($n->kind)->toBe('appointment.booked')->and($n->permission)->toBe('appointment.view')
         ->and($n->body)->toContain('16/06/2025 09:00')->and($n->body)->toContain('drg. Sari')->and($n->body)->not->toContain('Budi')
         ->and($n->link)->toBe('/schedule?date=2025-06-16')
-        ->and(KirimPerekam::$email)->toHaveCount(1)->and(KirimPerekam::$email[0]['body'])->not->toContain('Budi')
-        ->and(KirimPerekam::$telegram)->toHaveCount(1);
+        ->and(KirimPerekam::$whatsapp)->toHaveCount(2)->and(KirimPerekam::$whatsapp[0]['body'])->not->toContain('Budi');
 });
 
-it('SYS-05 pengaturan klinik menyimpan tujuan notifikasi dan menolak isian tidak sah', function () {
+it('SYS-05 pengaturan klinik menyimpan nomor WhatsApp staf dan menolak isian tidak sah', function () {
     $admin = makeUser(Role::Admin);
     $jam = ['open' => '08:00', 'close' => '17:00'];
     $payload = [
@@ -161,11 +156,12 @@ it('SYS-05 pengaturan klinik menyimpan tujuan notifikasi dan menolak isian tidak
         'operating_hours' => [1 => $jam, 2 => $jam, 3 => $jam, 4 => $jam, 5 => $jam, 6 => $jam, 7 => null],
     ];
 
-    $this->actingAs($admin)->put('/settings/clinic', [...$payload, 'notify_email' => 'staf@klinik.test', 'telegram_chat_id' => '-1001234567890', 'reminders_enabled' => false])->assertSessionHasNoErrors();
-    $this->actingAs($admin)->get('/settings/clinic')->assertInertia(fn ($p) => $p->where('settings.notify_email', 'staf@klinik.test')->where('settings.telegram_chat_id', '-1001234567890')->where('settings.reminders_enabled', false));
+    $this->actingAs($admin)->put('/settings/clinic', [...$payload, 'notify_whatsapp' => ['0812-3450-0001', '+62 812 3450 0002', '081234500001'], 'reminders_enabled' => false])->assertSessionHasNoErrors();
+    $this->actingAs($admin)->get('/settings/clinic')->assertInertia(fn ($p) => $p->where('settings.notify_whatsapp', ['6281234500001', '6281234500002'])->where('settings.reminders_enabled', false));
 
-    $this->actingAs($admin)->put('/settings/clinic', [...$payload, 'notify_email' => 'bukan-email'])->assertSessionHasErrors('notify_email');
-    $this->actingAs($admin)->put('/settings/clinic', [...$payload, 'telegram_chat_id' => '@grup'])->assertSessionHasErrors('telegram_chat_id');
+    $this->actingAs($admin)->put('/settings/clinic', [...$payload, 'notify_whatsapp' => ['bukan-nomor']])->assertSessionHasErrors('settings');
+    $this->actingAs($admin)->put('/settings/clinic', [...$payload, 'notify_whatsapp' => ['+1 202 555 0100']])->assertSessionHasErrors('settings');
+    $this->actingAs($admin)->put('/settings/clinic', [...$payload, 'notify_whatsapp' => array_fill(0, 6, '081234500001')])->assertSessionHasErrors('notify_whatsapp');
 });
 
 it('SYS-05 perintah pangkas membuang pemberitahuan lebih tua dari 90 hari saja', function () {
@@ -181,28 +177,4 @@ it('SYS-05 perintah pangkas membuang pemberitahuan lebih tua dari 90 hari saja',
     $this->artisan('sikg:notifications:prune')->assertSuccessful();
 
     expect(DB::table('notifications')->pluck('dedupe_key')->all())->toBe(['baru'])->and(DB::table('notification_reads')->count())->toBe(0);
-});
-
-it('SYS-05 pengirim Telegram memanggil bot dengan token dari lingkungan dan tidak membocorkan token di log', function () {
-    config()->set('sikg.telegram_bot_token', 'TOKEN-RAHASIA-123');
-    Http::fake(['api.telegram.org/*' => Http::response(['ok' => true])]);
-
-    expect((new TelegramBotSender)->send('-1001234567890', 'Halo klinik'))->toBeTrue();
-
-    Http::assertSent(fn ($r) => str_starts_with($r->url(), 'https://api.telegram.org/botTOKEN-RAHASIA-123/sendMessage') && $r['chat_id'] === '-1001234567890' && $r['text'] === 'Halo klinik');
-
-    Http::fake(['api.telegram.org/*' => fn () => throw new ConnectionException('gagal https://api.telegram.org/botTOKEN-RAHASIA-123/sendMessage')]);
-    Log::spy();
-    expect((new TelegramBotSender)->send('-1001234567890', 'Halo'))->toBeFalse();
-    Log::shouldHaveReceived('warning')->once()->withArgs(fn ($message, $context = []) => ! str_contains(json_encode([$message, $context]), 'TOKEN-RAHASIA'));
-});
-
-it('SYS-05 pengirim Telegram mati tanpa token', function () {
-    config()->set('sikg.telegram_bot_token', null);
-    Http::fake();
-
-    $pengirim = new TelegramBotSender;
-
-    expect($pengirim->configured())->toBeFalse()->and($pengirim->send('-1001234567890', 'Halo'))->toBeFalse();
-    Http::assertNothingSent();
 });

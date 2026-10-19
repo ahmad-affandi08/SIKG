@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Illuminate\Queue\Events\Looping;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schedule;
 use Src\IdentityAccess\Domain\Role;
 use Src\Shared\Application\Clock;
@@ -14,7 +13,6 @@ use Src\Shared\Application\HealthMonitor;
 use Src\Shared\Application\PreflightCheck;
 use Src\Shared\Infrastructure\FrozenClock;
 use Src\Shared\Infrastructure\Health\DatabaseHealthMonitor;
-use Src\Shared\Infrastructure\Mail\HealthAlertMail;
 
 it('SYS-06 pemeriksaan kesiapan memuat butir wajib dan tidak membuka rahasia', function () {
     $checks = collect(app(EnvironmentInspector::class)->inspect());
@@ -163,13 +161,15 @@ it('SYS-07 /up tetap publik tanpa detail', function () {
     $this->get('/up')->assertOk();
 });
 
-it('SYS-07 surel peringatan dikirim sekali saat menurun, tidak berulang, dan pulih mengirim lagi saat menurun berikutnya', function () {
-    Mail::fake();
-    config(['sikg.alert_email' => 'teknis@contoh.test']);
+it('SYS-07 peringatan WhatsApp dan notifikasi terbit sekali saat menurun, tidak berulang, dan pulih mengirim lagi saat menurun berikutnya', function () {
+    $klinik = makeClinic();
+    $klinik->forceFill(['settings' => ['notify_whatsapp' => ['628123450001']]])->save();
+    rekamKirim();
 
     $this->artisan('sikg:health-check')->assertSuccessful();
     $this->artisan('sikg:health-check')->assertSuccessful();
-    Mail::assertSent(HealthAlertMail::class, 1);
+    expect(KirimPerekam::$whatsapp)->toHaveCount(1)->and(KirimPerekam::$whatsapp[0]['title'])->toBe('Kesehatan sistem menurun')
+        ->and(DB::table('notifications')->where('kind', 'system.health')->where('permission', 'setting.manage')->count())->toBe(1);
 
     $monitor = app(HealthMonitor::class);
     $monitor->beat('scheduler');
@@ -178,16 +178,16 @@ it('SYS-07 surel peringatan dikirim sekali saat menurun, tidak berulang, dan pul
 
     DB::table('failed_jobs')->insert(['uuid' => 'x', 'connection' => 'database', 'queue' => 'default', 'payload' => '{}', 'exception' => 'x', 'failed_at' => now()]);
     $this->artisan('sikg:health-check')->assertSuccessful();
-    Mail::assertSent(HealthAlertMail::class, 2);
+    expect(KirimPerekam::$whatsapp)->toHaveCount(2);
 });
 
-it('SYS-07 tanpa alamat surel peringatan hanya dicatat di log', function () {
-    Mail::fake();
-    config(['sikg.alert_email' => null]);
+it('SYS-07 tanpa nomor WhatsApp staf peringatan hanya tampil di aplikasi', function () {
+    makeClinic();
+    rekamKirim();
 
     $this->artisan('sikg:health-check')->assertSuccessful();
 
-    Mail::assertNothingSent();
+    expect(KirimPerekam::$whatsapp)->toBe([])->and(DB::table('notifications')->where('kind', 'system.health')->count())->toBe(1);
 });
 
 it('SYS-07 perintah health-check mencatat peringatan tanpa PHI saat menurun', function () {

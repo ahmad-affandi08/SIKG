@@ -49,7 +49,7 @@ function siapPengingat(bool $aktif = true, bool $janji = true): array
 function pengaturanPengingat(array $o = []): array
 {
     return [
-        'enabled' => true, 'mode' => 'link', 'recall_months' => 6, 'api_phone_number_id' => '', 'api_token' => '', 'api_language' => 'id',
+        'enabled' => true, 'recall_months' => 6,
         'kinds' => ['h1' => ['enabled' => true, 'template' => '', 'api_template' => ''], 'h0' => ['enabled' => true, 'template' => '', 'api_template' => ''], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => '']],
         ...$o,
     ];
@@ -59,6 +59,12 @@ function pengaturanPengingat(array $o = []): array
 function aturPengingat(array $s, array $o = [])
 {
     return test()->actingAs($s['admin'])->put('/settings/reminders', pengaturanPengingat($o))->assertSessionHasNoErrors();
+}
+
+/** @param array<string, mixed> $o */
+function aturWhatsApp(array $s, array $o = [])
+{
+    return test()->actingAs($s['admin'])->put('/settings/whatsapp', ['provider' => 'link', ...$o])->assertSessionHasNoErrors();
 }
 
 function jalankanPengingat(): void
@@ -74,25 +80,29 @@ function pengingatDb(): Collection
 it('P2-03 pengaturan pengingat disimpan, token terenkripsi dan tidak ditampilkan', function () {
     $s = siapPengingat(aktif: false, janji: false);
 
-    aturPengingat($s, ['mode' => 'api', 'api_phone_number_id' => '109876', 'api_token' => 'token-rahasia-123', 'kinds' => ['h1' => ['enabled' => true, 'template' => 'Halo {nama}, besok {jam}', 'api_template' => 'pengingat_h1'], 'h0' => ['enabled' => false, 'template' => '', 'api_template' => ''], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => '']]]);
+    aturWhatsApp($s, ['provider' => 'meta', 'phone_number_id' => '109876', 'token' => 'token-rahasia-123']);
+    aturPengingat($s, ['kinds' => ['h1' => ['enabled' => true, 'template' => 'Halo {nama}, besok {jam}', 'api_template' => 'pengingat_h1'], 'h0' => ['enabled' => false, 'template' => '', 'api_template' => ''], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => '']]]);
 
     $baris = DB::table('reminder_settings')->first();
     expect($baris->api_token_encrypted)->not->toContain('token-rahasia-123')->and($baris->mode)->toBe('api')->and((bool) $baris->h0_enabled)->toBeFalse()->and($baris->h1_template)->toBe('Halo {nama}, besok {jam}');
     $halaman = $this->get('/settings/reminders')->assertOk();
-    $halaman->assertInertia(fn ($p) => $p->component('Settings/Reminders')->where('settings.has_token', true)->where('settings.api_ready', true)->missing('settings.api_token'));
+    $halaman->assertInertia(fn ($p) => $p->component('Settings/Reminders')->where('settings.provider', 'meta')->where('settings.channel_ready', true)->where('settings.uses_templates', true)->missing('settings.api_token'));
     expect($halaman->getContent())->not->toContain('token-rahasia-123');
-    expect(json_encode(DB::table('audit_logs')->where('action', 'reminder.settings_updated')->get()))->not->toContain('token-rahasia-123');
+    $wa = $this->get('/settings/whatsapp')->assertOk();
+    $wa->assertInertia(fn ($p) => $p->component('Settings/WhatsApp')->where('settings.provider', 'meta')->where('settings.has_token', true)->where('settings.ready', true)->missing('settings.token'));
+    expect($wa->getContent())->not->toContain('token-rahasia-123');
+    expect(json_encode(DB::table('audit_logs')->whereIn('action', ['reminder.settings_updated', 'whatsapp.settings_updated'])->get()))->not->toContain('token-rahasia-123');
 
-    aturPengingat($s, ['mode' => 'api', 'api_phone_number_id' => '109876', 'api_token' => '']);
+    aturWhatsApp($s, ['provider' => 'meta', 'phone_number_id' => '109876', 'token' => '']);
     expect(DB::table('reminder_settings')->value('api_token_encrypted'))->toBe($baris->api_token_encrypted);
 });
 
-it('P2-03 pengaturan menolak penanda tidak dikenal, mode API tanpa isian, dan jarak di luar batas', function () {
+it('P2-03 pengaturan menolak penanda tidak dikenal, penyedia tanpa isian wajib, dan jarak di luar batas', function () {
     $s = siapPengingat(aktif: false, janji: false);
     $this->actingAs($s['admin']);
 
     $this->put('/settings/reminders', pengaturanPengingat(['kinds' => ['h1' => ['enabled' => true, 'template' => 'Halo {namma}', 'api_template' => ''], 'h0' => ['enabled' => true, 'template' => '', 'api_template' => ''], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => '']]]))->assertSessionHas('error_code', 'reminder.invalid');
-    $this->put('/settings/reminders', pengaturanPengingat(['mode' => 'api']))->assertSessionHas('error_code', 'reminder.invalid');
+    $this->put('/settings/whatsapp', ['provider' => 'meta'])->assertSessionHas('error_code', 'reminder.invalid');
     $this->put('/settings/reminders', pengaturanPengingat(['recall_months' => 30]))->assertSessionHasErrors('recall_months');
     $this->put('/settings/reminders', pengaturanPengingat(['kinds' => ['h1' => ['enabled' => true, 'template' => '', 'api_template' => 'Nama Salah'], 'h0' => ['enabled' => true, 'template' => '', 'api_template' => ''], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => '']]]))->assertSessionHasErrors('kinds.h1.api_template');
     expect(DB::table('reminder_settings')->count())->toBe(0);
@@ -257,9 +267,10 @@ it('P2-03 petugas menandai terkirim, melewati, dan mencatat pasien yang tidak ma
     expect(DB::table('audit_logs')->whereIn('action', ['reminder.marked_sent', 'reminder.opted_out', 'reminder.opted_in'])->count())->toBe(3);
 });
 
-it('P2-03 mode API mengirim pesan templat berurutan parameter dan mencatat terkirim', function () {
+it('P2-03 saluran Meta mengirim pesan templat berurutan parameter dan mencatat terkirim', function () {
     $s = siapPengingat(aktif: false);
-    aturPengingat($s, ['mode' => 'api', 'api_phone_number_id' => '109876', 'api_token' => 'token-wa', 'kinds' => ['h1' => ['enabled' => true, 'template' => '', 'api_template' => 'pengingat_h1'], 'h0' => ['enabled' => true, 'template' => '', 'api_template' => 'pengingat_h0'], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => 'kontrol']]]);
+    aturWhatsApp($s, ['provider' => 'meta', 'phone_number_id' => '109876', 'token' => 'token-wa']);
+    aturPengingat($s, ['kinds' => ['h1' => ['enabled' => true, 'template' => '', 'api_template' => 'pengingat_h1'], 'h0' => ['enabled' => true, 'template' => '', 'api_template' => 'pengingat_h0'], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => 'kontrol']]]);
     Http::swap(new Factory);
     Http::fake(['graph.facebook.com/*' => Http::response(['messages' => [['id' => 'wamid.1']]])]);
 
@@ -277,9 +288,10 @@ it('P2-03 mode API mengirim pesan templat berurutan parameter dan mencatat terki
     Http::assertSentCount(1);
 });
 
-it('P2-03 mode API mencoba ulang gangguan sementara, gagal setelah tiga percobaan, dan menolak permanen langsung', function () {
+it('P2-03 saluran Meta mencoba ulang gangguan sementara, gagal setelah tiga percobaan, dan menolak permanen langsung', function () {
     $s = siapPengingat(aktif: false);
-    aturPengingat($s, ['mode' => 'api', 'api_phone_number_id' => '109876', 'api_token' => 'token-wa', 'kinds' => ['h1' => ['enabled' => true, 'template' => '', 'api_template' => 'pengingat_h1'], 'h0' => ['enabled' => true, 'template' => '', 'api_template' => ''], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => '']]]);
+    aturWhatsApp($s, ['provider' => 'meta', 'phone_number_id' => '109876', 'token' => 'token-wa']);
+    aturPengingat($s, ['kinds' => ['h1' => ['enabled' => true, 'template' => '', 'api_template' => 'pengingat_h1'], 'h0' => ['enabled' => true, 'template' => '', 'api_template' => ''], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => '']]]);
     Http::swap(new Factory);
     Http::fake(['graph.facebook.com/*' => Http::response('', 503)]);
 
@@ -299,9 +311,10 @@ it('P2-03 mode API mencoba ulang gangguan sementara, gagal setelah tiga percobaa
     expect($baru->status)->toBe('failed')->and($baru->attempts)->toBe(1)->and($baru->last_error)->toContain('HTTP 400')->toContain('131030')->not->toContain('Budi')->not->toContain('6281');
 });
 
-it('P2-03 mode API melewati pengingat tanpa nomor HP, tanpa nama templat, atau janji yang sudah batal', function () {
+it('P2-03 saluran Meta melewati pengingat tanpa nomor HP, tanpa nama templat, atau janji yang sudah batal', function () {
     $s = siapPengingat(aktif: false);
-    aturPengingat($s, ['mode' => 'api', 'api_phone_number_id' => '109876', 'api_token' => 'token-wa']);
+    aturWhatsApp($s, ['provider' => 'meta', 'phone_number_id' => '109876', 'token' => 'token-wa']);
+    aturPengingat($s);
     Http::swap(new Factory);
     Http::fake(['graph.facebook.com/*' => Http::response(['messages' => []])]);
 
@@ -311,10 +324,40 @@ it('P2-03 mode API melewati pengingat tanpa nomor HP, tanpa nama templat, atau j
 
     DB::table('patient_reminders')->delete();
     DB::table('patients')->where('id', $s['pasien'])->update(['phone_encrypted' => null]);
-    aturPengingat($s, ['mode' => 'api', 'api_phone_number_id' => '109876', 'kinds' => ['h1' => ['enabled' => true, 'template' => '', 'api_template' => 'pengingat_h1'], 'h0' => ['enabled' => true, 'template' => '', 'api_template' => ''], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => '']]]);
+    aturWhatsApp($s, ['provider' => 'meta', 'phone_number_id' => '109876']);
+    aturPengingat($s, ['kinds' => ['h1' => ['enabled' => true, 'template' => '', 'api_template' => 'pengingat_h1'], 'h0' => ['enabled' => true, 'template' => '', 'api_template' => ''], 'recall' => ['enabled' => true, 'template' => '', 'api_template' => '']]]);
     jalankanPengingat();
     expect(pengingatDb()[0]->status)->toBe('skipped')->and(pengingatDb()[0]->last_error)->toContain('nomor HP');
     Http::assertNothingSent();
+});
+
+it('P2-03 penyedia tidak resmi mengirim teks pengingat tanpa memerlukan nama templat', function () {
+    $s = siapPengingat(aktif: false);
+    aturWhatsApp($s, ['provider' => 'fonnte', 'token' => 'token-fonnte']);
+    aturPengingat($s);
+    Http::swap(new Factory);
+    Http::fake(['api.fonnte.com/*' => Http::response(['status' => true])]);
+
+    jalankanPengingat();
+
+    $baris = pengingatDb()[0];
+    expect($baris->status)->toBe('sent')->and($baris->channel)->toBe('api');
+    Http::assertSentCount(1);
+    Http::assertSent(fn (Request $r) => $r->url() === 'https://api.fonnte.com/send' && $r->hasHeader('Authorization', 'token-fonnte') && $r['target'] === '628123456789'
+        && str_starts_with((string) $r['message'], 'Yth. Budi, pengingat dari Klinik Uji') && str_contains((string) $r['message'], '17/06/2025 pukul 09:00') && str_contains((string) $r['message'], 'drg. Sari'));
+});
+
+it('P2-03 penyedia tidak resmi yang menolak pesan menandai pengingat gagal tanpa membocorkan nomor atau token', function () {
+    $s = siapPengingat(aktif: false);
+    aturWhatsApp($s, ['provider' => 'fonnte', 'token' => 'token-fonnte']);
+    aturPengingat($s);
+    Http::swap(new Factory);
+    Http::fake(['api.fonnte.com/*' => Http::response(['status' => false, 'reason' => 'invalid 628123456789 token-fonnte'])]);
+
+    jalankanPengingat();
+
+    $baris = pengingatDb()[0];
+    expect($baris->status)->toBe('failed')->and($baris->last_error)->toContain('Fonnte menolak')->not->toContain('628123456789')->not->toContain('token-fonnte');
 });
 
 it('P2-03 mode tautan tidak memanggil API dan pengingat klinik lain tidak terlihat', function () {

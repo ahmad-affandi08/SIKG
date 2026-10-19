@@ -7,7 +7,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Src\IdentityAccess\Domain\Role;
@@ -17,7 +16,6 @@ use Src\Shared\Application\Backup\BackupService;
 use Src\Shared\Infrastructure\Backup\BackupKey;
 use Src\Shared\Infrastructure\Backup\BackupReader;
 use Src\Shared\Infrastructure\Backup\BackupRunModel;
-use Src\Shared\Infrastructure\Mail\BackupAlertMail;
 
 beforeEach(function () {
     Carbon::setTestNow(Carbon::parse('2026-10-17 09:00:00', 'UTC'));
@@ -250,10 +248,9 @@ it('SYS-02 pesan galat tak terduga tidak membocorkan isi (hanya jenisnya)', func
     expect($hasil['status'])->toBe('failed')->and($hasil['message'])->not->toContain('/proc')->and($hasil['message'])->not->toContain('Budi');
 });
 
-it('SYS-02 pemeriksaan kesehatan mengirim surel saat cadangan bermasalah, sekali per perubahan', function () {
-    Mail::fake();
-    config(['sikg.alert_email' => 'teknis@klinik.test']);
-    isiData();
+it('SYS-02 pemeriksaan kesehatan memberi tahu staf saat cadangan bermasalah, sekali per perubahan', function () {
+    isiData()['klinik']->forceFill(['settings' => ['notify_whatsapp' => ['628123450001']]])->save();
+    rekamKirim();
     cadangan()->backup();
     cadangan()->verify();
     Carbon::setTestNow(Carbon::parse('2026-10-27 09:00:00', 'UTC'));
@@ -261,8 +258,8 @@ it('SYS-02 pemeriksaan kesehatan mengirim surel saat cadangan bermasalah, sekali
     Artisan::call('sikg:health-check');
     Artisan::call('sikg:health-check');
 
-    Mail::assertSent(BackupAlertMail::class, 1);
-    Mail::assertSent(BackupAlertMail::class, fn ($m) => $m->hasTo('teknis@klinik.test') && str_contains(implode(' ', $m->reasons), 'dua kali interval'));
+    $cadangan = array_values(array_filter(KirimPerekam::$whatsapp, fn ($p) => $p['title'] === 'Cadangan data bermasalah'));
+    expect($cadangan)->toHaveCount(1)->and($cadangan[0]['body'])->toContain('dua kali interval');
 });
 
 it('SYS-02 halaman Sistem menampilkan keadaan cadangan untuk Admin', function () {
