@@ -22,7 +22,7 @@ function Card({
   const body = (
     <>
       <span className="pane-head">{title}</span>
-      <span className="block p-2 text-lg font-semibold tabular-nums">{value}</span>
+      <span className="block p-2 text-lg font-semibold">{value}</span>
       {hint ? <span className="text-muted block px-2 pb-2 text-xs">{hint}</span> : null}
     </>
   );

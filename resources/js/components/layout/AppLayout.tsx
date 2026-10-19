@@ -281,7 +281,7 @@ function Shell({
           {auth.user?.roles[0] ? ` (${roleText(auth.user.roles[0])})` : ''}
         </span>
         {auth.user ? <OfflineIndicator /> : null}
-        <span className="ml-auto tabular-nums">
+        <span className="ml-auto">
           <Clock timezone={clinic?.timezone} />
         </span>
       </footer>

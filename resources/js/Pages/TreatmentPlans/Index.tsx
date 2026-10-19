@@ -105,9 +105,7 @@ export default function Index({ patient, plans, can, statuses }: Props) {
                           </td>
                           <td>{item.tooth_fdi ?? '-'}</td>
                           <td>{item.quantity}</td>
-                          <td className="text-right tabular-nums">
-                            {formatRupiah(item.estimate_amount)}
-                          </td>
+                          <td className="text-right">{formatRupiah(item.estimate_amount)}</td>
                           <td>
                             <Badge
                               tone={

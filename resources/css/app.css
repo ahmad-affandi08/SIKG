@@ -349,7 +349,6 @@ main table th {
   color: var(--color-muted);
 }
 main table td {
-  font-variant-numeric: tabular-nums;
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid var(--color-line-soft);
   vertical-align: middle;

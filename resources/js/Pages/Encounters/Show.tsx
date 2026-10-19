@@ -176,7 +176,7 @@ export default function Show(props: Props) {
             </div>
 
             {encounter.is_closed ? (
-              <p className="text-muted border-b border-[#d5d5d5] px-3 py-1.5">
+              <p className="text-muted border-line-soft border-b px-3 py-1.5">
                 Kunjungan ditutup{' '}
                 {encounter.closed_at ? formatDateTime(encounter.closed_at, timezone) : ''}.
                 Perubahan hanya lewat perbaikan 2x24 jam oleh dokter atau addendum.
@@ -371,11 +371,11 @@ function QueuePane({ currentPatientId }: { currentPatientId: string }) {
             </>
           );
           return (
-            <li key={item.id} className="border-b border-[#d5d5d5]">
+            <li key={item.id} className="border-line-soft border-b">
               {openable && !current ? (
                 <button
                   type="button"
-                  className="flex w-full items-start gap-2 px-2 py-1 text-left hover:bg-[#e4eefa]"
+                  className="hover:bg-brand-50 flex w-full items-start gap-2 px-2 py-1 text-left"
                   onClick={() => {
                     router.post('/encounters', { appointment_id: item.id });
                   }}

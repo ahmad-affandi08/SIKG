@@ -11,7 +11,7 @@ function MetricGrid({ metrics }: { metrics: Report['metrics'] }) {
       {metrics.map((metric) => (
         <div key={metric.label} className="pane">
           <dt className="pane-head">{metric.label}</dt>
-          <dd className="p-2 text-lg font-semibold tabular-nums">
+          <dd className="p-2 text-lg font-semibold">
             {metric.value === null ? '-' : formatCell(metric.kind, metric.value)}
           </dd>
         </div>
@@ -54,7 +54,7 @@ function DataTable({ table }: { table: ReportTable }) {
                   {table.columns.map((column) => (
                     <td
                       key={column.key}
-                      className={isNumericKind(column.kind) ? 'text-right tabular-nums' : undefined}
+                      className={isNumericKind(column.kind) ? 'text-right' : undefined}
                     >
                       {formatCell(column.kind, row[column.key] ?? null)}
                     </td>
@@ -68,7 +68,7 @@ function DataTable({ table }: { table: ReportTable }) {
                   {table.columns.map((column) => (
                     <td
                       key={column.key}
-                      className={isNumericKind(column.kind) ? 'text-right tabular-nums' : undefined}
+                      className={isNumericKind(column.kind) ? 'text-right' : undefined}
                     >
                       {formatCell(column.kind, table.totals?.[column.key] ?? null)}
                     </td>

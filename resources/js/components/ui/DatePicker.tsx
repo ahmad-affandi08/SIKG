@@ -198,7 +198,7 @@ export function DatePicker({
             onPick={pick}
             focusOnMount
           />
-          <div className="mt-2 flex justify-between border-t border-[#ddd] pt-2">
+          <div className="border-line-soft mt-2 flex justify-between border-t pt-2">
             <button
               type="button"
               className="btn btn-secondary"

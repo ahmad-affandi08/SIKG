@@ -91,9 +91,9 @@ export default function Index({ roles, modules }: Props) {
 
         <div className="grid gap-3 lg:grid-cols-[16rem_minmax(0,1fr)]">
           <nav aria-label="Daftar peran">
-            <ul className="flex flex-col border border-[#8f8f8f]">
+            <ul className="border-line-soft flex flex-col overflow-hidden rounded-xl border">
               {roles.map((role) => (
-                <li key={role.value} className="border-b border-[#c8c8c8] last:border-b-0">
+                <li key={role.value} className="border-line-soft border-b last:border-b-0">
                   <button
                     type="button"
                     aria-current={role.value === activeValue ? 'true' : undefined}
@@ -101,7 +101,7 @@ export default function Index({ roles, modules }: Props) {
                       setActiveValue(role.value);
                     }}
                     className={`flex w-full items-center justify-between gap-2 px-2 py-1.5 text-left text-sm ${
-                      role.value === activeValue ? 'bg-brand-700 text-white' : 'hover:bg-[#ececec]'
+                      role.value === activeValue ? 'bg-brand-700 text-white' : 'hover:bg-chrome'
                     }`}
                   >
                     <span className="font-medium">{role.label}</span>

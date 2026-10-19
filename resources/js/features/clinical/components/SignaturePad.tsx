@@ -104,7 +104,7 @@ export function SignaturePad({ label, onChange, error }: SignaturePadProps) {
         height={HEIGHT}
         role="img"
         aria-label={`${label}: kotak untuk menggambar tanda tangan dengan jari atau pena`}
-        className="max-w-full touch-none rounded border border-[#b9b9b9] bg-white"
+        className="border-line max-w-full touch-none rounded border bg-white"
         style={{
           width: WIDTH,
           height: 'auto',

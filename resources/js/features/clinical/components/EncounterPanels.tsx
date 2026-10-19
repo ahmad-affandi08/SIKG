@@ -614,7 +614,7 @@ export function AddendumPanel({
       ) : null}
       <ul className="flex flex-col">
         {addenda.map((note) => (
-          <li key={note.id} className="border-b border-[#ddd] py-3">
+          <li key={note.id} className="border-line-soft border-b py-3">
             <p className="text-sm">{note.body}</p>
             <p className="text-muted text-xs">
               {note.author}, {formatDateTime(note.authored_at, timezone)}. Alasan: {note.reason}
