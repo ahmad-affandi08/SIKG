@@ -14,7 +14,7 @@ use Src\Shared\Application\Notifications\StaffAlerts;
 /**
  * JDW-07: ringkasan janji untuk pemilik dan staf klinik, bukan pesan ke pasien. Ringkasan janji besok terbit mulai pukul 09.00
  * hari sebelumnya dan ringkasan janji hari ini mulai pukul 07.00, masing-masing sekali per hari (dedupe) lewat notifikasi dalam
- * aplikasi dan diteruskan ke email atau Telegram klinik. Isinya hanya jumlah dan jam pertama, tanpa nama pasien (M11), sehingga
+ * aplikasi dan diteruskan ke WhatsApp staf klinik. Isinya hanya jumlah dan jam pertama, tanpa nama pasien (M11), sehingga
  * aman diteruskan. Staf membuka jadwal untuk menghubungi pasien sendiri bila perlu. Hanya bila klinik mengaktifkan pengingat.
  */
 final readonly class AppointmentDigest

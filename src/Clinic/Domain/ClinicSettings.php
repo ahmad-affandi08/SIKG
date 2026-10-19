@@ -6,11 +6,12 @@ namespace Src\Clinic\Domain;
 
 use InvalidArgumentException;
 use Src\Shared\Domain\NumberPattern;
+use Src\Shared\Domain\WhatsAppNumber;
 
 /**
  * Pengaturan klinik (SYS-04, AUTH-04, KSR-02): format nomor RM dan invoice, jam operasional per hari, batas sesi tidak aktif,
  * batas diskon per peran (persen bulat), tarif pajak tagihan (KSR-09, persen bulat, bawaan 0), serta tujuan notifikasi (SYS-05,
- * JDW-07): email staf, grup Telegram klinik, dan sakelar pengingat janji untuk pasien.
+ * JDW-07): nomor WhatsApp staf dan sakelar pengingat janji untuk pasien.
  * Zona waktu disimpan di kolom `clinics.timezone`. Hari: 1 = Senin sampai 7 = Minggu.
  */
 final readonly class ClinicSettings
@@ -19,12 +20,15 @@ final readonly class ClinicSettings
 
     public const MIN_SESSION_MINUTES = 5;
 
+    public const MAX_NOTIFY_NUMBERS = 5;
+
     /** Batas diskon bawaan per peran dalam persen; peran yang tidak tercantum tidak boleh memberi diskon. */
     public const DEFAULT_DISCOUNT_LIMITS = ['pemilik' => 100, 'admin' => 100, 'kasir' => 10];
 
     /**
      * @param  array<int, array{open: string, close: string}|null>  $operatingHours  null = tutup
      * @param  array<string, int>  $discountLimits  peran => batas diskon persen (0 sampai 100)
+     * @param  list<string>  $notifyWhatsapp  nomor WhatsApp staf penerima pemberitahuan (bentuk 628..., tanpa duplikat)
      */
     public function __construct(
         public int $sessionTimeoutMinutes,
@@ -33,15 +37,16 @@ final readonly class ClinicSettings
         public array $operatingHours,
         public array $discountLimits = self::DEFAULT_DISCOUNT_LIMITS,
         public int $taxPercent = 0,
-        public ?string $notifyEmail = null,
-        public ?string $telegramChatId = null,
+        public array $notifyWhatsapp = [],
         public bool $remindersEnabled = true,
     ) {
-        if ($notifyEmail !== null && filter_var($notifyEmail, FILTER_VALIDATE_EMAIL) === false) {
-            throw new InvalidArgumentException('Email notifikasi staf tidak valid.');
+        if (count($notifyWhatsapp) > self::MAX_NOTIFY_NUMBERS) {
+            throw new InvalidArgumentException('Nomor WhatsApp staf maksimal '.self::MAX_NOTIFY_NUMBERS.'.');
         }
-        if ($telegramChatId !== null && preg_match('/^-?\d{5,20}$/', $telegramChatId) !== 1) {
-            throw new InvalidArgumentException('ID obrolan Telegram harus berupa angka (grup biasanya diawali tanda minus).');
+        foreach ($notifyWhatsapp as $number) {
+            if (WhatsAppNumber::tryFrom($number)?->value !== $number) {
+                throw new InvalidArgumentException('Nomor WhatsApp staf harus nomor Indonesia (08..., 628..., atau +628...).');
+            }
         }
         if ($taxPercent < 0 || $taxPercent > 100) {
             throw new InvalidArgumentException('Tarif pajak harus antara 0 dan 100 persen.');
@@ -63,6 +68,31 @@ final readonly class ClinicSettings
                 throw new InvalidArgumentException('Jam buka harus lebih awal dari jam tutup (format HH:MM).');
             }
         }
+    }
+
+    /**
+     * Mengubah isian bebas (satu nomor per baris atau dipisah koma/titik koma) menjadi daftar nomor 628... tanpa duplikat.
+     *
+     * @param  list<string>  $inputs
+     * @return list<string>
+     *
+     * @throws InvalidArgumentException bila ada nomor yang tidak sah
+     */
+    public static function normalizeNumbers(array $inputs): array
+    {
+        $numbers = [];
+        foreach ($inputs as $input) {
+            foreach (preg_split('/[\r\n,;]+/', $input) ?: [] as $part) {
+                if (trim($part) === '') {
+                    continue;
+                }
+                $number = WhatsAppNumber::tryFrom($part)
+                    ?? throw new InvalidArgumentException('Nomor WhatsApp staf harus nomor Indonesia (08..., 628..., atau +628...).');
+                $numbers[$number->value] = $number->value;
+            }
+        }
+
+        return array_values($numbers);
     }
 
     public static function defaults(): self
@@ -109,8 +139,7 @@ final readonly class ClinicSettings
             operatingHours: $hours,
             discountLimits: $limits,
             taxPercent: isset($data['tax_percent']) ? (int) $data['tax_percent'] : $defaults->taxPercent,
-            notifyEmail: isset($data['notify_email']) && $data['notify_email'] !== '' ? (string) $data['notify_email'] : null,
-            telegramChatId: isset($data['telegram_chat_id']) && $data['telegram_chat_id'] !== '' ? (string) $data['telegram_chat_id'] : null,
+            notifyWhatsapp: isset($data['notify_whatsapp']) && is_array($data['notify_whatsapp']) ? array_values(array_map('strval', $data['notify_whatsapp'])) : [],
             remindersEnabled: ! isset($data['reminders_enabled']) || (bool) $data['reminders_enabled'],
         );
     }
@@ -127,8 +156,7 @@ final readonly class ClinicSettings
             'operating_hours' => $this->operatingHours,
             'discount_limits' => $this->discountLimits,
             'tax_percent' => $this->taxPercent,
-            'notify_email' => $this->notifyEmail,
-            'telegram_chat_id' => $this->telegramChatId,
+            'notify_whatsapp' => $this->notifyWhatsapp,
             'reminders_enabled' => $this->remindersEnabled,
         ];
     }

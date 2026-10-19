@@ -32,19 +32,11 @@ return [
     // Denyut cron/antrean dianggap terlambat setelah sekian detik (SYS-07). Naikkan bila cron hosting minimal 5 menit.
     'heartbeat_stale_seconds' => (int) env('SIKG_HEARTBEAT_STALE_SECONDS', 600),
 
-    // Surel penanggung jawab teknis untuk peringatan kesehatan (kosong = hanya dicatat di log).
-    'alert_email' => env('SIKG_ALERT_EMAIL'),
-
     // SYS-02: cadangan. Disk tujuan (bawaan lokal di storage/app/backups; arahkan ke disk lain bila tersedia), interval jatuh tempo
     // dalam jam (usulan 6 pada shared hosting tanpa binlog; 24 pada server), dan kunci enkripsi cadangan terpisah dari APP_KEY.
     'backup_disk' => env('SIKG_BACKUP_DISK', 'backup'),
     'backup_interval_hours' => (int) env('SIKG_BACKUP_INTERVAL_HOURS', 24),
     'backup_key' => env('BACKUP_KEY'),
-
-    // SYS-05, JDW-07: token bot Telegram (dari @BotFather) dan nama pengguna bot untuk tautan penautan pasien. Kosong berarti saluran
-    // Telegram mati; email memakai konfigurasi surel Laravel (MAIL_*). Token adalah rahasia: hanya lewat lingkungan (M13).
-    'telegram_bot_token' => env('TELEGRAM_BOT_TOKEN'),
-    'telegram_bot_username' => env('TELEGRAM_BOT_USERNAME'),
 
     // Kunci HMAC blind index NIK dan nomor HP (M11).
     'pii_hash_key' => env('PII_HASH_KEY'),

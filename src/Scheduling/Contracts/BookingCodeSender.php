@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Src\Scheduling\Contracts;
 
 /**
- * Pengirim kode verifikasi nomor HP untuk booking online (P3-01). Implementasi ada di konteks Integration (WhatsApp Business API
- * milik klinik). Tanpa WhatsApp API yang siap, `available()` bernilai salah dan booking menunggu konfirmasi staf.
+ * Pengirim kode verifikasi nomor HP untuk booking online (P3-01). Implementasi ada di konteks Integration (saluran WhatsApp
+ * pilihan klinik: Resmi atau tidak resmi). Tanpa saluran WhatsApp otomatis yang siap, `available()` bernilai salah dan booking menunggu konfirmasi staf.
  */
 interface BookingCodeSender
 {

@@ -14,7 +14,7 @@ use Src\Shared\Application\Notifications\StaffAlerts;
 
 /**
  * SYS-05: janji baru muncul sebagai pemberitahuan untuk pemegang izin appointment.view. Isinya tanpa nama pasien karena dapat
- * diteruskan ke email atau grup Telegram klinik.
+ * diteruskan ke WhatsApp staf klinik.
  */
 final readonly class NotifyAppointmentBooked
 {

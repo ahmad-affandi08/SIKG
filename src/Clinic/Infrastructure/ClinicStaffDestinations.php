@@ -8,21 +8,12 @@ use Src\Clinic\Infrastructure\Eloquent\ClinicModel;
 use Src\Shared\Application\Notifications\StaffDestinations;
 
 /**
- * Tujuan pemberitahuan staf dari pengaturan klinik (SYS-04): satu email dan satu grup Telegram.
+ * Tujuan pemberitahuan staf dari pengaturan klinik (SYS-04): nomor WhatsApp staf.
  */
 final class ClinicStaffDestinations implements StaffDestinations
 {
-    public function emails(): array
+    public function whatsappNumbers(): array
     {
-        $email = ClinicModel::query()->first()?->clinicSettings()->notifyEmail;
-
-        return $email === null ? [] : [$email];
-    }
-
-    public function telegramChatIds(): array
-    {
-        $chat = ClinicModel::query()->first()?->clinicSettings()->telegramChatId;
-
-        return $chat === null ? [] : [$chat];
+        return ClinicModel::query()->first()?->clinicSettings()->notifyWhatsapp ?? [];
     }
 }

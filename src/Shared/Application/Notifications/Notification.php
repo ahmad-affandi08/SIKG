@@ -6,8 +6,8 @@ namespace Src\Shared\Application\Notifications;
 
 /**
  * Satu pemberitahuan untuk staf (SYS-05). Ditujukan ke siapa pun yang memegang `permission`; `dedupeKey` mencegah
- * pemberitahuan yang sama terbit dua kali (mis. stok menipis hari ini). Tanpa PHI: judul dan isi juga dikirim ke email atau
- * Telegram klinik, jadi jangan memuat nama pasien, NIK, atau diagnosa.
+ * pemberitahuan yang sama terbit dua kali (mis. stok menipis hari ini). Tanpa PHI: judul dan isi juga dikirim ke WhatsApp
+ * staf klinik, jadi jangan memuat nama pasien, NIK, atau diagnosa.
  */
 final readonly class Notification
 {

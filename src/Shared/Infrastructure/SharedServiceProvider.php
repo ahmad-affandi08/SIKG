@@ -22,10 +22,8 @@ use Src\Shared\Application\Master\Import\MasterImportStore;
 use Src\Shared\Application\Master\Import\MasterRowValidator;
 use Src\Shared\Application\Master\Import\MasterSheet;
 use Src\Shared\Application\Master\MasterEntityRegistry;
-use Src\Shared\Application\Notifications\EmailSender;
 use Src\Shared\Application\Notifications\NotificationInbox;
 use Src\Shared\Application\Notifications\Notifier;
-use Src\Shared\Application\Notifications\TelegramSender;
 use Src\Shared\Application\PdfRenderer;
 use Src\Shared\Application\PiiProtector;
 use Src\Shared\Application\ResourceLock;
@@ -54,8 +52,6 @@ use Src\Shared\Infrastructure\Master\Import\LaravelMasterRowValidator;
 use Src\Shared\Infrastructure\Master\Import\PhpSpreadsheetMasterSheet;
 use Src\Shared\Infrastructure\Notifications\DatabaseNotificationInbox;
 use Src\Shared\Infrastructure\Notifications\DatabaseNotifier;
-use Src\Shared\Infrastructure\Notifications\LaravelEmailSender;
-use Src\Shared\Infrastructure\Notifications\TelegramBotSender;
 use Src\Shared\Infrastructure\Pdf\DompdfRenderer;
 use Src\Shared\Infrastructure\Preflight\PhpEnvironmentInspector;
 
@@ -67,8 +63,6 @@ final class SharedServiceProvider extends ServiceProvider
         $this->app->singleton(PdfRenderer::class, DompdfRenderer::class);
         $this->app->singleton(Notifier::class, DatabaseNotifier::class);
         $this->app->singleton(NotificationInbox::class, DatabaseNotificationInbox::class);
-        $this->app->singleton(EmailSender::class, LaravelEmailSender::class);
-        $this->app->singleton(TelegramSender::class, TelegramBotSender::class);
         $this->app->singleton(IdGenerator::class, UlidIdGenerator::class);
         $this->app->singleton(Transaction::class, DatabaseTransaction::class);
         $this->app->singleton(EventDispatcher::class, AfterCommitEventDispatcher::class);

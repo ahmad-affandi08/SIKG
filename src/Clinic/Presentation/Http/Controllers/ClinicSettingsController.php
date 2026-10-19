@@ -43,8 +43,7 @@ final class ClinicSettingsController
                 operatingHours: $this->hours((array) $data['operating_hours']),
                 discountLimits: array_map('intval', (array) $data['discount_limits']),
                 taxPercent: (int) $data['tax_percent'],
-                notifyEmail: $this->nullable($data['notify_email'] ?? null),
-                telegramChatId: $this->nullable($data['telegram_chat_id'] ?? null),
+                notifyWhatsapp: ClinicSettings::normalizeNumbers(array_values(array_map('strval', (array) ($data['notify_whatsapp'] ?? [])))),
                 remindersEnabled: (bool) ($data['reminders_enabled'] ?? true),
             );
         } catch (InvalidArgumentException $e) {
@@ -73,13 +72,6 @@ final class ClinicSettingsController
         $this->settings->removeHoliday($this->actorId($request), $holiday);
 
         return back()->with('success', 'Hari libur dihapus.');
-    }
-
-    private function nullable(mixed $value): ?string
-    {
-        $text = is_string($value) ? trim($value) : '';
-
-        return $text === '' ? null : $text;
     }
 
     private function actorId(Request $request): string
