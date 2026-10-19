@@ -9,7 +9,7 @@ interface ReminderSettingsRepository
     public function get(): ReminderSettings;
 
     /**
-     * Menyimpan pengaturan. `$apiToken` null berarti token lama dipertahankan.
+     * Menyimpan isi pengingat (jenis, templat, jarak kontrol). Saluran WhatsApp disimpan terpisah lewat `saveChannel`.
      *
      * @param  array<string, string|null>  $templates
      * @param  array<string, string|null>  $apiTemplates
@@ -17,16 +17,27 @@ interface ReminderSettingsRepository
     public function save(
         string $actorId,
         bool $enabled,
-        string $mode,
         bool $dayBefore,
         bool $sameDay,
         bool $recall,
         int $recallMonths,
         array $templates,
-        ?string $apiPhoneNumberId,
-        ?string $apiToken,
         array $apiTemplates,
-        string $apiLanguage,
+    ): void;
+
+    /**
+     * Menyimpan saluran WhatsApp. `$replaceToken` false mempertahankan token lama; true menggantinya dengan `$token` (null = hapus).
+     */
+    public function saveChannel(
+        string $actorId,
+        WhatsAppProvider $provider,
+        ?string $phoneNumberId,
+        ?string $token,
+        bool $replaceToken,
+        ?string $baseUrl,
+        ?string $session,
+        string $language,
+        ?string $staffTemplate,
     ): void;
 
     public function hasToken(): bool;

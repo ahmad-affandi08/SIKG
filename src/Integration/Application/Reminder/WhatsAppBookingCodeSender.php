@@ -4,34 +4,39 @@ declare(strict_types=1);
 
 namespace Src\Integration\Application\Reminder;
 
+use Src\Clinic\Contracts\LetterheadProvider;
 use Src\Integration\Domain\Reminder\ReminderSettingsRepository;
 use Src\Integration\Domain\Reminder\WhatsAppFailure;
 use Src\Scheduling\Contracts\BookingCodeNotSent;
 use Src\Scheduling\Contracts\BookingCodeSender;
 
 /**
- * P3-01: kode verifikasi booking online dikirim lewat WhatsApp Business API milik klinik (pengaturan yang sama dengan pengingat P2-03,
- * mode `api`). Tanpa kredensial API, tidak ada pengiriman dan booking menunggu konfirmasi staf. Kode tidak ditulis ke log.
+ * P3-01: kode verifikasi booking online dikirim lewat saluran WhatsApp klinik (pengaturan yang sama dengan pengingat dan pemberitahuan
+ * staf): templat bagi WhatsApp Resmi, teks biasa bagi penyedia tidak resmi. Tanpa saluran otomatis, tidak ada pengiriman dan booking
+ * menunggu konfirmasi staf. Kode tidak ditulis ke log.
  */
 final readonly class WhatsAppBookingCodeSender implements BookingCodeSender
 {
-    public function __construct(private ReminderSettingsRepository $settings, private WhatsAppGateway $gateway) {}
+    public function __construct(
+        private ReminderSettingsRepository $settings,
+        private WhatsAppMessenger $messenger,
+        private LetterheadProvider $letterhead,
+    ) {}
 
     public function available(): bool
     {
-        $settings = $this->settings->get();
-
-        return $settings->isApi() && $settings->apiReady();
+        return $this->settings->get()->channel->ready();
     }
 
     public function send(string $phone, string $code, string $template): void
     {
-        $settings = $this->settings->get();
-        if (! $settings->isApi() || ! $settings->apiReady()) {
-            throw new BookingCodeNotSent('WhatsApp Business API belum disiapkan.');
+        $channel = $this->settings->get()->channel;
+        if (! $channel->ready()) {
+            throw new BookingCodeNotSent('Saluran WhatsApp belum disiapkan.');
         }
+        $text = "Kode verifikasi booking {$this->letterhead->forDocument()->clinicName}: {$code}. Jangan bagikan kode ini kepada siapa pun.";
         try {
-            $this->gateway->sendTemplate($settings, $phone, $template, [$code]);
+            $this->messenger->deliver($channel, $phone, $text, $template, [$code]);
         } catch (WhatsAppFailure $e) {
             throw new BookingCodeNotSent($e->getMessage(), 0, $e);
         }

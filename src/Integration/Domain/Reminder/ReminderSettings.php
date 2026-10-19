@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Src\Integration\Domain\Reminder;
 
 /**
- * Pengaturan pengingat satu klinik. Mode `link`: pengingat disiapkan dan petugas membuka WhatsApp dengan satu klik (gratis).
- * Mode `api`: pengingat dikirim otomatis lewat WhatsApp Business API milik klinik (berbiaya sesuai penyedia). `apiToken`
- * berisi nilai terdekripsi dan tidak boleh ditulis ke log atau layar.
+ * Pengaturan pengingat satu klinik. Saluran `link`: pengingat disiapkan dan petugas membuka WhatsApp dengan satu klik (gratis).
+ * Saluran otomatis: dikirim lewat WhatsApp Resmi (Meta, berbasis templat) atau penyedia tidak resmi (teks biasa) sesuai
+ * `channel`. Token saluran berisi nilai terdekripsi dan tidak boleh ditulis ke log atau layar.
  */
 final readonly class ReminderSettings
 {
@@ -17,35 +17,38 @@ final readonly class ReminderSettings
 
     /**
      * @param  array<string, string|null>  $templates  kind => templat kustom
-     * @param  array<string, string|null>  $apiTemplates  kind => nama templat WhatsApp yang disetujui
+     * @param  array<string, string|null>  $apiTemplates  kind => nama templat WhatsApp Resmi (Meta) yang disetujui
      */
     public function __construct(
         public bool $enabled,
-        public string $mode,
         public bool $dayBefore,
         public bool $sameDay,
         public bool $recall,
         public int $recallMonths,
         public array $templates,
-        public ?string $apiPhoneNumberId,
-        public ?string $apiToken,
         public array $apiTemplates,
-        public string $apiLanguage,
+        public WhatsAppChannel $channel,
     ) {}
 
     public static function empty(): self
     {
-        return new self(false, self::MODE_LINK, true, true, true, 6, [], null, null, [], 'id');
+        return new self(false, true, true, true, 6, [], [], WhatsAppChannel::manual());
+    }
+
+    /** Pengiriman otomatis lewat API (`api`) atau tautan manual (`link`). */
+    public function mode(): string
+    {
+        return $this->channel->automatic() ? self::MODE_API : self::MODE_LINK;
     }
 
     public function isApi(): bool
     {
-        return $this->mode === self::MODE_API;
+        return $this->channel->automatic();
     }
 
     public function apiReady(): bool
     {
-        return $this->apiPhoneNumberId !== null && $this->apiToken !== null;
+        return $this->channel->ready();
     }
 
     public function kindEnabled(ReminderKind $kind): bool

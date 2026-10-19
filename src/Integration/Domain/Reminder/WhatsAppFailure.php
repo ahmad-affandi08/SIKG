@@ -7,7 +7,7 @@ namespace Src\Integration\Domain\Reminder;
 use RuntimeException;
 
 /**
- * Galat saat berbicara dengan WhatsApp Business API. Pesannya sudah dibersihkan dari nomor, nama, dan token sehingga aman disimpan.
+ * Galat saat berbicara dengan penyedia WhatsApp. Pesannya sudah dibersihkan dari nomor, nama, dan token sehingga aman disimpan.
  */
 final class WhatsAppFailure extends RuntimeException
 {

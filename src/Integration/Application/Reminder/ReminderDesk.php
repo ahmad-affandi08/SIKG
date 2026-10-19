@@ -79,7 +79,7 @@ final readonly class ReminderDesk
 
         return [
             'enabled' => $settings->enabled,
-            'mode' => $settings->mode,
+            'mode' => $settings->mode(),
             'pending' => $pendingRows,
             'history' => array_map($row, $history),
             'optouts' => array_map(fn (string $id) => ['patient_id' => $id, 'patient_name' => $summaries[$id]->name ?? '-', 'medical_record_no' => $summaries[$id]->medicalRecordNo ?? '-'], $optouts),
