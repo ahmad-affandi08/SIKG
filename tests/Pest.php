@@ -23,8 +23,7 @@ use Src\IdentityAccess\Infrastructure\Seeders\RolePermissionSeeder;
 use Src\Pharmacy\Application\StockService;
 use Src\Pharmacy\Infrastructure\Eloquent\MedicineModel;
 use Src\Scheduling\Infrastructure\Eloquent\AppointmentModel;
-use Src\Shared\Application\Notifications\EmailSender;
-use Src\Shared\Application\Notifications\TelegramSender;
+use Src\Shared\Application\Notifications\StaffWhatsApp;
 use Src\Shared\Application\PdfRenderer;
 use Src\Shared\Application\PdfRequest;
 use Src\Shared\Application\TenantContext;
@@ -314,68 +313,42 @@ function isiKop(ClinicModel $klinik): array
 }
 
 /**
- * SYS-05, JDW-07: perekam pengiriman email dan Telegram. `configured` mensimulasikan ada tidaknya konfigurasi saluran.
+ * SYS-05, JDW-07: perekam pengiriman WhatsApp staf. `configured` mensimulasikan ada tidaknya saluran WhatsApp yang lengkap.
  */
 final class KirimPerekam
 {
-    /** @var list<array{to: string, subject: string, body: string}> */
-    public static array $email = [];
+    /** @var list<array{phone: string, title: string, body: string}> */
+    public static array $whatsapp = [];
 
-    /** @var list<array{chat: string, text: string}> */
-    public static array $telegram = [];
-
-    public static bool $emailOn = true;
-
-    public static bool $telegramOn = true;
+    public static bool $whatsappOn = true;
 
     public static bool $gagal = false;
 }
 
-final class EmailPerekam implements EmailSender
+final class WhatsAppStafPerekam implements StaffWhatsApp
 {
     public function configured(): bool
     {
-        return KirimPerekam::$emailOn;
+        return KirimPerekam::$whatsappOn;
     }
 
-    public function send(string $to, string $subject, string $body): bool
+    public function send(string $phone, string $title, string $body): bool
     {
         if (KirimPerekam::$gagal) {
             return false;
         }
-        KirimPerekam::$email[] = ['to' => $to, 'subject' => $subject, 'body' => $body];
+        KirimPerekam::$whatsapp[] = ['phone' => $phone, 'title' => $title, 'body' => $body];
 
         return true;
     }
 }
 
-final class TelegramPerekam implements TelegramSender
+function rekamKirim(bool $whatsapp = true): void
 {
-    public function configured(): bool
-    {
-        return KirimPerekam::$telegramOn;
-    }
-
-    public function send(string $chatId, string $text): bool
-    {
-        if (KirimPerekam::$gagal) {
-            return false;
-        }
-        KirimPerekam::$telegram[] = ['chat' => $chatId, 'text' => $text];
-
-        return true;
-    }
-}
-
-function rekamKirim(bool $email = true, bool $telegram = true): void
-{
-    KirimPerekam::$email = [];
-    KirimPerekam::$telegram = [];
-    KirimPerekam::$emailOn = $email;
-    KirimPerekam::$telegramOn = $telegram;
+    KirimPerekam::$whatsapp = [];
+    KirimPerekam::$whatsappOn = $whatsapp;
     KirimPerekam::$gagal = false;
-    app()->instance(EmailSender::class, new EmailPerekam);
-    app()->instance(TelegramSender::class, new TelegramPerekam);
+    app()->instance(StaffWhatsApp::class, new WhatsAppStafPerekam);
 }
 
 /**

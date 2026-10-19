@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Src\Integration\Domain\Reminder\ReminderKind;
 use Src\Integration\Domain\Reminder\ReminderMessage;
 use Src\Integration\Domain\Reminder\ReminderSettings;
+use Src\Integration\Domain\Reminder\WhatsAppChannel;
+use Src\Integration\Domain\Reminder\WhatsAppProvider;
 
 it('P2-03 pesan dirakit dari templat dengan penanda terisi', function () {
     $pesan = ReminderMessage::render('Yth. {nama}, jadwal {tanggal} pukul {jam} dengan {dokter} di {klinik}.', ['nama' => 'Budi', 'tanggal' => '17/06/2025', 'jam' => '09:00', 'dokter' => 'drg. Sari', 'klinik' => 'Klinik Uji']);
@@ -40,12 +42,12 @@ it('P2-03 parameter templat API sesuai jenis dan setiap parameter punya penanda'
 });
 
 it('P2-03 pengaturan memilih templat kustom atau bawaan dan menandai kesiapan API', function () {
-    $s = new ReminderSettings(true, 'api', true, false, true, 6, ['h1' => '  ', 'h0' => 'Kustom {nama}'], '123', 'token', ['h1' => 'pengingat_h1'], 'id');
+    $s = new ReminderSettings(true, true, false, true, 6, ['h1' => '  ', 'h0' => 'Kustom {nama}'], ['h1' => 'pengingat_h1'], new WhatsAppChannel(WhatsAppProvider::Meta, '123', 'token', null, null, 'id', null));
 
     expect($s->template(ReminderKind::DayBefore))->toBe(ReminderKind::DayBefore->defaultTemplate())
         ->and($s->template(ReminderKind::SameDay))->toBe('Kustom {nama}')
         ->and($s->kindEnabled(ReminderKind::SameDay))->toBeFalse()
         ->and($s->apiTemplate(ReminderKind::DayBefore))->toBe('pengingat_h1')->and($s->apiTemplate(ReminderKind::Recall))->toBeNull()
-        ->and($s->isApi())->toBeTrue()->and($s->apiReady())->toBeTrue()
+        ->and($s->isApi())->toBeTrue()->and($s->apiReady())->toBeTrue()->and($s->mode())->toBe('api')
         ->and(ReminderSettings::empty()->apiReady())->toBeFalse();
 });
