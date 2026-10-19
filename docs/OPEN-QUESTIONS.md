@@ -277,6 +277,15 @@ Pertanyaan bisnis untuk pemilik klinik ada di `docs/PRD/09-risiko-pertanyaan-ter
 - Rekomendasi: (a), dengan WhatsApp Resmi bagi klinik yang mengutamakan kepatuhan
 - Keputusan: (a), diminta langsung oleh pengguna di sesi ini.
 
+### Q-33: Penggantian nama merek SIKG menjadi SIKLIN (nama tampilan saja)
+- Kebutuhan terkait: tidak ada ID PRD; M14 (kerjakan hanya yang ada di PRD), M16 (berkas terlindungi)
+- Dokumen yang bertabrakan atau kurang: seluruh PRD, `CLAUDE.md`, aturan, dan skrip menyebut "SIKG" dan "Sistem Informasi Klinik Gigi"; berkas itu terlindungi sehingga tidak diubah Claude Code
+- Yang dikerjakan: lihat ADR-0014. Hanya nama tampilan; perintah `sikg:*`, variabel `SIKG_*`, `config/sikg.php`, dan format cadangan tetap
+- Hal yang perlu diketahui pengguna: (1) merek belum diperiksa di DJKI (kelas 9 dan 42) dan domain `.id` belum diperiksa di pandi.id; (2) judul dan istilah di berkas terlindungi perlu Anda perbarui sendiri lalu segel ulang; (3) akun autentikator lama tetap berlabel SIKG; (4) cakupan klinik umum dan rawat inap belum dikerjakan dan akan dicatat sebagai Q-34 bila disetujui
+- Opsi: (a) pertahankan keputusan di atas; (b) ganti juga identitas teknis lewat jalur migrasi terpisah
+- Rekomendasi: (a)
+- Keputusan: (a), diminta langsung oleh pengguna di sesi ini.
+
 ### Q-7: Tabel pengguna bawaan skeleton Laravel
 - Kebutuhan terkait: AUTH-01, M3
 - Dokumen yang bertabrakan atau kurang: migrasi `users` dan `sessions` bawaan memakai kunci angka, tanpa ULID, `clinic_id`, dan `branch_id`
