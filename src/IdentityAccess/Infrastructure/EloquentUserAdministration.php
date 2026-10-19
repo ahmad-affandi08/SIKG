@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Src\Clinic\Contracts\BranchDirectory;
+use Src\Clinic\Contracts\ServiceProfileLookup;
 use Src\IdentityAccess\Application\Users\UserAdministration;
 use Src\IdentityAccess\Application\Users\UserCredential;
 use Src\IdentityAccess\Application\Users\UserData;
@@ -29,6 +30,7 @@ final readonly class EloquentUserAdministration implements UserAdministration
         private Transaction $tx,
         private AuditLogger $audit,
         private BranchDirectory $branches,
+        private ServiceProfileLookup $profile,
     ) {}
 
     public function list(string $actorId): array
@@ -80,7 +82,7 @@ final readonly class EloquentUserAdministration implements UserAdministration
 
         return array_values(collect(Role::cases())
             ->filter(fn (Role $r) => $r !== Role::Pemilik || $canGiveOwner)
-            ->map(fn (Role $r) => ['value' => $r->value, 'label' => $r->label()])
+            ->map(fn (Role $r) => ['value' => $r->value, 'label' => $r->label($this->profile->current())])
             ->all());
     }
 
