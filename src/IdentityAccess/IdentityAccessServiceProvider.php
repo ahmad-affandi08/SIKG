@@ -35,6 +35,7 @@ use Src\Shared\Application\AuditLogger;
 use Src\Shared\Application\Clock;
 use Src\Shared\Application\Setup\SetupRegistry;
 use Src\Shared\Application\Transaction;
+use Src\Shared\Domain\Brand;
 
 final class IdentityAccessServiceProvider extends ServiceProvider
 {
@@ -51,7 +52,7 @@ final class IdentityAccessServiceProvider extends ServiceProvider
         $this->app->bind(TwoFactorVerifier::class, fn ($app) => new TwoFactorVerifier($app->make(TwoFactorStore::class), $app->make(Clock::class), (string) config('app.key')));
         $this->app->bind(TwoFactorSetup::class, fn ($app) => new TwoFactorSetup(
             $app->make(TwoFactorStore::class), $app->make(TwoFactorVerifier::class), $app->make(AuditLogger::class),
-            $app->make(Transaction::class), $app->make(Clock::class), 'SIKG',
+            $app->make(Transaction::class), $app->make(Clock::class), Brand::NAME,
         ));
     }
 

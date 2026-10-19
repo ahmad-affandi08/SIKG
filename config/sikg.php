@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * Konfigurasi khusus SIKG. `env()` hanya dipanggil dari config/ agar `config:cache` benar (docs/rules/hosting.md butir 12).
+ * Konfigurasi khusus aplikasi (nama berkas dan kunci `sikg` adalah identitas teknis, bukan nama merek; lihat ADR-0014). `env()` hanya dipanggil dari config/ agar `config:cache` benar (docs/rules/hosting.md butir 12).
  */
 return [
     // 'shared' (shared hosting) atau 'server' (VPS). Hanya mengubah bawaan operasional, bukan aturan domain.

@@ -13,6 +13,7 @@ use Src\Shared\Application\AuditEntry;
 use Src\Shared\Application\AuditLogger;
 use Src\Shared\Application\Notifications\StaffDestinations;
 use Src\Shared\Application\Transaction;
+use Src\Shared\Domain\Brand;
 use Src\Shared\Domain\WhatsAppNumber;
 
 /**
@@ -143,10 +144,10 @@ final readonly class WhatsAppAdministration
             return ['ok' => false, 'message' => 'Saluran WhatsApp belum lengkap. Simpan pengaturan lebih dulu.'];
         }
 
-        $title = 'Uji SIKG';
-        $body = 'Pesan uji dari pengaturan WhatsApp SIKG. Bila Anda menerimanya, saluran sudah berfungsi.';
+        $title = 'Uji '.Brand::NAME;
+        $body = 'Pesan uji dari pengaturan WhatsApp '.Brand::NAME.'. Bila Anda menerimanya, saluran sudah berfungsi.';
         try {
-            $this->messenger->deliver($channel, $number->value, "[SIKG] {$title}\n{$body}", $channel->staffTemplate, [$title, $body]);
+            $this->messenger->deliver($channel, $number->value, '['.Brand::NAME."] {$title}\n{$body}", $channel->staffTemplate, [$title, $body]);
         } catch (WhatsAppFailure $e) {
             $this->recordTest($actorId, $number, false);
 

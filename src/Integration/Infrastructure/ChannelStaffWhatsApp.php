@@ -9,6 +9,7 @@ use Src\Integration\Application\Reminder\WhatsAppMessenger;
 use Src\Integration\Domain\Reminder\ReminderSettingsRepository;
 use Src\Integration\Domain\Reminder\WhatsAppFailure;
 use Src\Shared\Application\Notifications\StaffWhatsApp;
+use Src\Shared\Domain\Brand;
 
 /**
  * Pemberitahuan staf lewat saluran WhatsApp klinik: templat dua parameter (judul, isi) bagi WhatsApp Resmi, teks biasa bagi
@@ -33,7 +34,7 @@ final readonly class ChannelStaffWhatsApp implements StaffWhatsApp
         }
 
         try {
-            $this->messenger->deliver($channel, $phone, "[SIKG] {$title}\n{$body}", $channel->staffTemplate, [$title, $body]);
+            $this->messenger->deliver($channel, $phone, '['.Brand::NAME."] {$title}\n{$body}", $channel->staffTemplate, [$title, $body]);
 
             return true;
         } catch (WhatsAppFailure $e) {
