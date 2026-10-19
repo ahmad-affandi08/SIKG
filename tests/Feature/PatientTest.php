@@ -307,11 +307,11 @@ it('PAS-01 pasien klinik lain tidak dapat dibuka, diubah, atau diarsipkan', func
     $this->actingAs($adminB)->post("/patients/{$id}/history", ['type' => 'allergy', 'name' => 'X'])->assertNotFound();
 });
 
-it('PAS-01 halaman pasien menyamarkan NIK pada tampilan dan menampilkannya penuh di formulir ubah', function () {
+it('PAS-01 halaman pasien dan formulir ubah menampilkan NIK penuh', function () {
     $admin = makeUser(Role::Admin);
     $id = daftarkan($this, $admin);
 
-    $this->actingAs($admin)->get("/patients/{$id}")->assertInertia(fn ($p) => $p->where('patient.nik', '************0001'));
+    $this->actingAs($admin)->get("/patients/{$id}")->assertInertia(fn ($p) => $p->where('patient.nik', '9999010101900001'));
     $this->actingAs($admin)->get("/patients/{$id}/edit")->assertInertia(fn ($p) => $p->component('Patients/Form')->where('patient.nik', '9999010101900001'));
 });
 

@@ -66,7 +66,7 @@ final class PatientController
         $canUpdate = (bool) $request->user()?->can('patient.update');
 
         return Inertia::render('Patients/Show', [
-            'patient' => $this->present($data['patient'], mask: true),
+            'patient' => $this->present($data['patient']),
             'histories' => array_map(fn ($h) => $h->toArray(), $data['histories']),
             'consents' => array_map(fn ($c) => [
                 'version' => $c->version,
@@ -91,7 +91,7 @@ final class PatientController
 
         return Inertia::render('Patients/Form', [
             'required' => RequiredFields::from(PatientRequest::createFrom($request)->rules()),
-            'patient' => $this->present($data['patient'], mask: false),
+            'patient' => $this->present($data['patient']),
             'consent' => null,
             ...$this->options(),
         ]);
@@ -150,7 +150,7 @@ final class PatientController
     /**
      * @return array<string, mixed>
      */
-    private function present(PatientRecord $record, bool $mask): array
+    private function present(PatientRecord $record): array
     {
         $p = $record->profile;
 
@@ -158,7 +158,7 @@ final class PatientController
             'id' => $record->id,
             'medical_record_no' => $record->medicalRecordNo,
             'name' => $p->name,
-            'nik' => $p->nik === null ? null : ($mask ? $p->nik->masked() : $p->nik->value),
+            'nik' => $p->nik?->value,
             'nik_missing_reason' => $p->nikMissingReason,
             'birth_date' => $p->birthDate->format('Y-m-d'),
             'sex' => $p->sex->value,
